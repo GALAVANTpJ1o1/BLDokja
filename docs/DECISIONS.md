@@ -135,3 +135,64 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Allowed.** The same letter may appear on a corner and on an edge (Speffz does this everywhere), because memo never mixes piece types.
 - **Letters** are single grapheme clusters. Non-Latin letters are allowed; whitespace and multi-character strings are rejected.
 - **Wings and x-centers** need exactly one lettered sticker per piece. Corners and edges need every sticker lettered.
+
+## D-012 · Tracing conventions
+
+**Status:** accepted as engine conventions. Open to review at Gate A, since the golden fixtures encode them.
+
+- **Model.** Tracing follows the virtual swap:
+  - read the sticker in the buffer slot and shoot it home;
+  - the piece displaced from there becomes the new buffer contents;
+  - when the buffer piece comes home, break into a new cycle.
+- **Break choice.** `breakOrder: "scheme"` by default: the lowest letter, by code point, among stickers of unsolved non-buffer pieces. A priority list of sticker names can override it, falling back to letter order.
+  - The brief only says "the next unsolved piece". This default is deterministic, and it matches how the reference sites break.
+- **Twisted and flipped pieces.** Two policies:
+  - `orientedInPlace: "separate"` (default): reported in `twisted`/`flipped` and never chosen as break targets.
+  - `"asTargets"` (J Perm's beginner approach): traced as a two-target orientation cycle.
+  - Which policy each method uses by default is decided at Gate B.
+- **Reporting a misoriented piece.**
+  - It is named by the slot where its U/D sticker now shows. E-slice edges use their F/B sticker.
+  - Its direction is geometric: clockwise if that sticker moved to the next face clockwise, seen from outside the corner. For example, UFR clockwise shows its U colour on the R face, which is Speffz M.
+  - The list is in letter order, with the buffer last.
+- **Pairs** run straight across cycle boundaries. Only the final odd target is left single.
+- **Parity** is the permutation parity of the piece type's actual pieces. Tests assert it equals `targetCount % 2`.
+- **`solvedPieces`** holds piece names, not letters, because a letter names a sticker.
+- **Additive fields.** On top of the brief's `TraceResult`: `targetStickers`, `targetKinds` (`normal | cycleBreak | cycleClose | orientationTarget`), `cycles`, `orientedInPlace` and `buffer`. Phase 6's trace diagnostics need `targetKinds`.
+- **Verification.**
+  - **Golden fixtures (54):** 44 constructed from hand-written targets, plus 10 real scrambles traced by hand from colour nets.
+  - **Differential test:** an independent colour-reading oracle, over 62,720 traces.
+  - **Properties:** 1,500 random cases.
+
+## D-013 · Same-letter pairs can never occur: the library has 552 usable pairs (DRAFT)
+
+**Status:** draft, waiting for your review at Gate A. Evidence is in [reports/letter-pair-reachability.md](reports/letter-pair-reachability.md).
+
+- **Question.** The old app treats the grid as 552 pairs; BRIEF §7.4 says 576. AUDIT C6 and MIGRATION §3.2 deferred the question to the engine.
+- **Result, computed.** No same-letter pair appears in any trace, for any buffer, either orientation policy, 3x3x3 corners and edges, and 4x4x4 corners and wings.
+  - All 104 buffer-piece/policy configurations reach 0 of the 24 diagonal cells.
+  - `test/trace/letter-pairs.test.ts` enforces the underlying invariants on 160,000 3x3 traces and 57,600 4x4 traces:
+    1. consecutive targets are never the same sticker;
+    2. a target is never on the buffer piece;
+    3. under `separate`, consecutive targets are never on the same piece.
+  - Because D-011 makes letters unique within a piece type, (1) rules out the diagonal.
+- **Further finding: for a fixed pair of buffers, some distinct-letter pairs can't occur either.**
+  - Any pair containing a buffer-piece letter is impossible. So is any pair of two stickers of one piece, except the opening of an `asTargets` orientation cycle.
+  - Corners and edges together on 3x3x3 reach **494–526 of 552** (`separate`), depending on the buffer pieces.
+  - A corner buffer and an edge buffer that share a Speffz letter lose every pair containing that letter. UFR and UF share C, so all 46 C-pairs are impossible and the count drops to 494. UBL/UR reaches 526.
+- **Occurrence is far from uniform.** In 10,000 random-state traces (UFR corners), the most common corner pair occurs about 12× as often as the rarest reachable one: 370 vs 31, against 85 if uniform.
+- **Proposed consequences:**
+  1. **The library.** It is "complete" at **552** pairs. The 24×24 grid shows the diagonal as "can't occur in a trace", not as missing. The schema may still store same-letter pairs (MIGRATION §3.2), but nothing in the app offers or generates them.
+  2. **Drills (Phase 4).** They never offer same-letter pairs. Pairs that can't occur for the user's current buffers and policy stay in the library (buffers can change), but drills and the gap finder weight pairs by how often they actually occur. The engine can compute both the reachable set and the frequencies.
+  3. **Scheme validation.** Duplicate letters within a piece type stay an error (D-011); the result above depends on it.
+  4. **Buffer choice.** Gate B's buffer comparison includes the combined reachable-pair count, because shared letters between corner and edge buffers cost pairs.
+
+## D-014 · 4x4x4 tracing in Phase 1 uses a fixed frame; any later reference policy must be a rotation
+
+**Status:** accepted (Phase 1 plan review)
+
+- **Phase 1 frame.** 4x4x4 traces take `frame: { kind: "asIs" }` explicitly; without a frame, `trace()` returns `frame-required`.
+  - Tests and fixtures use states with the DLB corner solved: constructed fixtures, or random sequences of U, R, F, Uw, Rw, Fw and inner slices, with no rotations.
+- **Commitment.** The orientation-reference rule chosen in the later 4x4 milestone must come down to choosing one of the 24 whole-cube rotations, applied before the same tracer. Stickers and letters name slots in space, so no re-lettering in a moving frame.
+- **Why this doesn't constrain that milestone.**
+  - Every 4x4 rotation is even on corners, wings and x-centers (D-008), so parity doesn't depend on the reference chosen.
+  - The Phase 1 fixtures are the identity-rotation case of any rule.

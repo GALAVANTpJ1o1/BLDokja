@@ -99,6 +99,24 @@ export type TraceError =
   | { readonly code: "centers-not-normalisable" }
   | { readonly code: "interchangeable-pieces-unsupported"; readonly pieceType: PieceTypeId };
 
+/** Compiled letterings, cached per scheme object (schemes are treated as immutable values). */
+const letteringCache = new WeakMap<Scheme, Map<string, Result<Lettering, SchemeIssue[]>>>();
+
+function cachedLettering(puzzle: Puzzle, scheme: Scheme, pieceTypeId: PieceTypeId): Result<Lettering, SchemeIssue[]> {
+  let byType = letteringCache.get(scheme);
+  if (byType === undefined) {
+    byType = new Map();
+    letteringCache.set(scheme, byType);
+  }
+  const key = `${puzzle.id}/${pieceTypeId}`;
+  let compiled = byType.get(key);
+  if (compiled === undefined) {
+    compiled = compileLettering(puzzle, scheme, pieceTypeId);
+    byType.set(key, compiled);
+  }
+  return compiled;
+}
+
 interface Target {
   readonly position: number;
   /** kpuzzle label of the target sticker (0 for unoriented piece types). */
@@ -116,7 +134,7 @@ export function trace(puzzle: Puzzle, input: TraceInput, config: TraceConfig): R
   const bufferSticker = type.stickerByName(config.buffer);
   if (bufferSticker === undefined) return err({ code: "unknown-buffer", buffer: config.buffer });
 
-  const lettering = compileLettering(puzzle, config.scheme, config.pieceType);
+  const lettering = cachedLettering(puzzle, config.scheme, config.pieceType);
   if (!lettering.ok) return err({ code: "invalid-scheme", issues: lettering.error });
 
   let pattern: KPattern;

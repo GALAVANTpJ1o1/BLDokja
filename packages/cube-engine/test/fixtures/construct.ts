@@ -73,11 +73,19 @@ export function constructColours(puzzle: Puzzle, fixture: TraceFixture): Colours
   return colours;
 }
 
+export interface ColourReaders {
+  readonly corners: TraceOracle;
+  readonly twoSticker: TraceOracle;
+}
+
+export function colourReaders(puzzle: Puzzle): ColourReaders {
+  return { corners: new TraceOracle(puzzle.size, "corners"), twoSticker: new TraceOracle(puzzle.size, puzzle.size === 3 ? "edges" : "wings") };
+}
+
 /** A kpuzzle pattern with the given colours (every piece identified by its colours). */
-export function coloursToPattern(puzzle: Puzzle, colours: Colours): KPattern {
+export function coloursToPattern(puzzle: Puzzle, colours: Colours, readers: ColourReaders = colourReaders(puzzle)): KPattern {
   const facelets = new Int32Array(puzzle.geometry.stickerCount);
-  const corners = new TraceOracle(puzzle.size, "corners");
-  const twoSticker = new TraceOracle(puzzle.size, puzzle.size === 3 ? "edges" : "wings");
+  const { corners, twoSticker } = readers;
   for (const sticker of puzzle.geometry.stickers) {
     const cubie = puzzle.geometry.cubieOf(sticker.index);
     const colour = colours[sticker.index] as Face;
