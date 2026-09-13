@@ -14,7 +14,9 @@ The full specification is in `BRIEF.md`. Read it before any non-trivial work. Th
 
 ## Current phase
 
-**Phase 0 — audit only.** Do not write application code.
+**Phase 1 — cube engine.** Build `cube-engine` with its full test suite per `BRIEF.md` §5. No UI. Checkpoint: all golden fixtures pass and the alg dataset is verified.
+
+Phase 0 (audit) was confirmed complete on 2026-09-13. Its decisions are in `docs/AUDIT.md` §6.
 
 Update this line when I confirm a phase is done. Never advance a phase on your own.
 
