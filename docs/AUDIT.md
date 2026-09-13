@@ -376,6 +376,8 @@ The SQL `COUNT(DISTINCT pair)` and a Python set over the 24×24 grid both give 5
 
 ### 4.6 Things that look wrong, or at least worth a look
 
+> **Decided at the Phase 0 review.** These are your confirmed typos. Spelling fixes, space variants and the `yes`/`no` placeholders are corrected or flagged at import, following the approved table in [MIGRATION.md §3.6](MIGRATION.md#36-corrections-applied-at-import). The lists below are the findings exactly as they were found during the audit.
+
 **Probable typos stored next to the correct spelling** (same pair, count in brackets):
 - `EN` engish (1) / english (1)
 - `EP` epstien (1) / epstein (2)
@@ -553,25 +555,46 @@ Three of the four stored values differ from the code defaults: edge length (12 v
    - §1 expected some worth porting, but there is none.
    - §13 Q2 (buffers) can't be answered from the code.
 
-## 6. Open questions
+## 6. Decisions from the Phase 0 review
 
-These are asked at the end of Phase 0. Answers get recorded here once given.
+All questions from Phase 0 are answered. Nothing is left open. Phase 0 was confirmed complete on 2026-09-13.
 
-**Answered 2026-09-13**
+### §13 questions
 
-- **§13 Q2 (buffers):** the user chooses the buffer, for both corners and edges. No personal buffer is assumed. That's already brief §7.6. The default used by the beginner lessons and the generated 3-style set still has to be picked; it'll be proposed in Phase 1, after the engine has verified the conventions.
-- **§13 Q3 (default 3-style set):** generate it with the engine's comm search, and let users add or override their own algs per case. Every generated alg is verified in the engine. Published sheets are used only to compare quality, never copied.
-- **Alternates:** primary word plus alternates. Drills use the primary; alternates stay visible and editable with their old use counts. MIGRATION.md §3.2 already follows this.
+- **Q1: what's in the DB, and does anything look wrong?**
+  - **Typos and space variants.** The §4.6 typos and space variants are mistakes and get corrected at import.
+    - Spelling fixes, and which form each space variant merges into, follow the reviewed table in [MIGRATION.md §3.6](MIGRATION.md#36-corrections-applied-at-import).
+    - Where a pair already has the correct form, the two merge and their use counts add up.
+    - Your original rows stay untouched in the legacy snapshot, so every correction can be undone.
+  - **Placeholders.** `no` on EI, EO and IE, and `yes` on EO, aren't typos.
+    - They're imported as **placeholders** and flagged "needs a word".
+    - A placeholder is never picked as a pair's main word while another word exists.
+    - After import, EO and IE have no real word yet.
+  - **Result:** 678 rows become 660 words across 552 pairs. That's 18 merges, and total uses stay at 990. 550 pairs have a real word.
+- **Q2: which buffers?**
+  - The user chooses the buffer, for both corners and edges, and no personal buffer is assumed. That's already brief §7.6.
+  - The beginner lessons and the generated 3-style set still need one default. It'll be proposed in Phase 1, after the engine has verified the conventions.
+- **Q3: default 3-style set?**
+  - Generate it with the engine's comm search, and let users add or override their own algs per case.
+  - Every generated alg is verified in the engine.
+  - Published sheets are used only to compare quality, never copied.
+- **Q4: anything to keep as-is?** Yes, these three features:
+  1. **"Type the first word that comes to mind"** as a way to find an image for a pair. It should log discovery separately from drilling, so use counts don't get mixed the way they do now (C1).
+  2. **Turning a memo into a sentence of your own words.**
+  3. **The 24×24 overview of the whole library.**
+  
+  **Conflict:** "exactly as it is" can't apply literally to the overview. The old heatmap is unusable at 380 px (§3.5), and the brief's quality floor requires the cube and trainers to work there. Proposal: keep what it shows and how it behaves, and redesign its layout for mobile in Phase 2 or 4.
 
-**Still open**
+### Other questions
 
-- **§13 Q1** — what's in the DB, and does anything look wrong? Findings above; confirm or explain §4.6.
-- **§13 Q4** — is there anything to keep exactly as it is?
-- Is `letterpairs.db` on the Desktop the only copy with real data? Did a phone or deployed instance ever hold words that aren't in it?
-- For each pair: keep every alternative, or pick one primary per pair?
-- Should typos and spacing duplicates be merged at import, or imported as-is and cleaned up later in the new app?
-- Should the old memo history be re-scored with the new scorer, keeping the original score alongside?
-- The Android client: retire it (the PWA replaces it), or keep an API-compatible path?
+- **Only copy:** `Desktop/LetterPairTrainer/letterpairs.db` is the only copy with real data. No phone or deployed server ever held words that aren't in it.
+- **Several words per pair:** keep all of them, with a main word first and the alternates after it. Drills use the main word; alternates stay visible and editable with their use counts. See MIGRATION.md §3.2.
+- **Fixing typos later:** the app **suggests and never changes words automatically**.
+  - When you add a word, and in the library cleanup view, it offers "did you mean", based on a dictionary and your own existing words. You accept or dismiss each suggestion.
+  - Silent autocorrect is ruled out because many of your words are deliberately not in any dictionary (`kokonut`, `iat`, `ixigo`).
+  - This adds to brief §7.4 and gets built with the letter-pair library in Phase 4.
+- **Memo history:** re-score it. The original score stays exactly as stored, and a score using sequence alignment (longest common subsequence) is stored next to it (MIGRATION.md §3.3).
+- **Android:** retired in favour of the offline web app (PWA). No API-compatible path will be kept. `legacy/android/` stays in the repo as a read-only record.
 
 ---
 
