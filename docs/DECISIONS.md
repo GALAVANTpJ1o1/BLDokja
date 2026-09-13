@@ -109,7 +109,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-010 · Speffz is the only complete scheme shipped; alternatives ship as a blank template
 
-**Status:** accepted, but flagged for review (it narrows BRIEF §5.1, "Speffz + a couple of common alternatives")
+**Status:** accepted (Gate A, 2026-09-13). It narrows BRIEF §5.1 ("Speffz + a couple of common alternatives"); you confirmed Speffz plus the blank template is enough.
 
 - **Speffz** is built from its documented rule (Speedsolving wiki "Speffz"):
   - faces are lettered in the order U, L, F, R, B, D;
@@ -138,7 +138,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-012 · Tracing conventions
 
-**Status:** accepted as engine conventions. Open to review at Gate A, since the golden fixtures encode them.
+**Status:** accepted (Gate A, 2026-09-13: no objection to the break order or the twisted-piece naming, which the golden fixtures encode).
 
 - **Model.** Tracing follows the virtual swap:
   - read the sticker in the buffer slot and shoot it home;
@@ -163,9 +163,9 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **Differential test:** an independent colour-reading oracle, over 62,720 traces.
   - **Properties:** 1,500 random cases.
 
-## D-013 · Same-letter pairs can never occur: the library has 552 usable pairs (DRAFT)
+## D-013 · Tracing never produces same-letter pairs, but the library uses all 576 cells
 
-**Status:** draft, waiting for your review at Gate A. Evidence is in [reports/letter-pair-reachability.md](reports/letter-pair-reachability.md).
+**Status:** accepted (Gate A, 2026-09-13), revised from the draft. The draft concluded 552; you changed the conclusion to 576 and kept the computed result. Evidence is in [reports/letter-pair-reachability.md](reports/letter-pair-reachability.md).
 
 - **Question.** The old app treats the grid as 552 pairs; BRIEF §7.4 says 576. AUDIT C6 and MIGRATION §3.2 deferred the question to the engine.
 - **Result, computed.** No same-letter pair appears in any trace, for any buffer, either orientation policy, 3x3x3 corners and edges, and 4x4x4 corners and wings.
@@ -180,11 +180,20 @@ Short records of choices that would be expensive to reverse, or where sources di
   - Corners and edges together on 3x3x3 reach **494–526 of 552** (`separate`), depending on the buffer pieces.
   - A corner buffer and an edge buffer that share a Speffz letter lose every pair containing that letter. UFR and UF share C, so all 46 C-pairs are impossible and the count drops to 494. UBL/UR reaches 526.
 - **Occurrence is far from uniform.** In 10,000 random-state traces (UFR corners), the most common corner pair occurs about 12× as often as the rarest reachable one: 370 vs 31, against 85 if uniform.
-- **Proposed consequences:**
-  1. **The library.** It is "complete" at **552** pairs. The 24×24 grid shows the diagonal as "can't occur in a trace", not as missing. The schema may still store same-letter pairs (MIGRATION §3.2), but nothing in the app offers or generates them.
-  2. **Drills (Phase 4).** They never offer same-letter pairs. Pairs that can't occur for the user's current buffers and policy stay in the library (buffers can change), but drills and the gap finder weight pairs by how often they actually occur. The engine can compute both the reachable set and the frequencies.
-  3. **Scheme validation.** Duplicate letters within a piece type stay an error (D-011); the result above depends on it.
+- **Decision: the letter-pair library, drills and the 24×24 schema use all 576 cells.**
+  - The computed result stands: no trace ever lands on the diagonal. The grid keeps labelling diagonal cells "can't occur from tracing".
+  - Diagonal cells still hold images. A letter can end up alone in a memo, with no partner to pair with:
+    - a trailing target, when a piece type's targets are odd;
+    - a twisted or flipped piece under `orientedInPlace: "separate"`, recorded as one letter.
+  - Such a letter is held with a **self-pair image**: J alone is memorised as JJ. How lone letters become pairs is D-015.
+  - This affects only what is shown or looked up for memorisation. It never touches tracing, solve logic, setup search or which alg runs.
+- **Consequences:**
+  1. **The library is complete at 576 cells.** Legacy data has no same-letter pairs, so after the import the 24 diagonal cells are empty and show up as gaps, together with the EO and IE placeholders (MIGRATION §3.6). MIGRATION §3.2 already allows same-letter pairs in the schema.
+  2. **Drills (Phase 4) include diagonal cells**, because memos use them for lone letters. Pairs that can't occur for the user's current buffers and policy stay in the library (buffers can change). Drills and the gap finder weight every cell by how often it really occurs, and the engine can compute both the reachable set and the frequencies.
+  3. **Scheme validation.** Duplicate letters within a piece type stay an error (D-011). The diagonal result depends on it, and so does reading a self-pair back as one sticker.
   4. **Buffer choice.** Gate B's buffer comparison includes the combined reachable-pair count, because shared letters between corner and edge buffers cost pairs.
+- **Stale sentence in the report.** `docs/reports/letter-pair-reachability.md` still says "The 24×24 grid really has 552 usable cells". That text comes from `scripts/letter-pair-report.ts`, so it will be reworded, and the report regenerated, the next time that script changes. This commit is documentation only.
+- **Spot-check buffers.** You left the choice to me. `docs/fixtures/SPOT-CHECK.md` will use UFR corners and UF edges, purely for the physical-cube check, not as a default. It hasn't been generated yet.
 
 ## D-014 · 4x4x4 tracing in Phase 1 uses a fixed frame; any later reference policy must be a rotation
 
@@ -196,3 +205,52 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Why this doesn't constrain that milestone.**
   - Every 4x4 rotation is even on corners, wings and x-centers (D-008), so parity doesn't depend on the reference chosen.
   - The Phase 1 fixtures are the identity-rotation case of any rule.
+
+## D-015 · Single-letter memo representation: `singleLetterRepresentation`
+
+**Status:** accepted design (Gate A, 2026-09-13). **Not implemented yet**; nothing in the code uses it.
+
+- **Why.** D-013 gives the library 576 cells so that letters left alone in a memo still get an image. This policy decides how those lone letters become two-letter memo items.
+- **Where it lives.**
+  - It is a memo-representation layer (`src/memo/`) that reads a finished `TraceResult`. It is **not** an option of `trace()`, and tracing output never depends on it.
+  - Solve logic, setup search, comm search and alg selection keep reading `TraceResult`. They must never import the memo layer.
+- **Values:** `"chain" | "selfPair"`, default `"selfPair"`. Every memo item is two letters, so each maps to one of the 576 cells.
+- **Lone letters** are:
+  - the **trailing target** when a piece type's target count is odd;
+  - under `orientedInPlace: "separate"`, each **non-buffer** twisted or flipped piece.
+  - Under `"asTargets"` twists and flips are already targets, so only the trailing target can be alone.
+- **The buffer's own twist or flip is never memorised in either mode.** It's always implied by the other pieces, so `TraceResult` still reports it but the memo view leaves it out.
+- **Two letters per piece, used differently by the two modes:**
+  - **Displayed letter:** the slot where the piece's reference sticker (U/D, or F/B on E-slice edges) now shows. It's the letter `TraceResult` reports (D-012): DFR twisted clockwise shows K.
+  - **Home letter:** the letter of that reference sticker's own slot. DFR's home letter is V.
+- **`selfPair` (default):**
+  - Targets pair up exactly as traced.
+  - A trailing target J becomes **JJ**.
+  - Each non-buffer twisted or flipped piece becomes its displayed letter doubled: DFR clockwise gives **KK**.
+- **`chain`:**
+  1. Build one letter chain: the traced targets, then the home letter of each non-buffer twisted or flipped piece, in the order `TraceResult` reports them (letter order).
+  2. Pair the whole chain. If one letter is left unpaired at the end, double it.
+  3. Append each chained piece's displayed letter doubled, as that piece's orientation marker. It is kept distinct from the unpaired-leftover item.
+- **Parity is an explicit flag on the memo view, in both modes.** It equals `TraceResult.parity` and is never inferred from a doubled item.
+  - This was a deliberate choice. In `chain` mode an odd number of non-buffer twisted or flipped pieces changes whether a letter is left over, so the leftover can't be trusted to mean parity:
+    - trailing J (parity) with DFR twisted gives `JV KK`, with no leftover;
+    - `DA SB` (no parity) with DFR twisted gives `DA SB VV KK`.
+  - Edges can't hit this: the total number of flips is always even. With the buffer excluded, though, the listed count can be odd, so the flag is used there too.
+- **Worked examples** (Speffz; the traces are golden fixtures R01 and R02, corner buffer UFR):
+
+  | Trace | `selfPair` | `chain` | Parity flag |
+  |---|---|---|---|
+  | R01: targets `D A S B P B`; DFL twisted (shows L, home U); DBR twisted (shows O, home W) | `DA SB PB LL OO` | `DA SB PB UW LL OO` | no |
+  | R02: targets `X D P N A U E`; DBR twisted (shows O, home W); buffer UFR twisted (J, omitted) | `XD PN AU EE OO` | `XD PN AU EW OO` | yes |
+  | Trailing J; DFR twisted clockwise (shows K, home V) | `JJ KK` | `JV KK` | yes |
+
+- **Tests required when it's implemented:**
+  - The memo layer never modifies the `TraceResult` it reads (deep-frozen input).
+  - `TraceConfig` has no `singleLetterRepresentation` option (a compile-time `@ts-expect-error` check).
+  - Import boundary: only `src/memo/**` and `src/index.ts` import the memo layer, so nothing solve-related can consume a self-pair.
+  - Property tests over random scrambles:
+    - every traced target letter appears in the memo exactly once, never doubled or dropped;
+    - a pair made of two traced targets is never a diagonal cell;
+    - the number of doubled items matches the mode's rule above;
+    - the parity flag equals `TraceResult.parity`;
+    - the worked examples above appear as fixtures.
