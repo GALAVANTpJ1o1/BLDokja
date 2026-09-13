@@ -1,0 +1,30 @@
+plugins {
+    id "com.android.application"
+}
+
+def apiBaseUrl = providers.gradleProperty("LETTER_PAIR_API_BASE_URL")
+        .orElse("http://10.0.2.2:5000")
+        .get()
+def apiToken = providers.gradleProperty("LETTER_PAIR_API_TOKEN")
+        .orElse("")
+        .get()
+
+android {
+    namespace "com.letterpairtrainer"
+    compileSdk 35
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        applicationId "com.letterpairtrainer"
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField "String", "BASE_URL", "\"${apiBaseUrl}\""
+        buildConfigField "String", "API_TOKEN", "\"${apiToken}\""
+    }
+}

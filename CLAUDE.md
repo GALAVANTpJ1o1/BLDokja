@@ -10,6 +10,7 @@ The full specification is in `BRIEF.md`. Read it before any non-trivial work. Th
 - `docs/DECISIONS.md` — short ADR entries. Append to this whenever you make a choice that would be expensive to reverse.
 - `docs/ENGINE.md` — how the cube engine works, for future contributors.
 - `docs/DESIGN.md` — design tokens and the reasoning behind them.
+- `legacy/` — read-only, hash-pinned copy of the old Python app's source. The live letter-pair database is **not** in this repo: it's at `../LetterPairTrainer/letterpairs.db`. Never open it for writing.
 
 ## Current phase
 

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Memo Practice | Letter Pair Trainer{% endblock %}
+
+{% block content %}
+<section class="page-header compact-header">
+    <div>
+        <p class="eyebrow">Competitive memo practice</p>
+        <h1>Simulate timed BLD memo pressure.</h1>
+    </div>
+</section>
+
+<section class="stat-grid">
+    <div class="stat-card">
+        <span>Attempts</span>
+        <strong>{{ stats.attempts }}</strong>
+    </div>
+    <div class="stat-card">
+        <span>Accuracy</span>
+        <strong>{{ stats.accuracy }}%</strong>
+    </div>
+    <div class="stat-card">
+        <span>Best</span>
+        <strong>{{ stats.best_score }}%</strong>
+    </div>
+    <div class="stat-card">
+        <span>Streak</span>
+        <strong>{{ stats.streak }}</strong>
+    </div>
+</section>
+
+{% if result %}
+    <section class="panel score-panel">
+        <div class="score-header">
+            <div>
+                <p class="eyebrow">Last attempt</p>
+                <h2>Total Accuracy: {{ result.correct_letters }} / {{ result.total_letters }} letters</h2>
+            </div>
+            <div class="score-percent">{{ result.percent }}%</div>
+        </div>
+
+        <div class="score-grid">
+            <div class="score-item">
+                <div class="score-label">Edges</div>
+                <code>{{ result.edges.answer or "blank" }}</code>
+                <strong class="{% if result.edges.correct %}correct{% else %}incorrect{% endif %}">
+                    {% if result.edges.correct %}&check; Correct{% else %}&cross; Incorrect{% endif %}
+                </strong>
+                {% if not result.edges.correct %}
+                    <span>Expected: <code>{{ result.edges.expected }}</code></span>
+                {% endif %}
+            </div>
+
+            <div class="score-item">
+                <div class="score-label">Corners</div>
+                <code>{{ result.corners.answer or "blank" }}</code>
+                <strong class="{% if result.corners.correct %}correct{% else %}incorrect{% endif %}">
+                    {% if result.corners.correct %}&check; Correct{% else %}&cross; Incorrect{% endif %}
+                </strong>
+                {% if not result.corners.correct %}
+                    <span>Expected: <code>{{ result.corners.expected }}</code></span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="recommendation-grid">
+            <div class="recommendation-card">
+                <p class="eyebrow">Edges auditory memorisation sounds</p>
+                <div class="pair-strip">{{ result.edges.review.pairs }}</div>
+                <p>{{ result.edges.review.sentence }}</p>
+            </div>
+            <div class="recommendation-card">
+                <p class="eyebrow">Corners pictorial memorisation sentence</p>
+                <div class="pair-strip">{{ result.corners.review.pairs }}</div>
+                <p>{{ result.corners.review.sentence }}</p>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="memo-layout">
+    <aside class="panel settings-panel">
+        <p class="eyebrow">Round settings</p>
+        <form class="settings-form" action="/memo/settings" method="POST">
+            <label for="corner_length">Corner letters</label>
+            <input id="corner_length" type="number" name="corner_length" min="1" max="48" value="{{ settings.corner_length }}">
+
+            <label for="edge_length">Edge letters</label>
+            <input id="edge_length" type="number" name="edge_length" min="1" max="48" value="{{ settings.edge_length }}">
+
+            <label for="letter_time_seconds">Time per letter (seconds)</label>
+            <input id="letter_time_seconds" type="number" name="letter_time_seconds" min="0.25" max="10" step="0.25" value="{{ settings.letter_time_seconds }}">
+
+            <label for="phase_time_seconds">Time between phases (seconds)</label>
+            <input id="phase_time_seconds" type="number" name="phase_time_seconds" min="0" max="30" step="0.25" value="{{ settings.phase_time_seconds }}">
+
+            <button type="submit">Save settings</button>
+        </form>
+    </aside>
+
+    <section class="panel memo-panel">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">Current round</p>
+                <h2>{{ settings.corner_length }} corners, {{ settings.edge_length }} edges</h2>
+            </div>
+            <a class="secondary-button" href="/memo">New sequence</a>
+        </div>
+
+        <div
+            class="memo-trainer"
+            data-corners="{{ round_data.corners }}"
+            data-edges="{{ round_data.edges }}"
+            data-speed-ms="{{ settings.letter_time_ms }}"
+            data-between-ms="{{ settings.phase_time_ms }}"
+        >
+            <div class="memo-stage">
+                <p class="memo-status" data-memo-status>Ready</p>
+                <div class="memo-letter" data-memo-letter>-</div>
+                <p class="memo-progress" data-memo-progress>
+                    Corners: {{ settings.corner_length }} letters. Edges: {{ settings.edge_length }} letters.
+                </p>
+            </div>
+
+            <div class="memo-controls" data-memo-controls>
+                <button type="button" data-memo-start>Start memo</button>
+            </div>
+
+            <form class="recall-form hidden" action="/memo/score" method="POST" data-memo-recall>
+                <input type="hidden" name="corners_expected" value="{{ round_data.corners }}">
+                <input type="hidden" name="edges_expected" value="{{ round_data.edges }}">
+
+                <div class="recall-grid">
+                    <label>
+                        <span>Enter edge memo</span>
+                        <input type="text" name="edges_answer" autocomplete="off" inputmode="latin" required>
+                    </label>
+
+                    <label>
+                        <span>Enter corner memo</span>
+                        <input type="text" name="corners_answer" autocomplete="off" inputmode="latin" required>
+                    </label>
+                </div>
+
+                <button type="submit">Score attempt</button>
+            </form>
+        </div>
+    </section>
+</section>
+{% endblock %}
