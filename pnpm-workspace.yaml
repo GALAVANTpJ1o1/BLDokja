@@ -1,0 +1,5 @@
+packages:
+  - "packages/*"
+# esbuild (via tsx) runs an install script that only verifies its platform binary.
+allowBuilds:
+  esbuild: true

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // No DOM and no Node types: the engine must compile against the bare language.
+    // A browser or Node global in src/ is a compile error, not just a lint warning.
+    "lib": ["ES2023"],
+    "types": [],
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

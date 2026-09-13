@@ -1,0 +1,36 @@
+{
+  "name": "@bld/cube-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pure TypeScript blindfolded-cubing engine: lettering, piece types, tracing, methods, commutators, scrambles, randomisation.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vitest",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:slow": "vitest run --config vitest.slow.config.ts",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json",
+    "report": "tsx scripts/report.ts"
+  },
+  "dependencies": {
+    "cubing": "0.63.4",
+    "pure-rand": "8.4.2",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "fast-check": "4.10.0",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  }
+}

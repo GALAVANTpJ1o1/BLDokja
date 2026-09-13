@@ -18,6 +18,12 @@ legacy/android/.gradle/
 legacy/android/.idea/
 legacy/android/local.properties
 
+# Node / build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
 # OS / editor
 Thumbs.db
 .DS_Store

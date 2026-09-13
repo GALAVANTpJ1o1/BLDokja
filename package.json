@@ -1,0 +1,24 @@
+{
+  "name": "bld-platform",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.3.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @bld/cube-engine dev",
+    "build": "pnpm -r --if-present build",
+    "test": "pnpm -r --if-present test",
+    "test:engine": "pnpm --filter @bld/cube-engine test",
+    "test:engine:slow": "pnpm --filter @bld/cube-engine test:slow",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint .",
+    "engine:report": "pnpm --filter @bld/cube-engine report"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.0.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0"
+  }
+}
