@@ -1,0 +1,23 @@
+# Personal data — the legacy letter-pair database and any copies must never be committed
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
+# Secrets
+.env
+.env.*
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Legacy Android build output, IDE state and machine-specific paths
+legacy/android/**/build/
+legacy/android/.gradle/
+legacy/android/.idea/
+legacy/android/local.properties
+
+# OS / editor
+Thumbs.db
+.DS_Store
