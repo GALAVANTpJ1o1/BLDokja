@@ -54,3 +54,43 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 - **ESLint.** One root `eslint.config.js` covers every package.
 - **esbuild.** `tsx` depends on esbuild, whose install script only checks its platform binary. It is the single entry under `allowBuilds` in `pnpm-workspace.yaml`.
+
+## D-006 · Sticker positions are derived, never hand-tabulated
+
+**Status:** accepted
+
+- **Context.** Every letter, buffer and algorithm ultimately says "this sticker moves to that slot". A single mistake in a hand-written sticker table would silently corrupt everything built on top of it.
+- **Decision.**
+  - `src/core/geometry.ts` models an N×N×N cube from first principles: stickers are integer points, and a move rotates the stickers in some layers by a quarter turn.
+    - Axes are right-handed: +x = R, +y = U, +z = F.
+    - The only convention it takes as input is WCA Regulation 12a: a face turn is clockwise as seen looking at that face.
+  - `src/core/sticker-map.ts` matches this model to cubing.js's kpuzzle definitions computationally.
+    - Each kpuzzle position is identified with the cubie whose set of layer memberships matches the set of layer moves that disturb the position.
+    - Orientation labels are found by propagating the move definitions outward from one seed position.
+- **Verification** (`test/core/root-of-trust.test.ts`). For 3x3x3 and 4x4x4, both implementations must agree on every sticker for:
+  - every verified move family (face turns, inner slices, M/E/S, wide moves, lowercase moves and rotations), each with the suffixes `""`, `2` and `'`;
+  - 150 random sequences, compared as transformations, and as patterns compared by colour.
+  - A deliberately broken definition (U replaced by U') is detected.
+- **Consequences.** Engine code only generates moves from `VERIFIED_MOVE_FAMILIES`. A new move family must be added there first, which puts it under the same check.
+
+## D-007 · Lowercase face letters mean wide turns; inner slices are written `2R`
+
+**Status:** accepted, as a finding to carry into the 4x4 milestone
+
+- **Finding.** In cubing.js, `r` means `Rw` (two layers) on both 3x3x3 and 4x4x4. The root-of-trust test confirms this against the geometry model. The inner slice alone is `2R`.
+- **Why it matters.** Much r2-method literature writes the inner-slice half turn as `r2`. Read with cubing.js's notation, that string would be a wide turn instead.
+- **Decision.**
+  - Engine data never uses lowercase to mean an inner slice.
+  - When the r2 method is built, its swap move is written `2R2`.
+  - Text that quotes r2 notation must be converted explicitly. The converter will be tested against the geometry model.
+
+## D-008 · Whole-cube rotations and parity
+
+**Status:** accepted (finding)
+
+- **4x4x4.** All 24 rotations are even permutations of corners, wings and x-centers (labelled model), as computed in `test/core/rotations.test.ts`.
+  - So the parity of a 4x4 state doesn't depend on which orientation reference the solver chooses.
+  - Choosing a reference only has to pick a rotation. This is the commitment in the Phase 1 plan.
+- **3x3x3.** Rotations are always even on corners. 12 of the 24 rotations are odd on edges, and in every one of those they are odd on centers too.
+  - This is harmless, because 3x3 tracing first rotates the cube so its centers are solved.
+  - It does mean "corner parity equals edge parity" only holds for states with solved centers. A scramble that ends in a rotation has to be normalised before any parity claim is made.
