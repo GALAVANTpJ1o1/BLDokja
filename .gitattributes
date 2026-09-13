@@ -1,0 +1,3 @@
+# legacy/ is a verbatim, hash-pinned copy of the old project (see docs/AUDIT.md).
+# Disable line-ending conversion so checkouts stay byte-identical to the originals.
+legacy/** -text

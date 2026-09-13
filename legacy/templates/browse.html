@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Heatmap | Letter Pair Trainer{% endblock %}
+
+{% block content %}
+<section class="page-header compact-header">
+    <div>
+        <p class="eyebrow">Coverage heatmap</p>
+        <h1>{{ learned_count }} / {{ total_pairs }} pairs learned.</h1>
+    </div>
+    <a class="secondary-button" href="/words">Review database</a>
+</section>
+
+<section class="panel heatmap-panel">
+    <div class="heatmap-wrapper">
+        <table class="heatmap">
+            <caption class="sr-only">Letter pair heatmap</caption>
+            <tr>
+                <th></th>
+                {% for col in letters %}
+                    <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+
+            {% for row in letters %}
+                <tr>
+                    <th>{{ row }}</th>
+
+                    {% for col in letters %}
+                        {% set pair = row + col %}
+
+                        {% if row == col %}
+                            <td class="disabled-cell">-</td>
+                        {% elif pair in data %}
+                            <td class="filled-cell">
+                                <a href="/pair/{{ pair }}" title="{{ pair }}: {{ data[pair]['word'] }}">
+                                    <span class="cell-pair">{{ pair }}</span>
+                                    <span class="cell-word">{{ data[pair]["word"] }}</span>
+                                </a>
+                            </td>
+                        {% else %}
+                            <td class="empty-cell">
+                                <span class="cell-pair">{{ pair }}</span>
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Practice | Letter Pair Trainer{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Letter pair word recall</p>
+        <h1>Build faster pair-to-word recall.</h1>
+    </div>
+    <a class="secondary-button" href="/words">Edit saved words</a>
+</section>
+
+<section class="practice-layout">
+    <div class="panel practice-panel">
+        <div class="panel-heading">
+            <h2>Current Pair</h2>
+            <span class="hint">A-X Speffz letters</span>
+        </div>
+
+        <div class="pair-display" aria-live="polite" data-current-pair="{{ pair }}">
+            {{ pair }}
+        </div>
+
+        <form class="stacked-form" action="/submit" method="POST">
+            <input type="hidden" name="pair" value="{{ pair }}">
+
+            <label for="word">Mnemonic word</label>
+            <input
+                id="word"
+                type="text"
+                name="word"
+                placeholder="Type the word you use for this pair"
+                autocomplete="off"
+                required
+                autofocus
+            >
+
+            <button type="submit">Save and next pair</button>
+        </form>
+
+        <div class="revision-actions">
+            <button type="button" class="secondary-action" data-reveal-answer>Reveal Common Word</button>
+            <a class="secondary-button hidden" href="/" data-next-pair>Next</a>
+        </div>
+    </div>
+
+    <aside class="panel result-panel" data-result-panel>
+        {% if result %}
+            <p class="eyebrow">Saved</p>
+            <h2>{{ result.pair }} -> {{ result.entered }}</h2>
+
+            <div class="metric-row">
+                <span>Most common</span>
+                <strong>{{ result.top_word }}</strong>
+            </div>
+            <div class="metric-row">
+                <span>Uses</span>
+                <strong>{{ result.top_count }}</strong>
+            </div>
+
+            <div class="word-frequency-list">
+                <h3>All words for {{ result.pair }}</h3>
+                {% for item in result.words %}
+                    <div class="metric-row compact-row">
+                        <span>{{ item.word }}</span>
+                        <strong>{{ item.count }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="eyebrow">Session</p>
+            <h2>Type the first word that comes to mind.</h2>
+            <p class="muted">Repeated entries increase a word's count, so the heatmap shows your most natural mnemonic for each pair.</p>
+            <div class="revealed-answer hidden" data-revealed-answer></div>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

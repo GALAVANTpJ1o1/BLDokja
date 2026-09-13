@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Database | Letter Pair Trainer{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <p class="eyebrow">Database editor</p>
+        <h1>Add words, remove misspellings, and tune mnemonics.</h1>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Add Word</h2>
+        <span class="hint">Pairs use A-X Speffz letters</span>
+    </div>
+    <form class="add-word-form" action="/words/add" method="POST">
+        <input type="hidden" name="next" value="{{ request.full_path if search else '/words' }}">
+        <label class="form-field" for="pair">
+            <span>Letter pair</span>
+            <input
+                id="pair"
+                type="text"
+                name="pair"
+                placeholder="AB"
+                maxlength="2"
+                pattern="[A-Xa-x]{2}"
+                autocomplete="off"
+                required
+            >
+        </label>
+
+        <label class="form-field" for="new-word">
+            <span>Word</span>
+            <input
+                id="new-word"
+                type="text"
+                name="word"
+                placeholder="abacus"
+                maxlength="80"
+                autocomplete="off"
+                required
+            >
+        </label>
+
+        <button type="submit">Add Word</button>
+    </form>
+</section>
+
+<section class="panel">
+    <form class="search-form" action="/words" method="GET">
+        <label for="q">Search pair or word</label>
+        <div class="inline-form-row">
+            <input
+                id="q"
+                type="text"
+                name="q"
+                value="{{ search }}"
+                placeholder="Try AB or banana"
+                autocomplete="off"
+            >
+            <button type="submit">Search</button>
+            {% if search %}
+                <a class="secondary-button" href="/words">Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    {% if words %}
+        <div class="table-wrapper">
+            <table class="word-table">
+                <thead>
+                    <tr>
+                        <th>Pair</th>
+                        <th>Word</th>
+                        <th>Uses</th>
+                        <th class="action-column">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in words %}
+                        <tr>
+                            <td><a class="pair-link" href="/pair/{{ item.pair }}">{{ item.pair }}</a></td>
+                            <td>{{ item.word }}</td>
+                            <td>{{ item.count }}</td>
+                            <td>
+                                <form action="/words/{{ item.id }}/delete" method="POST">
+                                    <input type="hidden" name="next" value="{{ request.full_path if search else '/words' }}">
+                                    <button class="danger-button" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No matching words found.</p>
+    {% endif %}
+</section>
+{% endblock %}
