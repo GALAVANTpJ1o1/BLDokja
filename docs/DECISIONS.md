@@ -94,3 +94,44 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **3x3x3.** Rotations are always even on corners. 12 of the 24 rotations are odd on edges, and in every one of those they are odd on centers too.
   - This is harmless, because 3x3 tracing first rotates the cube so its centers are solved.
   - It does mean "corner parity equals edge parity" only holds for states with solved centers. A scramble that ends in a rotation has to be normalised before any parity claim is made.
+
+## D-009 · Sticker and piece names are generated from geometry
+
+**Status:** accepted
+
+- **Pieces** are named by the faces their cubie touches, in the order U/D, F/B, R/L: `UFR`, `UF`, `FR`.
+- **Bigger cubes** add lowercase letters for the side a cubie sits towards:
+  - `UFr` is the UF wing nearer R;
+  - `Ufr` is the U x-center nearer F and R.
+- **Stickers** are named by their own face, then the rest of the piece name. UFR's three stickers are `UFR`, `FUR` and `RUF`.
+- **Scope.** Names are proved unique for 3x3x3, 4x4x4 and 5x5x5. 6x6x6 and larger need a depth marker, and the naming function refuses them until that exists.
+- **Datasets, fixtures and schemes key everything by these names, never by letters.**
+
+## D-010 · Speffz is the only complete scheme shipped; alternatives ship as a blank template
+
+**Status:** accepted, but flagged for review (it narrows BRIEF §5.1, "Speffz + a couple of common alternatives")
+
+- **Speffz** is built from its documented rule (Speedsolving wiki "Speffz"):
+  - faces are lettered in the order U, L, F, R, B, D;
+  - each face is lettered clockwise from its top-left in the standard net;
+  - an edge-type piece takes the letter of the corner it is clockwise-next to.
+- **Checked against the reference.** `test/lettering/speffz.test.ts` compares all 48 3x3 sticker letters with an explicit table read off an independent net diagram (Voltara/vcube `doc/speffz.md`). On 4x4 it also checks wings and x-centers, and that every wing gets exactly one letter.
+- **The alternatives search found nothing usable.**
+  - The other systems the wiki names take letters from colours or from face names. Many stickers share a letter under those systems, so they fail the rule that a letter names exactly one sticker (D-011).
+  - I found no complete, unambiguous published definition of any other scheme, including Chichu.
+  - I won't invent a scheme and present it as a standard.
+- **What ships instead:**
+  - `blankScheme()`, a template users fill in;
+  - `buildFaceCycleScheme()`, which builds any "four letters per face, clockwise" variant (different face order or alphabet) as data.
+- **To revisit.** If you know a scheme you want as a second default, name it and I'll verify it the same way.
+
+## D-011 · A letter must name exactly one sticker within a piece type
+
+**Status:** accepted
+
+- **Rule.** Scheme validation treats a duplicate letter within one piece type as an **error**, not a warning.
+  - A traced memo is only readable if each letter maps back to one sticker.
+  - This is also a premise of the 552/576 analysis.
+- **Allowed.** The same letter may appear on a corner and on an edge (Speffz does this everywhere), because memo never mixes piece types.
+- **Letters** are single grapheme clusters. Non-Latin letters are allowed; whitespace and multi-character strings are rejected.
+- **Wings and x-centers** need exactly one lettered sticker per piece. Corners and edges need every sticker lettered.
