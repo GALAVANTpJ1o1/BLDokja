@@ -557,9 +557,15 @@ Three of the four stored values differ from the code defaults: edge length (12 v
 
 These are asked at the end of Phase 0. Answers get recorded here once given.
 
+**Answered 2026-09-13**
+
+- **§13 Q2 (buffers):** the user chooses the buffer, for both corners and edges. No personal buffer is assumed. That's already brief §7.6. The default used by the beginner lessons and the generated 3-style set still has to be picked; it'll be proposed in Phase 1, after the engine has verified the conventions.
+- **§13 Q3 (default 3-style set):** generate it with the engine's comm search, and let users add or override their own algs per case. Every generated alg is verified in the engine. Published sheets are used only to compare quality, never copied.
+- **Alternates:** primary word plus alternates. Drills use the primary; alternates stay visible and editable with their old use counts. MIGRATION.md §3.2 already follows this.
+
+**Still open**
+
 - **§13 Q1** — what's in the DB, and does anything look wrong? Findings above; confirm or explain §4.6.
-- **§13 Q2** — which buffers do you use? The code has no answer.
-- **§13 Q3** — where should the default 3-style set come from?
 - **§13 Q4** — is there anything to keep exactly as it is?
 - Is `letterpairs.db` on the Desktop the only copy with real data? Did a phone or deployed instance ever hold words that aren't in it?
 - For each pair: keep every alternative, or pick one primary per pair?

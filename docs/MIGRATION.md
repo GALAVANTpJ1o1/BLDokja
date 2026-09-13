@@ -102,7 +102,7 @@ type PairImage = {
 ```
 
 **Decisions behind this shape:**
-- **Several images per pair, primary first** [proposed].
+- **Several images per pair, primary first** [confirmed 2026-09-13].
   - 118 pairs have alternatives, so collapsing each pair to one image would lose rows.
   - The primary is the legacy top word under the ordering the old pair page, memo review and API used: `count DESC, word ASC` (AUDIT C4).
   - The import report flags the 89 pairs whose primary was picked by that tie-breaker, so you can choose deliberately.
