@@ -53,6 +53,9 @@ export interface OrientedInPlace {
   /** Slot where the piece's reference sticker now shows. */
   readonly sticker: string;
   readonly letter: string;
+  /** The reference sticker's own slot (where it shows when the piece is solved). */
+  readonly homeSticker: string;
+  readonly homeLetter: string;
   readonly direction: TwistDirection | "flip";
   readonly isBuffer: boolean;
 }
@@ -261,10 +264,13 @@ function runTrace(
       const k = at(ori, piece.position);
       if (at(pieces, piece.position) !== piece.position || k === 0) continue;
       const slot = referenceStickerSlot(type, piece.position, k);
+      const home = referenceStickerSlot(type, piece.position, 0);
       orientedInPlace.push({
         piece: piece.name,
         sticker: slot.name,
         letter: lettering.letterOf(slot) ?? "",
+        homeSticker: home.name,
+        homeLetter: lettering.letterOf(home) ?? "",
         direction: type.orientationOrder === 3 ? cornerTwistDirection(puzzle, type, piece.position, k) : "flip",
         isBuffer: piece.position === pb,
       });

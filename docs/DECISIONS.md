@@ -158,6 +158,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Parity** is the permutation parity of the piece type's actual pieces. Tests assert it equals `targetCount % 2`.
 - **`solvedPieces`** holds piece names, not letters, because a letter names a sticker.
 - **Additive fields.** On top of the brief's `TraceResult`: `targetStickers`, `targetKinds` (`normal | cycleBreak | cycleClose | orientationTarget`), `cycles`, `orientedInPlace` and `buffer`. Phase 6's trace diagnostics need `targetKinds`.
+  - Each `orientedInPlace` entry also has `homeSticker` and `homeLetter`: the reference sticker's own slot and its letter (DFR's are `DFR` and V). D-015's `chain` mode reads them, so the memo layer needs nothing but the `TraceResult`. They're the same in every memo mode. The differential test checks `homeSticker` against the oracle.
 - **Verification.**
   - **Golden fixtures (54):** 44 constructed from hand-written targets, plus 10 real scrambles traced by hand from colour nets.
   - **Differential test:** an independent colour-reading oracle, over 62,720 traces.

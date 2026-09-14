@@ -73,10 +73,17 @@ describe.each(CASES)("tracer ≡ oracle: $puzzle $type", ({ puzzle: id, type: ty
             expect(result.value.targetStickers, context).toEqual(expected.targetStickers);
             expect(result.value.targetKinds, context).toEqual(expected.kinds);
             const byPiece = (a: { piece: string }, b: { piece: string }) => a.piece.localeCompare(b.piece);
+            // The oracle names a piece by the home slot of its reference colour, so that name is also the home sticker.
             expect(
-              result.value.orientedInPlace.map((o) => ({ piece: o.piece, sticker: o.sticker, isBuffer: o.isBuffer })).sort(byPiece),
+              result.value.orientedInPlace
+                .map((o) => ({ piece: o.piece, sticker: o.sticker, letter: o.letter, homeSticker: o.homeSticker, homeLetter: o.homeLetter, isBuffer: o.isBuffer }))
+                .sort(byPiece),
               context,
-            ).toEqual([...expected.orientedInPlace].sort(byPiece));
+            ).toEqual(
+              expected.orientedInPlace
+                .map((o) => ({ ...o, letter: letters[o.sticker], homeSticker: o.piece, homeLetter: letters[o.piece] }))
+                .sort(byPiece),
+            );
             expect(result.value.parity, context).toBe(expected.parity);
             compared++;
           }
