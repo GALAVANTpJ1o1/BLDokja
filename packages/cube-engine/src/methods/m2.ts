@@ -34,25 +34,29 @@ function movesOf(text: string): AlgMove[] | undefined {
   return parsed.ok ? expandNodes(parsed.value.nodes) : undefined;
 }
 
-/** The edge target steps, in trace order, with the odd/even rule applied. */
-export function m2Phase(dataset: M2Dataset, traced: TraceResult): Result<TargetStep[], M2PhaseError> {
+/**
+ * The edge target steps, in trace order, with the odd/even rule applied. `append` adds targets after
+ * the traced ones (the parity partner of D-026); they count as steps for the odd/even rule too.
+ */
+export function m2Phase(dataset: M2Dataset, traced: TraceResult, options: { readonly append?: readonly string[] } = {}): Result<TargetStep[], M2PhaseError> {
   const swap = movesOf(dataset.swap.alg);
   if (swap === undefined) return err({ code: "invalid-dataset-alg", alg: dataset.swap.alg });
   const steps: TargetStep[] = [];
-  for (const [traceIndex, target] of traced.targetStickers.entries()) {
+  const targets = [...traced.targetStickers, ...(options.append ?? [])];
+  for (const [traceIndex, target] of targets.entries()) {
     const shootAs = traceIndex % 2 === 1 ? (dataset.oddStepRule.find((r) => r.target === target)?.shootAs ?? target) : target;
     const record = dataset.records.find((r) => r.target === shootAs);
     if (record === undefined) return err({ code: "missing-record", target: shootAs });
-    const shotAs = shootAs === target ? {} : { shotAs: shootAs };
+    const marks = { ...(shootAs === target ? {} : { shotAs: shootAs }), ...(traceIndex >= traced.targetStickers.length ? { parityTarget: true as const } : {}) };
     if (record.kind === "target") {
       const setup = movesOf(record.setup);
       if (setup === undefined) return err({ code: "invalid-dataset-alg", alg: record.setup });
-      steps.push({ kind: "target", pieceType: "edges", traceIndex, target, ...shotAs, setup, core: swap, undo: invertMoves(setup) });
+      steps.push({ kind: "target", pieceType: "edges", traceIndex, target, ...marks, setup, core: swap, undo: invertMoves(setup) });
     } else {
       const text = record.algs[0]?.alg ?? "";
       const core = movesOf(text);
       if (core === undefined || core.length === 0) return err({ code: "invalid-dataset-alg", alg: text });
-      steps.push({ kind: "target", pieceType: "edges", traceIndex, target, ...shotAs, setup: [], core, undo: [] });
+      steps.push({ kind: "target", pieceType: "edges", traceIndex, target, ...marks, setup: [], core, undo: [] });
     }
   }
   return ok(steps);

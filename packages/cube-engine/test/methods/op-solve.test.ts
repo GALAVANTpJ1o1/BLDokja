@@ -168,7 +168,7 @@ describe("OP/OP worked example", () => {
     const { traces, steps } = solution.value;
     expect(traces.edges.targets.join(" ")).toBe("K D I X W A P L A H T V H");
     expect(traces.corners.targets.join(" ")).toBe("T B F N C M G V L H S");
-    const lines = steps.map((s) => (s.kind === "target" ? `${s.pieceType} ${s.target}: ${formatMoves(s.setup)}` : s.kind === "parity" ? `parity: ${formatMoves(s.alg)}` : `frame: ${formatMoves(s.rotation)}`));
+    const lines = steps.map((s) => (s.kind === "target" ? `${s.pieceType} ${s.target}: ${formatMoves(s.setup)}` : s.kind === "parity" ? `parity: ${formatMoves(s.alg)}` : s.kind));
     expect(lines).toEqual([
       "edges FD: Lw D L2",
       "edges UL: ",

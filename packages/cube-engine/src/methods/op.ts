@@ -82,14 +82,22 @@ export type OpSolveError = SolveTraceError | { readonly code: "dataset-mismatch"
 export function traceForSolve(
   puzzle: Puzzle,
   input: TraceInput,
-  config: { readonly scheme: Scheme; readonly cornerBuffer: string; readonly edgeBuffer: string; readonly breakOrder?: TracePolicy["breakOrder"] },
+  config: {
+    readonly scheme: Scheme;
+    readonly cornerBuffer: string;
+    readonly edgeBuffer: string;
+    readonly breakOrder?: TracePolicy["breakOrder"];
+    /** Per piece type; `asTargets` unless given. */
+    readonly orientedInPlace?: { readonly corners: "separate" | "asTargets"; readonly edges: "separate" | "asTargets" };
+  },
 ): Result<{ readonly corners: TraceResult; readonly edges: TraceResult; readonly rotation: readonly AlgMove[] }, SolveTraceError> {
-  const policy: TracePolicy = { orientedInPlace: "asTargets", ...(config.breakOrder === undefined ? {} : { breakOrder: config.breakOrder }) };
   const traced = (pieceTypeId: "corners" | "edges", buffer: string): Result<TraceResult, SolveTraceError> => {
+    const orientedInPlace = config.orientedInPlace?.[pieceTypeId] ?? "asTargets";
+    const policy: TracePolicy = { orientedInPlace, ...(config.breakOrder === undefined ? {} : { breakOrder: config.breakOrder }) };
     const result = trace(puzzle, input, { pieceType: pieceTypeId, buffer, scheme: config.scheme, policy });
     if (!result.ok) return err({ code: "trace", pieceType: pieceTypeId, error: result.error });
     // Under asTargets every misoriented piece is traced as targets; anything left means the state isn't a real cube.
-    if (result.value.orientedInPlace.length > 0) return err({ code: "orientation-left-over", pieceType: pieceTypeId });
+    if (orientedInPlace === "asTargets" && result.value.orientedInPlace.length > 0) return err({ code: "orientation-left-over", pieceType: pieceTypeId });
     return result;
   };
   const corners = traced("corners", config.cornerBuffer);

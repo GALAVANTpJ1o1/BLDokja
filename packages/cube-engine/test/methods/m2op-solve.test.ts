@@ -166,7 +166,7 @@ describe("M2/OP worked example", () => {
     expect(traces.corners.targets.join(" ")).toBe("U B M S I V B O W");
     const lines = steps.map((s) => {
       if (s.kind === "parity") return `parity: ${formatMoves(s.alg)}`;
-      if (s.kind === "frame") return `frame: ${formatMoves(s.rotation)}`;
+      if (s.kind !== "target") return s.kind;
       if (s.pieceType === "corners") return `corners ${s.target}: ${formatMoves(s.setup)}`;
       return `edges ${s.target}${s.shotAs === undefined ? "" : ` as ${s.shotAs}`}: ${formatMoves([...s.setup, ...s.core, ...s.undo])}`;
     });

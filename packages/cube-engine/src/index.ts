@@ -133,7 +133,27 @@ export {
   type M2OpSystemError,
   type M2PhaseError,
 } from "./methods/m2.js";
-export { stepMoves, type FrameStep, type MethodSolution, type MethodStep, type ParityStep, type TargetStep } from "./methods/solution.js";
+export {
+  solveM2ThreeStyle,
+  solveThreeStyle,
+  threeStylePhase,
+  type M2ThreeStyleConfig,
+  type ThreeStyleConfig,
+  type ThreeStylePhase,
+  type ThreeStylePhaseError,
+  type ThreeStyleSolveError,
+} from "./methods/three-style.js";
+export {
+  stepMoves,
+  type CycleStep,
+  type FrameStep,
+  type MethodSolution,
+  type MethodStep,
+  type OrientationStep,
+  type ParityStep,
+  type SolvedPieceType,
+  type TargetStep,
+} from "./methods/solution.js";
 export {
   demonstrateSetup,
   illegalSetupExamples,
