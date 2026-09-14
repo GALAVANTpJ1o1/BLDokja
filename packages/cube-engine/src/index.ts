@@ -26,5 +26,15 @@ export {
   type TracePolicy,
   type TraceResult,
 } from "./trace/trace.js";
+export {
+  DEFAULT_SINGLE_LETTER_REPRESENTATION,
+  memoView,
+  type MemoItem,
+  type MemoItemKind,
+  type MemoLetterSource,
+  type MemoOptions,
+  type MemoView,
+  type SingleLetterRepresentation,
+} from "./memo/memo.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";

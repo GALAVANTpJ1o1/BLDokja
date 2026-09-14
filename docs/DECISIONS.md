@@ -209,7 +209,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-015 · Single-letter memo representation: `singleLetterRepresentation`
 
-**Status:** accepted design (Gate A, 2026-09-13). **Not implemented yet**; nothing in the code uses it.
+**Status:** accepted design (Gate A, 2026-09-13); implemented in `src/memo/memo.ts` as `memoView(trace, { singleLetterRepresentation })`.
 
 - **Why.** D-013 gives the library 576 cells so that letters left alone in a memo still get an image. This policy decides how those lone letters become two-letter memo items.
 - **Where it lives.**
@@ -245,13 +245,18 @@ Short records of choices that would be expensive to reverse, or where sources di
   | R02: targets `X D P N A U E`; DBR twisted (shows O, home W); buffer UFR twisted (J, omitted) | `XD PN AU EE OO` | `XD PN AU EW OO` | yes |
   | Trailing J; DFR twisted clockwise (shows K, home V) | `JJ KK` | `JV KK` | yes |
 
-- **Tests required when it's implemented:**
+  - **Correction to row 3, found while implementing.** J is on the UFR piece, so with a UFR buffer it can never be a target (D-013). The fixture for this row uses **buffer UBL**; the letters and results are unchanged. As with the prose example (`DA SB` plus DFR), the constructed state also needs a counterclockwise buffer twist to be a real cube state, and the memo leaves that twist out.
+
+- **Tests** (`test/memo/`):
   - The memo layer never modifies the `TraceResult` it reads (deep-frozen input).
-  - `TraceConfig` has no `singleLetterRepresentation` option (a compile-time `@ts-expect-error` check).
+  - Neither `TraceConfig` nor `TracePolicy` has a `singleLetterRepresentation` option (compile-time `@ts-expect-error` checks, run by `pnpm typecheck`).
   - Import boundary: only `src/memo/**` and `src/index.ts` import the memo layer, so nothing solve-related can consume a self-pair.
-  - Property tests over random scrambles:
-    - every traced target letter appears in the memo exactly once, never doubled or dropped;
-    - a pair made of two traced targets is never a diagonal cell;
+  - Parity is copied, never inferred: a trace with its `parity` flipped gives a flipped flag and identical items.
+  - Property tests over random 3x3 states (every buffer, both policies, both modes) and fixed-frame 4x4 corners and wings:
+    - every traced target letter appears in the memo exactly once, in order, never doubled or dropped;
+    - a pair made of two traced targets is never a diagonal cell (nor is any `pair` item);
     - the number of doubled items matches the mode's rule above;
     - the parity flag equals `TraceResult.parity`;
-    - the worked examples above appear as fixtures.
+    - no item comes from the buffer piece.
+  - The worked examples above are fixtures, plus the prose example and an edge example (R01 edges: `chain` gives `… UP RR HH` with no parity).
+  - Random states contain both `chain`-mode hazards: a leftover without parity, and parity without a leftover.
