@@ -26,7 +26,8 @@ import { searchComms } from "../src/commutator/search.js";
 import { orientationPairPattern } from "../src/commutator/validate.js";
 import { loadPuzzle, type Puzzle } from "../src/core/puzzle.js";
 import { algEntry, AlgDatasetSchema, buildRecord, verifyDataset, type AlgDataset, type AlgEntry } from "../src/data/alg-dataset.js";
-import { ContentDatasetSchema, type OpParityDataset, type OpSetupsDataset } from "../src/data/op-dataset.js";
+import { ContentDatasetSchema } from "../src/data/content-dataset.js";
+import type { OpParityDataset, OpSetupsDataset } from "../src/data/op-dataset.js";
 import { opSystem } from "../src/methods/op.js";
 import { ENGINE_VERSION } from "../src/version.js";
 

@@ -6,13 +6,13 @@ import { entryForAlg } from "../../src/data/alg-dataset.js";
 import {
   buildOpParityDataset,
   buildOpSetupsDataset,
-  ContentDatasetSchema,
   verifyOpParityDataset,
   verifyOpSetupsDataset,
   type OpDatasetProblem,
   type OpParityDataset,
   type OpSetupsDataset,
 } from "../../src/data/op-dataset.js";
+import { ContentDatasetSchema } from "../../src/data/content-dataset.js";
 import { GATE_B_SETUP_FAMILIES } from "../../src/methods/setup-search.js";
 import { REFERENCE_SWAPS, swapVariants } from "../../src/methods/swap-algs.js";
 import { pieceName } from "../../src/pieces/names.js";

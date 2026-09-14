@@ -176,8 +176,8 @@ export {
 export {
   buildOpParityDataset,
   buildOpSetupsDataset,
-  ContentDatasetSchema,
   datasetSwap,
+  identitySymmetry,
   opParityEffect,
   OpParityDatasetSchema,
   OpSetupsDatasetSchema,
@@ -185,7 +185,6 @@ export {
   OpTargetRecordSchema,
   verifyOpParityDataset,
   verifyOpSetupsDataset,
-  type ContentDataset,
   type OpBuildError,
   type OpDatasetProblem,
   type OpParityDataset,
@@ -194,5 +193,26 @@ export {
   type OpSetupsSpec,
   type OpTargetRecord,
 } from "./data/op-dataset.js";
+export {
+  buildM2Dataset,
+  buildM2OpParityDataset,
+  deriveOddStepRule,
+  m2DatasetSwap,
+  M2DatasetSchema,
+  m2OpParityEffect,
+  M2OpParityDatasetSchema,
+  M2RecordSchema,
+  verifyM2Dataset,
+  verifyM2OpParityDataset,
+  type M2BuildError,
+  type M2Dataset,
+  type M2DatasetProblem,
+  type M2OpParityDataset,
+  type M2OpParitySpec,
+  type M2Record,
+  type M2Spec,
+  type SpecialAlgs,
+} from "./data/m2-dataset.js";
+export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";

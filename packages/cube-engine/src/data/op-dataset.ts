@@ -13,7 +13,6 @@ import { stickerName } from "../pieces/names.js";
 import { pieceType } from "../pieces/piece-types.js";
 import { ENGINE_VERSION } from "../version.js";
 import {
-  AlgDatasetSchema,
   AlgEntrySchema,
   checkAlgEntry,
   entryForAlg,
@@ -113,13 +112,9 @@ export const OpParityDatasetSchema = z.object({
   records: z.tuple([OpParityRecordSchema]),
 });
 
-/** Every dataset kind under `content/algs/`. */
-export const ContentDatasetSchema = z.discriminatedUnion("kind", [AlgDatasetSchema, OpSetupsDatasetSchema, OpParityDatasetSchema]);
-
 export type OpSetupsDataset = z.infer<typeof OpSetupsDatasetSchema>;
 export type OpParityDataset = z.infer<typeof OpParityDatasetSchema>;
 export type OpTargetRecord = z.infer<typeof OpTargetRecordSchema>;
-export type ContentDataset = z.infer<typeof ContentDatasetSchema>;
 
 export type OpDatasetProblem =
   | DatasetProblem
@@ -142,17 +137,17 @@ export type OpDatasetProblem =
 type OpMethod = "op-corners" | "op-edges";
 const methodOf = (typeId: "corners" | "edges"): OpMethod => (typeId === "corners" ? "op-corners" : "op-edges");
 
-function identitySymmetry(puzzle: Puzzle): number {
+export function identitySymmetry(puzzle: Puzzle): number {
   return cubeSymmetries(puzzle).findIndex((g) => g.sticker.every((to, from) => to === from));
 }
 
-function movesOf(puzzle: Puzzle, text: string): AlgMove[] | undefined {
+export function movesOf(puzzle: Puzzle, text: string): AlgMove[] | undefined {
   const parsed = parseAlg(puzzle.id, text);
   return parsed.ok ? expandNodes(parsed.value.nodes) : undefined;
 }
 
 /** A reference alg relabelled by a symmetry, as a plain move sequence. */
-function relabelled(puzzle: Puzzle, symmetry: number, text: string): string {
+export function relabelled(puzzle: Puzzle, symmetry: number, text: string): string {
   const moves = movesOf(puzzle, text);
   const g = cubeSymmetries(puzzle)[symmetry];
   if (moves === undefined || g === undefined) throw new Error(`can't relabel "${text}" by symmetry ${symmetry}`);
@@ -160,7 +155,7 @@ function relabelled(puzzle: Puzzle, symmetry: number, text: string): string {
 }
 
 /** `[setup: swap]`, or the plain swap when there is no setup. */
-function targetAlg(setup: string, swap: string): string {
+export function targetAlg(setup: string, swap: string): string {
   return setup === "" ? swap : `[${setup}: ${swap}]`;
 }
 

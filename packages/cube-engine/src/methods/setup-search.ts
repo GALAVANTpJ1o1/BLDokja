@@ -84,7 +84,24 @@ export const GATE_B_SETUP_FAMILIES = {
   "op-edges": ["D", "L", "Dw", "Lw"],
 } as const satisfies Record<"op-corners" | "op-edges", readonly string[]>;
 
+const tableCache = new WeakMap<Puzzle, Map<string, Result<SetupTable, SetupSearchError>>>();
+
+/** Results are deterministic in their inputs, so they are cached per puzzle (the `net` regime's search is the slow one). */
 export function searchSetups(puzzle: Puzzle, options: SetupSearchOptions): Result<SetupTable, SetupSearchError> {
+  let byPuzzle = tableCache.get(puzzle);
+  if (byPuzzle === undefined) {
+    byPuzzle = new Map();
+    tableCache.set(puzzle, byPuzzle);
+  }
+  const key = `${options.swap.perm.join(",")}|${options.swap.bufferPiece}|${options.swap.sideEffectPieces.join(",")}|${options.swap.method}|${options.bufferSticker}|${options.pool.join(",")}|${options.regime}`;
+  const cached = byPuzzle.get(key);
+  if (cached !== undefined) return cached;
+  const result = runSetupSearch(puzzle, options);
+  byPuzzle.set(key, result);
+  return result;
+}
+
+function runSetupSearch(puzzle: Puzzle, options: SetupSearchOptions): Result<SetupTable, SetupSearchError> {
   const { swap, regime } = options;
   if (options.pool.length === 0) return err({ code: "pool-must-not-be-empty" });
   const { geometry } = puzzle;
