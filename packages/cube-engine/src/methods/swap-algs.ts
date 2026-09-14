@@ -1,0 +1,211 @@
+import { at } from "../core/arrays.js";
+import { composePerms, identityPerm, moveTable, type StickerPerm } from "../core/move-table.js";
+import { VERIFIED_MOVE_FAMILIES, type Puzzle } from "../core/puzzle.js";
+import { err, ok, type Result } from "../core/result.js";
+import { conjugatePerm, cubeSymmetries, relabelMove } from "../core/symmetry.js";
+import { expandNodes } from "../commutator/expand.js";
+import { moveCounts } from "../commutator/metrics.js";
+import { parseAlg, type AlgMove, type ParsedAlg } from "../commutator/parse.js";
+import { pieceName, stickerName } from "../pieces/names.js";
+
+/**
+ * Swap algs for Old Pochmann and M2 (DECISIONS D-020).
+ *
+ * A method's swap alg exchanges the buffer piece with one other piece, plus a fixed side effect.
+ * The reference algs are single named algs from the sources below. What each one does is never
+ * typed in: it is computed from the move table, checked against the geometry model, and must have
+ * the method's shape. Algs for other buffers come from the 48 cube symmetries and are checked the
+ * same way.
+ */
+
+export type SwapMethod = "op-corners" | "op-edges" | "m2";
+
+export interface ReferenceSwap {
+  readonly method: SwapMethod;
+  readonly pieceType: "corners" | "edges";
+  /** As published. */
+  readonly alg: string;
+  /** Buffer piece the published alg is for. */
+  readonly bufferPiece: string;
+  readonly source: string;
+}
+
+export const REFERENCE_SWAPS: Readonly<Record<SwapMethod, ReferenceSwap>> = {
+  "op-corners": {
+    method: "op-corners",
+    pieceType: "corners",
+    alg: "R U' R' U' R U R' F' R U R' U' R' F R",
+    bufferPiece: "UBL",
+    source: "J Perm, jperm.net/bld, Old Pochmann corners swap (retrieved 2026-09-14)",
+  },
+  "op-edges": {
+    method: "op-edges",
+    pieceType: "edges",
+    alg: "R U R' U' R' F R2 U' R' U' R U R' F'",
+    bufferPiece: "UR",
+    source: "J Perm, jperm.net/bld, Old Pochmann edges swap (retrieved 2026-09-14)",
+  },
+  m2: {
+    method: "m2",
+    pieceType: "edges",
+    alg: "M2",
+    bufferPiece: "DF",
+    source: "BRIEF §5.4: M2 edges, buffer DF, M2 as the swap",
+  },
+};
+
+/** How many piece transpositions each part of a swap alg's effect must have. */
+const SHAPES: Readonly<Record<SwapMethod, { readonly own: number; readonly other: number; readonly centres: number }>> = {
+  "op-corners": { own: 1, other: 1, centres: 0 },
+  "op-edges": { own: 1, other: 1, centres: 0 },
+  m2: { own: 2, other: 0, centres: 2 },
+};
+
+export interface SwapEffect {
+  readonly perm: StickerPerm;
+  readonly bufferPiece: string;
+  /** The piece the buffer is exchanged with. */
+  readonly swapPiece: string;
+  /** For each buffer sticker, the slot it is sent to. */
+  readonly swapStickers: Readonly<Record<string, string>>;
+  /** Every other piece the alg moves (of any kind, centres included), in sticker order. */
+  readonly sideEffectPieces: readonly string[];
+}
+
+export interface SwapAlg extends SwapEffect {
+  readonly method: SwapMethod;
+  readonly alg: ParsedAlg;
+  readonly moves: readonly AlgMove[];
+  readonly etm: number;
+  /** Index into `cubeSymmetries`; 0-based, the identity for the reference itself. */
+  readonly symmetry: number;
+}
+
+export type SwapShapeError =
+  | { readonly code: "not-a-piece-swap" }
+  | { readonly code: "buffer-not-swapped"; readonly bufferPiece: string }
+  | { readonly code: "wrong-shape"; readonly expected: (typeof SHAPES)[SwapMethod]; readonly actual: (typeof SHAPES)[SwapMethod] };
+
+function permOf(puzzle: Puzzle, moves: readonly AlgMove[]): StickerPerm {
+  const table = moveTable(puzzle, VERIFIED_MOVE_FAMILIES[puzzle.id]);
+  return moves.reduce((perm, m) => composePerms(perm, table.move(m.family, m.amount).perm), identityPerm(table.stickerCount));
+}
+
+/**
+ * Read a swap alg's effect and check it has the method's shape: an involution whose moved pieces
+ * pair up into transpositions (the buffer's among them), with the method's count of transpositions
+ * of its own piece kind, the other kind, and centres.
+ */
+export function analyseSwap(puzzle: Puzzle, method: SwapMethod, perm: StickerPerm, bufferPiece: string): Result<SwapEffect, SwapShapeError> {
+  const { geometry } = puzzle;
+  if (!perm.every((to, from) => perm[to] === from)) return err({ code: "not-a-piece-swap" });
+
+  const kindOf = (cubieStickers: number) => (cubieStickers === 3 ? "corners" : cubieStickers === 2 ? "edges" : "centres");
+  const nameOf = (sticker: number) => pieceName(geometry.size, geometry.sticker(sticker).cubie);
+  const partner = new Map<string, string>();
+  for (let s = 0; s < perm.length; s++) {
+    const to = at(perm, s);
+    if (to !== s) partner.set(nameOf(s), nameOf(to));
+  }
+  // Pieces pair up only if every moved piece's stickers all land on one other piece.
+  for (let s = 0; s < perm.length; s++) {
+    const to = at(perm, s);
+    if (to !== s && partner.get(nameOf(s)) !== nameOf(to)) return err({ code: "not-a-piece-swap" });
+  }
+
+  const ownKind = REFERENCE_SWAPS[method].pieceType;
+  const counts = { own: 0, other: 0, centres: 0 };
+  const seen = new Set<string>();
+  for (let s = 0; s < perm.length; s++) {
+    const piece = nameOf(s);
+    if (at(perm, s) === s || seen.has(piece)) continue;
+    const other = partner.get(piece) ?? "";
+    // A piece mapped onto itself is flipped in place, not swapped.
+    if (other === piece) return err({ code: "not-a-piece-swap" });
+    seen.add(piece).add(other);
+    const kind = kindOf(geometry.cubieOf(s).stickers.length);
+    if (kind === ownKind) counts.own++;
+    else if (kind === "centres") counts.centres++;
+    else counts.other++;
+  }
+  const swapPiece = partner.get(bufferPiece);
+  if (swapPiece === undefined) return err({ code: "buffer-not-swapped", bufferPiece });
+  const expected = SHAPES[method];
+  if (counts.own !== expected.own || counts.other !== expected.other || counts.centres !== expected.centres) {
+    return err({ code: "wrong-shape", expected, actual: counts });
+  }
+
+  const swapStickers: Record<string, string> = {};
+  const sideEffectPieces: string[] = [];
+  for (let s = 0; s < perm.length; s++) {
+    const to = at(perm, s);
+    if (to === s) continue;
+    const piece = nameOf(s);
+    if (piece === bufferPiece) swapStickers[stickerName(geometry, s)] = stickerName(geometry, to);
+    else if (piece !== swapPiece && !sideEffectPieces.includes(piece)) sideEffectPieces.push(piece);
+  }
+  return ok({ perm, bufferPiece, swapPiece, swapStickers, sideEffectPieces });
+}
+
+export type SwapAlgError = { readonly code: "invalid-alg" } | SwapShapeError;
+
+/** The reference swap alg, with its computed effect. */
+export function referenceSwap(puzzle: Puzzle, method: SwapMethod): Result<SwapAlg, SwapAlgError> {
+  const reference = REFERENCE_SWAPS[method];
+  const parsed = parseAlg(puzzle.id, reference.alg);
+  if (!parsed.ok) return err({ code: "invalid-alg" });
+  const moves = expandNodes(parsed.value.nodes);
+  const effect = analyseSwap(puzzle, method, permOf(puzzle, moves), reference.bufferPiece);
+  if (!effect.ok) return effect;
+  const identity = cubeSymmetries(puzzle).findIndex((g) => g.sticker.every((to, from) => to === from));
+  return ok({ ...effect.value, method, alg: parsed.value, moves, etm: moveCounts(puzzle.id, moves).etm, symmetry: identity });
+}
+
+/**
+ * Every symmetry image of a reference swap: for each of the 48 symmetries g, the relabelled alg,
+ * which swaps g(buffer) with g(swap piece). Its effect is recomputed from its own moves, must equal
+ * g·P·g⁻¹ of the reference, and must pass the same shape check. Identical algs for the same buffer
+ * piece are listed once (the lowest symmetry index).
+ */
+export function swapVariants(puzzle: Puzzle, method: SwapMethod): Result<SwapAlg[], SwapAlgError> {
+  const reference = referenceSwap(puzzle, method);
+  if (!reference.ok) return reference;
+  const { geometry } = puzzle;
+  const bufferSticker = Object.keys(reference.value.swapStickers)[0] ?? "";
+  const bufferIndex = geometry.stickers.findIndex((s) => stickerName(geometry, s.index) === bufferSticker);
+
+  const variants: SwapAlg[] = [];
+  const seen = new Set<string>();
+  for (const g of cubeSymmetries(puzzle)) {
+    const moves = reference.value.moves.map((m): AlgMove => ({ type: "move", ...relabelMove(puzzle, g, m) }));
+    const perm = permOf(puzzle, moves);
+    const expected = conjugatePerm(g, reference.value.perm);
+    if (!perm.every((to, from) => expected[from] === to)) throw new Error(`symmetry ${g.index} relabelling doesn't conjugate the ${method} swap`);
+    const bufferPiece = pieceName(geometry.size, geometry.sticker(at(g.sticker, bufferIndex)).cubie);
+    const effect = analyseSwap(puzzle, method, perm, bufferPiece);
+    if (!effect.ok) return effect;
+    const text = moves.map((m) => `${m.family}${m.amount === 1 ? "" : m.amount === 2 ? "2" : "'"}`).join(" ");
+    const key = `${bufferPiece}|${text}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    variants.push({
+      ...effect.value,
+      method,
+      alg: { puzzle: puzzle.id, nodes: moves },
+      moves,
+      etm: moveCounts(puzzle.id, moves).etm,
+      symmetry: g.index,
+    });
+  }
+  return ok(variants);
+}
+
+/**
+ * M2 swaps for every buffer on the M slice (DF, UF, DB, UB): the symmetry images of M2 that are
+ * still M-slice turns. Images that become E2 or S2 belong to other slice methods and aren't M2.
+ */
+export function m2Swaps(puzzle: Puzzle): Result<SwapAlg[], SwapAlgError> {
+  const variants = swapVariants(puzzle, "m2");
+  if (!variants.ok) return variants;
+  return ok(variants.value.filter((v) => v.moves.every((m) => m.family === "M")));
+}

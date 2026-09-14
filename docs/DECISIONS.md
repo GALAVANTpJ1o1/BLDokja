@@ -416,3 +416,27 @@ Short records of choices that would be expensive to reverse, or where sources di
   - `pnpm test`: corners UFR, UBL, DBR and edges UF, DF, FR, each with 20 seeded cases.
   - `pnpm test:engine:slow`: the full UFR corner and UF edge sets.
   - The buffer-comparison report: every buffer piece.
+
+## D-020 · Swap algs for Old Pochmann and M2: reference algs, computed effects, symmetry variants
+
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B chooses the buffers and the variants.
+
+- **Reference algs** (`REFERENCE_SWAPS`). Each is a single named alg, not a sheet:
+  - **OP corners,** buffer UBL: `R U' R' U' R U R' F' R U R' U' R' F R`. Source: J Perm, jperm.net/bld, retrieved 2026-09-14.
+  - **OP edges,** buffer UR: `R U R' U' R' F R2 U' R' U' R U R' F'`. Same source.
+  - **M2,** buffer DF: the move `M2`, per BRIEF §5.4.
+- **Effects are computed, never typed in.** Each alg's sticker permutation comes from the move table, must equal the geometry model's, and must have its method's shape:
+  - an involution whose moved pieces pair into transpositions, one of them the buffer's;
+  - **OP:** one transposition of the method's own piece kind, one of the other kind, and no centres;
+  - **M2:** two edge transpositions and two centre transpositions.
+- **Computed effects** (pinned in `test/methods/swap-algs.test.ts`):
+  - **OP corners:** UBL↔DFR, with the U sticker sent to RDF (Speffz P). **Side effect:** edges UB↔UL. 15 moves.
+  - **OP edges:** UR↔UL, with the U sticker sent to UL. **Side effect:** corners UBR↔UFR. 14 moves.
+  - **M2:** DF↔UB, with the D sticker sent to UB. **Side effect:** UF↔DB, plus centres U↔D and F↔B.
+- **Finding: every swap has a side effect, whatever a summary says.** The fetched summary of J Perm's page said each OP swap exchanges "only" the buffer and the target. That can't be true: a single swap of two pieces is an odd permutation, so something else must move as well. The engine records the side effects above, and the setup search protects them (D-021).
+- **Symmetry variants** (`swapVariants`). Each of the 48 cube symmetries relabels a reference alg, using `relabelMove` from `src/core/symmetry.ts`, into a swap for another buffer piece.
+  - Each variant's permutation is recomputed from its own moves. It must equal g·P·g⁻¹ of the reference, agree with the geometry model, and pass the same shape check.
+  - An alg repeated for the same buffer is listed once.
+  - **OP corners:** 6 distinct variants for each of the 8 corner pieces. Symmetries preserve antipodes, so the swap piece is always the corner opposite the buffer.
+  - **OP edges:** 4 distinct variants for each of the 12 edge pieces.
+  - **M2** (`m2Swaps`): only images that are still M2, i.e. the M-slice buffers DF↔UB and UF↔DB. Images that become E2 or S2 would be different slice methods, not M2.

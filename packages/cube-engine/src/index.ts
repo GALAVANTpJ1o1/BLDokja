@@ -72,5 +72,18 @@ export {
   type ThreeCycleError,
   type ValidateCommError,
 } from "./commutator/validate.js";
+export {
+  analyseSwap,
+  m2Swaps,
+  referenceSwap,
+  REFERENCE_SWAPS,
+  swapVariants,
+  type ReferenceSwap,
+  type SwapAlg,
+  type SwapAlgError,
+  type SwapEffect,
+  type SwapMethod,
+  type SwapShapeError,
+} from "./methods/swap-algs.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
