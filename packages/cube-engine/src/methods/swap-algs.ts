@@ -1,11 +1,12 @@
 import { at } from "../core/arrays.js";
 import { composePerms, identityPerm, moveTable, type StickerPerm } from "../core/move-table.js";
-import { VERIFIED_MOVE_FAMILIES, type Puzzle } from "../core/puzzle.js";
+import { faceletsOf, VERIFIED_MOVE_FAMILIES, type Puzzle } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { conjugatePerm, cubeSymmetries, relabelMove } from "../core/symmetry.js";
 import { expandNodes } from "../commutator/expand.js";
 import { moveCounts } from "../commutator/metrics.js";
 import { parseAlg, type AlgMove, type ParsedAlg } from "../commutator/parse.js";
+import { stickerCyclePattern, type StickerCycleError } from "../commutator/validate.js";
 import { pieceName, stickerName } from "../pieces/names.js";
 
 /**
@@ -198,6 +199,34 @@ export function swapVariants(puzzle: Puzzle, method: SwapMethod): Result<SwapAlg
     });
   }
   return ok(variants);
+}
+
+/** The part of a swap's permutation on its side-effect pieces; identity everywhere else. */
+export function sideEffectPerm(puzzle: Puzzle, swap: SwapEffect): StickerPerm {
+  const { geometry } = puzzle;
+  return Uint8Array.from(swap.perm, (to, from) => (swap.sideEffectPieces.includes(pieceName(geometry.size, geometry.sticker(from).cubie)) ? to : from));
+}
+
+export type TargetEffectError =
+  | { readonly code: "invalid-target"; readonly target: string; readonly detail: StickerCycleError }
+  | { readonly code: "target-on-side-effect-piece"; readonly target: string };
+
+/**
+ * What shooting `target` with this swap must do, worked out from the case alone: exchange the buffer
+ * piece with the target piece (the buffer sticker goes to `target`, the pieces staying rigid), and
+ * repeat the swap's side effect exactly. The exchange comes from `stickerCyclePattern`, never from a
+ * setup alg.
+ */
+export function targetEffect(puzzle: Puzzle, swap: SwapEffect, bufferSticker: string, target: string): Result<StickerPerm, TargetEffectError> {
+  const exchange = stickerCyclePattern(puzzle, [bufferSticker, target]);
+  if (!exchange.ok) return err({ code: "invalid-target", target, detail: exchange.error });
+  // The exchange is an involution, so the permutation that makes it equals the one that undoes it.
+  const facelets = faceletsOf(puzzle, exchange.value);
+  const { geometry } = puzzle;
+  const touchesSideEffect = facelets.some((home, slot) => home !== slot && swap.sideEffectPieces.includes(pieceName(geometry.size, geometry.sticker(slot).cubie)));
+  if (touchesSideEffect) return err({ code: "target-on-side-effect-piece", target });
+  const side = sideEffectPerm(puzzle, swap);
+  return ok(Uint8Array.from(facelets, (home, slot) => (home !== slot ? home : at(side, slot))));
 }
 
 /**

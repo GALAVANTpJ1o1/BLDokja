@@ -98,14 +98,25 @@ export {
   m2Swaps,
   referenceSwap,
   REFERENCE_SWAPS,
+  sideEffectPerm,
   swapVariants,
+  targetEffect,
   type ReferenceSwap,
   type SwapAlg,
   type SwapAlgError,
   type SwapEffect,
   type SwapMethod,
   type SwapShapeError,
+  type TargetEffectError,
 } from "./methods/swap-algs.js";
+export {
+  demonstrateSetup,
+  illegalSetupExamples,
+  type IllegalSetupExample,
+  type IllegalSetupExampleOptions,
+  type SetupDemonstration,
+  type SetupDemonstrationError,
+} from "./methods/illegal-setup.js";
 export {
   DEFAULT_SETUP_POOLS,
   searchSetups,
