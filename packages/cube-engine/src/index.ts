@@ -114,12 +114,24 @@ export {
   opPhase,
   opSystem,
   solveOpOp,
+  traceForSolve,
   type OpOpConfig,
   type OpPhaseError,
   type OpSolveError,
   type OpSystem,
   type OpSystemError,
+  type SolveTraceError,
 } from "./methods/op.js";
+export {
+  m2OpSystem,
+  m2Phase,
+  solveM2Op,
+  type M2OpConfig,
+  type M2OpSolveError,
+  type M2OpSystem,
+  type M2OpSystemError,
+  type M2PhaseError,
+} from "./methods/m2.js";
 export { stepMoves, type FrameStep, type MethodSolution, type MethodStep, type ParityStep, type TargetStep } from "./methods/solution.js";
 export {
   demonstrateSetup,

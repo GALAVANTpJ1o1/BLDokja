@@ -20,6 +20,11 @@ export interface TargetStep {
   /** Index into the piece type's `TraceResult.targets` (and `targetStickers`, `targetKinds`). */
   readonly traceIndex: number;
   readonly target: string;
+  /**
+   * Set when the method shot another sticker's case for this target: M2 on an odd step shoots UF
+   * with DB's alg, and so on (DECISIONS D-025).
+   */
+  readonly shotAs?: string;
   readonly setup: readonly AlgMove[];
   readonly core: readonly AlgMove[];
   readonly undo: readonly AlgMove[];
@@ -36,7 +41,7 @@ export interface ParityStep {
 export type MethodStep = FrameStep | TargetStep | ParityStep;
 
 export interface MethodSolution {
-  readonly method: "op-op";
+  readonly method: "op-op" | "m2-op";
   readonly traces: { readonly corners: TraceResult; readonly edges: TraceResult };
   readonly steps: readonly MethodStep[];
   /** Every step's moves in order, uncancelled: exactly what gets executed. */

@@ -67,13 +67,44 @@ export interface OpOpConfig {
   readonly breakOrder?: TracePolicy["breakOrder"];
 }
 
-export type OpSolveError =
+export type SolveTraceError =
   | { readonly code: "trace"; readonly pieceType: "corners" | "edges"; readonly error: TraceError }
-  | { readonly code: "dataset-mismatch"; readonly field: string }
   | { readonly code: "orientation-left-over"; readonly pieceType: "corners" | "edges" }
   | { readonly code: "inconsistent-parity" }
-  | { readonly code: "centers-not-normalisable" }
-  | OpPhaseError;
+  | { readonly code: "centers-not-normalisable" };
+
+export type OpSolveError = SolveTraceError | { readonly code: "dataset-mismatch"; readonly field: string } | OpPhaseError;
+
+/**
+ * What every corners-and-edges solver starts from: both piece types traced once with `asTargets`,
+ * and the rotation that puts the centres where the memo was traced.
+ */
+export function traceForSolve(
+  puzzle: Puzzle,
+  input: TraceInput,
+  config: { readonly scheme: Scheme; readonly cornerBuffer: string; readonly edgeBuffer: string; readonly breakOrder?: TracePolicy["breakOrder"] },
+): Result<{ readonly corners: TraceResult; readonly edges: TraceResult; readonly rotation: readonly AlgMove[] }, SolveTraceError> {
+  const policy: TracePolicy = { orientedInPlace: "asTargets", ...(config.breakOrder === undefined ? {} : { breakOrder: config.breakOrder }) };
+  const traced = (pieceTypeId: "corners" | "edges", buffer: string): Result<TraceResult, SolveTraceError> => {
+    const result = trace(puzzle, input, { pieceType: pieceTypeId, buffer, scheme: config.scheme, policy });
+    if (!result.ok) return err({ code: "trace", pieceType: pieceTypeId, error: result.error });
+    // Under asTargets every misoriented piece is traced as targets; anything left means the state isn't a real cube.
+    if (result.value.orientedInPlace.length > 0) return err({ code: "orientation-left-over", pieceType: pieceTypeId });
+    return result;
+  };
+  const corners = traced("corners", config.cornerBuffer);
+  if (!corners.ok) return corners;
+  const edges = traced("edges", config.edgeBuffer);
+  if (!edges.ok) return edges;
+  if (corners.value.parity !== edges.value.parity) return err({ code: "inconsistent-parity" });
+
+  // Tracing already succeeded, so the alg applies.
+  const pattern: KPattern = "pattern" in input ? input.pattern : puzzle.kpuzzle.defaultPattern().applyAlg(input.alg);
+  const frame = centersRotation(puzzle, pattern);
+  const rotation = frame === undefined ? undefined : movesOf(frame.alg);
+  if (rotation === undefined) return err({ code: "centers-not-normalisable" });
+  return ok({ corners: corners.value, edges: edges.value, rotation });
+}
 
 export function solveOpOp(puzzle: Puzzle, input: TraceInput, config: OpOpConfig): Result<MethodSolution, OpSolveError> {
   const { corners, edges, parity } = config;
@@ -82,27 +113,11 @@ export function solveOpOp(puzzle: Puzzle, input: TraceInput, config: OpOpConfig)
   if (parity.buffers.corners !== corners.buffer || parity.buffers.edges !== edges.buffer) return err({ code: "dataset-mismatch", field: "parity.buffers" });
   if (parity.swaps.corners !== corners.swap.alg || parity.swaps.edges !== edges.swap.alg) return err({ code: "dataset-mismatch", field: "parity.swaps" });
 
-  const policy: TracePolicy = { orientedInPlace: "asTargets", ...(config.breakOrder === undefined ? {} : { breakOrder: config.breakOrder }) };
-  const traces: Partial<Record<"corners" | "edges", TraceResult>> = {};
-  for (const dataset of [corners, edges]) {
-    const traced = trace(puzzle, input, { pieceType: dataset.pieceType, buffer: dataset.buffer, scheme: config.scheme, policy });
-    if (!traced.ok) return err({ code: "trace", pieceType: dataset.pieceType, error: traced.error });
-    // Under asTargets every misoriented piece is traced as targets; anything left means the state isn't a real cube.
-    if (traced.value.orientedInPlace.length > 0) return err({ code: "orientation-left-over", pieceType: dataset.pieceType });
-    traces[dataset.pieceType] = traced.value;
-  }
-  const cornerTrace = traces.corners;
-  const edgeTrace = traces.edges;
-  if (cornerTrace === undefined || edgeTrace === undefined) throw new Error("both piece types were traced");
-  if (cornerTrace.parity !== edgeTrace.parity) return err({ code: "inconsistent-parity" });
-
-  // Tracing already succeeded, so the alg applies.
-  const pattern: KPattern = "pattern" in input ? input.pattern : puzzle.kpuzzle.defaultPattern().applyAlg(input.alg);
-  const frame = centersRotation(puzzle, pattern);
-  if (frame === undefined) return err({ code: "centers-not-normalisable" });
-  const rotation = movesOf(frame.alg);
+  const traced = traceForSolve(puzzle, input, { scheme: config.scheme, cornerBuffer: corners.buffer, edgeBuffer: edges.buffer, ...(config.breakOrder === undefined ? {} : { breakOrder: config.breakOrder }) });
+  if (!traced.ok) return traced;
+  const { corners: cornerTrace, edges: edgeTrace, rotation } = traced.value;
   const parityAlg = movesOf(parity.records[0].algs[0]?.alg ?? "");
-  if (rotation === undefined || parityAlg === undefined || parityAlg.length === 0) return err({ code: "invalid-dataset-alg", alg: parity.records[0].algs[0]?.alg ?? "" });
+  if (parityAlg === undefined || parityAlg.length === 0) return err({ code: "invalid-dataset-alg", alg: parity.records[0].algs[0]?.alg ?? "" });
 
   const edgeSteps = opPhase(edges, edgeTrace);
   if (!edgeSteps.ok) return edgeSteps;
