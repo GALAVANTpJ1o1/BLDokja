@@ -49,5 +49,7 @@ export {
   type ParsedAlg,
   type QuarterTurns,
 } from "./commutator/parse.js";
+export { cancelMoves, expandAlg, expandNodes, formatMoves, invertMoves, moveAxis, type ExpandOptions } from "./commutator/expand.js";
+export { moveCounts, type MoveCounts } from "./commutator/metrics.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";

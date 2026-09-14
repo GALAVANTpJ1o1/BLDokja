@@ -296,3 +296,27 @@ Short records of choices that would be expensive to reverse, or where sources di
     - the canonical form round-trips;
     - the form with every optional bracket left out parses to the same tree;
     - for the fully bracketed form, the tree equals the one cubing.js's parser builds.
+
+## D-017 · Expansion, cancellation and move metrics
+
+**Status:** accepted (the cancellation rule was decided at Gate A, 2026-09-13). The metric definitions are for your review.
+
+- **Expansion.** `[A, B]` = A B A⁻¹ B⁻¹ and `[A: B]` = A B A⁻¹. A test checks the expansion of random trees against cubing.js's `Alg.expand()`. A half turn inverts to itself (`U2`, never `U2'`).
+- **Cancellation keeps the move families you wrote** (Gate A).
+  - Moves about one axis commute. Within a run of same-axis moves, each family merges with itself mod 4, so `R L R` → `R2 L` and `x R x'` → `R`.
+  - Different families never merge, even when they're the same turn: `Rw R'` stays, and so does `r Rw'` on 4x4x4.
+  - The merged run keeps its families in order of first appearance. A run that cancels to nothing is dropped, and the moves on either side can then merge.
+  - The axis of each family comes from the geometry model's notation reader, not from a table.
+  - **Properties,** on random trees for 3x3x3 and 4x4x4: the effect is unchanged (kpuzzle), cancelling again changes nothing, the result is never longer, and no metric goes up.
+- **Metrics** (`moveCounts`). Definitions checked against the Speedsolving wiki's "Metric" page on 2026-09-14.
+  - **HTM:** a face turn is 1 whatever its amount, a slice is 2, a wide move is 1, rotations are 0.
+  - **QTM:** a quarter turn is 1 and a half turn 2, so M is 2 and M2 is 4. Wide moves count like face turns; rotations are 0.
+  - **STM:** any turn of one slice or contiguous block is 1; rotations are 0.
+  - **How they're computed.** A move is a vector of quarter turns per layer along its axis. HTM and QTM take the cheapest way to build that vector from outer-block turns (layers 1..k from either face), with rotations free. STM is 0 when every layer turns together (a rotation) and 1 otherwise. No per-family weights are written by hand.
+  - On 3x3x3 the result is exactly HTM, because every outer block is a face turn, or a face turn plus a rotation. On 4x4x4 it's the outer block turn metric (OBTM): `2R` counts 2 and `3Rw` counts 1. cubing.js also treats HTM as OBTM (its `HandTurnMetric` alias).
+  - **ETM differs from the wiki, on purpose.** The wiki's ETM counts "perceived movements" in a video: a rotation counts only when it needs a regrip, and a half turn can count as 1 or 2. That can't be computed from notation. Here, ETM counts every written move as 1, rotations included, which is what cubing.js's ETM counter does. It's the tie-break the comm search ranks by (milestone 7).
+  - **Verification** (`test/commutator/metrics.test.ts`):
+    - a golden table from the wiki's definitions, for 3x3x3 and 4x4x4 moves;
+    - on random 3x3x3 sequences, HTM, STM and ETM agree with cubing.js's `OBTM`, `RBTM` and `ETM` counters, and QTM equals HTM with half turns doubled;
+    - cubing.js has no QTM counter.
+    - `cubing/notation` is imported only by tests.
