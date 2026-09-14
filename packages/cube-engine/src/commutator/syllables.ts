@@ -98,9 +98,10 @@ export function syllableCodec(
         ADD[u * size + v] = w;
       }
     }
-    add = (u, v) => at(ADD, u * size + v);
-    count = (u) => at(NNZ, u);
-    negate = (u) => at(NEG, u);
+    // Hot path: plain indexing. Every packed value is below `size` by construction.
+    add = (u, v) => ADD[u * size + v] ?? 0;
+    count = (u) => NNZ[u] ?? 0;
+    negate = (u) => NEG[u] ?? 0;
   } else {
     add = (u, v) => {
       let w = 0;
@@ -153,11 +154,32 @@ export function syllableCodec(
     length: s.length,
   });
 
+  // The comm search's inner loop: no closures or checked access per step.
   const conjugateLength = (setup: Syllables, core: Syllables): number => {
+    const setupAxes = setup.axes;
+    const setupValues = setup.values;
+    const coreAxes = core.axes;
+    const coreValues = core.values;
+    const s = setupAxes.length;
+    const c = coreAxes.length;
+    const steps = 2 * s + c;
     let n = 0;
-    const push = (axis: number, value: number) => {
+    for (let step = 0; step < steps; step++) {
+      let axis: number;
+      let value: number;
+      if (step < s) {
+        axis = setupAxes[step] ?? 0;
+        value = setupValues[step] ?? 0;
+      } else if (step < s + c) {
+        axis = coreAxes[step - s] ?? 0;
+        value = coreValues[step - s] ?? 0;
+      } else {
+        const i = steps - 1 - step;
+        axis = setupAxes[i] ?? 0;
+        value = negate(setupValues[i] ?? 0);
+      }
       if (n > 0 && stackAxes[n - 1] === axis) {
-        const merged = add(at(stackValues, n - 1), value);
+        const merged = add(stackValues[n - 1] ?? 0, value);
         if (merged === 0) n--;
         else stackValues[n - 1] = merged;
       } else {
@@ -165,13 +187,10 @@ export function syllableCodec(
         stackValues[n] = value;
         n++;
       }
-    };
-    for (let i = 0; i < setup.axes.length; i++) push(at(setup.axes, i), at(setup.values, i));
-    for (let i = 0; i < core.axes.length; i++) push(at(core.axes, i), at(core.values, i));
-    for (let i = setup.axes.length - 1; i >= 0; i--) push(at(setup.axes, i), negate(at(setup.values, i)));
+    }
     stackSize = n;
     let length = 0;
-    for (let i = 0; i < n; i++) length += count(at(stackValues, i));
+    for (let i = 0; i < n; i++) length += count(stackValues[i] ?? 0);
     return length;
   };
 

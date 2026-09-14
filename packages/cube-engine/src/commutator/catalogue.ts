@@ -2,6 +2,7 @@ import { at } from "../core/arrays.js";
 import { composePerms, identityPerm, moveTable, type MoveTable, type StickerPerm, type TableMove } from "../core/move-table.js";
 import type { Puzzle } from "../core/puzzle.js";
 import { pieceType, type PieceTypeId } from "../pieces/piece-types.js";
+import { moveCounts } from "./metrics.js";
 import type { AlgMove } from "./parse.js";
 import { syllableCodec, type SyllableCodec, type Syllables } from "./syllables.js";
 
@@ -113,7 +114,8 @@ function compareKeys(a: readonly number[], b: readonly number[]): number {
 
 export function buildCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds: CommSearchBounds): CommCatalogue {
   const table = moveTable(puzzle, bounds.generators);
-  const codec = syllableCodec(puzzle.id, bounds.generators);
+  // QTM weights from D-017's metrics, so a slice quarter turn counts 2.
+  const codec = syllableCodec(puzzle.id, bounds.generators, (family, amount) => moveCounts(puzzle.id, [{ type: "move", family, amount }]).qtm);
   const type = pieceType(puzzle, pieceTypeId);
   const n = table.stickerCount;
   const perPiece = at(type.pieces, 0).stickers.length;

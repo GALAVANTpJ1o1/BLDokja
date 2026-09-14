@@ -2,6 +2,7 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { VERIFIED_MOVE_FAMILIES, type PuzzleId } from "../../src/core/puzzle.js";
 import { cancelMoves, invertMoves } from "../../src/commutator/expand.js";
+import { moveCounts } from "../../src/commutator/metrics.js";
 import type { AlgMove, QuarterTurns } from "../../src/commutator/parse.js";
 import { syllableCodec } from "../../src/commutator/syllables.js";
 
@@ -13,7 +14,7 @@ const CODECS: { label: string; puzzle: PuzzleId; families: readonly string[] }[]
 ];
 
 describe.each(CODECS)("syllable codec: $label", ({ puzzle, families }) => {
-  const codec = syllableCodec(puzzle, families);
+  const codec = syllableCodec(puzzle, families, (family, amount) => moveCounts(puzzle, [{ type: "move", family, amount }]).qtm);
   // Few families, so cancellation happens often.
   const moveArb = (pool: readonly string[]) =>
     fc.record({ type: fc.constant("move" as const), family: fc.constantFrom(...pool), amount: fc.constantFrom<QuarterTurns>(1, 2, 3) });
@@ -33,8 +34,13 @@ describe.each(CODECS)("syllable codec: $label", ({ puzzle, families }) => {
       fc.property(
         fc.oneof(...pools.map((pool) => fc.tuple(fc.array(moveArb(pool), { maxLength: 4 }), fc.array(moveArb(pool), { maxLength: 12 })))),
         ([setup, core]: [AlgMove[], AlgMove[]]) => {
-          const expected = cancelMoves(puzzle, [...setup, ...core, ...invertMoves(setup)]).length;
-          expect(codec.conjugateLength(codec.encode(setup), codec.encode(core))).toBe(expected);
+          const full = [...setup, ...core, ...invertMoves(setup)];
+          const cancelled = cancelMoves(puzzle, full);
+          expect(codec.conjugateLength(codec.encode(setup), codec.encode(core))).toBe(cancelled.length);
+          // The last reduction's QTM and identity describe that same cancelled sequence.
+          expect(codec.lastQuarterTurns()).toBe(moveCounts(puzzle, cancelled).qtm);
+          const packed = codec.encode(full);
+          expect(codec.lastIdentity()).toBe(Array.from(packed.axes, (axis, i) => `${axis}:${packed.values[i] ?? -1} `).join(""));
           expect(codec.inverse(codec.encode(core)).length).toBe(cancelMoves(puzzle, invertMoves(core)).length);
         },
       ),
