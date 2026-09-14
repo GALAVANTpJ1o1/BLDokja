@@ -1,5 +1,5 @@
 /**
- * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022, D-023, D-024).
+ * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022 to D-025).
  *
  *   pnpm engine:generate            write the files
  *   pnpm engine:generate --check    regenerate in memory; exit 1 if any committed file differs
@@ -27,7 +27,9 @@ import { orientationPairPattern } from "../src/commutator/validate.js";
 import { loadPuzzle, type Puzzle } from "../src/core/puzzle.js";
 import { algEntry, AlgDatasetSchema, buildRecord, verifyDataset, type AlgDataset, type AlgEntry } from "../src/data/alg-dataset.js";
 import { ContentDatasetSchema } from "../src/data/content-dataset.js";
+import type { M2Dataset, M2OpParityDataset } from "../src/data/m2-dataset.js";
 import type { OpParityDataset, OpSetupsDataset } from "../src/data/op-dataset.js";
+import { m2OpSystem } from "../src/methods/m2.js";
 import { opSystem } from "../src/methods/op.js";
 import { ENGINE_VERSION } from "../src/version.js";
 
@@ -115,11 +117,20 @@ function opDatasets(puzzle: Puzzle): (OpSetupsDataset | OpParityDataset)[] {
   return [system.value.corners, system.value.edges, system.value.parity];
 }
 
+/** The M2/OP datasets for the Gate B buffers (D-022, D-025), built and verified by `m2OpSystem`. Its corners must be the OP/OP ones. */
+function m2Datasets(puzzle: Puzzle, opCorners: OpSetupsDataset | OpParityDataset | undefined): (M2Dataset | M2OpParityDataset)[] {
+  const system = m2OpSystem(puzzle, { cornerBuffer: "UBL", edgeBuffer: "DF" });
+  if (!system.ok) throw new Error(`M2 datasets failed: ${JSON.stringify(system.error).slice(0, 1000)}`);
+  if (JSON.stringify(system.value.corners) !== JSON.stringify(opCorners)) throw new Error("M2/OP corners differ from the OP/OP corners dataset");
+  return [system.value.edges, system.value.parity];
+}
+
 /** Every dataset as the exact file text to commit, verified. */
 export async function generateDatasets(): Promise<Map<string, string>> {
   const puzzle = await loadPuzzle("3x3x3");
   const files = new Map<string, string>();
-  for (const dataset of opDatasets(puzzle)) {
+  const op = opDatasets(puzzle);
+  for (const dataset of [...op, ...m2Datasets(puzzle, op[0])]) {
     const parsed = ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)));
     files.set(`${parsed.id}.json`, `${JSON.stringify(dataset, null, 2)}\n`);
     console.error(`${dataset.id}: ${dataset.records.length} records verified`);

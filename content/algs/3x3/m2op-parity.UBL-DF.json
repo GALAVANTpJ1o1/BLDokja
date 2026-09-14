@@ -1,0 +1,106 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "m2op-parity.UBL-DF",
+  "puzzle": "3x3x3",
+  "method": "m2-op",
+  "kind": "parity",
+  "generatedBy": {
+    "engine": "0.1.0",
+    "bounds": {
+      "generators": [
+        "U",
+        "D",
+        "R",
+        "L",
+        "F",
+        "B",
+        "M"
+      ],
+      "maxInsertion": 4,
+      "maxSetup": 3
+    }
+  },
+  "buffers": {
+    "corners": "UBL",
+    "edges": "DF"
+  },
+  "swaps": {
+    "corners": "R U' R' U' R U R' F' R U R' U' R' F R",
+    "edges": "M2"
+  },
+  "symmetry": 0,
+  "records": [
+    {
+      "id": "parity",
+      "kind": "parity",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UB",
+            "UL"
+          ],
+          [
+            "U",
+            "D"
+          ],
+          [
+            "UF",
+            "DB"
+          ],
+          [
+            "LU",
+            "BU"
+          ],
+          [
+            "FU",
+            "BD"
+          ],
+          [
+            "F",
+            "B"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "U' F2 U M2 U' F2 U",
+          "moves": "U' F2 U M2 U' F2 U",
+          "etm": 7,
+          "qtm": 12,
+          "htm": 8,
+          "stm": 7,
+          "source": "engine-search"
+        },
+        {
+          "alg": "D' L2 D M2 D' L2 D",
+          "moves": "D' L2 D M2 D' L2 D",
+          "etm": 7,
+          "qtm": 12,
+          "htm": 8,
+          "stm": 7,
+          "source": "engine-search"
+        },
+        {
+          "alg": "L D' L D M2 D' L' D L'",
+          "moves": "L D' L D M2 D' L' D L'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 10,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "L' D' L' D M2 D' L D L",
+          "moves": "L' D' L' D M2 D' L D L",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 10,
+          "stm": 9,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}

@@ -479,7 +479,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Verification** (`test/methods/setup-search.test.ts`).
   - For every reachable target, in every table, S · swap · S⁻¹ is read in the geometry model. It must exchange the buffer and target pieces (buffer sticker ↦ target), repeat the side effect exactly, and move nothing else.
   - For the reference tables, an exhaustive search finds no shorter setup, for setups of up to 3 moves.
-- **Not yet:** the M2 special cases, the odd/even rule and M2 parity (milestone 10). The illegal-setup demonstration (built as `demonstrateSetup`) and OP parity came in milestone 9 (D-024).
+- **Later milestones:** the illegal-setup demonstration (built as `demonstrateSetup`) and OP parity came in milestone 9 (D-024); the M2 special cases, the odd/even rule and M2/OP parity in milestone 10 (D-025).
 
 ## D-022 · Gate B: buffers, swap algs, setup moves and orientation policy per method
 
@@ -648,3 +648,90 @@ Short records of choices that would be expensive to reverse, or where sources di
   - `demonstrateIllegalSetup` is named `demonstrateSetup`, since it also shows that legal setups do no damage.
   - `ENGINE_VERSION` moved to `src/version.ts`, so engine code can stamp datasets without importing the index.
 - **Observation: ETM in the table is after cancellation.** For example RUF `[R': swap]` cancels to 14 moves, fewer than the swap alone. `MethodSolution.moves` is uncancelled, because that's what a learner executes step by step.
+
+## D-025 · M2 edges: special cases, the odd/even rule, and the M2/OP solver
+
+**Status:** accepted design (milestone 10 plan review, 2026-09-14). The findings and deviations below are for your review.
+
+- **What ships** in `content/algs/3x3/`, for the Gate B buffers (D-022):
+  - **`m2-edges.DF.json`:** 22 records.
+    - 18 targets are set up. Setups are 3 moves for 16 targets, 5 for BU, and none for UB (just `M2`). Every alg is `[setup: M2]`, 7 moves (11 for BU).
+    - 4 special cases (UF, FU, DB, BD) have up to 4 algs each.
+    - The file also holds the odd/even rule and 21 tempting setups.
+  - **`m2op-parity.UBL-DF.json`:** the M2/OP parity alg with 3 alternates. Its corners are the OP/OP corner dataset, `op-corners.UBL.json`, unchanged.
+- **What M2 leaves behind.** `M2` swaps DF with UB and also has a side effect X: UF↔DB, FU↔BD, and centres U↔D, F↔B.
+  - Every step repeats X once, so the cube carries X after every odd-numbered step.
+  - For a target that X doesn't touch, the exchange and X commute, so the step is the same on odd and even steps.
+  - The special-case and parity algs below come from this algebra and a search, never from a sheet.
+- **Special cases: derived, then searched.**
+  - A target t on X's edges can't be set up. D-021 already found UF, FU, DB and BD unreachable.
+  - The step for such a t must do E(DF, t)·X. `targetEffect(..., { onSideEffectPiece: "compose" })` computes it.
+  - That effect, with `M2` taken off either end, is a clean edge 3-cycle. So the candidates are a comm C from the comm search, followed or preceded by `M2` (`searchSliceComposites`).
+  - **Ranking:** cancelled ETM of the whole alg, then QTM, then form (comm first), then the comm's own rank.
+  - **The ranking is exact.** Joining `M2` to C can shorten it by at most one move, so the comm list is widened until no longer comm could tie. The first probe in planning looked at only the top 4 comms and reported the parity alg at 9 moves; the exact search finds 7.
+  - **Bounds (your choice): U D R L F B M only, no E or S;** insertion ≤ 4, setup ≤ 3. With E and S allowed, FU would get `U' S' U' F2 U S U' F2 U2 M2`. The verifier rejects any special or parity alg outside the recorded bounds.
+  - **Special algs are stored as plain cancelled move sequences.** The comm-plus-M2 bracket form reads badly, for example `[U2 R L M, M'] M2` for `U2 M' U2 M'`.
+
+  | Target | Main alg (ETM) | Alternates |
+  |---|---|---|
+  | UF | `U2 M' U2 M'` (4) | `M' B2 M' B2`, `M F2 M' F2 M2`, `M2 D2 M' D2 M` |
+  | FU | `D M' D B2 D' M D B2 D2 M2` (10) | three more at 10 |
+  | DB | `B2 M B2 M` (4) | `M U2 M U2`, `M' D2 M D2 M2`, `M2 F2 M F2 M'` |
+  | BD | `U2 F2 U' M' U F2 U' M U' M2` (10) | three more at 10 |
+
+  - **BU** has a 5-move setup, `[U B' R U' B: M2]` (11 moves). The flip-pair-plus-M2 form would take 14, so BU stays a setup target.
+- **Compared with the Speedsolving wiki's M2/R2 page** (as fetched 2026-09-14; the fetch summaries were partial and inconsistent, so only clear rows are used):
+  - **Same as the engine:**
+    - UF `U2 M' U2 M'` (engine main);
+    - DB `M U2 M U2` (engine's first alternate; it ties with `B2 M B2 M` on every count and loses on written order);
+    - BU `U B' R U' B M2 B' U R' B U'` (identical);
+    - FR, DR, BR, FL, DL, BL (same 3-move setups).
+  - **Different:**
+    - UR and UL: the wiki uses 4-move setups (`R' U R U'`, `L U' L' U`), the engine 3 (`F U' F'`, `F U F'`);
+    - R-face and L-face stickers: the wiki uses `x'` rotations, the engine 3-move face-turn setups (for example RU `B' R B`, LB `D B' D'`).
+  - Both forms are correct. The engine keeps the shortest face-turn setups (D-021).
+- **The odd/even rule is derived by simulation, never written in.**
+  - On an odd step (0-based; the second target of each pair) target t needs X·E_t. That equals E_X(t)·X: exactly the record of the sticker X sends t to.
+  - `deriveOddStepRule` finds, for every target, the one record whose effect is X·E_t. For DF the result is:
+    - **UF→DB, FU→BD, DB→UF, BD→FU** (Speffz C↔W, I↔S);
+    - every other target keeps its own record.
+  - The verifier recomputes the rule, and `m2Phase` applies it, recording `shotAs` on the step.
+  - **Sources disagree:**
+    - One forum answer (Joël, speedsolving.com "HELP with M2 blindfolded") agrees: UF as the second letter means shoot to DB.
+    - Another reply in the same thread contradicts itself. First it says FU goes to DB and UF to BD, which is wrong: the engine shows UF↔DB and FU↔BD. Then it says FU at an odd position uses the BD alg, which agrees.
+    - cubefreak's M2 guide describes a variant that avoids the swap by using different algs.
+    - The wiki page states no rule.
+  - **The engine's rule is proven by the tests.** Ignoring it fails on every state that needs it.
+- **M2/OP parity.**
+  - The leftover with odd counts is X together with the OP corner swap's UB↔UL. That leftover with `M2` taken off is again an edge 3-cycle.
+  - **The search finds `U' F2 U M2 U' F2 U` (7).** `D' L2 D M2 D' L2 D` ties on every count and is the first alternate.
+  - **Placement (your choice): between edges and corners,** so the centres are back in place before the corner phase.
+  - **Finding:** nothing the parity alg fixes touches a corner, so it also works after the corners. A test checks both placements on every parity state. This differs from OP/OP (D-024).
+- **Tempting setups** (`temptingSetups`), for Phase 4's counterexample mode. For every target, the shortest face-turn setup that ignores the protected pieces, where it beats the legal setup or no legal setup exists.
+  - That covers 21 targets, all but UB. Examples: UR `U'` instead of `F U' F'`; UF `U2`; DB `B2`.
+  - Each carries its damage, checked in the geometry model.
+  - `demonstrateSetup` gained the same `onSideEffectPiece` option.
+- **Solver** (`solveM2Op`, `src/methods/m2.ts`).
+  - Steps: frame, edges (odd/even rule applied), parity when the counts are odd, corners (`opPhase`).
+  - The trace-and-frame start is shared with `solveOpOp` (`traceForSolve`).
+  - `MethodSolution.method` is `m2-op`. `TargetStep.shotAs` names the record shot.
+- **Other buffers** (`m2OpSystem`). It builds and verifies the datasets for the 8 buffer pairs that a symmetry keeping M2 an M move maps (UBL, DF) onto: UBL/DF, UBR/DF, UFL/DB, UFR/DB, DBL/UF, DBR/UF, DFL/UB and DFR/UB.
+  - The corner swap and Gate B corner families are relabelled by the lowest-index such symmetry.
+  - **Deviation from the plan:** the special cases and the parity alg are searched for the given buffer stickers, not relabelled. That also covers a non-reference buffer sticker, and the searches take well under a second once the catalogue is built.
+  - Other pairs return `no-verified-m2-system`.
+- **Verification.**
+  - `verifyM2Dataset` checks:
+    - the swap is an M2 variant under the stated symmetry;
+    - setups and special targets match a fresh `net` search;
+    - every alg's permutation equals its effect;
+    - special algs stay within the bounds;
+    - the rule and the tempting setups match a fresh derivation;
+    - coverage and order.
+  - `verifyM2OpParityDataset` derives the effect from the two datasets and checks buffers, swaps, symmetry and bounds.
+  - **Tests:**
+    - `test/data/m2-dataset.test.ts`: every kind of corruption is caught, and an M-preserving mirror image verifies;
+    - `test/methods/m2-search.test.ts`: the search is exact against a brute-force comm list;
+    - `test/methods/m2op-solve.test.ts`: 1,000 seeded runs on (UBL, DF) (random states, scrambles with wide moves and rotations, two schemes, custom break orders), 30 per symmetric system, the teeth above, and golden fixture R02 pinned (UF on an even step, BD on an odd step shot as FU, parity);
+    - slow suite: 20,000 runs on (UBL, DF) and 500 per system. None fail.
+- **Scope change (your choice):** the "M2 + 3-style corners" full-solve test moves from milestone 10 to milestone 11, where the 3-style corner phase is built.
+- **Speed:** `searchSetups` results are now cached, because the `net` search takes about 0.45 s per call and verification repeats it. Building (UBL, DF) takes about 1.5 s including the 0.6 s catalogue.

@@ -6,6 +6,7 @@ import { verifyDataset } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema, type ContentDataset } from "../../src/data/content-dataset.js";
 import { verifyM2Dataset, verifyM2OpParityDataset, type M2Dataset } from "../../src/data/m2-dataset.js";
 import { verifyOpParityDataset, verifyOpSetupsDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
+import { m2OpSystem } from "../../src/methods/m2.js";
 import { opSystem } from "../../src/methods/op.js";
 
 /**
@@ -42,6 +43,8 @@ const REQUIRED: Readonly<Record<string, number>> = {
   "op-corners.UBL.json": 21,
   "op-edges.UR.json": 22,
   "op-parity.UBL-UR.json": 1,
+  "m2-edges.DF.json": 22,
+  "m2op-parity.UBL-DF.json": 1,
 };
 
 function load(path: string): ContentDataset {
@@ -111,6 +114,18 @@ describe("committed alg datasets", () => {
   it("the committed OP datasets are exactly what opSystem builds at runtime for (UBL, UR)", async () => {
     const puzzle = await loadPuzzle("3x3x3");
     const system = opSystem(puzzle, { cornerBuffer: "UBL", edgeBuffer: "UR" });
+    if (!system.ok) throw new Error(JSON.stringify(system.error));
+    const committed = Object.fromEntries(files.map((f) => [nameOf(f), f]));
+    for (const dataset of [system.value.corners, system.value.edges, system.value.parity]) {
+      const path = committed[`${dataset.id}.json`];
+      if (path === undefined) throw new Error(`${dataset.id} not committed`);
+      expect(load(path), dataset.id).toEqual(dataset);
+    }
+  });
+
+  it("the committed M2 datasets are exactly what m2OpSystem builds at runtime for (UBL, DF), whose corners are the OP/OP ones", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const system = m2OpSystem(puzzle, { cornerBuffer: "UBL", edgeBuffer: "DF" });
     if (!system.ok) throw new Error(JSON.stringify(system.error));
     const committed = Object.fromEntries(files.map((f) => [nameOf(f), f]));
     for (const dataset of [system.value.corners, system.value.edges, system.value.parity]) {
