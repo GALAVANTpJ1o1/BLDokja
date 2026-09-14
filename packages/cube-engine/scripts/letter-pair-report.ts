@@ -20,12 +20,12 @@ import { trace, type TracePolicy } from "../src/trace/trace.js";
 import { colourReaders, coloursToPattern } from "../test/fixtures/construct.js";
 import { TraceOracle } from "../test/oracle/trace-oracle.js";
 
-type Policy = NonNullable<TracePolicy["orientedInPlace"]>;
+export type Policy = NonNullable<TracePolicy["orientedInPlace"]>;
 const POLICIES: Policy[] = ["separate", "asTargets"];
 const LETTERS = "A B C D E F G H I J K L M N O P Q R S T U V W X".split(" ");
 const STATE_COUNT = 10_000;
 
-interface Reachability {
+export interface Reachability {
   readonly puzzle: string;
   readonly type: PieceTypeId;
   readonly bufferPiece: string;
@@ -39,7 +39,7 @@ function pct(n: number, d: number): string {
   return d === 0 ? "–" : `${((100 * n) / d).toFixed(1)}%`;
 }
 
-function reachabilityFor(puzzle: Puzzle, typeId: PieceTypeId): Reachability[] {
+export function reachabilityFor(puzzle: Puzzle, typeId: PieceTypeId): Reachability[] {
   const scheme = speffzScheme(puzzle);
   const type = pieceType(puzzle, typeId);
   const letters = scheme.letters[typeId] ?? {};
@@ -122,7 +122,7 @@ function unreachableDistinct(a: Set<string>, b: Set<string>): string[] {
   return out;
 }
 
-function combinedTable(first: Reachability[], second: Reachability[], policy: Policy, firstLabel: string, secondLabel: string): string {
+export function combinedTable(first: Reachability[], second: Reachability[], policy: Policy, firstLabel: string, secondLabel: string): string {
   const rows = first.filter((r) => r.policy === policy);
   const cols = second.filter((r) => r.policy === policy);
   const lines = [
