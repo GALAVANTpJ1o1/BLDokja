@@ -29,6 +29,10 @@ export interface SyllableCodec {
   inverse(syllables: Syllables): Syllables;
   /** Cancelled length of `setup core setup⁻¹`. Not re-entrant: it uses one shared scratch stack. */
   conjugateLength(setup: Syllables, core: Syllables): number;
+  /** Cancelled QTM of the sequence the last `conjugateLength` call reduced. */
+  lastQuarterTurns(): number;
+  /** A string that is equal for two calls exactly when their cancelled sequences are equal (as runs). */
+  lastIdentity(): string;
   /** Move count of one packed syllable value. */
   moveCount(value: number): number;
   negate(value: number): number;
@@ -37,8 +41,17 @@ export interface SyllableCodec {
 /** Families per axis small enough for lookup tables (4 families = 8 bits = 256 values). */
 const MAX_TABLE_SLOTS = 4;
 
-export function syllableCodec(puzzle: PuzzleId, families: readonly string[]): SyllableCodec {
+/**
+ * @param quarterTurns QTM weight of one move (D-017); used by `lastQuarterTurns`. Defaults to
+ *   counting a half turn as 2 and anything else as 1, which is right for face turns only.
+ */
+export function syllableCodec(
+  puzzle: PuzzleId,
+  families: readonly string[],
+  quarterTurns: (family: string, amount: 1 | 2 | 3) => number = (_family, amount) => (amount === 2 ? 2 : 1),
+): SyllableCodec {
   const slots = new Map<string, { axis: number; shift: number }>();
+  const familyAt: string[][] = [[], [], []];
   const perAxis = [0, 0, 0];
   for (const family of families) {
     if (slots.has(family)) throw new RangeError(`duplicate family ${family}`);
@@ -46,9 +59,24 @@ export function syllableCodec(puzzle: PuzzleId, families: readonly string[]): Sy
     const slot = at(perAxis, axis);
     if (slot >= 16) throw new RangeError("more than 16 families on one axis");
     slots.set(family, { axis, shift: 2 * slot });
+    at(familyAt, axis).push(family);
     perAxis[axis] = slot + 1;
   }
   const maxSlots = Math.max(...perAxis);
+  const qtmOfValue = (axis: number, value: number): number => {
+    let total = 0;
+    at(familyAt, axis).forEach((family, k) => {
+      const amount = (value >>> (2 * k)) & 3;
+      if (amount !== 0) total += quarterTurns(family, amount as 1 | 2 | 3);
+    });
+    return total;
+  };
+  // QTM per packed value, per axis, when the values are small enough to tabulate.
+  const qtmTables = perAxis.map((count, axis) => (count <= 8 ? Uint16Array.from({ length: 4 ** count }, (_, v) => qtmOfValue(axis, v)) : undefined));
+  const qtmOf = (axis: number, value: number): number => {
+    const tableForAxis = qtmTables[axis];
+    return tableForAxis === undefined ? qtmOfValue(axis, value) : at(tableForAxis, value);
+  };
 
   let add: (u: number, v: number) => number;
   let count: (u: number) => number;
@@ -93,6 +121,7 @@ export function syllableCodec(puzzle: PuzzleId, families: readonly string[]): Sy
 
   const stackAxes = new Int8Array(256);
   const stackValues = new Uint32Array(256);
+  let stackSize = 0;
 
   const encode = (moves: readonly Pick<AlgMove, "family" | "amount">[]): Syllables => {
     const axes: number[] = [];
@@ -140,10 +169,23 @@ export function syllableCodec(puzzle: PuzzleId, families: readonly string[]): Sy
     for (let i = 0; i < setup.axes.length; i++) push(at(setup.axes, i), at(setup.values, i));
     for (let i = 0; i < core.axes.length; i++) push(at(core.axes, i), at(core.values, i));
     for (let i = setup.axes.length - 1; i >= 0; i--) push(at(setup.axes, i), negate(at(setup.values, i)));
+    stackSize = n;
     let length = 0;
     for (let i = 0; i < n; i++) length += count(at(stackValues, i));
     return length;
   };
 
-  return { puzzle, families: [...families], encode, inverse, conjugateLength, moveCount: count, negate };
+  const lastQuarterTurns = (): number => {
+    let total = 0;
+    for (let i = 0; i < stackSize; i++) total += qtmOf(at(stackAxes, i), at(stackValues, i));
+    return total;
+  };
+
+  const lastIdentity = (): string => {
+    let identity = "";
+    for (let i = 0; i < stackSize; i++) identity += `${at(stackAxes, i)}:${at(stackValues, i)} `;
+    return identity;
+  };
+
+  return { puzzle, families: [...families], encode, inverse, conjugateLength, lastQuarterTurns, lastIdentity, moveCount: count, negate };
 }
