@@ -124,11 +124,21 @@ export { stepMoves, type FrameStep, type MethodSolution, type MethodStep, type P
 export {
   demonstrateSetup,
   illegalSetupExamples,
+  temptingSetups,
   type IllegalSetupExample,
   type IllegalSetupExampleOptions,
   type SetupDemonstration,
   type SetupDemonstrationError,
+  type TemptingSetup,
 } from "./methods/illegal-setup.js";
+export {
+  M2_SPECIAL_BOUNDS,
+  searchSliceComposites,
+  type CompositeForm,
+  type SliceComposite,
+  type SliceCompositeError,
+  type SliceCompositeOptions,
+} from "./methods/m2-search.js";
 export {
   DEFAULT_SETUP_POOLS,
   GATE_B_SETUP_FAMILIES,

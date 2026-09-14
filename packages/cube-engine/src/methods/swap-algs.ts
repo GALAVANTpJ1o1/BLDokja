@@ -228,17 +228,27 @@ export type TargetEffectError =
  * piece with the target piece (the buffer sticker goes to `target`, the pieces staying rigid), and
  * repeat the swap's side effect exactly. The exchange comes from `stickerCyclePattern`, never from a
  * setup alg.
+ *
+ * A target on a side-effect piece (M2's UF, FU, DB, BD) is an error by default. With
+ * `onSideEffectPiece: "compose"` the effect is the exchange followed by the side effect, E·X: what
+ * a step shooting that target must do while the side effect keeps alternating (DECISIONS D-025).
+ * For any other target the two touch different pieces, so the result is the same either way.
  */
-export function targetEffect(puzzle: Puzzle, swap: SwapEffect, bufferSticker: string, target: string): Result<StickerPerm, TargetEffectError> {
+export function targetEffect(
+  puzzle: Puzzle,
+  swap: SwapEffect,
+  bufferSticker: string,
+  target: string,
+  options: { readonly onSideEffectPiece?: "error" | "compose" } = {},
+): Result<StickerPerm, TargetEffectError> {
   const exchange = stickerCyclePattern(puzzle, [bufferSticker, target]);
   if (!exchange.ok) return err({ code: "invalid-target", target, detail: exchange.error });
   // The exchange is an involution, so the permutation that makes it equals the one that undoes it.
-  const facelets = faceletsOf(puzzle, exchange.value);
+  const facelets = Uint8Array.from(faceletsOf(puzzle, exchange.value));
   const { geometry } = puzzle;
   const touchesSideEffect = facelets.some((home, slot) => home !== slot && swap.sideEffectPieces.includes(pieceName(geometry.size, geometry.sticker(slot).cubie)));
-  if (touchesSideEffect) return err({ code: "target-on-side-effect-piece", target });
-  const side = sideEffectPerm(puzzle, swap);
-  return ok(Uint8Array.from(facelets, (home, slot) => (home !== slot ? home : at(side, slot))));
+  if (touchesSideEffect && options.onSideEffectPiece !== "compose") return err({ code: "target-on-side-effect-piece", target });
+  return ok(composePerms(facelets, sideEffectPerm(puzzle, swap)));
 }
 
 /**

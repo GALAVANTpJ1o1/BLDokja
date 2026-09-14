@@ -48,6 +48,8 @@ export function demonstrateSetup(
   bufferSticker: string,
   target: string,
   setup: string | readonly AlgMove[],
+  /** Passed to `targetEffect`: `compose` compares a target on a side-effect piece against E·X. */
+  options: { readonly onSideEffectPiece?: "error" | "compose" } = {},
 ): Result<SetupDemonstration, SetupDemonstrationError> {
   let moves: readonly AlgMove[];
   if (typeof setup === "string") {
@@ -57,7 +59,7 @@ export function demonstrateSetup(
   } else {
     moves = setup;
   }
-  const intended = targetEffect(puzzle, swap, bufferSticker, target);
+  const intended = targetEffect(puzzle, swap, bufferSticker, target, options);
   if (!intended.ok) return intended;
 
   const { geometry } = puzzle;
@@ -120,80 +122,126 @@ export interface IllegalSetupExampleOptions {
  */
 export function illegalSetupExamples(puzzle: Puzzle, options: IllegalSetupExampleOptions): IllegalSetupExample[] {
   const { swap, legal } = options;
-  const { geometry } = puzzle;
-  const indexOf = (name: string) => geometry.stickers.findIndex((s) => stickerName(geometry, s.index) === name);
-  const swapSticker = indexOf(legal.swapSticker);
-
   return options.forbidden.map(({ family }) => {
     const families = options.candidateFamilies.filter((f) => f === family || legal.pool.includes(f));
-    const table = moveTable(puzzle, families);
-    // State: slot of the target sticker, and whether the family has been used. Backward BFS from
-    // (swap sticker, used).
-    const encode = (slot: number, used: boolean) => slot * 2 + (used ? 1 : 0);
-    const goal = encode(swapSticker, true);
-    const distance = new Map<number, number>([[goal, 0]]);
-    let frontier = [goal];
-    for (let depth = 1; frontier.length > 0; depth++) {
-      const next: number[] = [];
-      for (const code of frontier) {
-        const slot = Math.floor(code / 2);
-        const used = code % 2 === 1;
-        for (const move of table.moves) {
-          const previousSlot = at(move.inverse, slot);
-          const previousFlags = move.family === family ? (used ? [false, true] : []) : [used];
-          for (const flag of previousFlags) {
-            const previous = encode(previousSlot, flag);
-            if (!distance.has(previous)) {
-              distance.set(previous, depth);
-              next.push(previous);
-            }
-          }
-        }
-      }
-      frontier = next;
-    }
+    const search = unprotectedSetups(puzzle, families, legal.swapSticker, family);
 
-    let best: { target: string; saving: number; length: number } | undefined;
+    let best: { target: string; saving: number } | undefined;
     for (const { target, setup } of legal.targets) {
-      const length = distance.get(encode(indexOf(target), false));
+      const length = search.length(target);
       if (length === undefined || setup === undefined) continue;
       const saving = setup.length - length;
-      if (best === undefined || saving > best.saving) best = { target, saving, length };
+      if (best === undefined || saving > best.saving) best = { target, saving };
     }
     if (best === undefined) throw new Error(`no setup uses ${family}`);
 
-    const familyIndex = new Map(families.map((f, i) => [f, i]));
-    let chosen: { moves: TableMove[]; qtm: number } | undefined;
-    const sequence: TableMove[] = [];
-    const walk = (slot: number, used: boolean, remaining: number) => {
-      if (remaining === 0) {
-        const qtm = moveCounts(puzzle.id, sequence.map((m): AlgMove => ({ type: "move", family: m.family, amount: m.amount }))).qtm;
-        if (chosen === undefined || qtm < chosen.qtm || (qtm === chosen.qtm && firstDifference(sequence, chosen.moves) < 0)) chosen = { moves: [...sequence], qtm };
-        return;
-      }
-      const previous = sequence[sequence.length - 1];
-      for (const move of table.moves) {
-        if (previous !== undefined) {
-          if (previous.family === move.family) continue;
-          if (previous.axis === move.axis && (familyIndex.get(move.family) ?? 0) < (familyIndex.get(previous.family) ?? 0)) continue;
-        }
-        const nextSlot = at(move.perm, slot);
-        const nextUsed = used || move.family === family;
-        if (distance.get(encode(nextSlot, nextUsed)) !== remaining - 1) continue;
-        sequence.push(move);
-        walk(nextSlot, nextUsed, remaining - 1);
-        sequence.pop();
-      }
-    };
-    walk(indexOf(best.target), false, best.length);
-    if (chosen === undefined) throw new Error(`no canonical setup for ${best.target} using ${family}`);
-
-    const setup = chosen.moves.map((m): AlgMove => ({ type: "move", family: m.family, amount: m.amount }));
+    const setup = search.setup(best.target);
     const demo = demonstrateSetup(puzzle, swap, options.bufferSticker, best.target, setup);
     if (!demo.ok) throw new Error(JSON.stringify(demo.error));
     const legalSetup = legal.targets.find((t) => t.target === best.target)?.setup ?? [];
     return { family, target: best.target, setup, legalSetup, damagedPieces: demo.value.damagedPieces };
   });
+}
+
+export interface TemptingSetup {
+  readonly target: string;
+  /** The shortest setup that brings the target to the swap sticker if nothing were protected. */
+  readonly setup: readonly AlgMove[];
+  /** The legal setup it beats; undefined for a target no legal setup reaches (M2's special cases). */
+  readonly legalSetup: readonly AlgMove[] | undefined;
+  readonly damagedPieces: readonly string[];
+}
+
+/**
+ * For a table whose pool has no forbidden families (M2's `net` regime), the setups a solver might be
+ * tempted by: for every target, the shortest setup over the same pool that ignores the protected
+ * pieces, when it is shorter than the legal one or when there is no legal one. Each carries the
+ * damage it does (DECISIONS D-025).
+ */
+export function temptingSetups(puzzle: Puzzle, options: { readonly swap: SwapAlg; readonly bufferSticker: string; readonly legal: SetupTable }): TemptingSetup[] {
+  const { swap, legal } = options;
+  const search = unprotectedSetups(puzzle, legal.pool, legal.swapSticker, undefined);
+  const tempting: TemptingSetup[] = [];
+  for (const { target, setup: legalSetup } of legal.targets) {
+    const length = search.length(target);
+    if (length === undefined || (legalSetup !== undefined && length >= legalSetup.length)) continue;
+    const setup = search.setup(target);
+    const demo = demonstrateSetup(puzzle, swap, options.bufferSticker, target, setup, { onSideEffectPiece: "compose" });
+    if (!demo.ok) throw new Error(JSON.stringify(demo.error));
+    tempting.push({ target, setup, legalSetup, damagedPieces: demo.value.damagedPieces });
+  }
+  return tempting;
+}
+
+/**
+ * Shortest setups that bring a target sticker to `swapSticker` with the given families, ignoring
+ * every protected piece, optionally required to use one family. Ties go to the fewest quarter turns,
+ * then the earliest in pool order (clockwise, prime, half), as in D-021.
+ */
+function unprotectedSetups(puzzle: Puzzle, families: readonly string[], swapSticker: string, requiredFamily: string | undefined) {
+  const { geometry } = puzzle;
+  const indexOf = (name: string) => geometry.stickers.findIndex((s) => stickerName(geometry, s.index) === name);
+  const table = moveTable(puzzle, families);
+  // State: slot of the target sticker, and whether the required family has been used (always true
+  // when none is required). Backward BFS from (swap sticker, used).
+  const encode = (slot: number, used: boolean) => slot * 2 + (used ? 1 : 0);
+  const startUsed = requiredFamily === undefined;
+  const goal = encode(indexOf(swapSticker), true);
+  const distance = new Map<number, number>([[goal, 0]]);
+  let frontier = [goal];
+  for (let depth = 1; frontier.length > 0; depth++) {
+    const next: number[] = [];
+    for (const code of frontier) {
+      const slot = Math.floor(code / 2);
+      const used = code % 2 === 1;
+      for (const move of table.moves) {
+        const previousSlot = at(move.inverse, slot);
+        const previousFlags = move.family === requiredFamily ? (used ? [false, true] : []) : [used];
+        for (const flag of previousFlags) {
+          const previous = encode(previousSlot, flag);
+          if (!distance.has(previous)) {
+            distance.set(previous, depth);
+            next.push(previous);
+          }
+        }
+      }
+    }
+    frontier = next;
+  }
+
+  const familyIndex = new Map(families.map((f, i) => [f, i]));
+  return {
+    length: (target: string) => distance.get(encode(indexOf(target), startUsed)),
+    setup: (target: string): AlgMove[] => {
+      const total = distance.get(encode(indexOf(target), startUsed));
+      if (total === undefined) throw new Error(`no setup reaches ${target}`);
+      let chosen: { moves: TableMove[]; qtm: number } | undefined;
+      const sequence: TableMove[] = [];
+      const walk = (slot: number, used: boolean, remaining: number) => {
+        if (remaining === 0) {
+          const qtm = moveCounts(puzzle.id, sequence.map((m): AlgMove => ({ type: "move", family: m.family, amount: m.amount }))).qtm;
+          if (chosen === undefined || qtm < chosen.qtm || (qtm === chosen.qtm && firstDifference(sequence, chosen.moves) < 0)) chosen = { moves: [...sequence], qtm };
+          return;
+        }
+        const previous = sequence[sequence.length - 1];
+        for (const move of table.moves) {
+          if (previous !== undefined) {
+            if (previous.family === move.family) continue;
+            if (previous.axis === move.axis && (familyIndex.get(move.family) ?? 0) < (familyIndex.get(previous.family) ?? 0)) continue;
+          }
+          const nextSlot = at(move.perm, slot);
+          const nextUsed = used || move.family === requiredFamily;
+          if (distance.get(encode(nextSlot, nextUsed)) !== remaining - 1) continue;
+          sequence.push(move);
+          walk(nextSlot, nextUsed, remaining - 1);
+          sequence.pop();
+        }
+      };
+      walk(indexOf(target), startUsed, total);
+      if (chosen === undefined) throw new Error(`no canonical setup for ${target}`);
+      return chosen.moves.map((m): AlgMove => ({ type: "move", family: m.family, amount: m.amount }));
+    },
+  };
 }
 
 function firstDifference(a: readonly TableMove[], b: readonly TableMove[]): number {
