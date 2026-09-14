@@ -67,6 +67,19 @@ export const REFERENCE_OP_PARITY = {
   source: "J Perm, jperm.net/bld, Old Pochmann parity algorithm (retrieved 2026-09-14)",
 } as const;
 
+/**
+ * The Jb perm, the 3-style parity alg for adjacent UFR/UF buffers (DECISIONS D-026). The wiki writes it
+ * with a leading y2; relabelled by that rotation it is a face-turn alg with the same effect, which the
+ * parity dataset verifier computes (UFR↔UBR and UF↔UR), never reads from the source.
+ */
+export const REFERENCE_JB = {
+  alg: "R' U L U' R U2 L' U L U2 L'",
+  relabelBy: "y2",
+  /** The buffers it is the parity alg for, once relabelled. */
+  bufferPieces: { corners: "UFR", edges: "UF" },
+  source: "Speedsolving wiki, PLL page, Jb permutation, first alg listed, written (y2) R' U L U' R U2' L' U L U2 L' (retrieved 2026-09-14)",
+} as const;
+
 /** How many piece transpositions each part of a swap alg's effect must have. */
 const SHAPES: Readonly<Record<SwapMethod, { readonly own: number; readonly other: number; readonly centres: number }>> = {
   "op-corners": { own: 1, other: 1, centres: 0 },

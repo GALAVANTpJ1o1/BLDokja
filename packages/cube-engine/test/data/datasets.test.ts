@@ -2,10 +2,11 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadPuzzle } from "../../src/core/puzzle.js";
-import { verifyDataset } from "../../src/data/alg-dataset.js";
+import { verifyDataset, type AlgDataset } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema, type ContentDataset } from "../../src/data/content-dataset.js";
 import { verifyM2Dataset, verifyM2OpParityDataset, type M2Dataset } from "../../src/data/m2-dataset.js";
 import { verifyOpParityDataset, verifyOpSetupsDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
+import { verifyM2ThreeStyleParityDataset, verifyThreeStyleParityDataset } from "../../src/data/three-style-parity.js";
 import { m2OpSystem } from "../../src/methods/m2.js";
 import { opSystem } from "../../src/methods/op.js";
 
@@ -53,6 +54,8 @@ function load(path: string): ContentDataset {
   return parsed.data;
 }
 
+const PARITY_PREFIX = { op: "op-parity", "m2-op": "m2op-parity", "3style": "3style-parity", "m2-3style": "m2-3style-parity" } as const;
+
 function expectedName(dataset: ContentDataset): string {
   switch (dataset.kind) {
     case "cycles":
@@ -63,7 +66,7 @@ function expectedName(dataset: ContentDataset): string {
     case "setups":
       return dataset.method === "op" ? `op-${dataset.pieceType}.${dataset.buffer}.json` : `m2-edges.${dataset.buffer}.json`;
     case "parity":
-      return `${dataset.method === "op" ? "op-parity" : "m2op-parity"}.${dataset.buffers.corners}-${dataset.buffers.edges}.json`;
+      return `${PARITY_PREFIX[dataset.method]}.${dataset.buffers.corners}-${dataset.buffers.edges}.json`;
   }
 }
 
@@ -92,19 +95,30 @@ describe("committed alg datasets", () => {
         expect((dataset.method === "op" ? verifyOpSetupsDataset(puzzle, dataset) : verifyM2Dataset(puzzle, dataset)).slice(0, 5)).toEqual([]);
         break;
       case "parity": {
-        // A parity dataset is checked against the two committed setups datasets it names.
+        // A parity dataset is checked against the committed datasets it belongs with.
         const all = files.map(load);
-        const op = all.filter((d): d is OpSetupsDataset => d.kind === "setups" && d.method === "op");
-        const m2 = all.filter((d): d is M2Dataset => d.kind === "setups" && d.method === "m2");
-        const corners = op.find((d) => d.pieceType === "corners" && d.buffer === dataset.buffers.corners);
-        if (dataset.method === "op") {
-          const edges = op.find((d) => d.pieceType === "edges" && d.buffer === dataset.buffers.edges);
-          if (corners === undefined || edges === undefined) throw new Error(`${name}: its setups datasets aren't committed`);
-          expect(verifyOpParityDataset(puzzle, dataset, corners, edges).slice(0, 5)).toEqual([]);
-        } else {
-          const edges = m2.find((d) => d.buffer === dataset.buffers.edges);
-          if (corners === undefined || edges === undefined) throw new Error(`${name}: its setups datasets aren't committed`);
-          expect(verifyM2OpParityDataset(puzzle, dataset, corners, edges).slice(0, 5)).toEqual([]);
+        const need = <T,>(found: T | undefined, what: string): T => {
+          if (found === undefined) throw new Error(`${name}: ${what} isn't committed`);
+          return found;
+        };
+        const op = (typeId: "corners" | "edges", buffer: string) => need(all.find((d): d is OpSetupsDataset => d.kind === "setups" && d.method === "op" && d.pieceType === typeId && d.buffer === buffer), `op-${typeId}.${buffer}`);
+        const m2 = (buffer: string) => need(all.find((d): d is M2Dataset => d.kind === "setups" && d.method === "m2" && d.buffer === buffer), `m2-edges.${buffer}`);
+        const three = (kind: AlgDataset["kind"], typeId: "corners" | "edges", buffer: string) =>
+          need(all.find((d): d is AlgDataset => d.kind === kind && d.pieceType === typeId && d.buffer === buffer), `3style-${kind}.${buffer}`);
+        const { corners: cb, edges: eb } = dataset.buffers;
+        switch (dataset.method) {
+          case "op":
+            expect(verifyOpParityDataset(puzzle, dataset, op("corners", cb), op("edges", eb)).slice(0, 5)).toEqual([]);
+            break;
+          case "m2-op":
+            expect(verifyM2OpParityDataset(puzzle, dataset, op("corners", cb), m2(eb)).slice(0, 5)).toEqual([]);
+            break;
+          case "3style":
+            expect(verifyThreeStyleParityDataset(puzzle, dataset, { corners: three("cycles", "corners", cb), edges: three("cycles", "edges", eb), twists: three("twists", "corners", cb), flips: three("flips", "edges", eb) }).slice(0, 5)).toEqual([]);
+            break;
+          case "m2-3style":
+            expect(verifyM2ThreeStyleParityDataset(puzzle, dataset, { corners: three("cycles", "corners", cb), twists: three("twists", "corners", cb), edges: m2(eb) }).slice(0, 5)).toEqual([]);
+            break;
         }
         break;
       }

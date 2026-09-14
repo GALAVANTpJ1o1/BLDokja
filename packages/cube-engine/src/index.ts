@@ -96,6 +96,7 @@ export {
 export {
   analyseSwap,
   m2Swaps,
+  REFERENCE_JB,
   REFERENCE_OP_PARITY,
   referenceSwap,
   REFERENCE_SWAPS,
@@ -225,6 +226,24 @@ export {
   type M2Spec,
   type SpecialAlgs,
 } from "./data/m2-dataset.js";
+export {
+  buildM2ThreeStyleParityDataset,
+  buildThreeStyleParityDataset,
+  deriveTails,
+  M2ThreeStyleParityDatasetSchema,
+  referenceJb,
+  threeStyleParityEffect,
+  ThreeStyleParityDatasetSchema,
+  verifyM2ThreeStyleParityDataset,
+  verifyThreeStyleParityDataset,
+  type M2ThreeStyleParityDataset,
+  type M2ThreeStyleParitySpec,
+  type ParityTail,
+  type ThreeStyleParityBuildError,
+  type ThreeStyleParityDataset,
+  type ThreeStyleParityProblem,
+  type ThreeStyleParitySpec,
+} from "./data/three-style-parity.js";
 export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
