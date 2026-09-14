@@ -260,3 +260,39 @@ Short records of choices that would be expensive to reverse, or where sources di
     - no item comes from the buffer piece.
   - The worked examples above are fixtures, plus the prose example and an edge example (R01 edges: `chain` gives `… UP RR HH` with no parity).
   - Random states contain both `chain`-mode hazards: a leftover without parity, and parity without a leftover.
+
+## D-016 · Commutator notation
+
+**Status:** accepted (rules decided at Gate A, 2026-09-13). The implementation choices listed separately below are for your review.
+
+- **Context.**
+  - BRIEF §5.5 asks for `[A, B]`, `[A: [B, C]]`, `[A, B: C]` and nested conjugates. `[A, B: C]` needs a precedence rule.
+  - cubing.js's parser can't serve (checked on `cubing@0.63.4`). It rejects `[A: B, C]`, `[A, B: C]`, `[A: B: C]`, bracketless `A: [B, C]` and `’`. It accepts `[,R]` and `Q`.
+  - So `src/commutator/parse.ts` is a separate parser. Its output is a tree of moves, commutators and conjugates.
+- **Rules (Gate A).**
+  - **The first separator inside a bracket splits it.** Everything to its right is read again as the same bracket level:
+    - `[A: B, C]` = `[A: [B, C]]`
+    - `[A, B: C]` = `[A, [B: C]]`
+    - chained colons nest right: `[A: B: C]` = `[A: [B: C]]`
+  - **At most one comma per bracket level.** `[A, B, C]` is an error.
+  - **Outer brackets are optional.** A top-level colon takes everything to its right: `U: [R, D] U2` = `[U: [R, D] U2]`.
+  - **Empty operands are rejected.**
+  - **Curly apostrophes count as primes.**
+  - **Only verified move families are accepted** (`VERIFIED_MOVE_FAMILIES` for the puzzle, D-006). `M` is an error on 4x4x4.
+- **Implementation choices.**
+  - **The whole alg is an implicit bracket level.** So `R, U` = `[R, U]`, the same as the colon case. An alg with no separators is a plain sequence.
+  - **An explicit bracket must contain a separator.** `[R U]` is an error; brackets never just group moves.
+  - **Moves need whitespace between them** (or a bracket or separator). `RU` is an unknown move, not `R U`.
+  - **Suffixes:** `""`, `2`, `'` and `2'`.
+    - `2'` is read as a half turn and printed as `2`. The geometry model confirms `X2'` ≡ `X2` for every verified family.
+    - `R3` and `R'2` are rejected.
+    - Both U+2019 `’` and U+2018 `‘` count as primes.
+  - **Parentheses are rejected** with their own error code. That was your answer on 2026-09-14. Supporting them later only adds to the grammar.
+  - **Errors are codes with a UTF-16 index**, never English: `unexpected-character`, `parentheses-unsupported`, `unknown-move`, `unsupported-amount`, `unclosed-bracket`, `unmatched-closing-bracket`, `bracket-without-separator`, `empty-operand`, `too-many-commas`. The parser reports the first error it reaches, reading left to right.
+  - **The canonical form** (`formatAlg`) puts every commutator and conjugate in explicit brackets, so cubing.js can read it too.
+- **Verification** (`test/commutator/parse.test.ts`).
+  - A golden table of accepted inputs with their canonical forms, and rejected inputs with their error code and index.
+  - On random trees for 3x3x3 and 4x4x4:
+    - the canonical form round-trips;
+    - the form with every optional bracket left out parses to the same tree;
+    - for the fully bracketed form, the tree equals the one cubing.js's parser builds.

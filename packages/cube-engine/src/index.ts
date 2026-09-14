@@ -36,5 +36,18 @@ export {
   type MemoView,
   type SingleLetterRepresentation,
 } from "./memo/memo.js";
+export {
+  formatAlg,
+  formatMove,
+  formatNodes,
+  parseAlg,
+  type AlgMove,
+  type AlgNode,
+  type AlgParseError,
+  type Commutator,
+  type Conjugate,
+  type ParsedAlg,
+  type QuarterTurns,
+} from "./commutator/parse.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
