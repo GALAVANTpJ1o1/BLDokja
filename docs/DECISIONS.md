@@ -440,3 +440,42 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **OP corners:** 6 distinct variants for each of the 8 corner pieces. Symmetries preserve antipodes, so the swap piece is always the corner opposite the buffer.
   - **OP edges:** 4 distinct variants for each of the 12 edge pieces.
   - **M2** (`m2Swaps`): only images that are still M2, i.e. the M-slice buffers DF↔UB and UF↔DB. Images that become E2 or S2 would be different slice methods, not M2.
+
+## D-021 · Setup search for Old Pochmann and M2
+
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B may restrict the pools.
+
+- **What a setup must do** (`searchSetups`). Setup S for target t brings t to the swap sticker, the slot the buffer sticker is sent to. Then S · swap · S⁻¹ exchanges the buffer with t and repeats the swap's side effect unchanged.
+  - That holds only if S leaves the **protected stickers** where they are: the buffer piece and every side-effect piece.
+  - The swap piece isn't protected; setups may move it.
+- **Two regimes.**
+  - **`every-move`** (OP). Only pool families that move no protected sticker are allowed, which is J Perm's rule. Every other family is reported as forbidden, with the protected pieces it disturbs, as data.
+  - **`net`** (M2). Any pool family may be used, as long as the whole setup puts the protected stickers back.
+    - M2 needs this: the only face turns that never touch its protected edges are R and L, and neither reaches the helper slot.
+    - Setups such as `F U' F'` move a protected edge and bring it back.
+- **Algorithm.**
+  1. A backward breadth-first search from the goal gives the exact shortest setup length for every target. The state is the target's slot plus one sticker slot per protected piece that some usable move can disturb; M2's centres never move under face turns, so they aren't tracked.
+  2. Among the shortest canonical setups, the fewest quarter turns wins, then the earliest in pool order (clockwise, prime, half).
+  3. Unreachable targets are listed.
+- **Default pools** (`DEFAULT_SETUP_POOLS`):
+  - OP corners: face turns, `every-move`;
+  - OP edges: face turns and Uw Dw Rw Lw Fw Bw, `every-move`;
+  - M2: face turns, `net`.
+- **Results for the reference swaps:**
+  - **OP corners, buffer UBL, swap sticker RDF.**
+    - **Allowed: D, R, F.** This matches J Perm's "only use D/F/R".
+    - Forbidden: U (disturbs UBL, UB, UL), L (UBL, UL), B (UBL, UB).
+    - Setup lengths: 1 target at 0 moves, 9 at 1, 11 at 2. None unreachable.
+  - **OP edges, buffer UR, swap sticker UL.**
+    - **Allowed: D, L, Dw, Lw.**
+    - **Differs from J Perm, who allows only L, Lw and Dw.** D disturbs no protected piece. Gate B can drop it from the pool.
+    - Forbidden: U, R, Uw, Rw (UR, UBR, UFR), F (UFR), B (UBR), Fw (UR, UFR), Bw (UR, UBR).
+    - Setup lengths: 1 at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4. None unreachable.
+  - **M2, buffer DF, swap sticker UB.**
+    - Setup lengths: 16 targets at 3 moves, BU at 5.
+    - **UF, FU, DB and BD can't be set up.** Those pieces are M2's own side effect, so they must stay put. They are the M-slice special cases for milestone 10.
+  - All 96 OP symmetry variants, each from its buffer's reference sticker, have a setup for every target. The four M-slice M2 buffers each lose exactly the stickers of their two side-effect edges.
+- **Verification** (`test/methods/setup-search.test.ts`).
+  - For every reachable target, in every table, S · swap · S⁻¹ is read in the geometry model. It must exchange the buffer and target pieces (buffer sticker ↦ target), repeat the side effect exactly, and move nothing else.
+  - For the reference tables, an exhaustive search finds no shorter setup, for setups of up to 3 moves.
+- **Not yet:** `demonstrateIllegalSetup` (milestone 9), parity, and the M2 special cases and odd/even rule (milestone 10).

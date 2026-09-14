@@ -85,5 +85,15 @@ export {
   type SwapMethod,
   type SwapShapeError,
 } from "./methods/swap-algs.js";
+export {
+  DEFAULT_SETUP_POOLS,
+  searchSetups,
+  type ForbiddenFamily,
+  type SetupRegime,
+  type SetupSearchError,
+  type SetupSearchOptions,
+  type SetupTable,
+  type TargetSetup,
+} from "./methods/setup-search.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
