@@ -265,5 +265,20 @@ export {
   type ThreeStyleParitySpec,
 } from "./data/three-style-parity.js";
 export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
+export { drillScramble, type DrillScramble, type DrillScrambleError } from "./scramble/drill.js";
+export {
+  constraintFailures,
+  constraintMeasures,
+  matchesConstraints,
+  PieceConstraintsSchema,
+  TraceConstraintsSchema,
+  validateConstraints,
+  type ConstraintFailure,
+  type ConstraintField,
+  type ConstraintIssue,
+  type ConstraintMeasures,
+  type PieceConstraints,
+  type TraceConstraints,
+} from "./scramble/constraints.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
