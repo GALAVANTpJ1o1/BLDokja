@@ -111,6 +111,17 @@ export {
   type TargetEffectError,
 } from "./methods/swap-algs.js";
 export {
+  opPhase,
+  opSystem,
+  solveOpOp,
+  type OpOpConfig,
+  type OpPhaseError,
+  type OpSolveError,
+  type OpSystem,
+  type OpSystemError,
+} from "./methods/op.js";
+export { stepMoves, type FrameStep, type MethodSolution, type MethodStep, type ParityStep, type TargetStep } from "./methods/solution.js";
+export {
   demonstrateSetup,
   illegalSetupExamples,
   type IllegalSetupExample,
