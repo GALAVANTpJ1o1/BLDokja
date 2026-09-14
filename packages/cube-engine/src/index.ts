@@ -301,3 +301,20 @@ export {
 } from "./scramble/constraints.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
+export {
+  ADVERSARIAL_FLOOR,
+  caseWeakness,
+  createSelector,
+  defaultRecencyWindow,
+  SELECTION_STRATEGIES,
+  selectionWeights,
+  WEAKNESS_FLOOR,
+  type CaseStats,
+  type CaseStatsProvider,
+  type SelectionContext,
+  type SelectionError,
+  type SelectionStrategy,
+  type Selector,
+  type SelectorOptionError,
+  type SelectorOptions,
+} from "./random/selection.js";
