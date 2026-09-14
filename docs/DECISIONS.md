@@ -193,7 +193,10 @@ Short records of choices that would be expensive to reverse, or where sources di
   2. **Drills (Phase 4) include diagonal cells**, because memos use them for lone letters. Pairs that can't occur for the user's current buffers and policy stay in the library (buffers can change). Drills and the gap finder weight every cell by how often it really occurs, and the engine can compute both the reachable set and the frequencies.
   3. **Scheme validation.** Duplicate letters within a piece type stay an error (D-011). The diagonal result depends on it, and so does reading a self-pair back as one sticker.
   4. **Buffer choice.** Gate B's buffer comparison includes the combined reachable-pair count, because shared letters between corner and edge buffers cost pairs.
-- **Stale sentence in the report.** `docs/reports/letter-pair-reachability.md` still says "The 24×24 grid really has 552 usable cells". That text comes from `scripts/letter-pair-report.ts`, so it will be reworded, and the report regenerated, the next time that script changes. This commit is documentation only.
+- **Stale sentence in the report: corrected at the source.** The report used to say "The 24×24 grid really has 552 usable cells".
+  - `scripts/letter-pair-report.ts` now says no trace lands on the diagonal but the library uses all 576 cells, and the report was regenerated. Every existing number is unchanged.
+  - **Memo-item counts added**, so that consequence 2 has real weights for diagonal cells. A new report section, and `memoItems` in `letter-pair-frequencies.json` (format version 2), count the memo items per cell for both `singleLetterRepresentation` modes.
+  - With UFR/UF, about 25% of corner items and 15% of edge items are diagonal. Only the buffer piece's own diagonal cells are never used, and the script asserts that.
 - **Spot-check buffers.** You left the choice to me. `docs/fixtures/SPOT-CHECK.md` will use UFR corners and UF edges, purely for the physical-cube check, not as a default. It hasn't been generated yet.
 
 ## D-014 · 4x4x4 tracing in Phase 1 uses a fixed frame; any later reference policy must be a rotation

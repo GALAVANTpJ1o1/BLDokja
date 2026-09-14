@@ -12,6 +12,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadPuzzle, type Puzzle } from "../src/core/puzzle.js";
 import { speffzScheme } from "../src/lettering/speffz.js";
+import { memoView, type SingleLetterRepresentation } from "../src/memo/memo.js";
 import { pieceType, type PieceTypeId } from "../src/pieces/piece-types.js";
 import { createRng } from "../src/random/prng.js";
 import { randomState3x3 } from "../src/random/random-state.js";
@@ -132,6 +133,13 @@ function combinedTable(first: Reachability[], second: Reachability[], policy: Po
   return lines.join("\n");
 }
 
+interface MemoItemStats {
+  items: number;
+  diagonalItems: number;
+  memosWithDiagonal: number;
+  cellCounts: Map<string, number>;
+}
+
 interface MemoStats {
   targets: number[];
   breaks: number[];
@@ -139,10 +147,14 @@ interface MemoStats {
   parity: number;
   memosWithRepeatedLetter: number;
   pairCounts: Map<string, number>;
+  memoItems: Record<SingleLetterRepresentation, MemoItemStats>;
 }
 
+const MODES: SingleLetterRepresentation[] = ["selfPair", "chain"];
+
 function newStats(): MemoStats {
-  return { targets: [], breaks: [], misoriented: [], parity: 0, memosWithRepeatedLetter: 0, pairCounts: new Map() };
+  const items = (): MemoItemStats => ({ items: 0, diagonalItems: 0, memosWithDiagonal: 0, cellCounts: new Map() });
+  return { targets: [], breaks: [], misoriented: [], parity: 0, memosWithRepeatedLetter: 0, pairCounts: new Map(), memoItems: { selfPair: items(), chain: items() } };
 }
 
 function summarise(values: number[]): string {
@@ -179,6 +191,18 @@ function memoStatistics(puzzle: Puzzle, examples: { corners: string; edges: stri
           if (b === undefined) continue;
           s.pairCounts.set(a + b, (s.pairCounts.get(a + b) ?? 0) + 1);
         }
+        for (const mode of MODES) {
+          const m = s.memoItems[mode];
+          const view = memoView(r, { singleLetterRepresentation: mode });
+          const diagonal = view.items.filter((item) => item.letters[0] === item.letters[1]).length;
+          m.items += view.items.length;
+          m.diagonalItems += diagonal;
+          if (diagonal > 0) m.memosWithDiagonal++;
+          for (const item of view.items) {
+            const cell = item.letters.join("");
+            m.cellCounts.set(cell, (m.cellCounts.get(cell) ?? 0) + 1);
+          }
+        }
       }
     }
     return { example, stats };
@@ -211,6 +235,38 @@ function statsSection(results: ReturnType<typeof memoStatistics>, reachable: (ty
     });
     rows.push(`| Distinct pairs seen | ${pairCells.map((c) => c.seen).join(" | ")} |`);
     rows.push(`| Occurrences per reachable pair | ${pairCells.map((c) => c.spread).join(" | ")} |`);
+    parts.push(rows.join("\n"));
+  }
+  return parts.join("\n\n");
+}
+
+function memoItemSection(puzzle: Puzzle, results: ReturnType<typeof memoStatistics>): string {
+  const scheme = speffzScheme(puzzle);
+  const parts: string[] = [];
+  for (const { example, stats } of results) {
+    // A lone letter is never on the buffer piece, so exactly the buffer piece's diagonal cells stay unused.
+    for (const typeId of ["corners", "edges"] as const) {
+      const type = pieceType(puzzle, typeId);
+      const bufferPosition = type.stickerByName(example[typeId])?.position;
+      const bufferLetters = type.stickers.filter((s) => s.position === bufferPosition).map((s) => scheme.letters[typeId]?.[s.name] ?? "");
+      for (const mode of MODES) {
+        const unused = LETTERS.filter((l) => !stats[typeId].memoItems[mode].cellCounts.has(l + l));
+        if (unused.join() !== [...bufferLetters].sort().join()) {
+          throw new Error(`${typeId} ${example[typeId]} ${mode}: unused diagonal cells ${unused.join("")}, buffer letters ${bufferLetters.join("")}`);
+        }
+      }
+    }
+    parts.push(`### Corner buffer ${example.corners}, edge buffer ${example.edges} (policy: separate)`);
+    const columns = (["corners", "edges"] as const).flatMap((typeId) => MODES.map((mode) => ({ typeId, mode, m: stats[typeId].memoItems[mode] })));
+    const rows = [`| | ${columns.map((c) => `${c.typeId === "corners" ? "Corners" : "Edges"}, \`${c.mode}\``).join(" | ")} |`, `|---|${columns.map(() => "---").join("|")}|`];
+    const row = (label: string, cell: (m: MemoItemStats) => string) => rows.push(`| ${label} | ${columns.map((c) => cell(c.m)).join(" | ")} |`);
+    row("Items per memo", (m) => `mean ${(m.items / STATE_COUNT).toFixed(2)}`);
+    row("Diagonal items", (m) => `${pct(m.diagonalItems, m.items)} of items; in ${pct(m.memosWithDiagonal, STATE_COUNT)} of memos`);
+    row("Occurrences per diagonal cell", (m) => {
+      const values = LETTERS.map((l) => m.cellCounts.get(l + l) ?? 0);
+      return `min ${Math.min(...values)}, max ${Math.max(...values)}; ${values.filter((v) => v > 0).length} of 24 cells used`;
+    });
+    row("Distinct cells used", (m) => `${m.cellCounts.size} of 576`);
     parts.push(rows.join("\n"));
   }
   return parts.join("\n\n");
@@ -261,7 +317,7 @@ export async function letterPairReport(): Promise<void> {
     return find(type === "corners" ? corners3 : edges3, piece, "separate").reachable;
   };
 
-  const md = `# Letter-pair reachability: 552 or 576?
+  const md = `# Letter-pair reachability
 
 Generated by \`pnpm engine:report letter-pairs\`; deterministic (seeded), so regenerating gives the same file. Letters are Speffz; buffers are stickers named as in DECISIONS D-009.
 
@@ -269,7 +325,9 @@ Generated by \`pnpm engine:report letter-pairs\`; deterministic (seeded), so reg
 
 **No same-letter pair (AA … XX) can occur in any traced memo.** That holds for every buffer, both orientation policies,
 3x3x3 corners and edges, and 4x4x4 corners and wings: all ${all.length} buffer-piece/policy configurations reach
-0 of the 24 diagonal cells. The 24×24 grid really has **552** usable cells.
+0 of the 24 diagonal cells. **The letter-pair library still uses all 576 cells** (DECISIONS D-013): a letter left
+alone in a memo is held with a self-pair image, and D-015 decides how lone letters become two-letter items. See
+"Memo items per cell" below for how often each diagonal cell is actually used.
 
 There is a second finding the old app couldn't have seen: **for any particular pair of buffers, more than the diagonal is
 unreachable.** A letter on the buffer piece is never a target, and two stickers of one piece are never consecutive targets
@@ -345,6 +403,19 @@ ${statsSection(stats, reachableFor)}
 - It had no cycle breaks, twists, flips or parity.
 
 \`docs/reports/letter-pair-frequencies.json\` has the per-pair counts for both example buffer combinations.
+
+## Memo items per cell (D-015)
+
+The same ${STATE_COUNT.toLocaleString("en")} states, turned into memo items with \`memoView\` in both
+\`singleLetterRepresentation\` modes. Traced pairs never land on the diagonal, but memo items do: a trailing target, and
+under \`separate\` each non-buffer twisted or flipped piece, becomes a doubled item. Drills and the gap finder can weight
+diagonal cells by these counts (D-013). Per-cell counts are under \`memoItems\` in
+\`docs/reports/letter-pair-frequencies.json\`.
+
+The only diagonal cells never used are the buffer piece's own letters (three for a corner buffer, two for an edge
+buffer): a lone letter never comes from the buffer piece. The script checks this for every column below.
+
+${memoItemSection(three, stats)}
 `;
 
   const reportsDir = join(import.meta.dirname, "..", "..", "..", "docs", "reports");
@@ -352,7 +423,8 @@ ${statsSection(stats, reachableFor)}
   writeFileSync(join(reportsDir, "letter-pair-reachability.md"), md);
   const json = {
     format: "bld-platform/letter-pair-frequencies",
-    version: 1,
+    // Version 2 adds memoItems; the traced-pair counts are unchanged.
+    version: 2,
     seed: "letter-pair-report-statistics",
     states: STATE_COUNT,
     scheme: "speffz",
@@ -361,6 +433,15 @@ ${statsSection(stats, reachableFor)}
       buffers: example,
       corners: Object.fromEntries([...s.corners.pairCounts.entries()].sort()),
       edges: Object.fromEntries([...s.edges.pairCounts.entries()].sort()),
+      memoItems: Object.fromEntries(
+        MODES.map((mode) => [
+          mode,
+          {
+            corners: Object.fromEntries([...s.corners.memoItems[mode].cellCounts.entries()].sort()),
+            edges: Object.fromEntries([...s.edges.memoItems[mode].cellCounts.entries()].sort()),
+          },
+        ]),
+      ),
     })),
   };
   writeFileSync(join(reportsDir, "letter-pair-frequencies.json"), `${JSON.stringify(json, null, 2)}\n`);
