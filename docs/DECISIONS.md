@@ -516,3 +516,55 @@ Short records of choices that would be expensive to reverse, or where sources di
     - **3-style UFR and UF share Speffz C.** Tracing with them can produce 494 of the 552 distinct-letter pairs, the lowest of any combination. All 46 pairs containing C are lost, plus 12 other pairs that neither the corner trace nor the edge trace can produce.
     - OP/OP (UBL, UR) can produce 532 under `asTargets`, and so can M2/OP (UBL, DF).
     - The library still holds all 576 cells either way (D-013). This only affects which pairs these buffers produce.
+
+## D-023 · 3-style alg datasets, twist and flip algs, and how datasets are verified
+
+**Status:** accepted design (milestone 8 plan review, 2026-09-14). The notation observation below is for your review.
+
+- **What ships** in `content/algs/3x3/`, generated for the Gate B buffers (D-022):
+
+  | File | Records | Main-alg ETM: moves: records |
+  |---|---|---|
+  | `3style-corners.UFR.json` | 378 cycles | 8: 198 · 9: 110 · 10: 38 · 11: 26 · 13: 6 |
+  | `3style-edges.UF.json` | 440 cycles | 4: 6 · 5: 12 · 7: 108 · 8: 240 · 9: 66 · 10: 8 |
+  | `3style-twists.UFR.json` | 14 twists (7 corners × 2 directions) | 16: 14 |
+  | `3style-flips.UF.json` | 11 flips | 12: 10 · 13: 1 |
+
+- **Format** (`src/data/alg-dataset.ts`, Zod-validated).
+  - One dataset per method, piece type, buffer and kind (`cycles`, `twists` or `flips`). Records are in canonical case order, and there are no timestamps.
+  - **A record names its case in sticker and piece names, never letters** (D-009): `targets` for a cycle; `target` plus `direction` for a twist; `target` for a flip.
+  - **It states the intended effect explicitly**, as sticker cycles (every sticker the alg moves), with `sideEffectPieces`, always empty for 3-style.
+  - **It holds 1–4 algs, main first.** Each carries its canonical notation, cancelled moves, ETM/QTM/HTM/STM and its source (`engine-search` or `cubing-solver`).
+- **Verification** (`verifyRecord` and `verifyDataset`).
+  - The intended effect is recomputed from the case alone, never from the algs, and must match what's stored.
+  - For every alg:
+    - its notation must parse and already be canonical;
+    - its stored moves must equal its cancelled expansion;
+    - its counts must match D-017;
+    - its whole-puzzle sticker permutation, centres included, must equal the intended effect;
+    - it must solve the case state (`validateComm` or `validateOrientationAlg`).
+  - Coverage must be complete, with no unexpected records and nothing out of order.
+  - **Tests:** `test/data/alg-dataset.test.ts` shows each kind of corruption is caught. `test/data/datasets.test.ts` runs every committed file through all of this (fast suite).
+- **Reproducibility.**
+  - `pnpm engine:generate` writes the files, and verifies every record first.
+  - `pnpm engine:generate --check`, also in the slow suite, regenerates them and fails on any difference. A deliberately corrupted file makes it exit 1.
+  - `.gitattributes` pins `content/algs/**` to LF so the comparison is byte-exact on Windows checkouts.
+- **Twist and flip cases follow what tracing reports.**
+  - The case state is the target twisted in the direction `trace` reports (D-012), with the buffer twisted the other way; for flips, both flipped.
+  - A test traces each state and checks it reports exactly those two pieces and no targets.
+- **Twist and flip search** (`searchOrientationAlgs`).
+  - Searches `[S: [X, I]]` whose effect twists or flips exactly two pieces in place.
+  - X alternates between two non-parallel move families, up to 8 moves. I is one move. S is a setup of up to 3 moves.
+  - Setups, exact pruning and ranking are the shared conjugate search (D-019).
+  - Every case is covered.
+- **Solver alternates: none made it in.** You chose comm-shaped main algs, with shorter cubing.js solver algs allowed as alternates. The solver never beat the comm-shaped algs:
+  - twists: 16–17 moves, against 16 for the comms;
+  - flips: 16–18 moves, against 12–13.
+  - The rule stays in the generator in case bounds or buffers change.
+- **Observation for your review: ETM ranking sometimes picks awkward notation.**
+  - The main algs are verified correct, but some aren't how a person would write or learn them:
+    - an insertion that starts on the interchange's axis, such as `[D, D L' U L]`;
+    - slice-heavy conjugates such as `[M2: [D' S U D, D2]]`;
+    - flips built on E and S slices.
+  - Nothing in the lessons or trainers uses these files yet.
+  - **Options for later:** keep ETM ranking, normalise the notation of equivalent forms, or add an ergonomic tie-break (fewer slices, fewer move families). Your call.

@@ -1,0 +1,646 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "3style-flips.UF",
+  "puzzle": "3x3x3",
+  "method": "3style",
+  "pieceType": "edges",
+  "buffer": "UF",
+  "kind": "flips",
+  "generatedBy": {
+    "engine": "0.1.0",
+    "bounds": {
+      "generators": [
+        "U",
+        "D",
+        "R",
+        "L",
+        "F",
+        "B",
+        "M",
+        "E",
+        "S"
+      ],
+      "maxInsertion": 8,
+      "maxSetup": 3
+    }
+  },
+  "records": [
+    {
+      "id": "UR",
+      "kind": "flip",
+      "target": "UR",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UR",
+            "RU"
+          ],
+          [
+            "UF",
+            "FU"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, F E F2 E2 F]",
+          "moves": "U F E F2 E2 F U' F' E2 F2 E' F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F E2 F2 E F]",
+          "moves": "U F E2 F2 E F U' F' E' F2 E2 F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F' E' F2 E2 F']",
+          "moves": "U F' E' F2 E2 F' U' F E2 F2 E F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F' E2 F2 E' F']",
+          "moves": "U F' E2 F2 E' F' U' F E F2 E2 F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UB",
+      "kind": "flip",
+      "target": "UB",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UB",
+            "BU"
+          ],
+          [
+            "UF",
+            "FU"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U2, M D M' D M]",
+          "moves": "U2 M D M' D M U2 M' D' M D' M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2, M D' M' D' M]",
+          "moves": "U2 M D' M' D' M U2 M' D M D M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2, M' D M D M']",
+          "moves": "U2 M' D M D M' U2 M D' M' D' M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2, M' D' M D' M']",
+          "moves": "U2 M' D' M D' M' U2 M D M' D M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UL",
+      "kind": "flip",
+      "target": "UL",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UL",
+            "LU"
+          ],
+          [
+            "UF",
+            "FU"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, R S R2 S2 R]",
+          "moves": "U R S R2 S2 R U' R' S2 R2 S' R'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, R S2 R2 S' R]",
+          "moves": "U R S2 R2 S' R U' R' S R2 S2 R'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, R' S R2 S2 R']",
+          "moves": "U R' S R2 S2 R' U' R S2 R2 S' R",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, R' S2 R2 S' R']",
+          "moves": "U R' S2 R2 S' R' U' R S R2 S2 R",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DF",
+      "kind": "flip",
+      "target": "DF",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "FD",
+            "DF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[F2, M B M' B M]",
+          "moves": "F2 M B M' B M F2 M' B' M B' M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F2, M B' M' B' M]",
+          "moves": "F2 M B' M' B' M F2 M' B M B M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F2, M' B M B M']",
+          "moves": "F2 M' B M B M' F2 M B' M' B' M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F2, M' B' M B' M']",
+          "moves": "F2 M' B' M B' M' F2 M B M' B M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DR",
+      "kind": "flip",
+      "target": "DR",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "RD",
+            "DR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U' S: [D2, S' U S U S']]",
+          "moves": "U' S D2 S' U S U S' D2 S U' S'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S: [S' U S U S' U, D2]]",
+          "moves": "S U S' D2 S U' S' U' S D2 S' U",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' M': [U2, M D M' D M]]",
+          "moves": "D' M' U2 M D M' D M U2 M' D' M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' M': [M D M' D M, U2]]",
+          "moves": "M' D M U2 M' D' M D' M' U2 M D",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DB",
+      "kind": "flip",
+      "target": "DB",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "BD",
+            "DB"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U2 M': [D2, M U M' U M]]",
+          "moves": "U2 M' D2 M U M' U M D2 M' U' M U",
+          "etm": 13,
+          "qtm": 22,
+          "htm": 19,
+          "stm": 13,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2 M': [D2, M U' M' U' M]]",
+          "moves": "U2 M' D2 M U' M' U' M D2 M' U M U'",
+          "etm": 13,
+          "qtm": 22,
+          "htm": 19,
+          "stm": 13,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2 M': [M U M' U M U, D2]]",
+          "moves": "U' M' U M D2 M' U' M U' M' D2 M U2",
+          "etm": 13,
+          "qtm": 22,
+          "htm": 19,
+          "stm": 13,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U2 M': [M U' M' U' M U, D2]]",
+          "moves": "U M' U' M D2 M' U M U M' D2 M U2",
+          "etm": 13,
+          "qtm": 22,
+          "htm": 19,
+          "stm": 13,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DL",
+      "kind": "flip",
+      "target": "DL",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "LD",
+            "DL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U S': [D2, S U' S' U' S]]",
+          "moves": "U S' D2 S U' S' U' S D2 S' U S",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U S': [S U' S' U' S U, D2]]",
+          "moves": "S' U' S D2 S' U S U S' D2 S U'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D M': [U2, M D' M' D' M]]",
+          "moves": "D M' U2 M D' M' D' M U2 M' D M",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D M': [M D' M' D' M, U2]]",
+          "moves": "M' D' M U2 M' D M D M' U2 M D'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FR",
+      "kind": "flip",
+      "target": "FR",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "FR",
+            "RF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U S' U2 S2 U, F']",
+          "moves": "U S' U2 S2 U F' U' S2 U2 S U' F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U S2 U2 S' U, F']",
+          "moves": "U S2 U2 S' U F' U' S U2 S2 U' F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S U2 S2 U', F']",
+          "moves": "U' S U2 S2 U' F' U S2 U2 S' U F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S2 U2 S U', F']",
+          "moves": "U' S2 U2 S U' F' U S' U2 S2 U F",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FL",
+      "kind": "flip",
+      "target": "FL",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "LF",
+            "FL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U S' U2 S2 U, F]",
+          "moves": "U S' U2 S2 U F U' S2 U2 S U' F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U S2 U2 S' U, F]",
+          "moves": "U S2 U2 S' U F U' S U2 S2 U' F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S U2 S2 U', F]",
+          "moves": "U' S U2 S2 U' F U S2 U2 S' U F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S2 U2 S U', F]",
+          "moves": "U' S2 U2 S U' F U S' U2 S2 U F'",
+          "etm": 12,
+          "qtm": 22,
+          "htm": 16,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BR",
+      "kind": "flip",
+      "target": "BR",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "RB",
+            "BR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[F E: [B2, E' F' E F' E']]",
+          "moves": "F E B2 E' F' E F' E' B2 E F E'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F E: [E' F' E F' E' F, B2]]",
+          "moves": "E F' E' B2 E F E' F E B2 E' F'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B M: [F2, M' B' M B' M']]",
+          "moves": "B M F2 M' B' M B' M' F2 M B M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B M: [M' B' M B' M', F2]]",
+          "moves": "M B' M' F2 M B M' B M F2 M' B'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BL",
+      "kind": "flip",
+      "target": "BL",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UF",
+            "FU"
+          ],
+          [
+            "LB",
+            "BL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[F' E': [B2, E F E' F E]]",
+          "moves": "F' E' B2 E F E' F E B2 E' F' E",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F' E': [E F E' F E F, B2]]",
+          "moves": "E' F E B2 E' F' E F' E' B2 E F",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B' M: [F2, M' B M B M']]",
+          "moves": "B' M F2 M' B M B M' F2 M B' M'",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B' M: [M' B M B M', F2]]",
+          "moves": "M B M' F2 M B' M' B' M F2 M' B",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 18,
+          "stm": 12,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}

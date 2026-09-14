@@ -233,8 +233,9 @@ export function verifyDataset(puzzle: Puzzle, dataset: AlgDataset): DatasetProbl
 }
 
 /** A dataset entry for a found comm. */
-export function algEntry(puzzle: Puzzle, found: FoundComm, source: AlgSource): AlgEntry {
-  return { alg: formatAlg(found.alg), moves: formatMoves(found.moves), ...found.counts, source };
+export function algEntry(_puzzle: Puzzle, found: FoundComm, source: AlgSource): AlgEntry {
+  const { etm, qtm, htm, stm } = found.counts;
+  return { alg: formatAlg(found.alg), moves: formatMoves(found.moves), etm, qtm, htm, stm, source };
 }
 
 export type RecordCase =
@@ -244,20 +245,23 @@ export type RecordCase =
 
 /** A record with its id and intended effect computed from the case, never from the algs. */
 export function buildRecord(puzzle: Puzzle, buffer: string, recordCase: RecordCase, algs: readonly AlgEntry[]): AlgRecord {
-  const blank = { id: "", intendedEffect: { stickerCycles: [], sideEffectPieces: [] }, algs: [...algs] };
-  let draft: AlgRecord;
+  // Key order is the order a person reads the JSON in: id, the case, its effect, then the algs.
+  const effect = { stickerCycles: [] as string[][], sideEffectPieces: [] as string[] };
+  let record: AlgRecord;
   switch (recordCase.kind) {
     case "cycle":
-      draft = { ...blank, kind: "cycle", targets: [recordCase.targets[0], recordCase.targets[1]] };
+      record = { id: "", kind: "cycle", targets: [recordCase.targets[0], recordCase.targets[1]], intendedEffect: effect, algs: [...algs] };
       break;
     case "twist":
-      draft = { ...blank, kind: "twist", target: recordCase.target, direction: recordCase.direction };
+      record = { id: "", kind: "twist", target: recordCase.target, direction: recordCase.direction, intendedEffect: effect, algs: [...algs] };
       break;
     case "flip":
-      draft = { ...blank, kind: "flip", target: recordCase.target };
+      record = { id: "", kind: "flip", target: recordCase.target, intendedEffect: effect, algs: [...algs] };
       break;
   }
-  const state = caseState(puzzle, buffer, draft);
+  const state = caseState(puzzle, buffer, record);
   if (!state.ok) throw new Error(`invalid case ${JSON.stringify(recordCase)}: ${JSON.stringify(state.error)}`);
-  return { ...draft, id: recordId(draft), intendedEffect: { stickerCycles: stickerCycles(puzzle, requiredPermutation(puzzle, state.value)), sideEffectPieces: [] } };
+  record.id = recordId(record);
+  effect.stickerCycles = stickerCycles(puzzle, requiredPermutation(puzzle, state.value));
+  return record;
 }

@@ -14,7 +14,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
     "engine:report": "pnpm --filter @bld/cube-engine report",
-    "engine:bench": "pnpm --filter @bld/cube-engine bench"
+    "engine:bench": "pnpm --filter @bld/cube-engine bench",
+    "engine:generate": "pnpm --filter @bld/cube-engine generate"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

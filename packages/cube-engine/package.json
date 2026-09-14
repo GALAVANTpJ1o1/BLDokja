@@ -20,7 +20,8 @@
     "test:slow": "vitest run --config vitest.slow.config.ts",
     "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json",
     "report": "tsx scripts/report.ts",
-    "bench": "tsx scripts/bench.ts"
+    "bench": "tsx scripts/bench.ts",
+    "generate": "tsx scripts/generate-datasets.ts"
   },
   "dependencies": {
     "cubing": "0.63.4",

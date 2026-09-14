@@ -1,0 +1,853 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "3style-twists.UFR",
+  "puzzle": "3x3x3",
+  "method": "3style",
+  "pieceType": "corners",
+  "buffer": "UFR",
+  "kind": "twists",
+  "generatedBy": {
+    "engine": "0.1.0",
+    "bounds": {
+      "generators": [
+        "U",
+        "D",
+        "R",
+        "L",
+        "F",
+        "B"
+      ],
+      "maxInsertion": 8,
+      "maxSetup": 3
+    }
+  },
+  "records": [
+    {
+      "id": "UBR-clockwise",
+      "kind": "twist",
+      "target": "UBR",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "RUB",
+            "BUR"
+          ],
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, R' D' R D R' D' R]",
+          "moves": "U R' D' R D R' D' R U' R' D R D' R' D R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U L U' L' U L U', R']",
+          "moves": "U L U' L' U L U' R' U L' U' L U L' U' R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F D' F' D F D' F']",
+          "moves": "U F D' F' D F D' F' U' F D F' D' F D F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U', R D R' D' R D R']",
+          "moves": "U' R D R' D' R D R' U R D' R' D R D' R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UBR-counterclockwise",
+      "kind": "twist",
+      "target": "UBR",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "BUR",
+            "RUB"
+          ],
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, R' D R D' R' D R]",
+          "moves": "U R' D R D' R' D R U' R' D' R D R' D' R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U L' U' L U L' U', R']",
+          "moves": "U L' U' L U L' U' R' U L U' L' U L U' R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F D F' D' F D F']",
+          "moves": "U F D F' D' F D F' U' F D' F' D F D' F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U', R D' R' D R D' R']",
+          "moves": "U' R D' R' D R D' R' U R D R' D' R D R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UBL-clockwise",
+      "kind": "twist",
+      "target": "UBL",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBL",
+            "BUL",
+            "LUB"
+          ],
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[R: [R' F R F' R' F R F, B']]",
+          "moves": "F R F' R' F R B' R' F' R F R' F' R B R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[R: [B', R' F' R F R' F' R]]",
+          "moves": "R B' R' F' R F R' F' R B R' F R F' R' F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[L: [L' B' L B L' B' L, F']]",
+          "moves": "B' L B L' B' L F' L' B L B' L' B L F L'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[L: [F', L' B L B' L' B L]]",
+          "moves": "L F' L' B L B' L' B L F L' B' L B L' B'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UBL-counterclockwise",
+      "kind": "twist",
+      "target": "UBL",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBL",
+            "LUB",
+            "BUL"
+          ],
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[R: [R' F' R F R' F' R F, B']]",
+          "moves": "F' R F R' F' R B' R' F R F' R' F R B R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[R: [B', R' F R F' R' F R]]",
+          "moves": "R B' R' F R F' R' F R B R' F' R F R' F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[L: [L' B L B' L' B L, F']]",
+          "moves": "B L B' L' B L F' L' B' L B L' B' L F L'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[L: [F', L' B' L B L' B' L]]",
+          "moves": "L F' L' B' L B L' B' L F L' B L B' L' B",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UFL-clockwise",
+      "kind": "twist",
+      "target": "UFL",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFL",
+            "LUF",
+            "FUL"
+          ],
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, L D L' D' L D L']",
+          "moves": "U L D L' D' L D L' U' L D' L' D L D' L'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F' D F D' F' D F]",
+          "moves": "U F' D F D' F' D F U' F' D' F D F' D' F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U B' U' B U B' U', F']",
+          "moves": "U B' U' B U B' U' F' U B U' B' U B U' F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U', R' D' R D R' D' R]",
+          "moves": "U' R' D' R D R' D' R U R' D R D' R' D R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UFL-counterclockwise",
+      "kind": "twist",
+      "target": "UFL",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFL",
+            "FUL",
+            "LUF"
+          ],
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U, L D' L' D L D' L']",
+          "moves": "U L D' L' D L D' L' U' L D L' D' L D L'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U, F' D' F D F' D' F]",
+          "moves": "U F' D' F D F' D' F U' F' D F D' F' D F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U B U' B' U B U', F']",
+          "moves": "U B U' B' U B U' F' U B' U' B U B' U' F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U', R' D R D' R' D R]",
+          "moves": "U' R' D R D' R' D R U R' D' R D R' D' R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DFR-clockwise",
+      "kind": "twist",
+      "target": "DFR",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ],
+          [
+            "FDR",
+            "DFR",
+            "RDF"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U L U' L' U L U', R]",
+          "moves": "U L U' L' U L U' R U L' U' L U L' U' R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' B U B' U' B U, F']",
+          "moves": "U' B U B' U' B U F' U' B' U B U' B' U F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D B' D' B D B' D', F]",
+          "moves": "D B' D' B D B' D' F D B D' B' D B D' F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' L' D L D' L' D, R']",
+          "moves": "D' L' D L D' L' D R' D' L D L' D' L D R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DFR-counterclockwise",
+      "kind": "twist",
+      "target": "DFR",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ],
+          [
+            "FDR",
+            "RDF",
+            "DFR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U L' U' L U L' U', R]",
+          "moves": "U L' U' L U L' U' R U L U' L' U L U' R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' B' U B U' B' U, F']",
+          "moves": "U' B' U B U' B' U F' U' B U B' U' B U F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D B D' B' D B D', F]",
+          "moves": "D B D' B' D B D' F D B' D' B D B' D' F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' L D L' D' L D, R']",
+          "moves": "D' L D L' D' L D R' D' L' D L D' L' D R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DFL-clockwise",
+      "kind": "twist",
+      "target": "DFL",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ],
+          [
+            "LDF",
+            "DFL",
+            "FDL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U: [U' R U R' U' R U R, L']]",
+          "moves": "R U R' U' R U L' U' R' U R U' R' U L U'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U: [L', U' R' U R U' R' U]]",
+          "moves": "U L' U' R' U R U' R' U L U' R U R' U' R",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D: [D' L' D L D' L' D, R']]",
+          "moves": "L' D L D' L' D R' D' L D L' D' L D R D'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D: [R', D' L D L' D' L D]]",
+          "moves": "D R' D' L D L' D' L D R D' L' D L D' L'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DFL-counterclockwise",
+      "kind": "twist",
+      "target": "DFL",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ],
+          [
+            "LDF",
+            "FDL",
+            "DFL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U: [U' R' U R U' R' U R, L']]",
+          "moves": "R' U R U' R' U L' U' R U R' U' R U L U'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U: [L', U' R U R' U' R U]]",
+          "moves": "U L' U' R U R' U' R U L U' R' U R U' R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D: [D' L D L' D' L D, R']]",
+          "moves": "L D L' D' L D R' D' L' D L D' L' D R D'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D: [R', D' L' D L D' L' D]]",
+          "moves": "D R' D' L' D L D' L' D R D' L D L' D' L",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DBL-clockwise",
+      "kind": "twist",
+      "target": "DBL",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ],
+          [
+            "LDB",
+            "BDL",
+            "DBL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U F': [D, F U' F' U F U' F']]",
+          "moves": "U F' D F U' F' U F U' F' D' F U F' U' F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' R: [R' U R U' R' U R U, D']]",
+          "moves": "R U' R' U R D' R' U' R U R' U' R D R' U",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D L': [L D' L' D L D' L', U]]",
+          "moves": "L' D L D' L' U L D L' D' L D L' U' L D'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' B: [U', B' D B D' B' D B]]",
+          "moves": "D' B U' B' D B D' B' D B U B' D' B D B'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DBL-counterclockwise",
+      "kind": "twist",
+      "target": "DBL",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ],
+          [
+            "LDB",
+            "DBL",
+            "BDL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U F': [F U' F' U F U' F' U, D]]",
+          "moves": "F' U F U' F' D F U F' U' F U F' D' F U'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' R: [D', R' U R U' R' U R]]",
+          "moves": "U' R D' R' U R U' R' U R D R' U' R U R'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D L': [U, L D' L' D L D' L']]",
+          "moves": "D L' U L D' L' D L D' L' U' L D L' D' L",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' B: [B' D B D' B' D B, U']]",
+          "moves": "B D' B' D B U' B' D' B D B' D' B U B' D",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DBR-clockwise",
+      "kind": "twist",
+      "target": "DBR",
+      "direction": "clockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "RUF",
+            "FUR"
+          ],
+          [
+            "RDB",
+            "DBR",
+            "BDR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U': [U F U' F' U F U' F, B]]",
+          "moves": "F U' F' U F U' B U F' U' F U F' U' B' U",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U': [B, U F' U' F U F' U']]",
+          "moves": "U' B U F' U' F U F' U' B' U F U' F' U F",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D': [D B' D' B D B' D', F]]",
+          "moves": "B' D' B D B' D' F D B D' B' D B D' F' D",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D': [F, D B D' B' D B D']]",
+          "moves": "D' F D B D' B' D B D' F' D B' D' B D B'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DBR-counterclockwise",
+      "kind": "twist",
+      "target": "DBR",
+      "direction": "counterclockwise",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UFR",
+            "FUR",
+            "RUF"
+          ],
+          [
+            "RDB",
+            "BDR",
+            "DBR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U': [U F' U' F U F' U' F, B]]",
+          "moves": "F' U' F U F' U' B U F U' F' U F U' B' U",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U': [B, U F U' F' U F U']]",
+          "moves": "U' B U F U' F' U F U' B' U F' U' F U F'",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D': [D B D' B' D B D', F]]",
+          "moves": "B D' B' D B D' F D B' D' B D B' D' F' D",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D': [F, D B' D' B D B' D']]",
+          "moves": "D' F D B' D' B D B' D' F' D B D' B' D B",
+          "etm": 16,
+          "qtm": 16,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}
