@@ -1,6 +1,7 @@
 import type { KTransformation } from "cubing/kpuzzle";
 import { describe, expect, it } from "vitest";
 import { at, mod, permutationParity } from "../../src/core/arrays.js";
+import { centersRotation, normaliseByCenters, wholeCubeRotationAlgs } from "../../src/core/frame.js";
 import { loadPuzzle, type Puzzle } from "../../src/core/puzzle.js";
 
 function allRotations(puzzle: Puzzle): KTransformation[] {
@@ -49,6 +50,34 @@ describe("whole-cube rotations", () => {
       expect(p.EDGES).toBe(p.CENTERS);
     }
     expect(parities.filter((p) => p.EDGES === 1)).toHaveLength(12);
+  });
+
+  it("each rotation's alg is at most two moves and gives exactly that rotation; they are the 24 rotations x and y generate", async () => {
+    for (const id of ["3x3x3", "4x4x4"] as const) {
+      const puzzle = await loadPuzzle(id);
+      const rotations = wholeCubeRotationAlgs(puzzle);
+      expect(rotations).toHaveLength(24);
+      for (const r of rotations) {
+        expect(r.alg.split(" ").filter((m) => m !== "").length, r.alg).toBeLessThanOrEqual(2);
+        expect(puzzle.kpuzzle.identityTransformation().applyAlg(r.alg).isIdentical(r.transformation), r.alg).toBe(true);
+      }
+      const generated = allRotations(puzzle);
+      for (const t of generated) expect(rotations.filter((r) => r.transformation.isIdentical(t))).toHaveLength(1);
+    }
+  });
+
+  it("3x3x3: centersRotation finds the one rotation that undoes a trailing rotation, and its alg reproduces the pattern", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const scramble = "R U2 D' B D' F2 L' U R2 F' D2 B L2 Fw Rw'";
+    const expected = normaliseByCenters(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(scramble));
+    if (expected === undefined) throw new Error("scramble not normalisable");
+    for (const r of wholeCubeRotationAlgs(puzzle)) {
+      const rotated = puzzle.kpuzzle.defaultPattern().applyAlg(scramble).applyTransformation(r.transformation);
+      const found = centersRotation(puzzle, rotated);
+      if (found === undefined) throw new Error(`no rotation for ${r.alg}`);
+      expect(found.pattern.isIdentical(expected), r.alg).toBe(true);
+      expect(rotated.applyAlg(found.alg).isIdentical(found.pattern), r.alg).toBe(true);
+    }
   });
 });
 

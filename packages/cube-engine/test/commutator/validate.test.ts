@@ -3,7 +3,7 @@ import { composeStickerPermutations, type StickerGeometry } from "../../src/core
 import { geometryMovePermutation } from "../../src/core/geometry-moves.js";
 import { faceletsOf, loadPuzzle, type Puzzle } from "../../src/core/puzzle.js";
 import { formatNodes, parseAlg, type AlgMove, type AlgNode, type QuarterTurns } from "../../src/commutator/parse.js";
-import { threeCyclePattern, validateComm, type ThreeCycle } from "../../src/commutator/validate.js";
+import { stickerCyclePattern, threeCyclePattern, validateComm, type ThreeCycle } from "../../src/commutator/validate.js";
 import { speffzScheme } from "../../src/lettering/speffz.js";
 import { pieceType, type PieceTypeId } from "../../src/pieces/piece-types.js";
 import { stickerName } from "../../src/pieces/names.js";
@@ -104,6 +104,59 @@ describe("threeCyclePattern", () => {
     expect(code(threeCyclePattern(three, ["UFR", "RUF", "DBL"]))).toEqual({ code: "same-piece", stickers: ["UFR", "RUF"] });
     expect(code(threeCyclePattern(three, ["UF", "DB", "BD"]))).toEqual({ code: "same-piece", stickers: ["DB", "BD"] });
     expect(code(threeCyclePattern(four, ["Ufr", "Dfr", "Ruf"]))).toEqual({ code: "interchangeable-pieces-unsupported", pieceType: "xcenters" });
+  });
+});
+
+describe("stickerCyclePattern", () => {
+  it("with two stickers, builds the exchange of the buffer and target pieces: it traces to exactly that one target, with parity", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const scheme = speffzScheme(puzzle);
+    for (const typeId of ["corners", "edges"] as const) {
+      const type = pieceType(puzzle, typeId);
+      const oracle = new TraceOracle(3, typeId);
+      let count = 0;
+      for (const buffer of type.stickers) {
+        for (const target of type.stickers) {
+          if (target.position === buffer.position) continue;
+          const context = `${buffer.name} ↔ ${target.name}`;
+          const pattern = stickerCyclePattern(puzzle, [buffer.name, target.name]);
+          if (!pattern.ok) throw new Error(`${context}: ${JSON.stringify(pattern.error)}`);
+          const facelets = faceletsOf(puzzle, pattern.value);
+          expect([facelets[buffer.index], facelets[target.index]], context).toEqual([target.index, buffer.index]);
+          expect(facelets.filter((home, slot) => home !== slot).length, context).toBe(2 * (type.pieces[0]?.stickers.length ?? 0));
+          for (const orientedInPlace of ["separate", "asTargets"] as const) {
+            const result = trace(puzzle, { pattern: pattern.value }, { pieceType: typeId, buffer: buffer.name, scheme, policy: { orientedInPlace } });
+            if (!result.ok) throw new Error(`${context}: ${JSON.stringify(result.error)}`);
+            expect([result.value.targetStickers, result.value.orientedInPlace, result.value.parity], context).toEqual([[target.name], [], true]);
+          }
+          if (count % 37 === 0) {
+            const colours = Array.from(facelets, (home) => puzzle.geometry.sticker(home).face);
+            const read = oracle.trace(colours, { kind: typeId, buffer: buffer.name, letters: scheme.letters[typeId] ?? {}, orientedInPlace: "separate" });
+            expect(read.targetStickers, `${context} oracle`).toEqual([target.name]);
+          }
+          count++;
+        }
+      }
+      expect(count).toBe(typeId === "corners" ? 24 * 21 : 24 * 22);
+    }
+  });
+
+  it("with three stickers, is threeCyclePattern; with four, traces to the three targets; shorter cycles are rejected", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const three = stickerCyclePattern(puzzle, ["UFR", "DBL", "RDF"]);
+    const reference = threeCyclePattern(puzzle, ["UFR", "DBL", "RDF"]);
+    if (!three.ok || !reference.ok) throw new Error("pattern");
+    expect(three.value.isIdentical(reference.value)).toBe(true);
+
+    const four = stickerCyclePattern(puzzle, ["UF", "RB", "DL", "FU"]);
+    expect(four.ok ? "ok" : four.error).toEqual({ code: "same-piece", stickers: ["UF", "FU"] });
+    const cycle = stickerCyclePattern(puzzle, ["UF", "RB", "DL", "BU"]);
+    if (!cycle.ok) throw new Error(JSON.stringify(cycle.error));
+    const result = trace(puzzle, { pattern: cycle.value }, { pieceType: "edges", buffer: "UF", scheme: speffzScheme(puzzle) });
+    if (!result.ok) throw new Error(JSON.stringify(result.error));
+    expect(result.value.targetStickers).toEqual(["RB", "DL", "BU"]);
+
+    expect(stickerCyclePattern(puzzle, ["UF"])).toEqual({ ok: false, error: { code: "cycle-too-short", length: 1 } });
   });
 });
 

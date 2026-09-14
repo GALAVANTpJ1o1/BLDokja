@@ -1,7 +1,7 @@
 export const ENGINE_VERSION = "0.1.0";
 
 export { loadPuzzle, verifiedMoves, VERIFIED_MOVE_FAMILIES, type Puzzle, type PuzzleId } from "./core/puzzle.js";
-export { normaliseByCenters, wholeCubeRotations } from "./core/frame.js";
+export { centersRotation, normaliseByCenters, wholeCubeRotationAlgs, wholeCubeRotations, type WholeCubeRotation } from "./core/frame.js";
 export { composePerms, identityPerm, invertPerm, moveTable, type MoveTable, type StickerPerm, type TableMove } from "./core/move-table.js";
 export { conjugatePerm, cubeSymmetries, inverseSymmetry, relabelMove, type CubeSymmetry, type RelabelMove } from "./core/symmetry.js";
 export type { Result } from "./core/result.js";
@@ -81,12 +81,14 @@ export {
 } from "./commutator/search.js";
 export {
   orientationPairPattern,
+  stickerCyclePattern,
   threeCyclePattern,
   validateComm,
   validateOrientationAlg,
   type CommValidation,
   type OrientationCase,
   type OrientationCaseError,
+  type StickerCycleError,
   type ThreeCycle,
   type ThreeCycleError,
   type ValidateCommError,

@@ -34,7 +34,9 @@ export type CommValidation =
 
 export type ThreeCycle = readonly [buffer: string, first: string, second: string];
 
-function resolveCycle(puzzle: Puzzle, cycle: ThreeCycle): Result<{ type: PieceType; stickers: StickerInfo[] }, ThreeCycleError> {
+export type StickerCycleError = ThreeCycleError | { readonly code: "cycle-too-short"; readonly length: number };
+
+function resolveCycle(puzzle: Puzzle, cycle: readonly string[]): Result<{ type: PieceType; stickers: StickerInfo[] }, ThreeCycleError> {
   const types = pieceTypesFor(puzzle);
   const found: { type: PieceType; sticker: StickerInfo }[] = [];
   for (const name of cycle) {
@@ -49,8 +51,8 @@ function resolveCycle(puzzle: Puzzle, cycle: ThreeCycle): Result<{ type: PieceTy
   const type = at(found, 0).type;
   if (found.some((f) => f.type.id !== type.id)) return err({ code: "mixed-piece-types", stickers: [...cycle] });
   if (type.interchangeable) return err({ code: "interchangeable-pieces-unsupported", pieceType: type.id });
-  for (let i = 0; i < 3; i++) {
-    for (let j = i + 1; j < 3; j++) {
+  for (let i = 0; i < cycle.length; i++) {
+    for (let j = i + 1; j < cycle.length; j++) {
       if (at(found, i).sticker.position === at(found, j).sticker.position) {
         return err({ code: "same-piece", stickers: [at(cycle, i), at(cycle, j)] });
       }
@@ -118,6 +120,21 @@ function fixedOrientationTable(puzzle: Puzzle, orbitName: string): readonly (rea
  * buffer sticker, each piece carrying its other stickers along. Every other piece is solved.
  */
 export function threeCyclePattern(puzzle: Puzzle, cycle: ThreeCycle): Result<KPattern, ThreeCycleError> {
+  return cyclePattern(puzzle, cycle);
+}
+
+/**
+ * The state whose trace from `stickers[0]` is exactly `stickers[1]`, …, `stickers[n − 1]`, built the
+ * same way as `threeCyclePattern`: each slot receives the piece of the next sticker, the last slot
+ * receives the buffer's piece, and every other piece is solved. With two stickers it is the rigid
+ * exchange of the buffer piece and the target piece that a swap-based method performs.
+ */
+export function stickerCyclePattern(puzzle: Puzzle, stickers: readonly string[]): Result<KPattern, StickerCycleError> {
+  if (stickers.length < 2) return err({ code: "cycle-too-short", length: stickers.length });
+  return cyclePattern(puzzle, stickers);
+}
+
+function cyclePattern(puzzle: Puzzle, cycle: readonly string[]): Result<KPattern, ThreeCycleError> {
   const resolved = resolveCycle(puzzle, cycle);
   if (!resolved.ok) return resolved;
   const { type, stickers } = resolved.value;
@@ -135,9 +152,9 @@ export function threeCyclePattern(puzzle: Puzzle, cycle: ThreeCycle): Result<KPa
   // Slot of stickers[i] receives the piece of stickers[i + 1]. For pieces that can twist or flip,
   // sticker j of a piece with orientation k shows in label slot j + sign·k, so
   // k = sign·(slot label − sticker label).
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < stickers.length; i++) {
     const slot = at(stickers, i);
-    const incoming = at(stickers, (i + 1) % 3);
+    const incoming = at(stickers, (i + 1) % stickers.length);
     pieces[slot.position] = at(orbit.defaultPieces, incoming.position);
     orientation[slot.position] =
       fixed === undefined ? mod(type.orientationSign * (label(slot) - label(incoming)), n) : at(at(fixed, incoming.position), slot.position);
