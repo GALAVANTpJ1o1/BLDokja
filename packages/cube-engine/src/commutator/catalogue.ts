@@ -54,6 +54,8 @@ export interface CommCatalogue {
   readonly size: number;
   readonly keys: number;
   lookup(key: number): CatalogueList | undefined;
+  /** Every key that has comms, ascending. */
+  keyList(): readonly number[];
 }
 
 /** A directed 3-cycle a→b→c, rotated to start at its lowest sticker index. */
@@ -136,10 +138,81 @@ export const THREE_CYCLE: EffectKind = {
   },
 };
 
+/** Two pieces' directed sticker cycles, each written as (lowest sticker → its image), as one key. */
+export function orientationPairKey(stickerCount: number, stepA: number, stepB: number): number {
+  const n2 = stickerCount * stickerCount;
+  return stepA < stepB ? stepA * n2 + stepB : stepB * n2 + stepA;
+}
+
+/**
+ * Two pieces twisted (or flipped) in place: every moved sticker stays on its own piece. Keyed by
+ * each piece's lowest sticker and where it goes, which fixes the direction of the twist.
+ */
+export const ORIENTATION_PAIR: EffectKind = {
+  movedStickers: (perPiece) => 2 * perPiece,
+  classify(effect, moved, pieceOf, n) {
+    const steps: number[] = [];
+    const seen = new Set<number>();
+    for (const s of moved) {
+      if (pieceOf[at(effect, s)] !== pieceOf[s]) return undefined;
+      const piece = pieceOf[s] ?? -1;
+      if (!seen.has(piece)) {
+        // `moved` is ascending, so the first sticker met on a piece is its lowest.
+        seen.add(piece);
+        steps.push(s * n + at(effect, s));
+      }
+    }
+    if (steps.length !== 2) return undefined;
+    return orientationPairKey(n, at(steps, 0), at(steps, 1));
+  },
+};
+
 export type InsertionWalk = (table: MoveTable, maxLength: number, visit: (moves: readonly TableMove[], perm: StickerPerm, inverse: StickerPerm) => void) => void;
+
+/**
+ * Sequences on two non-parallel move families, alternating, up to `maxLength` (any amounts): the
+ * shape of insertions that twist or flip one piece in place, such as a repeated `R' D' R D`. Single
+ * moves are visited once per family; longer sequences once per ordered family pair.
+ */
+export const twoGeneratorSequences: InsertionWalk = (table, maxLength, visit) => {
+  const sequence: TableMove[] = [];
+  const identity = identityPerm(table.stickerCount);
+  const movesOf = (family: string) => table.moves.filter((m) => m.family === family);
+  for (const family of table.families) {
+    for (const move of movesOf(family)) visit([move], move.perm, move.inverse);
+  }
+  for (const first of table.families) {
+    for (const second of table.families) {
+      const a = movesOf(first);
+      const b = movesOf(second);
+      if (first === second || at(a, 0).axis === at(b, 0).axis) continue;
+      const walk = (perm: StickerPerm, inverse: StickerPerm, next: readonly TableMove[]) => {
+        if (sequence.length >= 2) visit(sequence, perm, inverse);
+        if (sequence.length === maxLength) return;
+        for (const move of next) {
+          sequence.push(move);
+          walk(composePerms(perm, move.perm), composePerms(move.inverse, inverse), next === a ? b : a);
+          sequence.pop();
+        }
+      };
+      walk(identity, identity, a);
+    }
+  }
+};
 
 export function buildCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds: CommSearchBounds): CommCatalogue {
   return buildCatalogueOf(puzzle, pieceTypeId, bounds, THREE_CYCLE, canonicalSequences);
+}
+
+/** Bounds for twist and flip algs (D-023): two-generator insertions up to 8 moves, setups up to 3. */
+export const DEFAULT_ORIENTATION_BOUNDS: Readonly<Record<"corners" | "edges", CommSearchBounds>> = {
+  corners: { generators: ["U", "D", "R", "L", "F", "B"], maxInsertion: 8, maxSetup: 3 },
+  edges: { generators: ["U", "D", "R", "L", "F", "B", "M", "E", "S"], maxInsertion: 8, maxSetup: 3 },
+};
+
+/** Every [X, I] and [I, X], X two-generator, that twists or flips exactly two pieces in place. */
+export function buildOrientationCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds: CommSearchBounds): CommCatalogue {
+  return buildCatalogueOf(puzzle, pieceTypeId, bounds, ORIENTATION_PAIR, twoGeneratorSequences);
 }
 
 /** The catalogue of every [X, I] and [I, X] with X from `insertions` whose effect is of `kind`. */
@@ -220,5 +293,6 @@ export function buildCatalogueOf(puzzle: Puzzle, pieceTypeId: PieceTypeId, bound
     size += comms.length;
   }
 
-  return { puzzleId: puzzle.id, pieceType: pieceTypeId, bounds, table, codec, size, keys: lists.size, lookup: (key) => lists.get(key) };
+  const keyList = [...lists.keys()].sort((a, b) => a - b);
+  return { puzzleId: puzzle.id, pieceType: pieceTypeId, bounds, table, codec, size, keys: lists.size, lookup: (key) => lists.get(key), keyList: () => keyList };
 }

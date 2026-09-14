@@ -2,6 +2,7 @@ import { KPattern, type KPatternData } from "cubing/kpuzzle";
 import { at, mod } from "../core/arrays.js";
 import { faceletsOf, verifiedMoves, type Puzzle, type PuzzleId } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
+import { cornerTwistDirection, type TwistDirection } from "../pieces/orientation.js";
 import { pieceTypesFor, type PieceType, type PieceTypeId, type StickerInfo } from "../pieces/piece-types.js";
 import { stickersByOrbit, type AffectedOrbit } from "./effect.js";
 import { expandNodes, formatMoves, invertMoves } from "./expand.js";
@@ -162,22 +163,92 @@ function unsolvedStickers(puzzle: Puzzle, pattern: KPattern): AffectedOrbit[] {
   return stickersByOrbit(puzzle, unsolved);
 }
 
-export function validateComm(puzzle: Puzzle, alg: string | ParsedAlg, cycle: ThreeCycle): Result<CommValidation, ValidateCommError> {
-  let parsed: ParsedAlg;
-  if (typeof alg === "string") {
-    const result = parseAlg(puzzle.id, alg);
-    if (!result.ok) return err({ code: "invalid-alg", error: result.error });
-    parsed = result.value;
-  } else {
-    if (alg.puzzle !== puzzle.id) return err({ code: "wrong-puzzle", expected: puzzle.id, actual: alg.puzzle });
-    parsed = alg;
+type AlgInputError = { readonly code: "invalid-alg"; readonly error: AlgParseError } | { readonly code: "wrong-puzzle"; readonly expected: PuzzleId; readonly actual: PuzzleId };
+
+function readAlg(puzzle: Puzzle, alg: string | ParsedAlg): Result<ParsedAlg, AlgInputError> {
+  if (typeof alg !== "string") {
+    return alg.puzzle === puzzle.id ? ok(alg) : err({ code: "wrong-puzzle", expected: puzzle.id, actual: alg.puzzle });
   }
+  const result = parseAlg(puzzle.id, alg);
+  return result.ok ? result : err({ code: "invalid-alg", error: result.error });
+}
+
+/** Apply the alg to the case state: valid if the whole puzzle ends solved. */
+function judge(puzzle: Puzzle, parsed: ParsedAlg, start: KPattern): CommValidation {
+  const moves = expandNodes(parsed.nodes);
+  const end = start.applyAlg(formatMoves(moves));
+  if (isSolved(puzzle, end)) return { valid: true };
+  if (isSolved(puzzle, start.applyAlg(formatMoves(invertMoves(moves))))) return { valid: false, reason: "reversed" };
+  return { valid: false, reason: "wrong-effect", unsolved: unsolvedStickers(puzzle, end).filter((o) => o.stickers.length > 0) };
+}
+
+export function validateComm(puzzle: Puzzle, alg: string | ParsedAlg, cycle: ThreeCycle): Result<CommValidation, ValidateCommError> {
+  const parsed = readAlg(puzzle, alg);
+  if (!parsed.ok) return parsed;
   const start = threeCyclePattern(puzzle, cycle);
   if (!start.ok) return start;
+  return ok(judge(puzzle, parsed.value, start.value));
+}
 
-  const moves = expandNodes(parsed.nodes);
-  const end = start.value.applyAlg(formatMoves(moves));
-  if (isSolved(puzzle, end)) return ok({ valid: true });
-  if (isSolved(puzzle, start.value.applyAlg(formatMoves(invertMoves(moves))))) return ok({ valid: false, reason: "reversed" });
-  return ok({ valid: false, reason: "wrong-effect", unsolved: unsolvedStickers(puzzle, end).filter((o) => o.stickers.length > 0) });
+/** A twist case (a corner and its direction) or a flip case (an edge), from a buffer. */
+export interface OrientationCase {
+  /** Buffer sticker; only its piece matters. */
+  readonly buffer: string;
+  /** Name of the piece that is twisted or flipped in place. */
+  readonly target: string;
+  /** For twists: the direction the target is twisted in, as `trace` reports it (D-012). Omitted for flips. */
+  readonly direction?: TwistDirection;
+}
+
+export type OrientationCaseError =
+  | { readonly code: "unknown-sticker"; readonly sticker: string }
+  | { readonly code: "unknown-piece"; readonly piece: string }
+  | { readonly code: "same-piece"; readonly pieces: readonly [string, string] }
+  | { readonly code: "no-orientation"; readonly pieceType: PieceTypeId }
+  | { readonly code: "direction-required" }
+  | { readonly code: "direction-not-applicable" };
+
+/**
+ * The state a twist or flip alg solves: the target piece twisted `direction` (or flipped) in its own
+ * slot, the buffer piece twisted the other way (or flipped), everything else solved. Tracing that
+ * state reports exactly those two pieces and no targets (tested).
+ */
+export function orientationPairPattern(puzzle: Puzzle, orientationCase: OrientationCase): Result<KPattern, OrientationCaseError> {
+  const type = pieceTypesFor(puzzle).find((t) => t.stickerByName(orientationCase.buffer) !== undefined);
+  const buffer = type?.stickerByName(orientationCase.buffer);
+  if (type === undefined || buffer === undefined) return err({ code: "unknown-sticker", sticker: orientationCase.buffer });
+  if (type.orientationOrder === 1 || type.interchangeable) return err({ code: "no-orientation", pieceType: type.id });
+  const target = type.pieceByName(orientationCase.target);
+  if (target === undefined) return err({ code: "unknown-piece", piece: orientationCase.target });
+  const bufferPiece = at(type.pieces, buffer.position);
+  if (target.position === buffer.position) return err({ code: "same-piece", pieces: [bufferPiece.name, target.name] });
+
+  const n = type.orientationOrder;
+  let k = 1;
+  if (n === 3) {
+    if (orientationCase.direction === undefined) return err({ code: "direction-required" });
+    k = [1, 2].find((candidate) => cornerTwistDirection(puzzle, type, target.position, candidate) === orientationCase.direction) ?? 1;
+  } else if (orientationCase.direction !== undefined) {
+    return err({ code: "direction-not-applicable" });
+  }
+
+  const defaults = puzzle.kpuzzle.defaultPattern().patternData;
+  const base = defaults[type.orbit];
+  if (base === undefined) throw new Error(`default pattern has no ${type.orbit} orbit`);
+  const orientation = [...base.orientation];
+  orientation[target.position] = k;
+  orientation[buffer.position] = mod(-k, n);
+  return ok(new KPattern(puzzle.kpuzzle, { ...defaults, [type.orbit]: { ...base, orientation } }));
+}
+
+export function validateOrientationAlg(
+  puzzle: Puzzle,
+  alg: string | ParsedAlg,
+  orientationCase: OrientationCase,
+): Result<CommValidation, OrientationCaseError | AlgInputError> {
+  const parsed = readAlg(puzzle, alg);
+  if (!parsed.ok) return parsed;
+  const start = orientationPairPattern(puzzle, orientationCase);
+  if (!start.ok) return start;
+  return ok(judge(puzzle, parsed.value, start.value));
 }

@@ -62,6 +62,7 @@ describe("comm catalogue", () => {
     const n = catalogue.table.stickerCount;
     // Sizes at the D-019 bounds, pinned so an accidental change to the search space shows up here.
     expect({ size: catalogue.size, keys: catalogue.keys }).toEqual(typeId === "corners" ? { size: 4608, keys: 528 } : { size: 100512, keys: 1320 });
+    expect(catalogue.keyList()).toEqual(allKeys(catalogue, n));
 
     let sampled = 0;
     let count = 0;
