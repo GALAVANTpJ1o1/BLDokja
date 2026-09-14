@@ -320,3 +320,34 @@ Short records of choices that would be expensive to reverse, or where sources di
     - on random 3x3x3 sequences, HTM, STM and ETM agree with cubing.js's `OBTM`, `RBTM` and `ETM` counters, and QTM equals HTM with half turns doubled;
     - cubing.js has no QTM counter.
     - `cubing/notation` is imported only by tests.
+
+## D-018 · Comm validation, affected stickers, and a 4x4 wing orientation trap
+
+**Status:** accepted design (plan item 6); the wing finding is recorded for the r2 and 4x4 milestones.
+
+- **`validateComm(puzzle, alg, [buffer, t1, t2])`** judges a comm by what it does, not by a written definition of direction.
+  1. `threeCyclePattern` builds the state a solver would trace as exactly t1 then t2: the buffer slot holds the t1 sticker, t1's slot holds t2, and t2's slot holds the buffer sticker. Each piece carries its other stickers along, and every other piece is solved.
+  2. Apply the alg. The comm is valid only if the whole puzzle ends solved, centres included.
+  - Otherwise the result is `reversed` (the inverse solves it) or `wrong-effect`, with the stickers left unsolved.
+  - Errors are typed: `invalid-alg` (carrying the parse error), `wrong-puzzle`, `unknown-sticker`, `mixed-piece-types`, `same-piece` (including a target on the buffer piece) and `interchangeable-pieces-unsupported` (x-centres, as with tracing).
+- **`affectedStickers(puzzle, alg)`** returns, for every kpuzzle orbit, the stickers and pieces the alg moves by net effect.
+  - A piece that ends back in place and orientation isn't affected.
+  - Results are grouped by orbit rather than piece kind, so 5x5x5's two edge orbits will fit.
+  - Positions are tracked even for identical x-centres.
+- **Finding: a 4x4 wing away from home can have kpuzzle orientation 1.**
+  - cubing.js's 4x4x4 `EDGES` orbit has two orientations. Its labels are assigned per slot, so a wing moved by real turns sometimes arrives with orientation 1.
+  - Tracing never noticed, because it reads wings by position only. My first `threeCyclePattern` set wing orientation to 0, and the colour-reading oracle saw physically impossible mirrored wings.
+  - **Fix:** for piece types that can't reorient in a slot, the orientation of piece p at position q is found by following p through every verified move's definition. A piece reaching one position in two orientations throws.
+  - **Consequence for later milestones:** r2 setups and any 4x4 state construction must use this table, never assume 0.
+- **Verification** (`test/commutator/validate.test.ts`, `effect.test.ts`).
+  - **Every** 3x3 buffer × ordered target pair (9,072 corner and 10,560 edge cases), and three buffers each for 4x4 corners and wings:
+    - the constructed state has the stated stickers in the stated slots and nothing else out of place;
+    - it traces to exactly `[t1, t2]` under both policies, with no parity and nothing misoriented;
+    - the oracle agrees on every wing case and a sample of the rest.
+  - **Comms found by enumeration, none remembered:**
+    - 3x3 corners: [A, B] with A up to 3 face turns and B one face turn;
+    - 3x3 edges: A up to 2 face or slice turns and B one;
+    - 4x4 wings: one inner slice against up to 3 U/R/F/D turns, in either order.
+    - Only comms whose geometry-model effect is a clean 3-cycle are kept. For each one: the cycle read from that permutation is `valid`, the swapped order is `reversed`, and a target outside the cycle is `wrong-effect`.
+  - **Teeth:** forcing wing orientation back to 0 fails both the oracle check and the wing comms.
+  - `affectedStickers` matches the geometry model's moved stickers on random trees for 3x3x3 and 4x4x4.

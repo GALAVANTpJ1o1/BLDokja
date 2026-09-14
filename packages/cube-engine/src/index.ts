@@ -51,5 +51,14 @@ export {
 } from "./commutator/parse.js";
 export { cancelMoves, expandAlg, expandNodes, formatMoves, invertMoves, moveAxis, type ExpandOptions } from "./commutator/expand.js";
 export { moveCounts, type MoveCounts } from "./commutator/metrics.js";
+export { affectedStickers, type AffectedOrbit } from "./commutator/effect.js";
+export {
+  threeCyclePattern,
+  validateComm,
+  type CommValidation,
+  type ThreeCycle,
+  type ThreeCycleError,
+  type ValidateCommError,
+} from "./commutator/validate.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
