@@ -112,17 +112,48 @@ function compareKeys(a: readonly number[], b: readonly number[]): number {
   return a.length - b.length;
 }
 
+/**
+ * What a catalogue holds. `movedStickers` is exactly how many stickers the effect moves (the hot
+ * loop exits as soon as more move); `classify` returns the catalogue key for an effect of this kind,
+ * or undefined. `moved` lists the moved stickers in ascending order, all of the piece type.
+ */
+export interface EffectKind {
+  readonly movedStickers: (stickersPerPiece: number) => number;
+  classify(effect: Uint8Array, moved: readonly number[], pieceOf: Int16Array, stickerCount: number): number | undefined;
+}
+
+/** A 3-cycle of three pieces, keyed by one of its directed sticker cycles (`cycleKey`). */
+export const THREE_CYCLE: EffectKind = {
+  movedStickers: (perPiece) => 3 * perPiece,
+  classify(effect, moved, pieceOf, n) {
+    if (new Set(moved.map((s) => pieceOf[s])).size !== 3) return undefined;
+    for (const s of moved) {
+      const to = at(effect, s);
+      if (at(effect, at(effect, to)) !== s || pieceOf[to] === pieceOf[s]) return undefined;
+    }
+    const s0 = at(moved, 0);
+    return cycleKey(n, s0, at(effect, s0), at(effect, at(effect, s0)));
+  },
+};
+
+export type InsertionWalk = (table: MoveTable, maxLength: number, visit: (moves: readonly TableMove[], perm: StickerPerm, inverse: StickerPerm) => void) => void;
+
 export function buildCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds: CommSearchBounds): CommCatalogue {
+  return buildCatalogueOf(puzzle, pieceTypeId, bounds, THREE_CYCLE, canonicalSequences);
+}
+
+/** The catalogue of every [X, I] and [I, X] with X from `insertions` whose effect is of `kind`. */
+export function buildCatalogueOf(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds: CommSearchBounds, kind: EffectKind, insertions: InsertionWalk): CommCatalogue {
   const table = moveTable(puzzle, bounds.generators);
   // QTM weights from D-017's metrics, so a slice quarter turn counts 2.
   const codec = syllableCodec(puzzle.id, bounds.generators, (family, amount) => moveCounts(puzzle.id, [{ type: "move", family, amount }]).qtm);
   const type = pieceType(puzzle, pieceTypeId);
   const n = table.stickerCount;
-  const perPiece = at(type.pieces, 0).stickers.length;
+  const limit = kind.movedStickers(at(type.pieces, 0).stickers.length);
   const pieceOf = new Int16Array(n).fill(-1);
   for (const sticker of type.stickers) pieceOf[sticker.index] = sticker.position;
 
-  // Best written form for each distinct cancelled sequence, grouped by cycle key.
+  // Best written form for each distinct cancelled sequence, grouped by key.
   const found = new Map<number, Map<string, Omit<CatalogueComm, "rank">>>();
   const effect = new Uint8Array(n);
   const moved: number[] = [];
@@ -135,20 +166,14 @@ export function buildCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds:
       const to = p3[p2[p1[p0[s] ?? 0] ?? 0] ?? 0] ?? 0;
       effect[s] = to;
       if (to !== s) {
-        // Early exit: anything outside the piece type, or more than three pieces' worth, moved.
-        if (pieceOf[s] === -1 || moved.length === 3 * perPiece) return;
+        // Early exit: anything outside the piece type, or more stickers than the kind moves.
+        if (pieceOf[s] === -1 || moved.length === limit) return;
         moved.push(s);
       }
     }
-    if (moved.length !== 3 * perPiece) return;
-    const pieces = new Set(moved.map((s) => pieceOf[s]));
-    if (pieces.size !== 3) return;
-    for (const s of moved) {
-      const to = at(effect, s);
-      if (at(effect, at(effect, to)) !== s || pieceOf[to] === pieceOf[s]) return;
-    }
-    const s0 = at(moved, 0);
-    const key = cycleKey(n, s0, at(effect, s0), at(effect, at(effect, s0)));
+    if (moved.length !== limit) return;
+    const key = kind.classify(effect, moved, pieceOf, n);
+    if (key === undefined) return;
 
     const written = [...a, ...b];
     const inverse = (moves: readonly TableMove[]) => [...moves].reverse().map((m) => at(table.moves, m.inverseIndex));
@@ -164,7 +189,7 @@ export function buildCatalogue(puzzle: Puzzle, pieceTypeId: PieceTypeId, bounds:
     if (existing === undefined || compareKeys(comm.writtenKey, existing.writtenKey) < 0) byKey.set(identity, comm);
   };
 
-  canonicalSequences(table, bounds.maxInsertion, (insertion, perm, inverse) => {
+  insertions(table, bounds.maxInsertion, (insertion, perm, inverse) => {
     if (insertion.length === 0) return;
     const x = [...insertion];
     for (const interchange of table.moves) {
