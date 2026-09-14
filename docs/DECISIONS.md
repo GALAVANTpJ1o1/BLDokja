@@ -197,7 +197,9 @@ Short records of choices that would be expensive to reverse, or where sources di
   - `scripts/letter-pair-report.ts` now says no trace lands on the diagonal but the library uses all 576 cells, and the report was regenerated. Every existing number is unchanged.
   - **Memo-item counts added**, so that consequence 2 has real weights for diagonal cells. A new report section, and `memoItems` in `letter-pair-frequencies.json` (format version 2), count the memo items per cell for both `singleLetterRepresentation` modes.
   - With UFR/UF, about 25% of corner items and 15% of edge items are diagonal. Only the buffer piece's own diagonal cells are never used, and the script asserts that.
-- **Spot-check buffers.** You left the choice to me. `docs/fixtures/SPOT-CHECK.md` will use UFR corners and UF edges, purely for the physical-cube check, not as a default. It hasn't been generated yet.
+- **Spot-check buffers.** You left the choice to me. `docs/fixtures/SPOT-CHECK.md` uses UFR corners and UF edges, purely for the physical-cube check, not as a default.
+  - It has been generated: the 10 real scrambles of golden fixtures R01–R10, each with a colour net, the trace and the `selfPair` memo.
+  - `scripts/spot-check-sheet.ts` fails if a scramble, or (for matching buffers) its targets, differs from the fixture.
 
 ## D-014 · 4x4x4 tracing in Phase 1 uses a fixed frame; any later reference policy must be a rotation
 
