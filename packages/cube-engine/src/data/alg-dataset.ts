@@ -23,22 +23,35 @@ import { pieceType } from "../pieces/piece-types.js";
  */
 
 const NAME = /^[UDRLFB]{1,3}[udrlfb]{0,2}$/;
-const StickerName = z.string().regex(NAME, "not a sticker name");
-const PieceName = z.string().regex(NAME, "not a piece name");
+export const StickerName = z.string().regex(NAME, "not a sticker name");
+export const PieceName = z.string().regex(NAME, "not a piece name");
 
-export const ALG_SOURCES = ["engine-search", "cubing-solver"] as const;
+/**
+ * - `engine-search`: found by the engine's searches (for OP targets, the setup is searched and the swap is the dataset's).
+ * - `cubing-solver`: cubing.js's solver.
+ * - `reference`: a single named alg from a cited source, verified like everything else.
+ * - `symmetry`: a verified symmetry image of a cited reference alg.
+ */
+export const ALG_SOURCES = ["engine-search", "cubing-solver", "reference", "symmetry"] as const;
 
-export const AlgEntrySchema = z.object({
-  /** Canonical notation (`formatAlg`). */
-  alg: z.string().min(1),
-  /** Expanded and cancelled (D-017). */
-  moves: z.string(),
-  etm: z.number().int().nonnegative(),
-  qtm: z.number().int().nonnegative(),
-  htm: z.number().int().nonnegative(),
-  stm: z.number().int().nonnegative(),
-  source: z.enum(ALG_SOURCES),
-});
+export const AlgEntrySchema = z
+  .object({
+    /** Canonical notation (`formatAlg`). */
+    alg: z.string().min(1),
+    /** Expanded and cancelled (D-017). */
+    moves: z.string(),
+    etm: z.number().int().nonnegative(),
+    qtm: z.number().int().nonnegative(),
+    htm: z.number().int().nonnegative(),
+    stm: z.number().int().nonnegative(),
+    source: z.enum(ALG_SOURCES),
+    /** Required for `reference` and `symmetry` entries: where the reference alg comes from. */
+    citation: z.string().min(1).optional(),
+  })
+  .refine((entry) => (entry.source === "reference" || entry.source === "symmetry") === (entry.citation !== undefined), {
+    message: "reference and symmetry entries need a citation, and only they have one",
+    path: ["citation"],
+  });
 
 export const IntendedEffectSchema = z.object({
   /** Every sticker the alg moves, as cycles; each starts at its lowest sticker, cycles in that order. */
@@ -190,31 +203,51 @@ export function verifyRecord(puzzle: Puzzle, dataset: Pick<AlgDataset, "buffer" 
     problems.push({ code: "wrong-intended-effect", record: record.id });
   }
 
-  const table = moveTable(puzzle, VERIFIED_MOVE_FAMILIES[puzzle.id]);
   const seen = new Set<string>();
   for (const entry of record.algs) {
-    const parsed = parseAlg(puzzle.id, entry.alg);
-    if (!parsed.ok) {
-      problems.push({ code: "invalid-alg", record: record.id, alg: entry.alg });
-      continue;
-    }
-    const canonical = formatAlg(parsed.value);
-    if (canonical !== entry.alg) problems.push({ code: "alg-not-canonical", record: record.id, alg: entry.alg, canonical });
-    const moves = cancelMoves(puzzle.id, expandNodes(parsed.value.nodes));
-    if (formatMoves(moves) !== entry.moves) problems.push({ code: "moves-mismatch", record: record.id, alg: entry.alg });
+    if (!checkAlgEntry(puzzle, record.id, entry, required, problems)) continue;
     if (seen.has(entry.moves)) problems.push({ code: "duplicate-alg", record: record.id, alg: entry.alg });
     seen.add(entry.moves);
-    const counts = moveCounts(puzzle.id, moves);
-    if (counts.etm !== entry.etm || counts.qtm !== entry.qtm || counts.htm !== entry.htm || counts.stm !== entry.stm) {
-      problems.push({ code: "counts-mismatch", record: record.id, alg: entry.alg });
-    }
-    const perm = moves.reduce((p, m) => composePerms(p, table.move(m.family, m.amount).perm), identityPerm(table.stickerCount));
-    if (!perm.every((to, from) => to === required[from])) problems.push({ code: "wrong-effect", record: record.id, alg: entry.alg });
     const judged = judgeRecord(puzzle, dataset.buffer, record, entry.alg);
     if (!judged.ok) problems.push({ code: "does-not-solve", record: record.id, alg: entry.alg, reason: JSON.stringify(judged.error) });
     else if (!judged.value.valid) problems.push({ code: "does-not-solve", record: record.id, alg: entry.alg, reason: judged.value.reason });
   }
   return problems;
+}
+
+/**
+ * The checks every alg entry gets, whatever its dataset: the notation parses and is canonical, the
+ * stored moves are its cancelled expansion, the counts match D-017, and its whole-puzzle sticker
+ * permutation (centres included) equals `required`. Problems are appended; returns false only if the
+ * notation doesn't parse.
+ */
+export function checkAlgEntry(puzzle: Puzzle, record: string, entry: AlgEntry, required: ArrayLike<number>, problems: DatasetProblem[]): boolean {
+  const parsed = parseAlg(puzzle.id, entry.alg);
+  if (!parsed.ok) {
+    problems.push({ code: "invalid-alg", record, alg: entry.alg });
+    return false;
+  }
+  const canonical = formatAlg(parsed.value);
+  if (canonical !== entry.alg) problems.push({ code: "alg-not-canonical", record, alg: entry.alg, canonical });
+  const moves = cancelMoves(puzzle.id, expandNodes(parsed.value.nodes));
+  if (formatMoves(moves) !== entry.moves) problems.push({ code: "moves-mismatch", record, alg: entry.alg });
+  const counts = moveCounts(puzzle.id, moves);
+  if (counts.etm !== entry.etm || counts.qtm !== entry.qtm || counts.htm !== entry.htm || counts.stm !== entry.stm) {
+    problems.push({ code: "counts-mismatch", record, alg: entry.alg });
+  }
+  const table = moveTable(puzzle, VERIFIED_MOVE_FAMILIES[puzzle.id]);
+  const perm = moves.reduce((p, m) => composePerms(p, table.move(m.family, m.amount).perm), identityPerm(table.stickerCount));
+  if (!perm.every((to, from) => to === required[from])) problems.push({ code: "wrong-effect", record, alg: entry.alg });
+  return true;
+}
+
+/** A dataset entry for any notation: canonical form, cancelled moves and counts computed here. */
+export function entryForAlg(puzzle: Puzzle, alg: string, source: AlgSource, citation?: string): AlgEntry {
+  const parsed = parseAlg(puzzle.id, alg);
+  if (!parsed.ok) throw new Error(`"${alg}" doesn't parse: ${JSON.stringify(parsed.error)}`);
+  const moves = cancelMoves(puzzle.id, expandNodes(parsed.value.nodes));
+  const { etm, qtm, htm, stm } = moveCounts(puzzle.id, moves);
+  return { alg: formatAlg(parsed.value), moves: formatMoves(moves), etm, qtm, htm, stm, source, ...(citation === undefined ? {} : { citation }) };
 }
 
 /** Every record verified, and exactly the expected cases present, in canonical order. */

@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = "0.1.0";
+export { ENGINE_VERSION } from "./version.js";
 
 export { loadPuzzle, verifiedMoves, VERIFIED_MOVE_FAMILIES, type Puzzle, type PuzzleId } from "./core/puzzle.js";
 export { centersRotation, normaliseByCenters, wholeCubeRotationAlgs, wholeCubeRotations, type WholeCubeRotation } from "./core/frame.js";
@@ -96,6 +96,7 @@ export {
 export {
   analyseSwap,
   m2Swaps,
+  REFERENCE_OP_PARITY,
   referenceSwap,
   REFERENCE_SWAPS,
   sideEffectPerm,
@@ -119,6 +120,7 @@ export {
 } from "./methods/illegal-setup.js";
 export {
   DEFAULT_SETUP_POOLS,
+  GATE_B_SETUP_FAMILIES,
   searchSetups,
   type ForbiddenFamily,
   type SetupRegime,
@@ -134,9 +136,13 @@ export {
   AlgEntrySchema,
   AlgRecordSchema,
   buildRecord,
+  checkAlgEntry,
+  entryForAlg,
   expectedRecordIds,
   IntendedEffectSchema,
+  PieceName,
   stickerCycles,
+  StickerName,
   verifyDataset,
   verifyRecord,
   type AlgDataset,
@@ -146,5 +152,26 @@ export {
   type DatasetProblem,
   type RecordCase,
 } from "./data/alg-dataset.js";
+export {
+  buildOpParityDataset,
+  buildOpSetupsDataset,
+  ContentDatasetSchema,
+  datasetSwap,
+  opParityEffect,
+  OpParityDatasetSchema,
+  OpSetupsDatasetSchema,
+  OpSwapSchema,
+  OpTargetRecordSchema,
+  verifyOpParityDataset,
+  verifyOpSetupsDataset,
+  type ContentDataset,
+  type OpBuildError,
+  type OpDatasetProblem,
+  type OpParityDataset,
+  type OpParitySpec,
+  type OpSetupsDataset,
+  type OpSetupsSpec,
+  type OpTargetRecord,
+} from "./data/op-dataset.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";

@@ -55,6 +55,18 @@ export const REFERENCE_SWAPS: Readonly<Record<SwapMethod, ReferenceSwap>> = {
   },
 };
 
+/**
+ * Old Pochmann parity alg for the reference swaps (buffers UBL and UR). J Perm performs it between
+ * the edges and the corners when both targets counts are odd. What it must do is never taken from
+ * the source: the dataset verifier derives the effect from the two swaps' side effects, and the OP/OP
+ * full-solve property test checks the placement.
+ */
+export const REFERENCE_OP_PARITY = {
+  alg: "R U' R' U' R U R D R' U' R D' R' U2 R' U'",
+  bufferPieces: { corners: "UBL", edges: "UR" },
+  source: "J Perm, jperm.net/bld, Old Pochmann parity algorithm (retrieved 2026-09-14)",
+} as const;
+
 /** How many piece transpositions each part of a swap alg's effect must have. */
 const SHAPES: Readonly<Record<SwapMethod, { readonly own: number; readonly other: number; readonly centres: number }>> = {
   "op-corners": { own: 1, other: 1, centres: 0 },

@@ -74,6 +74,16 @@ export const DEFAULT_SETUP_POOLS = {
   m2: { pool: ["U", "D", "R", "L", "F", "B"], regime: "net" },
 } as const satisfies Record<SwapAlg["method"], { pool: readonly string[]; regime: SetupRegime }>;
 
+/**
+ * The setup families the committed OP datasets use for the reference swaps (D-022, amended in
+ * milestone 9: J Perm's D-face edge recipe uses D, so D joins the edge pool). The wider
+ * `DEFAULT_SETUP_POOLS` are still the candidates checked for forbidden families.
+ */
+export const GATE_B_SETUP_FAMILIES = {
+  "op-corners": ["D", "R", "F"],
+  "op-edges": ["D", "L", "Dw", "Lw"],
+} as const satisfies Record<"op-corners" | "op-edges", readonly string[]>;
+
 export function searchSetups(puzzle: Puzzle, options: SetupSearchOptions): Result<SetupTable, SetupSearchError> {
   const { swap, regime } = options;
   if (options.pool.length === 0) return err({ code: "pool-must-not-be-empty" });
