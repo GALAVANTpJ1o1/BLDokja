@@ -13,7 +13,8 @@
     "test:engine:slow": "pnpm --filter @bld/cube-engine test:slow",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
-    "engine:report": "pnpm --filter @bld/cube-engine report"
+    "engine:report": "pnpm --filter @bld/cube-engine report",
+    "engine:bench": "pnpm --filter @bld/cube-engine bench"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

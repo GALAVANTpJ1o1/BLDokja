@@ -359,7 +359,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-019 · 3-style comm search: search space, exact pruning, ranking and the time budget
 
-**Status:** accepted design (milestone 7 plan review, 2026-09-14). The budget figures are recorded after the benchmark runs.
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). Budget measured 2026-09-14: within budget for both piece types (see "The 60 s budget").
 
 - **Search space.** A comm for case (t1, t2) from buffer b is `[S: [A, B]]`.
   - `[A, B]` is `[X, I]` or `[I, X]`: X a canonical insertion of 1–4 moves, I a single move.
@@ -402,6 +402,16 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **Definition:** one piece type's full case set for one buffer, in a fresh Node process: catalogue, search, and `validateComm` on every returned comm, single-threaded.
   - **Measurement:** `pnpm engine:bench comms` times every buffer, then re-runs the slowest buffer of each piece type in three fresh processes. The figure is the maximum of those three.
   - **If a buffer is over:** results don't change, the benchmark flags it, and the options go to you. Bounds are never changed silently.
+  - **Measured 2026-09-14** on an AMD Ryzen 5 5600H (12 logical cores, 15 GiB), Windows, Node v24.21.0, single-threaded:
+
+    | Piece type | Catalogue | Search per buffer (warm) | Slowest buffer | Budget figure (max of 3 cold runs) |
+    |---|---|---|---|---|
+    | Corners | 0.28 s | 0.19–0.24 s | UFR | **0.64 s** |
+    | Edges | 2.4–2.6 s | 8.5 s (BL) – 14.3 s (UB) | UB | **14.41 s** |
+
+    - Verifying every returned comm with `validateComm` adds under 0.1 s per buffer.
+    - Every buffer returns 4 comms for every case, with no case lacking a comm: 1,512 comms per corner buffer and 1,760 per edge buffer.
+    - U-layer edge buffers are the slowest and E-slice ones the fastest. Their exact-evaluation counts differ in the same way: 30.9M for UB against 19.7M for BL.
 - **Sampling.**
   - `pnpm test`: corners UFR, UBL, DBR and edges UF, DF, FR, each with 20 seeded cases.
   - `pnpm test:engine:slow`: the full UFR corner and UF edge sets.
