@@ -267,6 +267,25 @@ export {
 export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
 export { drillScramble, type DrillScramble, type DrillScrambleError } from "./scramble/drill.js";
 export {
+  cubingProvider,
+  nextScramble,
+  orientationSuffixes,
+  seededStateProvider3x3,
+  type CubingEvent,
+  type ScrambleCandidate,
+  type ScrambleProvider,
+  type SeededProviderOptions,
+} from "./scramble/providers.js";
+export {
+  generateConstrained,
+  type ConstrainedOptions,
+  type ConstrainedResult,
+  type ConstrainedStats,
+  type InvalidOption,
+  type Traces,
+  type TraceStats,
+} from "./scramble/constrained.js";
+export {
   constraintFailures,
   constraintMeasures,
   matchesConstraints,
