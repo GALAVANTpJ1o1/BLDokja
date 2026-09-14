@@ -841,3 +841,31 @@ Short records of choices that would be expensive to reverse, or where sources di
   - On random alg trees for 3x3 and 4x4, the scramble followed by the alg leaves the whole puzzle unchanged.
   - Tracing the drill scramble of every committed 3-style record (378 corner and 440 edge cycles, 14 twists, 11 flips) gives exactly its case. So does every OP target record: exactly its one target.
 - **Not in milestone 12:** selection strategies and the recency guard (milestone 13); choosing a 4x4 frame; scrambles restricted to a chosen case subset.
+
+## D-028 · Selection strategies and the recency guard
+
+**Status:** accepted (milestone 13, 2026-09-15). The recency default and the weighting of never-drilled cases are your answers from 2026-09-15. The weight formulas are mine, recorded here.
+
+- **One selector** (`src/random/selection.ts`). `createSelector({ strategy, cases, seed, recency })` returns a selector whose `next(context)` gives a case id or a typed error.
+  - It draws only from its own `createRng(seed)` generator (D-012), so a seed string replays a session exactly, given the same stats.
+  - It copies the case list. Empty sets, duplicate ids, a non-integer or negative window and unknown strategies are rejected when it's created.
+- **Stats are injected.** `CaseStatsProvider(caseId)` returns attempts, errors, and optionally FSRS retrievability and a due time. cube-engine never imports `ts-fsrs`. Invalid stats (errors > attempts, retrievability outside [0, 1]) give `invalid-stats` rather than a skewed pick.
+- **The recency guard applies to every strategy.** No case repeats within `recency` picks.
+  - **Default:** a quarter of the set, clamped to 1..10. 4 cases get 1, 22 get 5, 440 get 10.
+  - **Always capped at size − 1**, so a pick exists. A 1-case set has no window.
+  - **Coverage needs no fallback.** The window holds at most size − 1 distinct cases, and the ones left from the previous round can never cover everything remaining in this round.
+- **Strategies:**
+  - `uniform`: uniform over the cases outside the window.
+  - `coverage`: seeded shuffles, one round at a time. The guard only reorders picks within a round, so every case appears once per round. With the window at size − 1 it's a strict rotation.
+  - `weakness`: weight `0.05 + w`. `adversarial`: weight `0.005 + w⁴`, which puts about 70% of picks on the weakest of five evenly spread cases.
+    - `w`, the weakness of a case, is the Laplace-smoothed error rate `(errors + 1) / (attempts + 2)`. For a case with an FSRS card it's averaged with `1 − retrievability`.
+    - **A never-drilled case counts as weak as the weakest case with history.** If none has history, every case counts as fully weak (your answer).
+    - The floors give every case a nonzero chance.
+  - `spaced`: the pure FSRS due queue. It takes due cases, most overdue first, then least retrievable, then set order.
+    - **When nothing is due** it returns `nothing-due`, with a count of the due cases held back by the window. The trainer decides what to offer (Phase 4).
+    - New cards come up only if the SRS layer gives them a due time.
+- **Tests** (`test/random/selection.test.ts`):
+  - **Property tests:** the recency invariant for every strategy, set size, window and stats; one round per `size` picks for coverage.
+  - **Determinism:** same seed gives the same sequence, different seeds differ, and a short sequence is pinned.
+  - **Weights:** exact values; the never-drilled rule; frequency ordering for weakness and adversarial.
+  - **Other:** the due-queue order, `nothing-due`, and validation.
