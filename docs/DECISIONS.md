@@ -356,3 +356,53 @@ Short records of choices that would be expensive to reverse, or where sources di
     - Only comms whose geometry-model effect is a clean 3-cycle are kept. For each one: the cycle read from that permutation is `valid`, the swapped order is `reversed`, and a target outside the cycle is `wrong-effect`.
   - **Teeth:** forcing wing orientation back to 0 fails both the oracle check and the wing comms.
   - `affectedStickers` matches the geometry model's moved stickers on random trees for 3x3x3 and 4x4x4.
+
+## D-019 · 3-style comm search: search space, exact pruning, ranking and the time budget
+
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). The budget figures are recorded after the benchmark runs.
+
+- **Search space.** A comm for case (t1, t2) from buffer b is `[S: [A, B]]`.
+  - `[A, B]` is `[X, I]` or `[I, X]`: X a canonical insertion of 1–4 moves, I a single move.
+  - S is a canonical setup of 0–3 moves.
+  - Its effect must be exactly the 3-cycle b → t1 → t2, with every other sticker left alone, centres included.
+  - **Canonical sequences:** no two consecutive moves of one family, and consecutive same-axis moves in generator order.
+  - **Generators:** corners U D R L F B; edges U D R L F B M E S. Interchange, insertion and setup all use the same set.
+- **Bounds: insertion ≤ 4 and setup ≤ 3 for both piece types.**
+  - For edges this is the Phase 1 plan's bound.
+  - **Corners were widened from (3, 2).** At (3, 2), six cases per buffer have no comm; for UFR those are the cycles among UBL, DFL and DBR. (4, 3) covers all 378. Compared with insertion ≤ 3, it also improves 26–52 cases per buffer by 1–2 moves, and takes under a second.
+- **The catalogue** (`buildCatalogue`) is built once per piece type and shared by every buffer.
+  - It holds every `[X, I]` and `[I, X]` with a clean 3-cycle effect, indexed by that directed cycle.
+  - Two comms with the same cancelled sequence are one entry; the written form kept is the one first in generator order.
+  - **Sizes:** corners 4,608 comms over 528 cycles; edges 100,512 over 1,320. Build times: 0.3 s and 2.5 s.
+  - **Test:** at insertion ≤ 2 it finds exactly what a naive walk of every sequence finds.
+- **Per buffer** (`searchComms`): for each setup S and case, look up the comms for the cycle `(S(b), S(t1), S(t2))`. Conjugating any of them by S solves the case.
+- **Pruning is exact.**
+  - Let θ be the case's current 4th-best ETM, σ the setup's last syllable (same-axis run), and c₁, cₘ the comm's first and last syllables.
+  - **Bound:** if c₁ ≠ σ⁻¹ and cₘ ≠ σ, then |S C S⁻¹| ≥ 2|S| + |C| − 4|σ|.
+    - At each junction the two syllables merge into a non-zero run, so nothing cascades.
+    - Each junction loses at most |σ| + |c| − |σ + c| ≤ 2|σ| moves.
+  - Each cycle's list is sorted by |C| and scanned only while the bound is ≤ θ.
+  - Comms whose first syllable is σ⁻¹ or last syllable is σ could cascade. They're fetched from an index and always evaluated.
+  - Setups run shortest first, so θ falls early.
+  - **Tests:** the pruned result equals the unpruned search (comms and order) on all 378 UFR corner cases, and on 20 seeded cases for each sampled buffer.
+- **Ranking.**
+  1. ETM after cancellation (D-017).
+  2. QTM.
+  3. Setup length.
+  4. The written moves in generator order (clockwise, prime, half).
+  - This is a deterministic tie-break, not a claim about ergonomics.
+  - Each case keeps 4 distinct cancelled sequences: the best and three alternates. Cases with no comm are listed in `noComm`, never dropped.
+  - **Observation for Gate B.** Ranking by ETM sometimes prefers a setup that cancels into the comm, so the notation looks unusual. For example `[L: [L' B L F, F']]` is 8 moves, and so is the more conventional `[B': [B, R' F' R]]`.
+- **Determinism.** The search has no time cutoff. It is exhaustive within the bounds, so the results are the same on any machine and a dataset can be regenerated exactly.
+- **First measurements** (single-threaded, this machine; the benchmark gives the figures of record):
+  - UFR corners, all 378 cases: 0.2 s pruned, 0.34 s unpruned.
+  - UF edges, all 440 cases: 13.8 s pruned, plus the 2.5 s catalogue. The unpruned search took 85 s in the planning probe.
+  - Best-comm ETM for UF: 4 ×6, 5 ×12, 7 ×108, 8 ×240, 9 ×66, 10 ×8.
+- **The 60 s budget.**
+  - **Definition:** one piece type's full case set for one buffer, in a fresh Node process: catalogue, search, and `validateComm` on every returned comm, single-threaded.
+  - **Measurement:** `pnpm engine:bench comms` times every buffer, then re-runs the slowest buffer of each piece type in three fresh processes. The figure is the maximum of those three.
+  - **If a buffer is over:** results don't change, the benchmark flags it, and the options go to you. Bounds are never changed silently.
+- **Sampling.**
+  - `pnpm test`: corners UFR, UBL, DBR and edges UF, DF, FR, each with 20 seeded cases.
+  - `pnpm test:engine:slow`: the full UFR corner and UF edge sets.
+  - The buffer-comparison report: every buffer piece.

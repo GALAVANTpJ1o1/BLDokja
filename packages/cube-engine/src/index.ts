@@ -54,6 +54,16 @@ export {
 export { cancelMoves, expandAlg, expandNodes, formatMoves, invertMoves, moveAxis, type ExpandOptions } from "./commutator/expand.js";
 export { moveCounts, type MoveCounts } from "./commutator/metrics.js";
 export { affectedStickers, type AffectedOrbit } from "./commutator/effect.js";
+export { buildCatalogue, DEFAULT_COMM_BOUNDS, type CatalogueComm, type CommCatalogue, type CommSearchBounds } from "./commutator/catalogue.js";
+export {
+  searchComms,
+  type CommCaseResult,
+  type CommSearchError,
+  type CommSearchOptions,
+  type CommSearchResult,
+  type CommSearchStats,
+  type FoundComm,
+} from "./commutator/search.js";
 export {
   threeCyclePattern,
   validateComm,
