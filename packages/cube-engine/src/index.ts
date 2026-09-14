@@ -114,5 +114,24 @@ export {
   type SetupTable,
   type TargetSetup,
 } from "./methods/setup-search.js";
+export {
+  ALG_SOURCES,
+  algEntry,
+  AlgDatasetSchema,
+  AlgEntrySchema,
+  AlgRecordSchema,
+  buildRecord,
+  expectedRecordIds,
+  IntendedEffectSchema,
+  stickerCycles,
+  verifyDataset,
+  verifyRecord,
+  type AlgDataset,
+  type AlgEntry,
+  type AlgRecord,
+  type AlgSource,
+  type DatasetProblem,
+  type RecordCase,
+} from "./data/alg-dataset.js";
 export { createRng, fnv1a32, rngFromState, shuffled, type Rng } from "./random/prng.js";
 export { randomMoveSequence, randomState3x3 } from "./random/random-state.js";
