@@ -318,3 +318,6 @@ export {
   type SelectorOptionError,
   type SelectorOptions,
 } from "./random/selection.js";
+export { slotViews, stickeringMask, type FaceletMask, type PlayerStickeringMask, type SlotView } from "./display/stickering.js";
+export { stickerName } from "./pieces/names.js";
+export { faceletsOf } from "./core/puzzle.js";

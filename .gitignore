@@ -27,3 +27,11 @@ coverage/
 # OS / editor
 Thumbs.db
 .DS_Store
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Exported personal data (legacy import output, backups) — never commit
+*.export*.json
