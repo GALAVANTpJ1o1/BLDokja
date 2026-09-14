@@ -119,6 +119,7 @@ type LegacyPairWordRow = {
   - A letter pair is about the letters. The library is shared by every piece type and puzzle and doesn't depend on any scheme.
   - If you edit your scheme so a letter drops out, pairs using it get marked "not in current scheme". They are never deleted.
 - **Same-letter pairs** (`AA`) are allowed by the schema. The legacy data has none. Whether drills and the grid *offer* them depends on what the Phase 1 engine shows (AUDIT §5, item 1).
+  - **Settled in DECISIONS D-013.** The library, grid and drills use all 576 cells. No trace produces a same-letter pair, but diagonal cells hold self-pair images for letters left alone in a memo (D-015). After the import the 24 diagonal cells are empty and show as gaps.
 - **Letters are opaque strings** (one grapheme each), not restricted to A–X. That leaves room for non-Latin schemes.
 
 ### 3.3 Memo attempts become events
@@ -326,7 +327,7 @@ That last row needs a tombstone for deleted legacy IDs, so the Phase 2 storage l
    - The app shows the report and the counts.
    - You confirm, and only then does anything get written.
 5. **Check in the UI.**
-   - The grid shows 552 pairs and 660 words, with EO and IE flagged as needing a word.
+   - The grid shows 552 of its 576 cells filled with 660 words, with EO and IE flagged as needing a word. The 24 diagonal cells show as gaps (DECISIONS D-013).
    - Spot-check the sample rows from AUDIT §4.7 and a few corrected pairs from §3.6.
 6. **Keep the old files.**
    - `letterpairs.db` and `letterpairs.backup-2026-09-13.db` are never deleted by any script.
