@@ -2,13 +2,18 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadPuzzle } from "../../src/core/puzzle.js";
-import { AlgDatasetSchema, verifyDataset } from "../../src/data/alg-dataset.js";
+import { verifyDataset } from "../../src/data/alg-dataset.js";
+import { ContentDatasetSchema, verifyOpParityDataset, verifyOpSetupsDataset, type ContentDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
+import { opSystem } from "../../src/methods/op.js";
 
 /**
  * Every committed alg dataset (BRIEF §5.4: "no unverified algorithm ships"). Each file is
- * Zod-validated, and every record and every alg in it goes through verifyDataset: the intended
- * effect recomputed from the case, each alg's whole-puzzle permutation, that it solves the case
- * state, its counts and notation, and complete coverage in canonical order (D-023).
+ * Zod-validated and goes through its kind's verifier:
+ * - 3-style (D-023): the intended effect recomputed from the case, each alg's whole-puzzle
+ *   permutation, that it solves the case state, its counts and notation, full coverage in order;
+ * - OP setups (D-024): the swap a verified symmetry image of the reference, the tables searched
+ *   again, every alg's permutation equal to the buffer-target exchange plus the swap's side effect;
+ * - OP parity (D-024): its effect derived from the two setups datasets it belongs with.
  */
 
 const contentDir = join(import.meta.dirname, "..", "..", "..", "..", "content", "algs");
@@ -22,6 +27,7 @@ function datasetFiles(dir: string): string[] {
 }
 
 const files = datasetFiles(contentDir);
+const nameOf = (path: string) => path.split(/[\\/]/).pop() ?? path;
 
 /** The Gate B datasets (D-022) that must exist, with their record counts. */
 const REQUIRED: Readonly<Record<string, number>> = {
@@ -29,24 +35,76 @@ const REQUIRED: Readonly<Record<string, number>> = {
   "3style-edges.UF.json": 440,
   "3style-twists.UFR.json": 14,
   "3style-flips.UF.json": 11,
+  "op-corners.UBL.json": 21,
+  "op-edges.UR.json": 22,
+  "op-parity.UBL-UR.json": 1,
 };
+
+function load(path: string): ContentDataset {
+  const parsed = ContentDatasetSchema.safeParse(JSON.parse(readFileSync(path, "utf8")));
+  if (!parsed.success) throw new Error(`${nameOf(path)}: ${parsed.error.message}`);
+  return parsed.data;
+}
+
+function expectedName(dataset: ContentDataset): string {
+  switch (dataset.kind) {
+    case "cycles":
+      return `3style-${dataset.pieceType}.${dataset.buffer}.json`;
+    case "twists":
+    case "flips":
+      return `3style-${dataset.kind}.${dataset.buffer}.json`;
+    case "setups":
+      return `op-${dataset.pieceType}.${dataset.buffer}.json`;
+    case "parity":
+      return `op-parity.${dataset.buffers.corners}-${dataset.buffers.edges}.json`;
+  }
+}
 
 describe("committed alg datasets", () => {
   it("include every Gate B dataset", () => {
-    const names = files.map((f) => f.split(/[\\/]/).pop());
+    const names = files.map(nameOf);
     for (const name of Object.keys(REQUIRED)) expect(names, name).toContain(name);
   });
 
-  it.each(files.map((f) => [f.split(/[\\/]/).pop() ?? f, f]))("%s: schema-valid, every alg verified, full coverage", async (name, path) => {
+  it.each(files.map((f) => [nameOf(f), f]))("%s: schema-valid, every alg verified, full coverage", async (name, path) => {
     const puzzle = await loadPuzzle("3x3x3");
-    const parsed = AlgDatasetSchema.safeParse(JSON.parse(readFileSync(path, "utf8")));
-    if (!parsed.success) throw new Error(`${name}: ${parsed.error.message}`);
-    const dataset = parsed.data;
+    const dataset = load(path);
     expect(`${dataset.id}.json`).toBe(name);
-    expect(name).toBe(`3style-${dataset.kind === "cycles" ? dataset.pieceType : dataset.kind}.${dataset.buffer}.json`);
+    expect(name).toBe(expectedName(dataset));
     const required = REQUIRED[name];
     if (required !== undefined) expect(dataset.records).toHaveLength(required);
     expect(new Set(dataset.records.map((r) => r.id)).size).toBe(dataset.records.length);
-    expect(verifyDataset(puzzle, dataset).slice(0, 5)).toEqual([]);
+
+    switch (dataset.kind) {
+      case "cycles":
+      case "twists":
+      case "flips":
+        expect(verifyDataset(puzzle, dataset).slice(0, 5)).toEqual([]);
+        break;
+      case "setups":
+        expect(verifyOpSetupsDataset(puzzle, dataset).slice(0, 5)).toEqual([]);
+        break;
+      case "parity": {
+        // A parity dataset is checked against the two committed setups datasets it names.
+        const setups = files.map(load).filter((d): d is OpSetupsDataset => d.kind === "setups");
+        const corners = setups.find((d) => d.pieceType === "corners" && d.buffer === dataset.buffers.corners);
+        const edges = setups.find((d) => d.pieceType === "edges" && d.buffer === dataset.buffers.edges);
+        if (corners === undefined || edges === undefined) throw new Error(`${name}: its setups datasets aren't committed`);
+        expect(verifyOpParityDataset(puzzle, dataset, corners, edges).slice(0, 5)).toEqual([]);
+        break;
+      }
+    }
+  });
+
+  it("the committed OP datasets are exactly what opSystem builds at runtime for (UBL, UR)", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const system = opSystem(puzzle, { cornerBuffer: "UBL", edgeBuffer: "UR" });
+    if (!system.ok) throw new Error(JSON.stringify(system.error));
+    const committed = Object.fromEntries(files.map((f) => [nameOf(f), f]));
+    for (const dataset of [system.value.corners, system.value.edges, system.value.parity]) {
+      const path = committed[`${dataset.id}.json`];
+      if (path === undefined) throw new Error(`${dataset.id} not committed`);
+      expect(load(path), dataset.id).toEqual(dataset);
+    }
   });
 });

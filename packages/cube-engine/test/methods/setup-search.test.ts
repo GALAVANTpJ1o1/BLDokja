@@ -72,7 +72,7 @@ describe("OP setup search", () => {
     checkMinimal(puzzle, swap.value, table.value);
   });
 
-  it("edges, reference swap (UR): D, L, Dw and Lw are allowed (J Perm allows L, Lw, Dw); every target has a verified shortest setup", async () => {
+  it("edges, reference swap (UR): D, L, Dw and Lw are allowed (J Perm's recipes use all four; D-024); every target has a verified shortest setup", async () => {
     const puzzle = await loadPuzzle("3x3x3");
     const swap = referenceSwap(puzzle, "op-edges");
     if (!swap.ok) throw new Error("swap");

@@ -1,5 +1,5 @@
 /**
- * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022, D-023).
+ * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022, D-023, D-024).
  *
  *   pnpm engine:generate            write the files
  *   pnpm engine:generate --check    regenerate in memory; exit 1 if any committed file differs
@@ -26,7 +26,9 @@ import { searchComms } from "../src/commutator/search.js";
 import { orientationPairPattern } from "../src/commutator/validate.js";
 import { loadPuzzle, type Puzzle } from "../src/core/puzzle.js";
 import { algEntry, AlgDatasetSchema, buildRecord, verifyDataset, type AlgDataset, type AlgEntry } from "../src/data/alg-dataset.js";
-import { ENGINE_VERSION } from "../src/index.js";
+import { ContentDatasetSchema, type OpParityDataset, type OpSetupsDataset } from "../src/data/op-dataset.js";
+import { opSystem } from "../src/methods/op.js";
+import { ENGINE_VERSION } from "../src/version.js";
 
 const OUT_DIR = join(import.meta.dirname, "..", "..", "..", "content", "algs", "3x3");
 
@@ -105,10 +107,22 @@ async function orientation(puzzle: Puzzle, spec: Spec): Promise<{ dataset: AlgDa
   return { dataset: envelope(spec, bounds, records), solverAlternates };
 }
 
+/** The OP/OP datasets for the Gate B buffers (D-022, D-024), built and verified by `opSystem`. */
+function opDatasets(puzzle: Puzzle): (OpSetupsDataset | OpParityDataset)[] {
+  const system = opSystem(puzzle, { cornerBuffer: "UBL", edgeBuffer: "UR" });
+  if (!system.ok) throw new Error(`OP datasets failed: ${JSON.stringify(system.error).slice(0, 1000)}`);
+  return [system.value.corners, system.value.edges, system.value.parity];
+}
+
 /** Every dataset as the exact file text to commit, verified. */
 export async function generateDatasets(): Promise<Map<string, string>> {
   const puzzle = await loadPuzzle("3x3x3");
   const files = new Map<string, string>();
+  for (const dataset of opDatasets(puzzle)) {
+    const parsed = ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)));
+    files.set(`${parsed.id}.json`, `${JSON.stringify(dataset, null, 2)}\n`);
+    console.error(`${dataset.id}: ${dataset.records.length} records verified`);
+  }
   for (const spec of DATASETS) {
     const started = performance.now();
     let dataset: AlgDataset;

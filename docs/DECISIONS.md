@@ -469,6 +469,7 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **OP edges, buffer UR, swap sticker UL.**
     - **Allowed: D, L, Dw, Lw.**
     - **Differs from J Perm, who allows only L, Lw and Dw.** D disturbs no protected piece. Gate B dropped it: with L, Lw and Dw the setup lengths are the same and every target is still reachable (D-022).
+    - **Correction (milestone 9, 2026-09-14).** That summary was incomplete. J Perm's page says "Only use L/Lw/Dw moves", but its own recipe for D-face stickers is "do some D-turn followed by L2". D is back in the edge pool (D-022 amended, D-024).
     - Forbidden: U, R, Uw, Rw (UR, UBR, UFR), F (UFR), B (UBR), Fw (UR, UFR), Bw (UR, UBR).
     - Setup lengths: 1 at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4. None unreachable.
   - **M2, buffer DF, swap sticker UB.**
@@ -478,11 +479,11 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Verification** (`test/methods/setup-search.test.ts`).
   - For every reachable target, in every table, S · swap · S⁻¹ is read in the geometry model. It must exchange the buffer and target pieces (buffer sticker ↦ target), repeat the side effect exactly, and move nothing else.
   - For the reference tables, an exhaustive search finds no shorter setup, for setups of up to 3 moves.
-- **Not yet:** `demonstrateIllegalSetup` (milestone 9), parity, and the M2 special cases and odd/even rule (milestone 10).
+- **Not yet:** the M2 special cases, the odd/even rule and M2 parity (milestone 10). The illegal-setup demonstration (built as `demonstrateSetup`) and OP parity came in milestone 9 (D-024).
 
 ## D-022 · Gate B: buffers, swap algs, setup moves and orientation policy per method
 
-**Status:** accepted (Gate B, 2026-09-14). You decided after reviewing `docs/reports/buffer-comparison.md`. These become the defaults the datasets are generated for; users can still choose other buffers (BRIEF §7.6).
+**Status:** accepted (Gate B, 2026-09-14). You decided after reviewing `docs/reports/buffer-comparison.md`. These become the defaults the datasets are generated for; users can still choose other buffers (BRIEF §7.6). **Amended in milestone 9 (2026-09-14):** the OP edge setup pool is D, L, Dw, Lw (see below and D-024).
 
 - **Holding orientation: white up, green front,** the WCA scrambling orientation, with the standard colour scheme (U white, F green, R red, D yellow, L orange, B blue).
   - This is what tracing's `centers` frame and `SPOT-CHECK.md` already assume.
@@ -501,9 +502,11 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **M2:** the move `M2`.
 - **Setup moves: J Perm's lists** (D-021, `every-move` regime).
   - **OP corners:** D, F, R. That's the same set the engine computes from all face turns.
-  - **OP edges:** L, Lw, Dw. The engine would also allow D, but you chose J Perm's list. It costs nothing: the setup-length distribution is identical (1 target at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4; mean 2.23) and no target becomes unreachable.
+  - **OP edges:** ~~L, Lw, Dw~~ **D, L, Dw, Lw** (amended). At Gate B you chose L, Lw, Dw as J Perm's list. In milestone 9 it turned out that J Perm's page contradicts itself: it says "Only use L/Lw/Dw moves", but its recipe for D-face stickers is "do some D-turn followed by L2". You chose to add D (2026-09-14).
+    - D moves no protected piece, and the setup-length distribution is identical either way (1 target at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4; mean 2.23).
+    - With D in the pool, the tie-break picks D over Dw for 10 targets, which now match J Perm's recipe: for example DF `D' L2`, UF `Lw2 D L2`.
   - **M2:** face turns under the `net` regime, unchanged.
-  - The code's `DEFAULT_SETUP_POOLS` still lists the wider pools. The dataset milestones generate with these lists.
+  - The code's `DEFAULT_SETUP_POOLS` still lists the wider pools, which are the candidates checked for forbidden families. These lists are `GATE_B_SETUP_FAMILIES`, and the datasets are generated with them.
 - **Twisted and flipped pieces** (`orientedInPlace`, D-012). This is separate from how the cube is held.
   - **OP/OP and M2/OP: `asTargets`.** Pieces in their slot but misoriented are traced into the letter chain as two targets, as on jperm.net/bld. No twist or flip algs are needed.
   - **3-style: `separate`.** They're reported apart from the targets and solved with twist algs (14 corner: UFR with each other corner, both directions) and flip algs (11 edge: UF with each other edge). Milestone 8 generates and verifies them.
@@ -568,3 +571,80 @@ Short records of choices that would be expensive to reverse, or where sources di
     - flips built on E and S slices.
   - Nothing in the lessons or trainers uses these files yet.
   - **Options for later:** keep ETM ranking, normalise the notation of equivalent forms, or add an ergonomic tie-break (fewer slices, fewer move families). Your call.
+
+## D-024 · Old Pochmann datasets, the OP/OP solver, and OP parity
+
+**Status:** accepted design (milestone 9 plan review, 2026-09-14). The findings and deviations below are for your review.
+
+- **What ships** in `content/algs/3x3/`, for the Gate B buffers (D-022):
+
+  | File | Records | Setup length: moves: targets | Main-alg ETM (cancelled): moves: targets |
+  |---|---|---|---|
+  | `op-corners.UBL.json` | 21 targets | 0: 1 · 1: 9 · 2: 11 (mean 1.48) | 14: 2 · 15: 2 · 16: 4 · 17: 6 · 19: 7 |
+  | `op-edges.UR.json` | 22 targets | 0: 1 · 1: 3 · 2: 9 · 3: 8 · 4: 1 (mean 2.23) | 14: 1 · 16: 3 · 18: 9 · 20: 8 · 22: 1 |
+  | `op-parity.UBL-UR.json` | 1 parity alg | | 16 |
+
+- **Format** (`src/data/op-dataset.ts`, Zod-validated; `ContentDatasetSchema` covers every kind under `content/algs/`, discriminated on `kind`).
+  - **Setups dataset:**
+    - the swap, with its source (`reference` or `symmetry`), citation, symmetry index, swap sticker and side-effect pieces;
+    - `candidateFamilies` (the `DEFAULT_SETUP_POOLS` checked for forbidden moves), `setupFamilies` (the Gate B pool, in candidate order) and `allowed`;
+    - `forbidden`: each family with the protected pieces it disturbs and one example of the damage (below);
+    - one record per non-buffer sticker: the setup, the intended effect, and the alg `[setup: swap]` (the plain swap for the swap sticker).
+  - **Parity dataset:** the two buffers and swap algs it belongs with, the symmetry index, and one record with its intended effect and the alg.
+  - **Alg entries** gain the sources `reference` and `symmetry`, which must carry a citation. The 3-style files are unchanged byte for byte.
+- **Verification.** Nothing is trusted from the records.
+  - The swap must be a verified symmetry image of J Perm's reference under the stated symmetry, with the stated swap sticker and side effect; `reference` only for the identity.
+  - The allowed and forbidden families, and every setup, must equal a fresh search. Setups may only use `setupFamilies`.
+  - Every alg's whole-puzzle permutation must equal the exchange of buffer and target (the 2-cycle state from `stickerCyclePattern`) plus the swap's side effect, built from the case alone. Notation, cancelled moves and counts are checked as for 3-style (`checkAlgEntry`).
+  - Each forbidden example must use its family, bring the target to the swap sticker, and damage something (`demonstrateSetup`).
+  - **The parity alg's effect is derived, never read from the source:** the corner swap's side effect together with the edge swap's side effect.
+  - **Tests:** `test/data/op-dataset.test.ts` catches each corruption: wrong or non-shortest setups, a forbidden family, a wrong side effect, wrong tables, a harmless example, a non-reference swap, wrong provenance or citation, wrong counts or notation, and missing or out-of-order records. `test/data/datasets.test.ts` verifies the committed files, and checks they equal what `opSystem` builds at runtime.
+- **Parity.**
+  - **Source:** J Perm, jperm.net/bld: `R U' R' U' R U R D R' U' R D' R' U2 R' U'`, performed "between solving edges and solving corners" when both letter counts are odd. The page mentions no letter swap.
+  - **Computed effect:** UB↔UL (LU↔BU) and UBR↔UFR (FUR↔RUB, RUF↔BUR).
+    - That is exactly the corner swap's edge side effect together with the edge swap's corner side effect. Every target step repeats its swap's side effect once, so with odd counts the edges leave UBR/UFR swapped and the corners would leave UB/UL swapped.
+  - **Why only between the phases.** Parity after the edges puts UBR/UFR back before the corner memo runs. The corners then swap UB/UL back. Placed after the corners, the corner memo would run on a cube whose UBR and UFR are swapped, so it fails.
+  - A test shows this: over 200 random states, leaving parity out fails on every parity state, and moving it after the corners fails too.
+- **Solver** (`solveOpOp`, `src/methods/op.ts`).
+  - Traces corners and edges once, with `asTargets`, from the datasets' buffers. The scheme and break order are the caller's.
+  - **Steps, in J Perm's order:**
+    1. a frame rotation, if the scramble leaves the centres turned (`centersRotation`);
+    2. edge targets;
+    3. parity, when the traces have parity;
+    4. corner targets.
+  - Each target step has its setup, core and undo, and its index into the trace. The parity step names the pieces it cancels. There is no English text and there are no letters (`src/methods/solution.ts`).
+  - `opPhase` builds one piece type's steps; M2/OP (milestone 10) reuses it.
+  - **Typed errors:** `dataset-mismatch`, `trace`, `orientation-left-over`, `inconsistent-parity`, `missing-setup`, `invalid-dataset-alg`.
+- **Other buffers: symmetric systems only.** `opSystem(puzzle, { cornerBuffer, edgeBuffer })` builds and verifies all three datasets in memory for any buffer pair a cube symmetry maps (UBL, UR) onto. It relabels the swaps, the Gate B setup families and the parity alg by that symmetry.
+  - Those are 48 pairs, one symmetry each: a corner with an edge that lies on one of the corner's faces but doesn't touch it.
+  - **Every other pair returns `no-verified-parity-alg`,** including 3-style's UFR/UF. Supporting them needs a parity-alg search (a conjugate that produces exactly the two leftover swaps). That isn't built; it's a decision for when custom buffers reach the OP trainer.
+- **Illegal-setup examples** (`illegalSetupExamples`), for Phase 4's "Why is this setup illegal?" mode.
+  - **Rule:** for each forbidden family, among all targets, take the shortest setup that uses the family and brings the target to the swap sticker (tie-breaks as D-021). The example is the target where that setup saves the most moves against the legal one; ties go to sticker order.
+  - For corners no forbidden move ever saves a move, so the examples cost the same or more.
+
+    | Method | Family | Target | Tempting setup | Legal setup | Damaged pieces |
+    |---|---|---|---|---|---|
+    | corners | U | FUR | `U F2` | `R2 D'` | UBL UB UL UFL UF UFR |
+    | corners | L | UFL | `L D` | `F R'` | UBL UB UL UFL BL DBL |
+    | corners | B | UBR | `B' R` | `R D'` | UBL UB UBR UL BL DBL |
+    | edges | U / Uw | UF | `U` / `Uw` | `Lw2 D L2` | UBL UB UBR UR UF UFR |
+    | edges | R / Rw | RD | `R Dw' L'` / `Rw Dw' L'` | `D Lw' D' L2` | UBR UR UFR FR DFR DR |
+    | edges | F | FU | `F' L'` | `Lw D' L2` | UBR UFR DFR |
+    | edges | B | BU | `B L` | `Lw' D L2` | UBR UFR DBR |
+    | edges | Fw | RD | `D2 Fw` | `D Lw' D' L2` | UBR UL UR UFL UFR DR |
+    | edges | Bw | RD | `D2 Bw'` | `D Lw' D' L2` | UBL UBR UL UR UFR DR |
+
+  - `demonstrateSetup` runs any setup and reports the protected pieces it disturbs, the intended and actual sticker cycles, and the damaged pieces.
+  - **Tests:** every legal setup in the Gate B tables and in all 96 symmetry-variant tables reports no damage. Every example's damage is checked again in the geometry model.
+- **Full-solve verification** (`test/methods/op-solve.test.ts`, slow suite in `op-solve.slow.test.ts`).
+  - **Fast suite:**
+    - 1,000 seeded runs on (UBL, UR): random states, and scrambles ending in wide moves, slices or rotations; Speffz and a reversed Greek scheme; custom break orders. Each run is checked in kpuzzle, and the scrambles also in the geometry model. 30 runs on each of the 48 symmetric systems.
+    - **Teeth:** no parity, parity after the corners, and the forbidden-U example substituted for a real setup.
+    - **Golden fixture R06** (UBL/UR, parity, two twists traced as targets): all 25 steps pinned, for following on a physical cube.
+  - **Slow suite:** 20,000 random states on (UBL, UR), and 500 on each symmetric system. None fail.
+- **Deviations from the milestone 9 plan:**
+  - The target-slot search the examples need lives in `illegal-setup.ts`, not as a new mode of `searchSetups`.
+  - The illegal-setup commit came before the dataset commit, because the dataset verifier uses it.
+  - `demonstrateIllegalSetup` is named `demonstrateSetup`, since it also shows that legal setups do no damage.
+  - `ENGINE_VERSION` moved to `src/version.ts`, so engine code can stamp datasets without importing the index.
+- **Observation: ETM in the table is after cancellation.** For example RUF `[R': swap]` cancels to 14 moves, fewer than the swap alone. `MethodSolution.moves` is uncancelled, because that's what a learner executes step by step.

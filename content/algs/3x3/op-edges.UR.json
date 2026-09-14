@@ -1,0 +1,1197 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "op-edges.UR",
+  "puzzle": "3x3x3",
+  "method": "op",
+  "pieceType": "edges",
+  "buffer": "UR",
+  "kind": "setups",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "swap": {
+    "alg": "R U R' U' R' F R2 U' R' U' R U R' F'",
+    "moves": "R U R' U' R' F R2 U' R' U' R U R' F'",
+    "etm": 14,
+    "qtm": 15,
+    "htm": 14,
+    "stm": 14,
+    "source": "reference",
+    "citation": "J Perm, jperm.net/bld, Old Pochmann edges swap (retrieved 2026-09-14)",
+    "symmetry": 0,
+    "swapSticker": "UL",
+    "sideEffectPieces": [
+      "UBR",
+      "UFR"
+    ]
+  },
+  "candidateFamilies": [
+    "U",
+    "D",
+    "R",
+    "L",
+    "F",
+    "B",
+    "Uw",
+    "Dw",
+    "Rw",
+    "Lw",
+    "Fw",
+    "Bw"
+  ],
+  "setupFamilies": [
+    "D",
+    "L",
+    "Dw",
+    "Lw"
+  ],
+  "allowed": [
+    "D",
+    "L",
+    "Dw",
+    "Lw"
+  ],
+  "forbidden": [
+    {
+      "family": "U",
+      "disturbs": [
+        "UBR",
+        "UR",
+        "UFR"
+      ],
+      "example": {
+        "target": "UF",
+        "setup": "U",
+        "damagedPieces": [
+          "UBL",
+          "UB",
+          "UBR",
+          "UR",
+          "UF",
+          "UFR"
+        ]
+      }
+    },
+    {
+      "family": "R",
+      "disturbs": [
+        "UBR",
+        "UR",
+        "UFR"
+      ],
+      "example": {
+        "target": "RD",
+        "setup": "R Dw' L'",
+        "damagedPieces": [
+          "UBR",
+          "UR",
+          "UFR",
+          "FR",
+          "DFR",
+          "DR"
+        ]
+      }
+    },
+    {
+      "family": "F",
+      "disturbs": [
+        "UFR"
+      ],
+      "example": {
+        "target": "FU",
+        "setup": "F' L'",
+        "damagedPieces": [
+          "UBR",
+          "UFR",
+          "DFR"
+        ]
+      }
+    },
+    {
+      "family": "B",
+      "disturbs": [
+        "UBR"
+      ],
+      "example": {
+        "target": "BU",
+        "setup": "B L",
+        "damagedPieces": [
+          "UBR",
+          "UFR",
+          "DBR"
+        ]
+      }
+    },
+    {
+      "family": "Uw",
+      "disturbs": [
+        "UBR",
+        "UR",
+        "UFR"
+      ],
+      "example": {
+        "target": "UF",
+        "setup": "Uw",
+        "damagedPieces": [
+          "UBL",
+          "UB",
+          "UBR",
+          "UR",
+          "UF",
+          "UFR"
+        ]
+      }
+    },
+    {
+      "family": "Rw",
+      "disturbs": [
+        "UBR",
+        "UR",
+        "UFR"
+      ],
+      "example": {
+        "target": "RD",
+        "setup": "Rw Dw' L'",
+        "damagedPieces": [
+          "UBR",
+          "UR",
+          "UFR",
+          "FR",
+          "DFR",
+          "DR"
+        ]
+      }
+    },
+    {
+      "family": "Fw",
+      "disturbs": [
+        "UR",
+        "UFR"
+      ],
+      "example": {
+        "target": "RD",
+        "setup": "D2 Fw",
+        "damagedPieces": [
+          "UBR",
+          "UL",
+          "UR",
+          "UFL",
+          "UFR",
+          "DR"
+        ]
+      }
+    },
+    {
+      "family": "Bw",
+      "disturbs": [
+        "UBR",
+        "UR"
+      ],
+      "example": {
+        "target": "RD",
+        "setup": "D2 Bw'",
+        "damagedPieces": [
+          "UBL",
+          "UBR",
+          "UL",
+          "UR",
+          "UFR",
+          "DR"
+        ]
+      }
+    }
+  ],
+  "records": [
+    {
+      "id": "UF",
+      "kind": "target",
+      "target": "UF",
+      "setup": "Lw2 D L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "UF"
+          ],
+          [
+            "FU",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw2 D L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw2 D L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D' Lw2",
+          "etm": 20,
+          "qtm": 25,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FU",
+      "kind": "target",
+      "target": "FU",
+      "setup": "Lw D' L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "FU"
+          ],
+          [
+            "UF",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw D' L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw D' L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D Lw'",
+          "etm": 20,
+          "qtm": 23,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UB",
+      "kind": "target",
+      "target": "UB",
+      "setup": "Lw2 D' L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UB",
+            "UR"
+          ],
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "BU"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw2 D' L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw2 D' L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D Lw2",
+          "etm": 20,
+          "qtm": 25,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BU",
+      "kind": "target",
+      "target": "BU",
+      "setup": "Lw' D L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UB",
+            "RU"
+          ],
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "BU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw' D L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw' D L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D' Lw",
+          "etm": 20,
+          "qtm": 23,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "UL",
+      "kind": "target",
+      "target": "UL",
+      "setup": "",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UL",
+            "UR"
+          ],
+          [
+            "LU",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "R U R' U' R' F R2 U' R' U' R U R' F'",
+          "moves": "R U R' U' R' F R2 U' R' U' R U R' F'",
+          "etm": 14,
+          "qtm": 15,
+          "htm": 14,
+          "stm": 14,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "LU",
+      "kind": "target",
+      "target": "LU",
+      "setup": "L Dw' L",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UL",
+            "RU"
+          ],
+          [
+            "UR",
+            "LU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[L Dw' L: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "L Dw' L R U R' U' R' F R2 U' R' U' R U R' F' L' Dw L'",
+          "etm": 20,
+          "qtm": 21,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DF",
+      "kind": "target",
+      "target": "DF",
+      "setup": "D' L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "DF"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "FD",
+            "RU"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[D' L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "D' L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D",
+          "etm": 18,
+          "qtm": 21,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FD",
+      "kind": "target",
+      "target": "FD",
+      "setup": "Lw D L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "FD"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "DF"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw D L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw D L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D' Lw'",
+          "etm": 20,
+          "qtm": 23,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DR",
+      "kind": "target",
+      "target": "DR",
+      "setup": "D2 L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "DR"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "RD"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[D2 L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "D2 L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D2",
+          "etm": 18,
+          "qtm": 23,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "RD",
+      "kind": "target",
+      "target": "RD",
+      "setup": "D Lw' D' L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "RD"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "DR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[D Lw' D' L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "D Lw' D' L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D Lw D'",
+          "etm": 22,
+          "qtm": 25,
+          "htm": 22,
+          "stm": 22,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DB",
+      "kind": "target",
+      "target": "DB",
+      "setup": "D L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "DB"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "BD"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[D L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "D L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D'",
+          "etm": 18,
+          "qtm": 21,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BD",
+      "kind": "target",
+      "target": "BD",
+      "setup": "Lw' D' L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "BD"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "DB"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Lw' D' L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Lw' D' L2 R U R' U' R' F R2 U' R' U' R U R' F' L2 D Lw",
+          "etm": 20,
+          "qtm": 23,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "DL",
+      "kind": "target",
+      "target": "DL",
+      "setup": "L2",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "DL"
+          ],
+          [
+            "LD",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[L2: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "L2 R U R' U' R' F R2 U' R' U' R U R' F' L2",
+          "etm": 16,
+          "qtm": 19,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "LD",
+      "kind": "target",
+      "target": "LD",
+      "setup": "L Dw L'",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "LD"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "DL"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[L Dw L': R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "L Dw L' R U R' U' R' F R2 U' R' U' R U R' F' L Dw' L'",
+          "etm": 20,
+          "qtm": 21,
+          "htm": 20,
+          "stm": 20,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FR",
+      "kind": "target",
+      "target": "FR",
+      "setup": "Dw2 L",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "FR"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "RF"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw2 L: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw2 L R U R' U' R' F R2 U' R' U' R U R' F' L' Dw2",
+          "etm": 18,
+          "qtm": 21,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "RF",
+      "kind": "target",
+      "target": "RF",
+      "setup": "Dw' L'",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "RF"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "FR",
+            "RU"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw' L': R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw' L' R U R' U' R' F R2 U' R' U' R U R' F' L Dw",
+          "etm": 18,
+          "qtm": 19,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "FL",
+      "kind": "target",
+      "target": "FL",
+      "setup": "L'",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "FL"
+          ],
+          [
+            "LF",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[L': R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "L' R U R' U' R' F R2 U' R' U' R U R' F' L",
+          "etm": 16,
+          "qtm": 17,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "LF",
+      "kind": "target",
+      "target": "LF",
+      "setup": "Dw' L",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "LF"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "FL",
+            "RU"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw' L: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw' L R U R' U' R' F R2 U' R' U' R U R' F' L' Dw",
+          "etm": 18,
+          "qtm": 19,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BR",
+      "kind": "target",
+      "target": "BR",
+      "setup": "Dw2 L'",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "BR"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "RB"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw2 L': R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw2 L' R U R' U' R' F R2 U' R' U' R U R' F' L Dw2",
+          "etm": 18,
+          "qtm": 21,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "RB",
+      "kind": "target",
+      "target": "RB",
+      "setup": "Dw L",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "RB"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "BR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw L: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw L R U R' U' R' F R2 U' R' U' R U R' F' L' Dw'",
+          "etm": 18,
+          "qtm": 19,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "BL",
+      "kind": "target",
+      "target": "BL",
+      "setup": "L",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "BL"
+          ],
+          [
+            "LB",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[L: R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "L R U R' U' R' F R2 U' R' U' R U R' F' L'",
+          "etm": 16,
+          "qtm": 17,
+          "htm": 16,
+          "stm": 16,
+          "source": "engine-search"
+        }
+      ]
+    },
+    {
+      "id": "LB",
+      "kind": "target",
+      "target": "LB",
+      "setup": "Dw L'",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "LB"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ],
+          [
+            "RU",
+            "BL"
+          ]
+        ],
+        "sideEffectPieces": [
+          "UBR",
+          "UFR"
+        ]
+      },
+      "algs": [
+        {
+          "alg": "[Dw L': R U R' U' R' F R2 U' R' U' R U R' F']",
+          "moves": "Dw L' R U R' U' R' F R2 U' R' U' R U R' F' L Dw'",
+          "etm": 18,
+          "qtm": 19,
+          "htm": 18,
+          "stm": 18,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}
