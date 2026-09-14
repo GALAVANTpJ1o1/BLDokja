@@ -792,3 +792,52 @@ Short records of choices that would be expensive to reverse, or where sources di
     - **Slow suite:** 20,000 runs each. None fail.
 - **Other buffers.** These solvers read 3-style datasets, and only UFR/UF are committed. Generating the edge set for another buffer takes about 15 s. The solvers reject mismatched datasets, and a runtime system for other 3-style buffers isn't built.
 - **Phase 1:** every full-solve combination in the Phase 1 plan (OP/OP, M2/OP, M2 + 3-style corners and 3-style/3-style) is now property-tested.
+
+## D-027 · Scramble providers, constrained generation, and drill scrambles
+
+**Status:** accepted design (milestone 12 plan review, 2026-09-14). The measurements below are for your review.
+
+- **The port** (`src/scramble/providers.ts`). A `ScrambleProvider` hands out candidates.
+  - Each candidate gives its **state** right away. On 3x3 the state is rotated so the centres are solved: the frame tracing uses. On 4x4 it's left as it is (below).
+  - It gives its **scramble** only when asked, cached after the first call. Rejection sampling then never pays for the solver on rejected states.
+  - The engine stays pure. `cubing/scramble` and `cubing/search` are allowed subpaths (D-002), and nothing imports Node modules.
+- **`seededStateProvider3x3(puzzle, { seed, orientation })`.** One seeded generator (`createRng`, D-012) draws, for each candidate:
+  1. a uniform random state P (`randomState3x3`);
+  2. with `orientation: "wide"` (the default), a uniform orientation. The orientation is written as a wide-move suffix W, the way 333bf scrambles end. `orientationSuffixes` holds the first shortest Uw/Rw/Fw suffix for each of the 24 orientations, at most 2 moves, checked against `centersRotation`.
+  - **The state is `normaliseByCenters(P·W)`.** That is still uniform, because the face-turn part of W is a bijection.
+  - **The scramble is inverse(solve(P)) + W**, solved with cubing.js's `experimentalSolve3x3x3IgnoringCenters` and written in the engine's notation.
+  - **What's reproducible:** a seed always gives the same states. The scramble strings also repeat with the pinned cubing.js 0.63.4, because its solver is deterministic (D-023 relies on this too). If cubing.js changes its solver, the states still match but the strings may not.
+  - **Measured:** about 24 ms per solve after warm-up; solutions of 18–21 moves plus the suffix.
+  - **Orientation counts,** 2,400 draws from seed "coverage": 77–119 per orientation, against 100 expected.
+- **`cubingProvider(puzzle, "333bf" | "444bf")`** wraps `randomScrambleForEvent`, which isn't seeded.
+  - **Measured:** 333bf takes 7–220 ms and ends with 0–2 wide moves; 444bf takes about 1.7 s and ends with a rotation. Both log a timing line and spawn a worker.
+  - **4x4 states are left as they are.** A 4x4 has no fixed centres to normalise by; choosing a frame is the later 4x4 milestone (D-014).
+  - It's covered only by the slow suite.
+- **Trace constraints as data** (`src/scramble/constraints.ts`), Zod-validated so §7.7 presets can be saved and shared.
+  - Per trace config name: `targets`, `cycleBreaks` and `misoriented` bounds (min and max), and `parity`.
+  - **`cycleBreaks` counts breaks into unsolved pieces only.** Orientation cycles go under `misoriented`, which matches `targetKinds` and Phase 6's diagnostics.
+  - **`misoriented` counts twisted or flipped non-buffer pieces under either policy:** `orientedInPlace` entries under `separate`, orientation cycles under `asTargets`.
+  - **Checked** against the ten hand-traced golden fixtures under both policies. Under `asTargets` the target count is the `separate` count plus 2 per misoriented piece.
+- **`generateConstrained(puzzle, { provider, traceConfigs, accept, maxAttempts })`.** `accept` is a predicate or a constraints object.
+  - **The loop:** take a candidate, trace its state for every config, test it. On acceptance, compute the scramble and **trace the scramble string again**, requiring identical traces.
+  - **Never runs past its budget:** the provider is asked for at most `maxAttempts` candidates.
+  - **Typed failures:**
+    - `budget-exhausted`, with stats: per config, the ranges of targets, breaks and misoriented pieces and how many had parity; with constraints, how often each field failed;
+    - `trace-error`;
+    - `scramble-mismatch`: the guard against "silently returning something that doesn't match";
+    - `invalid-options`: a bad `maxAttempts`, no configs, a puzzle mismatch, or an invalid or unknown constraint. It's reported before the provider is asked for anything.
+  - **BRIEF §5.6's examples,** each from its own fixed seed, with UFR/UF buffers:
+
+    | Constraint | Attempts | Time |
+    |---|---|---|
+    | exactly 2 corner cycle breaks | 1 | 322 ms (the solver's first load) |
+    | has parity | 3 | 72 ms |
+    | at most 8 edge targets | 41 | 11 ms |
+    | at least one twisted corner | 1 | 9 ms |
+    | all four at once | 2,372 | 207 ms |
+
+  - An impossible constraint (zero corner targets with parity) uses exactly its budget and never calls the solver.
+- **Drill scrambles** (`drillScramble`): the inverse of the case's cancelled alg.
+  - On random alg trees for 3x3 and 4x4, the scramble followed by the alg leaves the whole puzzle unchanged.
+  - Tracing the drill scramble of every committed 3-style record (378 corner and 440 edge cycles, 14 twists, 11 flips) gives exactly its case. So does every OP target record: exactly its one target.
+- **Not in milestone 12:** selection strategies and the recency guard (milestone 13); choosing a 4x4 frame; scrambles restricted to a chosen case subset.
