@@ -735,3 +735,60 @@ Short records of choices that would be expensive to reverse, or where sources di
     - slow suite: 20,000 runs on (UBL, DF) and 500 per system. None fail.
 - **Scope change (your choice):** the "M2 + 3-style corners" full-solve test moves from milestone 10 to milestone 11, where the 3-style corner phase is built.
 - **Speed:** `searchSetups` results are now cached, because the `net` search takes about 0.45 s per call and verification repeats it. Building (UBL, DF) takes about 1.5 s including the 0.6 s catalogue.
+
+## D-026 · 3-style parity and the 3-style solvers
+
+**Status:** accepted design (milestone 11 plan review, 2026-09-14). The findings below are for your review.
+
+- **What ships** in `content/algs/3x3/`:
+  - `3style-parity.UFR-UF.json`: the 3-style/3-style parity alg, 11 moves.
+  - `m2-3style-parity.UFR-DF.json`: the parity alg for M2 edges with 3-style corners, 15 moves.
+- **Strategy (your choice): a Jb perm at the end, both memos straight from the scramble.**
+  - With odd target counts, each piece type's last target is paired with its buffer's **partner**: UBR for UFR corners, UR for UF edges. Then one alg swaps UFR↔UBR and UF↔UR.
+  - **This is the community convention for adjacent UFR/UF buffers.** In the SpeedSolving forum help thread ("[Help Thread] Blindsolving", page 40):
+    - abunickabhi: "You setup a UF-UR swap and UFR-UBR swap, which is just a Jb perm."
+    - Habsen: "For ECEC order: Just append UR to your edge memo when you realize that you have parity".
+  - **The alternative I prototyped also solved every state:** a T perm (UFR↔UBR, UL↔UR) with edges traced as if UL and UR were exchanged. You chose the Jb.
+- **The alg.**
+  - Source: the Speedsolving wiki PLL page, Jb permutation, first alg listed, written `(y2) R' U L U' R U2' L' U L U2 L'` (retrieved 2026-09-14).
+  - Relabelled by y2 (symmetry 5) it's the face-turn alg `L' U R U' L U2 R' U R U2 R'`. The geometry model confirms it has exactly the effect of the published form wrapped in `y2 … y2`.
+  - **Computed effect:** UFR↔UBR (FUR↔RUB, RUF↔BUR) and UF↔UR (FU↔RU). The verifier recomputes this from the buffers and partners and never reads it from the source.
+- **Partners and tails are derived, never written in.**
+  - The partners are where the alg sends each buffer sticker.
+  - **A last target on the partner's piece** can't be paired with the partner (a comm needs distinct pieces):
+    - **The partner itself** (UBR or UR): no comm. The parity alg solves it; the parity step lists it in `shoots`.
+    - **Another sticker of that piece:** E(buffer, t)·E(buffer, partner) is a pure twist or flip. Its "tail" is the orientation record with the same `intendedEffect`, matched by effect. The results are **BUR → `UBR-clockwise`, RUB → `UBR-counterclockwise`, RU → the `UR` flip.**
+- **Solve order:** frame, corner comms (plus tail), edge comms (plus tail), parity alg, twists, flips.
+  - **Finding: twists and flips must come after the parity alg.** A twist or flip alg acts on the buffer slot. Before the parity alg that slot holds the partner's piece, not the buffer's. In the tests, moving a twist before the parity alg failed on every parity state that had one.
+  - The buffer's own twist or flip is never solved on its own; the others' algs fix it.
+- **Solver output** (`src/methods/three-style.ts`, `solution.ts`).
+  - New step kinds:
+    - `cycle`: targets, trace indices, `parityTarget` for the appended partner;
+    - `orientation`: piece, direction or flip, `parityTail`.
+  - Each carries the dataset's notation (for example `[L2, F R F']`) and its cancelled moves, which are what gets executed.
+  - `traceForSolve` now takes an orientation policy per piece type.
+- **M2 edges with 3-style corners** (`solveM2ThreeStyle`). The Phase 1 plan's combination, moved here from milestone 10.
+  - **Order:** corners (as above), M2 edges, parity alg, twists.
+  - **When the count is odd, UR is appended to the M2 memo** (`TargetStep.parityTarget`). M2 then ends with an even count and never needs its own parity.
+    - The odd/even rule applies to the appended step too; UR isn't an M-slice special case.
+  - **The parity alg must swap DF↔UR and UFR↔UBR.** It's the Jb conjugated by a searched setup: the Jb is analysed as a swap from UR, and the op-edges pool is searched in the `every-move` regime for the DF target.
+    - Result: **`[D2 Lw2: L' U R U' L U2 R' U R U2 R']`, 15 moves.** The T-perm alternative `[D' L2: T perm]` would be 18.
+    - The verifier searches the setup again.
+- **Verification.**
+  - **Parity datasets** (`verifyThreeStyleParityDataset`, `verifyM2ThreeStyleParityDataset`):
+    - buffers match their sibling datasets;
+    - partners equal the alg's images of the buffers, and sit on non-buffer pieces;
+    - the effect and every alg are checked;
+    - the main alg is the relabelled reference (`3style`) or its searched conjugate (`m2-3style`), with citation and symmetry;
+    - the tails match a fresh derivation.
+  - **Tests:**
+    - `test/data/three-style-parity.test.ts`: each corruption is caught (a wrong partner, a wrong tail, a T perm in place of the Jb, provenance, buffers, a missing citation);
+    - `test/data/datasets.test.ts`: the committed files are verified and equal the builders' output.
+  - **Full solves:**
+    - `test/methods/three-style-solve.test.ts` and `m2-three-style-solve.test.ts`: 1,000 seeded runs each (random states, scrambles ending in wide moves or rotations, two schemes, custom break orders), checked in kpuzzle and the geometry model.
+    - Every traced target is covered exactly once (comm, tail, or the parity alg). Every tail case is hit.
+    - **Teeth:** leaving out the parity alg fails; the opposite twist fails; leaving out the appended UR fails; a twist before the parity alg fails.
+    - Golden fixture R02 is pinned for both solvers.
+    - **Slow suite:** 20,000 runs each. None fail.
+- **Other buffers.** These solvers read 3-style datasets, and only UFR/UF are committed. Generating the edge set for another buffer takes about 15 s. The solvers reject mismatched datasets, and a runtime system for other 3-style buffers isn't built.
+- **Phase 1:** every full-solve combination in the Phase 1 plan (OP/OP, M2/OP, M2 + 3-style corners and 3-style/3-style) is now property-tested.

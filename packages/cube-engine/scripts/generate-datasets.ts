@@ -1,5 +1,5 @@
 /**
- * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022 to D-025).
+ * Generates the verified alg datasets in content/algs/3x3/ (DECISIONS D-022 to D-026).
  *
  *   pnpm engine:generate            write the files
  *   pnpm engine:generate --check    regenerate in memory; exit 1 if any committed file differs
@@ -29,6 +29,14 @@ import { algEntry, AlgDatasetSchema, buildRecord, verifyDataset, type AlgDataset
 import { ContentDatasetSchema } from "../src/data/content-dataset.js";
 import type { M2Dataset, M2OpParityDataset } from "../src/data/m2-dataset.js";
 import type { OpParityDataset, OpSetupsDataset } from "../src/data/op-dataset.js";
+import {
+  buildM2ThreeStyleParityDataset,
+  buildThreeStyleParityDataset,
+  verifyM2ThreeStyleParityDataset,
+  verifyThreeStyleParityDataset,
+  type M2ThreeStyleParityDataset,
+  type ThreeStyleParityDataset,
+} from "../src/data/three-style-parity.js";
 import { m2OpSystem } from "../src/methods/m2.js";
 import { opSystem } from "../src/methods/op.js";
 import { ENGINE_VERSION } from "../src/version.js";
@@ -125,16 +133,39 @@ function m2Datasets(puzzle: Puzzle, opCorners: OpSetupsDataset | OpParityDataset
   return [system.value.edges, system.value.parity];
 }
 
+/** The 3-style and M2 + 3-style corners parity datasets (D-026), built from the datasets generated in this run and verified. */
+function parityDatasets(puzzle: Puzzle, threeStyle: ReadonlyMap<string, AlgDataset>, m2Edges: M2Dataset | M2OpParityDataset | undefined): (ThreeStyleParityDataset | M2ThreeStyleParityDataset)[] {
+  const get = (id: string) => {
+    const dataset = threeStyle.get(id);
+    if (dataset === undefined) throw new Error(`${id} wasn't generated`);
+    return dataset;
+  };
+  if (m2Edges?.kind !== "setups") throw new Error("M2 edges weren't generated");
+  const datasets = { corners: get("3style-corners.UFR"), edges: get("3style-edges.UF"), twists: get("3style-twists.UFR"), flips: get("3style-flips.UF") };
+  const parity = buildThreeStyleParityDataset(puzzle, { id: "3style-parity.UFR-UF", ...datasets });
+  if (!parity.ok) throw new Error(JSON.stringify(parity.error));
+  const m2Parity = buildM2ThreeStyleParityDataset(puzzle, { id: "m2-3style-parity.UFR-DF", corners: datasets.corners, twists: datasets.twists, edges: m2Edges });
+  if (!m2Parity.ok) throw new Error(JSON.stringify(m2Parity.error));
+  const problems = [
+    ...verifyThreeStyleParityDataset(puzzle, parity.value, datasets),
+    ...verifyM2ThreeStyleParityDataset(puzzle, m2Parity.value, { corners: datasets.corners, twists: datasets.twists, edges: m2Edges }),
+  ];
+  if (problems.length > 0) throw new Error(`3-style parity failed verification: ${JSON.stringify(problems.slice(0, 5))}`);
+  return [parity.value, m2Parity.value];
+}
+
 /** Every dataset as the exact file text to commit, verified. */
 export async function generateDatasets(): Promise<Map<string, string>> {
   const puzzle = await loadPuzzle("3x3x3");
   const files = new Map<string, string>();
   const op = opDatasets(puzzle);
-  for (const dataset of [...op, ...m2Datasets(puzzle, op[0])]) {
+  const m2 = m2Datasets(puzzle, op[0]);
+  for (const dataset of [...op, ...m2]) {
     const parsed = ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)));
     files.set(`${parsed.id}.json`, `${JSON.stringify(dataset, null, 2)}\n`);
     console.error(`${dataset.id}: ${dataset.records.length} records verified`);
   }
+  const threeStyle = new Map<string, AlgDataset>();
   for (const spec of DATASETS) {
     const started = performance.now();
     let dataset: AlgDataset;
@@ -149,7 +180,13 @@ export async function generateDatasets(): Promise<Map<string, string>> {
     const problems = verifyDataset(puzzle, AlgDatasetSchema.parse(dataset));
     if (problems.length > 0) throw new Error(`${spec.id} failed verification: ${JSON.stringify(problems.slice(0, 5))}`);
     files.set(`${spec.id}.json`, `${JSON.stringify(dataset, null, 2)}\n`);
+    threeStyle.set(spec.id, dataset);
     console.error(`${spec.id}: ${dataset.records.length} records verified${note} (${((performance.now() - started) / 1000).toFixed(1)} s)`);
+  }
+  for (const dataset of parityDatasets(puzzle, threeStyle, m2[0])) {
+    ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)));
+    files.set(`${dataset.id}.json`, `${JSON.stringify(dataset, null, 2)}\n`);
+    console.error(`${dataset.id}: verified`);
   }
   return files;
 }

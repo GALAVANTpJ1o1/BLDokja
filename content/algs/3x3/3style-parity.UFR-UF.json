@@ -1,0 +1,80 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "3style-parity.UFR-UF",
+  "puzzle": "3x3x3",
+  "method": "3style",
+  "kind": "parity",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "buffers": {
+    "corners": "UFR",
+    "edges": "UF"
+  },
+  "partners": {
+    "corners": "UBR",
+    "edges": "UR"
+  },
+  "tails": [
+    {
+      "pieceType": "corners",
+      "target": "BUR",
+      "record": "UBR-clockwise"
+    },
+    {
+      "pieceType": "corners",
+      "target": "RUB",
+      "record": "UBR-counterclockwise"
+    },
+    {
+      "pieceType": "edges",
+      "target": "RU",
+      "record": "UR"
+    }
+  ],
+  "symmetry": 5,
+  "records": [
+    {
+      "id": "parity",
+      "kind": "parity",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "UF"
+          ],
+          [
+            "FU",
+            "RU"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "L' U R U' L U2 R' U R U2 R'",
+          "moves": "L' U R U' L U2 R' U R U2 R'",
+          "etm": 11,
+          "qtm": 13,
+          "htm": 11,
+          "stm": 11,
+          "source": "symmetry",
+          "citation": "Speedsolving wiki, PLL page, Jb permutation, first alg listed, written (y2) R' U L U' R U2' L' U L U2 L' (retrieved 2026-09-14)"
+        }
+      ]
+    }
+  ]
+}

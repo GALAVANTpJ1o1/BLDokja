@@ -1,0 +1,75 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "m2-3style-parity.UFR-DF",
+  "puzzle": "3x3x3",
+  "method": "m2-3style",
+  "kind": "parity",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "buffers": {
+    "corners": "UFR",
+    "edges": "DF"
+  },
+  "partners": {
+    "corners": "UBR",
+    "edges": "UR"
+  },
+  "tails": [
+    {
+      "pieceType": "corners",
+      "target": "BUR",
+      "record": "UBR-clockwise"
+    },
+    {
+      "pieceType": "corners",
+      "target": "RUB",
+      "record": "UBR-counterclockwise"
+    }
+  ],
+  "symmetry": 5,
+  "setup": "D2 Lw2",
+  "records": [
+    {
+      "id": "parity",
+      "kind": "parity",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBR",
+            "UFR"
+          ],
+          [
+            "UR",
+            "DF"
+          ],
+          [
+            "FUR",
+            "RUB"
+          ],
+          [
+            "FD",
+            "RU"
+          ],
+          [
+            "RUF",
+            "BUR"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[D2 Lw2: L' U R U' L U2 R' U R U2 R']",
+          "moves": "D2 Lw2 L' U R U' L U2 R' U R U2 R' Lw2 D2",
+          "etm": 15,
+          "qtm": 21,
+          "htm": 15,
+          "stm": 15,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}

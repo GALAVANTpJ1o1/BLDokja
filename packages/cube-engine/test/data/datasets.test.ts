@@ -9,6 +9,7 @@ import { verifyOpParityDataset, verifyOpSetupsDataset, type OpSetupsDataset } fr
 import { verifyM2ThreeStyleParityDataset, verifyThreeStyleParityDataset } from "../../src/data/three-style-parity.js";
 import { m2OpSystem } from "../../src/methods/m2.js";
 import { opSystem } from "../../src/methods/op.js";
+import { threeStyleParities } from "./committed.js";
 
 /**
  * Every committed alg dataset (BRIEF §5.4: "no unverified algorithm ships"). Each file is
@@ -19,7 +20,9 @@ import { opSystem } from "../../src/methods/op.js";
  *   again, every alg's permutation equal to the buffer-target exchange plus the swap's side effect;
  * - OP parity (D-024): its effect derived from the two setups datasets it belongs with;
  * - M2 setups (D-025): the setups searched again, special algs checked against E·X, the odd/even
- *   rule and tempting setups derived again; M2/OP parity: its effect derived from its two datasets.
+ *   rule and tempting setups derived again; M2/OP parity: its effect derived from its two datasets;
+ * - 3-style parity (D-026): partners read off the alg, the effect recomputed from buffers and
+ *   partners, the main alg the relabelled reference (or its searched conjugate for M2), tails rederived.
  */
 
 const contentDir = join(import.meta.dirname, "..", "..", "..", "..", "content", "algs");
@@ -46,6 +49,8 @@ const REQUIRED: Readonly<Record<string, number>> = {
   "op-parity.UBL-UR.json": 1,
   "m2-edges.DF.json": 22,
   "m2op-parity.UBL-DF.json": 1,
+  "3style-parity.UFR-UF.json": 1,
+  "m2-3style-parity.UFR-DF.json": 1,
 };
 
 function load(path: string): ContentDataset {
@@ -143,6 +148,17 @@ describe("committed alg datasets", () => {
     if (!system.ok) throw new Error(JSON.stringify(system.error));
     const committed = Object.fromEntries(files.map((f) => [nameOf(f), f]));
     for (const dataset of [system.value.corners, system.value.edges, system.value.parity]) {
+      const path = committed[`${dataset.id}.json`];
+      if (path === undefined) throw new Error(`${dataset.id} not committed`);
+      expect(load(path), dataset.id).toEqual(dataset);
+    }
+  });
+
+  it("the committed 3-style parity datasets are exactly what the builders make from the committed 3-style and M2 datasets", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const { parity, m2Parity } = threeStyleParities(puzzle);
+    const committed = Object.fromEntries(files.map((f) => [nameOf(f), f]));
+    for (const dataset of [parity, m2Parity]) {
       const path = committed[`${dataset.id}.json`];
       if (path === undefined) throw new Error(`${dataset.id} not committed`);
       expect(load(path), dataset.id).toEqual(dataset);
