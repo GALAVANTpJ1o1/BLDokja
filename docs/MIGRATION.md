@@ -49,7 +49,7 @@ Deleted rows (10 `pair_words` IDs) aren't in the file (`freelist_count = 0`), so
 
 ## 3. Target shape (schema v1) [proposed]
 
-These shapes are illustrative. The real Zod schemas get written in Phase 2 under `/src/lib/storage`, and the TypeScript types are inferred from them.
+These shapes are illustrative. The real Zod schemas get written in Phase 2 in `packages/storage/src/schema.ts`, and the TypeScript types are inferred from them.
 
 ### 3.1 Export envelope
 
@@ -237,7 +237,7 @@ letterpairs.db ──(read bytes)──► legacySqliteToExport(bytes): ExportV1
 ```
 
 - **Stage 1: `legacySqliteToExport(bytes: Uint8Array): Result<ExportV1, ImportError>`.**
-  - A pure function in `/src/lib/storage/legacy/`.
+  - A pure function in `packages/storage/src/legacy/`.
   - No filesystem, no DOM, no clock: `importedAt` is passed in, so tests are deterministic.
   - It has two thin wrappers:
     - `scripts/import-legacy-letterpairs.ts`: a CLI that takes a DB path and an output path, with `--dry-run`.
@@ -349,7 +349,7 @@ That last row needs a tombstone for deleted legacy IDs, so the Phase 2 storage l
 
 ## 6. Round-trip test plan
 
-This lives in Vitest under `src/lib/storage/legacy/__tests__/` and runs in `pnpm test`.
+This lives in Vitest in `packages/storage/test/legacy-import.test.ts` and runs in `pnpm test`.
 
 ### 6.1 Fixtures
 

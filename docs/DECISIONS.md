@@ -869,3 +869,38 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **Determinism:** same seed gives the same sequence, different seeds differ, and a short sequence is pinned.
   - **Weights:** exact values; the never-drilled rule; frequency ordering for weakness and adversarial.
   - **Other:** the due-queue order, `nothing-due`, and validation.
+
+## D-029 · The storage layer: one port, two backends, and the legacy importer
+
+**Status:** built overnight (Phase 2, 2026-09-16), following the approved MIGRATION.md. Where I filled a gap, it's also in `docs/OVERNIGHT.md`.
+
+- **Package.** `packages/storage` (`@bld/storage`), next to cube-engine, following your `apps/web` answer. MIGRATION.md's `src/lib/storage` paths are updated.
+- **Port.** `StorageAdapter` (`src/storage.ts`) is the only way the app reads or writes data. It's built once, by `createStorage(backend)`, on top of a raw key-value `Backend`.
+  - `memoryBackend` is for tests and environments without IndexedDB.
+  - `dexieBackend` (`src/dexie-backend.ts`) is the only file that imports Dexie.
+- **Validation both ways.**
+  - Every write is Zod-checked; an invalid one throws `StorageValidationError`.
+  - Every read is checked again. A stored record that no longer parses goes to `quarantine`, with its validation issues, and is left out of results. It's never dropped.
+- **Explicit transaction scopes.** `Backend.transaction(fn)` passes `fn` a scope, and every storage operation runs inside one.
+  - **Why:** with Dexie's ambient transactions, starting a sub-transaction after a plain `await` committed the parent early (`PrematureCommitError`), which the tests reproduced.
+  - **Dexie backend:** a transaction reads through to IndexedDB, buffers its writes, and commits them in one IndexedDB transaction when `fn` returns, or writes nothing if it throws.
+  - **Serialised:** transactions in a tab run one at a time.
+  - **Known limit:** another tab writing between a transaction's reads and its commit isn't isolated against. That's acceptable for a local single-user app; a remote adapter would need real isolation.
+- **Schema v1** (`src/schema.ts`), one `SCHEMA_VERSION` for the store and the export envelope, as MIGRATION.md §3–5 describes. Three additions to the illustrative shapes, all optional or new union members:
+  1. `settings` in the envelope (theme, palette, voice, last backup, persistent-storage status), so a backup restores preferences;
+  2. `drill.attempt` and `lesson.opened` / `lesson.checkpointPassed` event types, so Phases 3–4 log into v1 without a migration;
+  3. the import report fields as a strict schema.
+  - **Rule for bumps:** adding an optional field or a new event type doesn't bump the version, because older data still parses. Changing or removing anything does, with the four parts MIGRATION.md §5 requires. `EXPORT_MIGRATIONS` is the (empty) chain.
+- **Import and export** (`src/transfer.ts`): canonical JSON (sorted keys), `parseExport` (JSON, format, version, migrations, Zod), and `importData`, applying MIGRATION.md §4.4's table in one transaction.
+  - Insert, skip identical, keep an edited record and report the conflict, keep a deleted legacy pair deleted (its tombstone).
+  - Everything is read back and counted before commit.
+- **Legacy importer** (`src/legacy/`), stage 1 exactly as MIGRATION.md §4.1–4.3.
+  - **Bytes in, envelope out:** SQLite via sql.js reads a copy of the bytes, so the original file is never opened by SQLite.
+  - **Checks first:** schema and storage classes against the audited DDL, then the corrections table row by row.
+  - **Then build:** images merge by corrected text, and memo attempts get the LCS re-score.
+  - **Corrections are data** (`APPROVED_CORRECTIONS`, the §3.6 table).
+  - **CLI:** `pnpm import:legacy --db <path> --dry-run | --out <file>` refuses a database whose hash differs from the audit (unless `--allow-changed`), checks the hash again after reading, and refuses to write inside the repo.
+- **Verification:**
+  - **All 13 assertions of MIGRATION.md §6.2** run on a synthetic database built in memory from the verbatim DDL, covering every anomaly class in §6.1. Round-trip, fixed-point and idempotency run on both backends (Dexie under `fake-indexeddb`).
+  - **Real-file test:** it's skipped unless `LEGACY_DB_PATH` is set. With the live file (read-only, 2026-09-16) it reproduced every audited number: 678 rows to 660 images, 552 pairs, 990 uses, 51 memo attempts, 4 settings, 20 corrections and 18 merges, 550 pairs with a real word (EO and IE need one), 76 tie-break primaries, 12 shared words, and 17 re-scored attempts.
+  - **Hash unchanged:** the file's hash was the audited one before and after.

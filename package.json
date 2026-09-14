@@ -15,7 +15,9 @@
     "lint": "eslint .",
     "engine:report": "pnpm --filter @bld/cube-engine report",
     "engine:bench": "pnpm --filter @bld/cube-engine bench",
-    "engine:generate": "pnpm --filter @bld/cube-engine generate"
+    "engine:generate": "pnpm --filter @bld/cube-engine generate",
+    "import:legacy": "pnpm --filter @bld/storage import:legacy",
+    "test:storage": "pnpm --filter @bld/storage test"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
