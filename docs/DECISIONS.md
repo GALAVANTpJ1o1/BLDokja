@@ -149,7 +149,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Twisted and flipped pieces.** Two policies:
   - `orientedInPlace: "separate"` (default): reported in `twisted`/`flipped` and never chosen as break targets.
   - `"asTargets"` (J Perm's beginner approach): traced as a two-target orientation cycle.
-  - Which policy each method uses by default is decided at Gate B.
+  - Which policy each method uses by default is decided at Gate B: `asTargets` for OP and M2, `separate` for 3-style (D-022).
 - **Reporting a misoriented piece.**
   - It is named by the slot where its U/D sticker now shows. E-slice edges use their F/B sticker.
   - Its direction is geometric: clockwise if that sticker moved to the next face clockwise, seen from outside the corner. For example, UFR clockwise shows its U colour on the R face, which is Speffz M.
@@ -419,7 +419,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-020 · Swap algs for Old Pochmann and M2: reference algs, computed effects, symmetry variants
 
-**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B chooses the buffers and the variants.
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B chose J Perm's reference swaps for UBL corners and UR edges, and M2 for DF (D-022).
 
 - **Reference algs** (`REFERENCE_SWAPS`). Each is a single named alg, not a sheet:
   - **OP corners,** buffer UBL: `R U' R' U' R U R' F' R U R' U' R' F R`. Source: J Perm, jperm.net/bld, retrieved 2026-09-14.
@@ -443,7 +443,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 ## D-021 · Setup search for Old Pochmann and M2
 
-**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B may restrict the pools.
+**Status:** accepted design (milestone 7 plan review, 2026-09-14). Gate B restricted the OP pools to J Perm's moves (D-022).
 
 - **What a setup must do** (`searchSetups`). Setup S for target t brings t to the swap sticker, the slot the buffer sticker is sent to. Then S · swap · S⁻¹ exchanges the buffer with t and repeats the swap's side effect unchanged.
   - That holds only if S leaves the **protected stickers** where they are: the buffer piece and every side-effect piece.
@@ -468,7 +468,7 @@ Short records of choices that would be expensive to reverse, or where sources di
     - Setup lengths: 1 target at 0 moves, 9 at 1, 11 at 2. None unreachable.
   - **OP edges, buffer UR, swap sticker UL.**
     - **Allowed: D, L, Dw, Lw.**
-    - **Differs from J Perm, who allows only L, Lw and Dw.** D disturbs no protected piece. Gate B can drop it from the pool.
+    - **Differs from J Perm, who allows only L, Lw and Dw.** D disturbs no protected piece. Gate B dropped it: with L, Lw and Dw the setup lengths are the same and every target is still reachable (D-022).
     - Forbidden: U, R, Uw, Rw (UR, UBR, UFR), F (UFR), B (UBR), Fw (UR, UFR), Bw (UR, UBR).
     - Setup lengths: 1 at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4. None unreachable.
   - **M2, buffer DF, swap sticker UB.**
@@ -479,3 +479,40 @@ Short records of choices that would be expensive to reverse, or where sources di
   - For every reachable target, in every table, S · swap · S⁻¹ is read in the geometry model. It must exchange the buffer and target pieces (buffer sticker ↦ target), repeat the side effect exactly, and move nothing else.
   - For the reference tables, an exhaustive search finds no shorter setup, for setups of up to 3 moves.
 - **Not yet:** `demonstrateIllegalSetup` (milestone 9), parity, and the M2 special cases and odd/even rule (milestone 10).
+
+## D-022 · Gate B: buffers, swap algs, setup moves and orientation policy per method
+
+**Status:** accepted (Gate B, 2026-09-14). You decided after reviewing `docs/reports/buffer-comparison.md`. These become the defaults the datasets are generated for; users can still choose other buffers (BRIEF §7.6).
+
+- **Holding orientation: white up, green front,** the WCA scrambling orientation, with the standard colour scheme (U white, F green, R red, D yellow, L orange, B blue).
+  - This is what tracing's `centers` frame and `SPOT-CHECK.md` already assume.
+- **Buffers.** Each buffer sticker is its piece's reference sticker; the Speffz letter is in brackets.
+
+  | Method | Corners | Edges |
+  |---|---|---|
+  | OP/OP | OP, buffer **UBL** (sticker UBL, A) | OP, buffer **UR** (sticker UR, B) |
+  | M2/OP | OP, buffer **UBL** (sticker UBL, A) | M2, buffer **DF** (sticker DF, U), helper UB |
+  | 3-style | **UFR** (sticker UFR, C) | **UF** (sticker UF, C) |
+
+  - M2 on DF is what BRIEF §5.4 names.
+- **Swap algs: J Perm's reference swaps, unchanged** (D-020).
+  - **Corners:** `R U' R' U' R U R' F' R U R' U' R' F R`. It sends UBL to RDF and swaps edges UB↔UL.
+  - **Edges:** `R U R' U' R' F R2 U' R' U' R U R' F'`. It sends UR to UL and swaps corners UBR↔UFR.
+  - **M2:** the move `M2`.
+- **Setup moves: J Perm's lists** (D-021, `every-move` regime).
+  - **OP corners:** D, F, R. That's the same set the engine computes from all face turns.
+  - **OP edges:** L, Lw, Dw. The engine would also allow D, but you chose J Perm's list. It costs nothing: the setup-length distribution is identical (1 target at 0 moves, 3 at 1, 9 at 2, 8 at 3, 1 at 4; mean 2.23) and no target becomes unreachable.
+  - **M2:** face turns under the `net` regime, unchanged.
+  - The code's `DEFAULT_SETUP_POOLS` still lists the wider pools. The dataset milestones generate with these lists.
+- **Twisted and flipped pieces** (`orientedInPlace`, D-012). This is separate from how the cube is held.
+  - **OP/OP and M2/OP: `asTargets`.** Pieces in their slot but misoriented are traced into the letter chain as two targets, as on jperm.net/bld. No twist or flip algs are needed.
+  - **3-style: `separate`.** They're reported apart from the targets and solved with twist algs (14 corner: UFR with each other corner, both directions) and flip algs (11 edge: UF with each other edge). Milestone 8 generates and verifies them.
+- **What these choices mean, from the report:**
+  - **3-style UFR:** all 378 cases have a comm. Best-comm ETM: 198 cases at 8, 110 at 9, 38 at 10, 26 at 11, 6 at 13 (mean 8.78).
+  - **3-style UF:** all 440 cases have a comm. Best-comm ETM: 6 at 4, 12 at 5, 108 at 7, 240 at 8, 66 at 9, 8 at 10 (mean 7.80).
+  - **OP UBL corners:** setups are at most 2 moves (mean 1.48). OP UR edges: at most 4 (mean 2.23).
+  - **M2 DF:** 16 targets have 3-move setups and BU has 5. UF, FU, DB and BD are the special cases (milestone 10).
+  - **Letter pairs** (D-013 consequence 4):
+    - **3-style UFR and UF share Speffz C.** Tracing with them can produce 494 of the 552 distinct-letter pairs, the lowest of any combination. All 46 pairs containing C are lost, plus 12 other pairs that neither the corner trace nor the edge trace can produce.
+    - OP/OP (UBL, UR) can produce 532 under `asTargets`, and so can M2/OP (UBL, DF).
+    - The library still holds all 576 cells either way (D-013). This only affects which pairs these buffers produce.
