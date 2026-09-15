@@ -228,3 +228,100 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - "Due for review" uses the engine's spaced strategy over FSRS due dates, and says so plainly when nothing is due instead of drilling something that isn't.
 - **Why:** coverage is the right start when every case is new (weakness with no history just ties). Pretending a case is due would teach the wrong schedule.
 - **Reversal:** easy.
+
+### Words found in "find a word" are a new event type, `pairs.discovered`
+
+- **Choice:** how to log discovery separately from drilling (AUDIT §6, Q4).
+- **Picked:** a new event type in schema v1, `{ pairId, word, added }`. It is not a `drill.attempt`, so it never feeds FSRS, and it never changes an image's use count. A new image found this way starts at 0 uses.
+- **Why:** the schema notes allow adding an event type without a version bump, since older data still parses. Squeezing an ungraded action into `drill.attempt` would need fake `correct` and `responseMs` values.
+- **Reversal:** moderate. Once people have these events stored, removing the type needs a migration.
+
+### The gap finder ranks by your traces, then by expected occurrence
+
+- **Choice:** how to rank "pairs with no image yet" (BRIEF §7.4: by how often they appeared in your drills).
+- **Picked:**
+  1. Pairs seen in guided trace, rebuilt from each scramble's logged letters. Only complete pairs count, because the log doesn't say whether a scramble was finished.
+  2. Then how often the cell occurs as a memo item for the OP buffers (UBL/UR), from `docs/reports/letter-pair-frequencies.json` (D-013), with lone letters counted as self-pairs.
+  3. Then alphabetical.
+- **Why:** a new user has no drill history, so a frequency tie-break makes the list useful from day one. The report is generated and checked by the engine. It uses the `separate` orientation policy, which is close enough for ranking.
+- **Reversal:** easy. Buffers without a report example simply get no expected numbers.
+
+### Drills weight pairs by weakness times occurrence
+
+- **Choice:** the order of the letter-pair drills (D-013 consequence 2: weight every cell by how often it really occurs).
+- **Picked:**
+  - the engine's `weakness` weights over FSRS stats, multiplied by expected occurrence;
+  - a floor of 1/20 of the mean occurrence, so a pair that can't occur for your buffers still comes up now and then;
+  - the engine's recency window;
+  - a seeded generator per session.
+- **Why:** it follows D-013 and reuses the engine's M13 weights instead of inventing new ones.
+- **Reversal:** easy.
+
+### Image → pair accepts every pair that uses the word
+
+- **Choice:** AUDIT §5 item 4. Your library has words shared between pairs.
+- **Picked:** any pair whose real images include the word counts as right; the feedback lists the others that were also right. Shared words are also listed in library health.
+- **Why:** marking you wrong for a correct association would teach the wrong thing. Health is where you decide whether a shared word is on purpose.
+- **Reversal:** easy.
+
+### "Did you mean" uses only your own words, not a dictionary
+
+- **Choice:** AUDIT §6, "a dictionary and your own existing words".
+- **Picked:**
+  - suggestions come only from words already in your library;
+  - they cover spacing variants, and words one character apart (4+ characters when adding a word, 5+ and less-used in the health view);
+  - dismissals are remembered in this browser only.
+- **Why:** a real dictionary is a multi-megabyte word list, and it would flag your deliberate non-words (`kokonut`, `ixigo`) on every visit. Your own spellings catch the typo classes the import actually found. **This is half of what you asked for.** Tell me if you want a dictionary added anyway.
+- **Reversal:** easy to add a dictionary later. Moving dismissals into synced settings needs a settings field.
+
+### "Main image decided only by alphabetical order" means never edited since import
+
+- **Choice:** how the health view knows you've chosen a tied main image deliberately. The schema has no "confirmed" field.
+- **Picked:** a pair is listed when its top two real images tie on uses and it has no `updatedAt`. Any save, including "Make main", a CSV import that touches it, or find and replace, counts as a decision.
+- **Why:** it avoids a schema change, and legacy imports never have `updatedAt`.
+- **Reversal:** easy, or moderate if a dedicated field is wanted.
+
+### Renaming an image to a word the pair already has merges them
+
+- **Choice:** what happens when an edit, a suggestion or find and replace makes two images in one pair identical.
+- **Picked:** merge, as the import did: uses add up, and both legacy snapshots are kept on the surviving image. Removing an image is only ever explicit and needs two clicks. It does take that image's legacy snapshot with it; the full backup still has it.
+- **Why:** duplicates within a pair would split use counts, and silently dropping one would lose data.
+- **Reversal:** easy.
+
+### CSV: one row per image, add-only import; JSON stays the full backup
+
+- **Choice:** the CSV format and import rules, and what "JSON import-export" means for the library.
+- **Picked:**
+  - **Columns:** `pair, image, uses, notes, category, placeholder`.
+  - **Formula guard:** cells starting with `= + - @` are written with a leading apostrophe, which import removes.
+  - **Import:** adds images and fills empty notes and categories; it never deletes or overwrites. Bad lines are reported by number.
+  - **JSON:** the library view links to the existing full backup in Settings instead of adding a second JSON format.
+- **Why:** add-only is the safe default for "treat it as precious". The formula guard stops a spreadsheet from running your words as formulas.
+- **Reversal:** easy.
+
+### Every letter-pair drill mode feeds one FSRS schedule per pair
+
+- **Choice:** whether review, pair → image, image → pair, rapid fire and listening share a schedule.
+- **Picked:**
+  - they share one, with trainer `pairs` and the mode recorded in `detail.mode`;
+  - a pair joins the review queue after its first graded attempt;
+  - a rapid-fire time-out counts as missed.
+- **Why:** they all test the same association. The logged mode keeps them separable if the analytics phase wants direction-specific schedules.
+- **Reversal:** moderate, but the history already carries what's needed.
+
+### Rapid fire, listening, and memo sentences
+
+- **Rapid fire:** 2, 3 or 5 seconds per pair (3 by default). When time runs out, the image is shown and the attempt counts as missed.
+- **Listen:** the browser's speech synthesis reads the two letters in British English. Where speech isn't available, the mode says so.
+- **Memo sentence:** a seeded random-move scramble traced with the OP buffers, split into pairs, with a lone letter as its self-pair (D-015). What you type is not saved, because nothing in the schema holds it and it's practice rather than data.
+- **Reversal:** easy for all three.
+
+### The 24 × 24 grid on small screens is a first-letter picker and a list
+
+- **Choice:** how the overview works at 380px (AUDIT §6, Q4 conflict).
+- **Picked:**
+  - **From the `md` breakpoint up:** the full table, with the first letter down the side. Arrow keys move between cells (roving focus) and Enter opens a pair.
+  - **On narrow screens:** 24 letter buttons, then the 24 pairs for the chosen letter.
+  - **Mastery display:** DESIGN.md's lightness ramp as a strip on each cell, plus the ring, dot and square marks. Diagonal cells are shaded and explain what a self-pair is for.
+- **Why:** 576 readable cells don't fit a phone. The list keeps what the overview shows (word, gap, mastery) and adds no horizontal scroll.
+- **Reversal:** easy.

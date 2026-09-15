@@ -25,6 +25,7 @@ import {
   parseCsv,
   pickWeighted,
   renameImage,
+  renameOrMerge,
   samePair,
   seenPairs,
   sentenceMemo,
@@ -146,6 +147,24 @@ describe("letter-pair library", () => {
     expect(p.images.map((i) => [i.text, i.flags])).toEqual([["eider", undefined], ["eiffel", undefined], ["eiger", undefined]]);
     expect(LetterPairSchema.safeParse(p).success).toBe(true);
     expect(p.updatedAt).toBe(AT);
+  });
+
+  it("renaming an image to a word the pair already has merges them, keeping uses and legacy rows", () => {
+    const legacyRow = (id: number, word: string, count: number) => ({ table: "pair_words" as const, id, pair: "CB", word, count });
+    const p: LetterPair = {
+      id: "CB",
+      first: "C",
+      second: "B",
+      images: [
+        { id: "a", text: "koko nut", uses: 4, legacy: [legacyRow(1, "koko nut", 4)] },
+        { id: "b", text: "cobra", uses: 1 },
+        { id: "c", text: "kokonut", uses: 2, legacy: [legacyRow(9, "kokonut", 2)] },
+      ],
+    };
+    const merged = renameOrMerge(p, "c", "Koko Nut", AT);
+    expect(merged.images.map((i) => [i.id, i.text, i.uses, i.legacy?.map((r) => r.id)])).toEqual([["a", "koko nut", 6, [1, 9]], ["b", "cobra", 1, undefined]]);
+    expect(LetterPairSchema.safeParse(merged).success).toBe(true);
+    expect(renameOrMerge(p, "b", "cobras", AT).images.map((i) => i.text)).toEqual(["koko nut", "cobras", "kokonut"]);
   });
 
   it("find and replace ignores case, treats the search literally, and skips replacements that would empty an image", () => {

@@ -252,6 +252,21 @@ export function renameImage(pair: LetterPair, imageId: string, text: string, at:
   return { ...pair, images: ordered(images), updatedAt: at };
 }
 
+/**
+ * Renames an image, or, when the pair already has an image with that word, merges the two: uses add up
+ * and legacy snapshots are kept together, as the import merges did (MIGRATION §3.6). The merged image
+ * is a placeholder only if both were.
+ */
+export function renameOrMerge(pair: LetterPair, imageId: string, text: string, at: string): LetterPair {
+  const from = pair.images.find((i) => i.id === imageId);
+  const into = pair.images.find((i) => i.id !== imageId && normaliseWord(i.text) === normaliseWord(text));
+  if (from === undefined || into === undefined || text.trim() === "") return renameImage(pair, imageId, text, at);
+  const legacy = [...(into.legacy ?? []), ...(from.legacy ?? [])];
+  const { flags: _flags, legacy: _legacy, ...base } = into;
+  const merged: PairImage = { ...base, uses: into.uses + from.uses, ...(isPlaceholder(into) && isPlaceholder(from) ? { flags: ["placeholder" as const] } : {}), ...(legacy.length === 0 ? {} : { legacy }) };
+  return { ...pair, images: ordered(pair.images.filter((i) => i.id !== imageId).map((i) => (i.id === into.id ? merged : i))), updatedAt: at };
+}
+
 export function withDetails(pair: LetterPair, details: { readonly notes: string; readonly category: string }, at: string): LetterPair {
   const { notes: _notes, category: _category, ...rest } = pair;
   const notes = details.notes.trim();
@@ -290,7 +305,7 @@ export function findImages(pairs: readonly LetterPair[], find: string, replaceme
 export function applyMatches(pairs: readonly LetterPair[], matches: readonly ImageMatch[], at: string): LetterPair[] {
   const byPair = new Map<string, ImageMatch[]>();
   for (const m of matches) byPair.set(m.pairId, [...(byPair.get(m.pairId) ?? []), m]);
-  return pairs.filter((p) => byPair.has(p.id)).map((p) => (byPair.get(p.id) ?? []).reduce((acc, m) => renameImage(acc, m.imageId, m.replaced, at), p));
+  return pairs.filter((p) => byPair.has(p.id)).map((p) => (byPair.get(p.id) ?? []).reduce((acc, m) => renameOrMerge(acc, m.imageId, m.replaced, at), p));
 }
 
 // ---------------------------------------------------------------------------------------------------

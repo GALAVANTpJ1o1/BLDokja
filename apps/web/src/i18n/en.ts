@@ -32,6 +32,7 @@ export const en = {
     continueLesson: "Continue",
     reviewsDue: "Letter pairs due",
     reviewsNone: "Nothing due right now.",
+    reviewsLink: "Review them",
     weakTitle: "Weak 20",
     weakEmpty: "Drill a few cases and your weakest ones will show up here.",
     practiceLink: "Go to practice",
@@ -57,7 +58,6 @@ export const en = {
     m2opBlurb: "Setups, swaps and every M2 special case, one target at a time.",
     pairs: "Letter pairs",
     pairsBlurb: "Your 24 × 24 library of images, with spaced review.",
-    comingSoon: "Not built yet",
   },
   progress: {
     title: "Progress",

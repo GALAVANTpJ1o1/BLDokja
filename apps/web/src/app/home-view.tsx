@@ -1,9 +1,11 @@
 "use client";
 
+import { dueCases, reviewsByCase, scheduleAll } from "@bld/srs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { en } from "@/i18n/en";
 import { getStorage } from "@/lib/storage-client";
+import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
 
 /**
  * Home adapts (your 2026-09-15 answer): a new visitor sees the way into the learning path; once any
@@ -11,11 +13,18 @@ import { getStorage } from "@/lib/storage-client";
  */
 export function HomeView() {
   const [started, setStarted] = useState<boolean | undefined>(undefined);
+  const [pairsDue, setPairsDue] = useState(0);
 
   useEffect(() => {
-    void getStorage()
-      .events()
-      .then((events) => { setStarted(events.some((e) => e.type !== "legacy.memoAttempt")); })
+    const storage = getStorage();
+    void Promise.all([storage.events(), storage.letterPairs()])
+      .then(([events, pairs]) => {
+        setStarted(events.some((e) => e.type !== "legacy.memoAttempt"));
+        // The same queue as the library's Review view: due cards for pairs that have an image.
+        const ids = pairs.filter((p) => mainImage(p) !== undefined).map((p) => p.id);
+        const now = new Date();
+        setPairsDue(dueCases(scheduleAll(ids, reviewsByCase(events, PAIRS_TRAINER), now), now).length);
+      })
       .catch(() => { setStarted(false); });
   }, []);
 
@@ -44,7 +53,14 @@ export function HomeView() {
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.reviewsDue}</h2>
-        <p className="t-body text-quiet">{en.home.reviewsNone}</p>
+        {pairsDue === 0 ? (
+          <p className="t-body text-quiet">{en.home.reviewsNone}</p>
+        ) : (
+          <>
+            <p className="t-body">{en.pairs.due(pairsDue)}</p>
+            <Link href="/practice/pairs/" className="t-body">{en.home.reviewsLink}</Link>
+          </>
+        )}
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.weakTitle}</h2>
