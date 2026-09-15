@@ -475,3 +475,123 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Picked:** `/practice/difficulty/#preset=<base64url JSON>`. Opening the link validates the preset against the stored-preset schema and offers "Use it now" or "Save it as a preset". Nothing is applied until you choose.
 - **Why:** a fragment never reaches a server, and a preset holds nothing personal. Validation stops a hand-edited link from storing anything malformed.
 - **Reversal:** easy.
+
+## Phase 6: analytics
+
+### Every view is recomputed from the event log; nothing derived is stored
+
+- **Choice:** whether analytics keep their own tables or read the log.
+- **Picked:** a pure package, `@bld/analytics`, of functions over graded `drill.attempt` events. The dashboard, Weak 20 and session reports call it on the events already in storage.
+- **Why:**
+  - an export carries every view with it;
+  - an import or "delete all my data" can't leave stale numbers behind;
+  - the functions test in bare Node like the engine.
+  - At the volumes a person produces (thousands of attempts a year) it takes milliseconds.
+- **Reversal:** easy. A cache could sit in front of the same functions if logs ever get large.
+
+### The settings snapshot is added where events are written
+
+- **Choice:** how BRIEF §8's "settings snapshot" reaches every attempt without editing each trainer.
+- **Picked:** `useEvents().append` adds `settings: { difficulty, buffers, scheme }` to any `drill.attempt` that doesn't carry one.
+  - `buffers` is `"standard"` when you haven't chosen any.
+  - `scheme` is the scheme's id, not its 72 letters.
+  - The snapshot is parsed with the event schema before it's written.
+  - Attempts logged before Phase 6 keep no snapshot; the log is append-only.
+- **Why:** one place to get right, and no trainer can forget it. The scheme id is enough to tell sessions apart, and the letters are in the settings backup.
+- **Reversal:** easy for new events. Old events can't gain a snapshot after the fact.
+
+### Legacy memo attempts aren't counted in analytics
+
+- **Choice:** whether the 51 imported memo attempts from the old app feed the heatmap and trends.
+- **Picked:** no. They stay in the log and in backups, untouched, but analytics read only `drill.attempt`.
+- **Why:**
+  - they have no per-target or per-pair timing;
+  - their correctness is an LCS score over a whole memo string, which doesn't say which pair was missed;
+  - counting them would put invented per-pair numbers on the heatmap.
+- **Reversal:** moderate. It would need a per-pair alignment of expected and answered strings, and a decision on how much an inferred miss should weigh.
+
+### Heatmap encoding: fill for speed, inset border for accuracy
+
+- **Choice:** how "cell colour = recall speed, cell border = accuracy" meets DESIGN.md, which keeps the six sticker colours for the cube.
+- **Picked:**
+  - **Fill:** one ink (`--text`) at five opacities, the same ramp as the mastery grids. More ink means faster, in either theme.
+  - **Speed steps:** fifths of your own cases in that view, not fixed seconds. Recalling a pair and recalling a comm take very different times.
+  - **Border:** an inset ring for accuracy: none at 90% or more, 2px from 70% to 90%, 4px below 70%. A thicker ring means worse, so bad cells stand out even for readers who can't see fill differences.
+  - **Undrilled cells:** a hairline outline only.
+  - **Hover and focus:** each cell shows its attempts, accuracy and median.
+  - **Keyboard:** the grid is one Tab stop and arrow keys move between cells, so a full 576-cell map doesn't take hundreds of Tab presses to get past.
+  - **Table view:** every chart has one, and the heatmap's table lists drilled cells only.
+- **Why:** a hue ramp would compete with sticker colours. Relative steps keep the map informative whether your pairs take 0.8 s or 3 s.
+- **Reversal:** easy. It's two constants and a ranking function.
+
+### "Not enough data yet" thresholds
+
+- **Choice:** when a number is shown.
+- **Picked:**
+  - **Medians** (trace diagnostics) need 5 targets of a kind.
+  - **Trends** need 3 practice days and 20 attempts in the period. Each point is the 7-day rolling value ending that day, over local calendar days.
+  - **Weak 20** needs 2 attempts per case.
+  - Below a threshold, the view says so and still offers its table.
+- **Why:** BRIEF §8 asks for an honest empty state. Five samples is the least that gives a median you can compare with another kind's.
+- **Reversal:** easy; they're parameters.
+
+### Weak 20: how items are scored, and over what
+
+- **Choice:** what "worst-performing" means across trainers that measure different things.
+- **Picked:**
+  - **Score** = 0.5 × error rate + 0.3 × slowness + 0.2 × forgetting.
+    - Error rate is smoothed as (misses + 1) / (attempts + 2), so one lucky answer doesn't clear a case.
+    - Slowness is the case's rank among its own trainer's medians, so trainers aren't compared on raw time.
+    - Forgetting is 1 − FSRS recall probability.
+  - **History:** all of it, everywhere the list appears: home, Progress, and the deck. Progress's period filter doesn't scope it, and its caption says so.
+- **Why:** mistakes matter most, because they're the DNFs. Slowness and forgetting break ties between cases you get right. A list that changed with the filter wouldn't match the deck it links to. That mismatch was in the first build and is fixed in f8fdfb5.
+- **Reversal:** easy. It's one function with the weights as constants.
+
+### Weak 20 asks each item its own trainer's way, and logs it there
+
+- **Choice:** how a mixed deck is drilled and recorded.
+- **Picked:**
+  - **Letter pair:** recall the image, then reveal and mark yourself.
+  - **3-style case:** the cube shows the case with its three pieces lit; recall the comm.
+  - **M2/OP case:** recall the setup.
+  - **Guided trace target:** the sticker is lit on a net; type its letter. The trace case is a sticker.
+  - **Logging:** each answer goes under the item's own trainer and case id, with strategy `weak20` and `detail.from: "weak20"`. It feeds that case's FSRS schedule.
+  - **Unavailable items** are skipped with a note and nothing logged: a case for a buffer you've since changed, or a pair whose image you deleted.
+  - **The deck is fixed** when the page opens.
+- **Why:** a grade means the same thing wherever it was earned. Trace items carry no lookup `kind`, so they don't distort trace diagnostics or the trainer's explanation counts.
+- **Reversal:** easy.
+
+### Session reports: what counts as a session, and as a change
+
+- **Choice:** BRIEF §8's "what improved, what regressed, what to do next".
+- **Picked:**
+  - **Session:** everything since the trainer was opened, rounded down to the second, because logged times are whole seconds.
+  - **Comparison:** each case in the session against its history before the session, if it has at least 2 earlier attempts.
+    - **Improved:** accuracy up 20 points, or accuracy held while the median dropped by a fifth.
+    - **Regressed:** the mirror, with 25% slower as the time threshold.
+  - **Next steps:** only concrete ones:
+    - repeat the cases you missed;
+    - in guided trace, practise a lookup kind at least 1.5× slower than normal targets;
+    - speed up cases that got slower but not less accurate.
+    - "Keep going" only when none apply.
+  - **Where it appears:** every trainer shows it under its drill. 3-style shows it in recall mode only, because learn mode logs nothing.
+- **Why:** "concrete, not motivational filler" rules out anything a report can't name a case for.
+- **Reversal:** easy.
+
+### Charts are hand-built, with no chart library
+
+- **Choice:** a charting dependency or not.
+- **Picked:** three small components (bar rows, a trend line, a heat grid) in HTML and SVG.
+  - Each has a table toggle, hover and keyboard focus.
+  - Each is drawn at its measured width, so axis text keeps its size on a phone.
+- **Why:**
+  - three chart shapes don't justify a library;
+  - a library would bring its own colours, fonts and animation, to be overridden back to the token system;
+  - the dataviz rules (single ink, 2px lines, hairline grid, table view) are easier to hold in about 300 lines than to configure.
+- **Reversal:** easy; the views pass plain data to the components.
+
+### Browser checks used synthetic history in the dev browser only
+
+- **Choice:** how to check the dashboard with no real drilling history yet.
+- **Picked:** about 580 generated attempts across four trainers and 21 days, imported through Settings into the dev browser's storage. Nothing generated is committed, and no dataset or fixture contains it.
+- **Reversal:** n/a.
