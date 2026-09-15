@@ -5,6 +5,7 @@
  * warnings are plain on purpose, so nothing important is ever unclear.
  */
 import type { Voice } from "@bld/storage";
+import { analyticsCopy } from "./analytics";
 import { toolsCopy } from "./tools";
 import { trainerCopy } from "./trainers";
 
@@ -196,6 +197,7 @@ export const en = {
   },
   ...trainerCopy,
   ...toolsCopy,
+  ...analyticsCopy,
   common: {
     loading: "Loading…",
     error: "Something went wrong.",
