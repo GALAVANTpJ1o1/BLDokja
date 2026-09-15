@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "@fontsource-variable/recursive/full.css";
+@import "../styles/tokens.css";
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-stage: var(--stage);
+  --color-text: var(--text);
+  --color-quiet: var(--text-quiet);
+  --color-rule: var(--rule);
+  --color-ink: var(--ink);
+  --color-chalk: var(--chalk);
+  --color-body: var(--cube-body);
+  --color-face-u: var(--face-u);
+  --color-face-l: var(--face-l);
+  --color-face-f: var(--face-f);
+  --color-face-r: var(--face-r);
+  --color-face-b: var(--face-b);
+  --color-face-d: var(--face-d);
+  --font-sans: "Recursive Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Recursive Variable", ui-monospace, monospace;
+  --radius-tile: 4px;
+  --radius-mark: 2px;
+}
+
+@layer base {
+  html {
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-variation-settings: "CASL" 0, "MONO" 0;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    min-height: 100dvh;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-weight: 420;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+  }
+  button {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+  }
+}
+
+@layer components {
+  .t-display-letter { font-size: 3rem; line-height: 1; font-weight: 700; font-variation-settings: "CASL" 1, "MONO" 0; }
+  .t-title { font-size: 2rem; line-height: 1.15; font-weight: 650; }
+  .t-heading { font-size: 1.375rem; line-height: 1.25; font-weight: 620; }
+  .t-subheading { font-size: 1.125rem; line-height: 1.35; font-weight: 600; }
+  .t-body { font-size: 1.0625rem; line-height: 1.6; font-weight: 420; }
+  .t-ui { font-size: 0.9375rem; line-height: 1.4; font-weight: 500; }
+  .t-meta { font-size: 0.8125rem; line-height: 1.4; font-weight: 450; }
+  .t-notation { font-size: 1rem; line-height: 1.5; font-weight: 520; font-variation-settings: "CASL" 0, "MONO" 1; }
+  .casual { font-variation-settings: "CASL" 1, "MONO" 0; }
+  .mono { font-variation-settings: "CASL" 0, "MONO" 1; }
+  .prose-measure { max-width: 68ch; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    font-size: 0.9375rem;
+    font-weight: 560;
+    background: transparent;
+    color: var(--text);
+    transition: background-color 120ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .btn:hover { background: var(--stage); }
+  .btn[aria-pressed="true"], .btn-strong { border-color: var(--text); font-weight: 650; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .field {
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--ground);
+    color: var(--text);
+  }
+  .panel { border: 1px solid var(--rule); border-radius: 4px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+}

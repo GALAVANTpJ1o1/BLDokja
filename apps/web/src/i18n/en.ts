@@ -1,0 +1,130 @@
+/**
+ * English copy (BRIEF §12: every user-facing string goes through a dictionary, even with one
+ * language). Lesson prose lives in /content, not here. Strings that change with the chosen voice
+ * (trainer feedback, hints, summaries) are `Voiced` records; buttons, settings, errors and data
+ * warnings are plain on purpose, so nothing important is ever unclear.
+ */
+import type { Voice } from "@bld/storage";
+
+export type Voiced = Readonly<Record<Voice, string>>;
+
+export const en = {
+  site: {
+    name: "BLDokja",
+    tagline: "Learn blindfolded cubing, one sticker at a time.",
+    skipToContent: "Skip to content",
+  },
+  nav: {
+    label: "Main",
+    learn: "Learn",
+    practice: "Practice",
+    progress: "Progress",
+    settings: "Settings",
+    home: "Home",
+  },
+  home: {
+    newTitle: "Start with the path",
+    newIntro: "Blindfolded solving is a handful of ideas used in order. The path teaches them in that order, each with a cube you can turn.",
+    startPath: "Open the learning path",
+    todayTitle: "Today",
+    nextLesson: "Next lesson",
+    continueLesson: "Continue",
+    reviewsDue: "Letter pairs due",
+    reviewsNone: "Nothing due right now.",
+    weakTitle: "Weak 20",
+    weakEmpty: "Drill a few cases and your weakest ones will show up here.",
+    practiceLink: "Go to practice",
+  },
+  learn: {
+    title: "Learning path",
+    intro: "Lessons are in the order they build on each other. Every lesson is open; the path marks what comes next.",
+    track3bld: "3BLD",
+    minutes: (n: number) => `${n} min`,
+    done: "Done",
+    next: "Next",
+    notStarted: "Not started",
+    prerequisites: "Builds on",
+    missingPrerequisites: "This lesson builds on lessons you haven't finished yet.",
+    empty: "Lessons are on their way.",
+  },
+  practice: {
+    title: "Practice",
+    intro: "Drill what the lessons teach. Every trainer runs from the keyboard; press ? inside one to see the keys.",
+    trace: "Guided trace",
+    traceBlurb: "Read a scramble target by target, with as much help as you need.",
+    m2op: "M2 / OP",
+    m2opBlurb: "Setups, swaps and every M2 special case, one target at a time.",
+    pairs: "Letter pairs",
+    pairsBlurb: "Your 24 × 24 library of images, with spaced review.",
+    comingSoon: "Not built yet",
+  },
+  progress: {
+    title: "Progress",
+    intro: "Charts of where your time goes arrive with the analytics phase. Your drill history is already being recorded locally.",
+    events: (n: number) => `${n} recorded ${n === 1 ? "attempt" : "attempts"}`,
+  },
+  settings: {
+    title: "Settings",
+    appearance: "Appearance",
+    theme: "Theme",
+    themes: { system: "Follow the system", dark: "Dim room", light: "Daylight" },
+    palette: "Sticker colours",
+    palettes: { standard: "Standard", "high-contrast": "High contrast", deuteranopia: "Deuteranopia-safe" },
+    paletteHint: "Changes every face colour on the site, on the cube and in the letters.",
+    voice: "Lesson voice",
+    voices: { plain: "Plain and precise", tsundere: "Tsundere", casual: "Casual and chatty", roast: "Roasting helper" },
+    voiceHint: "Changes lesson text, trainer hints and summaries. Buttons and warnings stay plain.",
+    data: "Your data",
+    dataIntro: "Everything stays in this browser. Nothing is sent anywhere.",
+    persistent: {
+      granted: "The browser has agreed to keep your data even when storage runs low.",
+      denied: "The browser may clear this site's data if storage runs low. Export a backup now and then.",
+      unsupported: "This browser can't promise to keep your data. Export a backup now and then.",
+      unknown: "Checking whether the browser will keep your data…",
+    },
+    backupDue: "Your last backup is over 30 days old, or you haven't made one yet.",
+    lastBackup: (when: string) => `Last backup: ${when}`,
+    neverBackedUp: "No backup yet.",
+    export: "Export a backup",
+    exporting: "Preparing…",
+    import: "Import a backup",
+    importPick: "Choose a JSON file",
+    importReview: "Review before importing",
+    importConfirm: "Import",
+    importCancel: "Cancel",
+    importDone: "Imported.",
+    importCounts: (pairs: number, events: number) => `${pairs} letter pairs and ${events} events will be added.`,
+    importConflicts: (n: number) => `${n} ${n === 1 ? "record differs" : "records differ"} from what you have; yours will be kept.`,
+    importStayedDeleted: (n: number) => `${n} deleted ${n === 1 ? "pair stays" : "pairs stay"} deleted.`,
+    importFailed: "That file can't be imported.",
+    importNewer: "This file was made by a newer version of the site.",
+    deleteAll: "Delete all my data",
+    deleteConfirm: "Delete everything: letter pairs, history and settings. This can't be undone. Type DELETE to confirm.",
+    deleteWord: "DELETE",
+    deleted: "All data deleted.",
+    quarantine: (n: number) => `${n} stored ${n === 1 ? "record" : "records"} couldn't be read and ${n === 1 ? "was" : "were"} set aside, not deleted.`,
+  },
+  cube: {
+    loading: "Loading the cube…",
+    failed: "The 3D cube couldn't load. The sticker net below shows the same state.",
+    describe: "Describe this cube",
+    faceNames: { U: "Up", L: "Left", F: "Front", R: "Right", B: "Back", D: "Down" },
+    colourNames: { U: "white", L: "orange", F: "green", R: "red", B: "blue", D: "yellow" },
+    faceRow: (face: string, colours: string) => `${face} face, row by row: ${colours}.`,
+    play: "Play",
+    pause: "Pause",
+    stepBack: "Step back",
+    stepForward: "Step forward",
+    restart: "Back to start",
+  },
+  lab: {
+    title: "Lab",
+    intro: "Every token, type style and component in one place, for design review. Hidden in production builds.",
+  },
+  common: {
+    loading: "Loading…",
+    error: "Something went wrong.",
+  },
+} as const;
+
+export type Dictionary = typeof en;

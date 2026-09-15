@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
+import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 // Globals that only exist in a browser or worker. cube-engine must never touch them.
@@ -19,7 +20,7 @@ const browserGlobals = [
 ].map((name) => ({ name, message: "cube-engine is pure: no browser globals." }));
 
 export default defineConfig([
-  globalIgnores(["**/node_modules/", "**/dist/", "legacy/", "**/coverage/"]),
+  globalIgnores(["**/node_modules/", "**/dist/", "legacy/", "**/coverage/", "**/.next/", "**/out/", "**/next-env.d.ts"]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
@@ -56,7 +57,16 @@ export default defineConfig([
     },
   },
   {
-    files: ["eslint.config.js"],
+    files: ["apps/web/**/*.{ts,tsx}"],
+    plugins: { "react-hooks": reactHooks },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "no-restricted-imports": ["error", { patterns: [{ regex: "^dexie(/.*)?$", message: "Only the storage package's adapter imports Dexie." }] }],
+    },
+  },
+  {
+    files: ["eslint.config.js", "apps/web/scripts/*.mjs", "apps/web/postcss.config.mjs"],
+    languageOptions: { globals: { console: "readonly", process: "readonly" } },
     extends: [tseslint.configs.disableTypeChecked],
   },
 ]);

@@ -47,3 +47,45 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - The SHA-256 was `4622dd92…51d5` before and after, the same as the audit.
   - Every golden number matched (D-029).
 - **Reversal:** nothing to reverse. The real import into the app is still yours to run and confirm.
+
+### Web: packages consumed as built `dist/`, not TypeScript source
+
+- **Choice:** how `apps/web` imports the engine and storage packages.
+- **Picked:** their compiled `dist/` output; `pnpm dev` builds them first.
+- **Why:** Turbopack doesn't resolve the packages' `.js` import specifiers to `.ts` files, so importing source fails the build.
+- **Reversal:** easy. Switching to source imports would need a bundler extension alias, or rewriting imports without extensions.
+
+### Web: the 3D cube uses PG3D, with its colours from the palette tokens
+
+- **Choice:** how colourblind palettes reach the 3D cube.
+- **Picked:** cubing.js's PG3D renderer, whose 3x3 geometry loader is wrapped so its sticker colours come from the `--face-*` tokens.
+- **Why:** cubing.js has no sticker-colour option, and the palette must recolour the cube too (DESIGN.md).
+- **Checked:** in the browser, with both the standard and deuteranopia palettes.
+- **Reversal:** moderate. It relies on a cubing.js internal shape (`pg().get3d()`); the wrapper falls back to default colours if that changes.
+
+### Web: masks grey out everything else by default
+
+- **Choice:** what "everything dim except the buffer and target" means on the 3D cube.
+- **Picked:** cubing.js's `ignored` (grey) by default, with `dim="soft"` available.
+- **Why:** cubing.js's `dim` measured about 73% brightness in the browser, too close to full colour.
+- **Reversal:** one default in `cube.tsx`.
+
+### Web: `/lab` is hidden in production unless `NEXT_PUBLIC_FLAGS=lab`
+
+- **Choice:** how you reach the design review page.
+- **Picked:** it's on in `pnpm dev`; for a production build, set `NEXT_PUBLIC_FLAGS=lab`.
+- **Why:** your answer said "behind a feature flag so it ships dark".
+- **Reversal:** trivial.
+
+### Web: the static-export segment 404 fix
+
+- **Choice:** what to do about Next 16's prefetch 404s on static hosting.
+- **Picked:** a post-build copy of each segment payload to the flat file name the client requests.
+- **Why:** it keeps client-side navigation working on any static host.
+- **Reversal:** delete `scripts/segments.mjs` once Next fixes this.
+
+### Web: the lab page's demo text is written inline
+
+- **Choice:** whether `/lab`'s sample strings go through the dictionary.
+- **Picked:** they're inline. It's a development page behind a flag, and its samples are design fixtures, not site copy.
+- **Reversal:** easy.

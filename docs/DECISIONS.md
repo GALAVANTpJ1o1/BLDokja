@@ -904,3 +904,38 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **All 13 assertions of MIGRATION.md §6.2** run on a synthetic database built in memory from the verbatim DDL, covering every anomaly class in §6.1. Round-trip, fixed-point and idempotency run on both backends (Dexie under `fake-indexeddb`).
   - **Real-file test:** it's skipped unless `LEGACY_DB_PATH` is set. With the live file (read-only, 2026-09-16) it reproduced every audited number: 678 rows to 660 images, 552 pairs, 990 uses, 51 memo attempts, 4 settings, 20 corrections and 18 merges, 550 pairs with a real word (EO and IE need one), 76 tie-break primaries, 12 shared words, and 17 re-scored attempts.
   - **Hash unchanged:** the file's hash was the audited one before and after.
+
+## D-030 · The web app: static Next.js 16, workspace packages, CSP by hash, and the cube component
+
+**Status:** built overnight (Phase 2, 2026-09-16). Next.js 16, `apps/web`, static-first hash CSP, face-only colour, Recursive, the slate and lilac grounds, the navigation and adaptive home are your answers from 2026-09-15; the rest is here and in `docs/OVERNIGHT.md`.
+
+- **Stack:**
+  - Next.js 16.3.5 (Turbopack) with React 19.3 and Tailwind 4, in `apps/web`. This is a change from BRIEF §3's "Next.js 15"; you chose it.
+  - Recursive, self-hosted through `@fontsource-variable/recursive` (all axes).
+- **Fully static** (`output: "export"`, `trailingSlash`). Everything is local-first, so there's no server. `pnpm --filter @bld/web build` writes `apps/web/out`.
+- **Workspace packages are consumed as built JavaScript.**
+  - `@bld/cube-engine` and `@bld/storage` export `dist/`. Turbopack doesn't map the packages' NodeNext `.js` import specifiers to `.ts` sources.
+  - `pnpm dev` builds both packages first. After changing a package, rebuild it (`pnpm --filter <pkg> build`).
+- **CSP** (`apps/web/scripts/csp.mjs`, run by `build`):
+  - hashes every inline script in each exported HTML file and puts a `<meta>` policy first in `<head>`: `script-src 'self' 'wasm-unsafe-eval'` plus those hashes, `style-src 'self' 'unsafe-inline'` (React style attributes, cubing.js shadow DOM), `worker-src 'self' blob:`, `object-src 'none'`, `base-uri 'self'`;
+  - a meta policy can't set `frame-ancestors`, which is left for deploy headers in Phase 8;
+  - checked in the browser against the static build: no violations.
+- **Segment payload names** (`scripts/segments.mjs`): Next 16's export writes `__next.x/__PAGE__.txt`, but its client asks for `__next.x.__PAGE__.txt`. The script copies each payload to the flat name, which removes the 404s on prefetch.
+- **The Cube component** (`components/cube/cube.tsx`) wraps cubing.js's `TwistyPlayer`:
+  - It uses the `PG3D` renderer, because it's the one that takes floating hint facelets and sticker colours from puzzle geometry. The `Cube3D` renderer has fixed colours.
+  - **Sticker colours:** the 3x3x3 loader's `pg()` is wrapped once, so its geometry colours each sticker from the current `--face-*` token (`player-palette.ts`). The player remounts when the palette changes. If cubing.js changes shape, the wrapper steps aside and logs.
+  - **Checked in the browser:** the standard green renders as `#1FA25A`, and the deuteranopia preset shows the Okabe–Ito colours in both the 3D cube and the net.
+  - **Masks:** the engine's `stickeringMask` turns "highlight these slots" into the player's per-piece mask (tested against the player's own geometry, sticker by sticker, and against the geometry model on scrambles).
+  - **The default dim is strong** (cubing.js `ignored`, grey). Its `dim` measured about 73% brightness in the browser, too subtle to direct attention. `dim="soft"` keeps colours.
+  - **Fallbacks:** a text description of every face, row by row, for screen readers; a flat SVG net (`StickerNet`) if the 3D player fails; reduced motion jumps to the end of an alg.
+- **Theme without a flash:** a fixed boot script (`next/script`, `beforeInteractive`) applies theme and palette from a localStorage mirror. The settings themselves live in IndexedDB. The CSP step hashes the script.
+- **Data in the app** (Settings):
+  - export a backup; import a backup, validated with `parseExport`, previewed, then confirmed;
+  - delete all data, after typing DELETE;
+  - storage persistence is requested on the first save and its status shown;
+  - a reminder shows when the last backup is over 30 days old, or there is none;
+  - quarantined records are counted.
+- **Copy** is in `src/i18n/en.ts`; strings that change with the voice are `Voiced` records.
+- **Feature flags** (`src/lib/flags.ts`): `/lab` is on in development, and in production only with `NEXT_PUBLIC_FLAGS=lab`.
+- **Datasets in the app** (`src/content/algs.ts`) are parsed with the engine's Zod schemas where they cross in.
+- **Tests:** `src/design/palette.test.ts` checks `tokens.css` against `palette.ts`, every DESIGN.md contrast floor in both themes, and a 3:1 tile-letter contrast for every face in every palette.

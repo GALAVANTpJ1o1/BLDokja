@@ -1,0 +1,65 @@
+/*
+ * Design tokens (docs/DESIGN.md). Values mirror src/design/palette.ts; palette.test.ts keeps them in sync.
+ * Light values sit on :root, dark values apply by system preference unless a theme is chosen.
+ * Face colours are switched as a set by data-palette on <html>.
+ */
+:root {
+  --ground: #E8E7EF;
+  --stage: #DCDAE6;
+  --text: #23253A;
+  --text-quiet: #4E5068;
+  --rule: #A9A7BA;
+  --focus: #23253A;
+  --ink: #23253A;
+  --chalk: #EFE9E1;
+  --cube-body: #0E0E10;
+
+  --face-u: #F4F4F1;
+  --face-f: #1FA25A;
+  --face-r: #D63A3A;
+  --face-d: #FFD23F;
+  --face-l: #F57C1F;
+  --face-b: #2B6CD9;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #2C2F45;
+    --stage: #34374F;
+    --text: #EFE9E1;
+    --text-quiet: #B9B6C4;
+    --rule: #4F5474;
+    --focus: #EFE9E1;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #2C2F45;
+  --stage: #34374F;
+  --text: #EFE9E1;
+  --text-quiet: #B9B6C4;
+  --rule: #4F5474;
+  --focus: #EFE9E1;
+  color-scheme: dark;
+}
+
+:root[data-palette="high-contrast"] {
+  --face-u: #FFFFFF;
+  --face-f: #00B050;
+  --face-r: #E00000;
+  --face-d: #FFEE00;
+  --face-l: #FF8000;
+  --face-b: #0047FF;
+}
+
+:root[data-palette="deuteranopia"] {
+  --face-u: #FFFFFF;
+  --face-f: #009E73;
+  --face-r: #D55E00;
+  --face-d: #F0E442;
+  --face-l: #CC79A7;
+  --face-b: #0072B2;
+}

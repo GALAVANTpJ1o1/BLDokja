@@ -6,7 +6,7 @@
     "node": ">=22.3.0"
   },
   "scripts": {
-    "dev": "pnpm --filter @bld/cube-engine dev",
+    "dev": "pnpm --filter @bld/cube-engine --filter @bld/storage build && pnpm --filter @bld/web dev",
     "build": "pnpm -r --if-present build",
     "test": "pnpm -r --if-present test",
     "test:engine": "pnpm --filter @bld/cube-engine test",
@@ -17,11 +17,13 @@
     "engine:bench": "pnpm --filter @bld/cube-engine bench",
     "engine:generate": "pnpm --filter @bld/cube-engine generate",
     "import:legacy": "pnpm --filter @bld/storage import:legacy",
-    "test:storage": "pnpm --filter @bld/storage test"
+    "test:storage": "pnpm --filter @bld/storage test",
+    "test:web": "pnpm --filter @bld/web test"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "eslint": "10.0.1",
+    "eslint-plugin-react-hooks": "7.1.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0"
   }

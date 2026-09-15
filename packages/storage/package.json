@@ -6,21 +6,22 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./dexie": {
-      "types": "./src/dexie-backend.ts",
-      "import": "./src/dexie-backend.ts"
+      "types": "./dist/dexie-backend.d.ts",
+      "import": "./dist/dexie-backend.js"
     },
     "./legacy": {
-      "types": "./src/legacy/index.ts",
-      "import": "./src/legacy/index.ts"
+      "types": "./dist/legacy/index.d.ts",
+      "import": "./dist/legacy/index.js"
     }
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json",
     "import:legacy": "tsx scripts/import-legacy-letterpairs.ts"
   },
   "dependencies": {
@@ -35,5 +36,8 @@
     "tsx": "4.23.13",
     "typescript": "6.0.3",
     "vitest": "5.0.0"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }

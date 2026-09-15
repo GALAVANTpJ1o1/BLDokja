@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@bld/web", "dev", "--port", "3100"],
+      "port": 3100
+    },
+    {
+      "name": "web-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve@14.2.4", "apps/web/out", "-l", "3200"],
+      "port": 3200
+    }
+  ]
+}
