@@ -225,12 +225,32 @@ const SPEED_OPACITY = [0.12, 0.3, 0.55, 0.78, 1] as const;
 const BORDER: Record<"high" | "mid" | "low", string> = { high: "0px", mid: "2px", low: "4px" };
 
 /**
- * A grid where fill is recall speed (darker is faster) and the inner border is accuracy (thicker is less
+ * A grid where fill is recall speed (more ink is faster) and the inner border is accuracy (thicker is less
  * accurate), with cells that can't occur left blank (BRIEF §8's letter-pair heatmap and 3-style grid).
+ * The grid is one tab stop; arrow keys move between cells, skipping blanks, so a full map doesn't take
+ * hundreds of Tab presses to get past.
  */
 export function HeatGrid({ title, caption, rows, cols, rowLabel, colLabel, data, tableHead, cellSize = 22 }: { title: string; caption?: string; rows: readonly { key: string; label: string }[]; cols: readonly { key: string; label: string }[]; rowLabel: string; colLabel: string; data: ReadonlyMap<string, HeatDatum>; tableHead: readonly string[]; cellSize?: number }) {
   const [active, setActive] = useState<HeatDatum | undefined>(undefined);
   const byCell = useMemo(() => new Map([...data.values()].map((d) => [`${d.row}|${d.col}`, d])), [data]);
+  const cellRefs = useRef(new Map<string, HTMLSpanElement>());
+  const [focusKey, setFocusKey] = useState<string | undefined>(undefined);
+  // Until you move, the tab stop is the first drilled cell in reading order, else the first cell.
+  const firstKey = useMemo(() => {
+    const keys = rows.flatMap((r) => cols.map((c) => `${r.key}|${c.key}`)).filter((k) => byCell.has(k));
+    return keys.find((k) => byCell.get(k)?.speedStep !== undefined) ?? keys[0];
+  }, [rows, cols, byCell]);
+  const tabStop = focusKey !== undefined && byCell.has(focusKey) ? focusKey : firstKey;
+  const move = (row: number, col: number, dRow: number, dCol: number) => {
+    for (let r = row + dRow, c = col + dCol; r >= 0 && r < rows.length && c >= 0 && c < cols.length; r += dRow, c += dCol) {
+      const key = `${rows[r]?.key ?? ""}|${cols[c]?.key ?? ""}`;
+      if (!byCell.has(key)) continue;
+      setFocusKey(key);
+      cellRefs.current.get(key)?.focus();
+      return;
+    }
+  };
+  const ARROWS: Readonly<Record<string, readonly [number, number]>> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
   // The table lists what has data; blank cells would only be rows of dashes.
   const table = <Table head={tableHead} rows={[...data.values()].filter((d) => d.speedStep !== undefined).map((d) => d.tableRow)} />;
   return (
@@ -267,24 +287,35 @@ export function HeatGrid({ title, caption, rows, cols, rowLabel, colLabel, data,
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.map((r, rowIndex) => (
               <tr key={r.key}>
                 <th scope="row" className="t-meta sticky left-0 bg-ground pr-1 text-right font-[600]" title={r.key}>
                   <span className="casual">{r.label}</span>
                 </th>
-                {cols.map((c) => {
-                  const d = byCell.get(`${r.key}|${c.key}`);
+                {cols.map((c, colIndex) => {
+                  const key = `${r.key}|${c.key}`;
+                  const d = byCell.get(key);
                   return (
                     <td key={c.key} className="p-[1px]">
                       {d === undefined ? (
                         <span aria-hidden className="block" style={{ width: cellSize, height: cellSize }} />
                       ) : (
                         <span
-                          tabIndex={d.speedStep === undefined ? -1 : 0}
+                          ref={(element) => {
+                            if (element === null) cellRefs.current.delete(key);
+                            else cellRefs.current.set(key, element);
+                          }}
+                          tabIndex={key === tabStop ? 0 : -1}
                           aria-label={d.tooltip}
+                          onKeyDown={(e) => {
+                            const step = ARROWS[e.key];
+                            if (step === undefined) return;
+                            e.preventDefault();
+                            move(rowIndex, colIndex, step[0], step[1]);
+                          }}
                           onPointerEnter={() => { setActive(d); }}
                           onPointerLeave={() => { setActive(undefined); }}
-                          onFocus={() => { setActive(d); }}
+                          onFocus={() => { setActive(d); setFocusKey(key); }}
                           onBlur={() => { setActive(undefined); }}
                           className={`relative block rounded-[3px] ${active?.id === d.id ? "outline-2 outline-offset-1 outline-[var(--focus)]" : ""}`}
                           style={{ width: cellSize, height: cellSize, boxShadow: d.band === undefined ? "inset 0 0 0 1px var(--rule)" : d.band === "high" ? "none" : `inset 0 0 0 ${BORDER[d.band]} var(--text)` }}

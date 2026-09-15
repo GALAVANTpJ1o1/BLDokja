@@ -110,7 +110,7 @@ export function ProgressView() {
                 cols={stickers.map((s) => ({ key: s, label: reader.letterOf(s) ?? "?" }))}
                 rowLabel={en.analytics.firstTarget}
                 colLabel={en.analytics.secondTarget}
-                data={new Map([...data].filter(([, d]) => d.speedStep !== undefined).concat([...data].filter(([, d]) => d.speedStep === undefined)))}
+                data={data}
                 tableHead={en.analytics.caseHead}
                 cellSize={18}
               />
@@ -182,7 +182,6 @@ function Heatmap({ attempts, letters }: { attempts: readonly Attempt[]; letters:
         tableRow: [id, String(cell?.attempts ?? 0), cell === undefined ? "—" : en.analytics.percent(cell.accuracy), cell === undefined ? "—" : en.analytics.seconds(cell.medianMs)],
       });
     }
-  const drilled = new Map([...data].filter(([, d]) => d.speedStep !== undefined));
   return (
     <HeatGrid
       title={en.analytics.heatmapTitle}
@@ -191,7 +190,7 @@ function Heatmap({ attempts, letters }: { attempts: readonly Attempt[]; letters:
       cols={letters.map((l) => ({ key: l, label: l }))}
       rowLabel={en.analytics.first}
       colLabel={en.analytics.second}
-      data={new Map([...drilled, ...[...data].filter(([id]) => !drilled.has(id))])}
+      data={data}
       tableHead={en.analytics.pairHead}
     />
   );
