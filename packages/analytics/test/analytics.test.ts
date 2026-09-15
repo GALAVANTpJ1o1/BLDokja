@@ -42,7 +42,7 @@ describe("trace diagnostics", () => {
 });
 
 describe("heat cells", () => {
-  it("ranks recall speed into five steps (fastest darkest) and bands accuracy", () => {
+  it("ranks recall speed into five steps (fastest highest) and bands accuracy", () => {
     const events: AttemptLike[] = ["AB", "AC", "AD", "AE", "AF"].flatMap((id, i) => [attempt("pairs", id, true, 1000 + i * 500, T0 + i), attempt("pairs", id, i < 3, 1000 + i * 500, T0 + 10 + i)]);
     const cells = heatCells(attemptsOf(events), "pairs");
     expect(["AB", "AC", "AD", "AE", "AF"].map((id) => cells.get(id)?.speedStep)).toEqual([4, 3, 2, 1, 0]);
@@ -108,6 +108,17 @@ describe("session summary", () => {
     expect(s.improved.map((c) => c.caseId)).toEqual(["AB", "AD"]);
     expect(s.regressed.map((c) => c.caseId)).toEqual(["AC"]);
     expect(s.next).toEqual([{ kind: "repeat-misses", caseIds: ["AC"] }]);
+  });
+
+  it("suggests speeding up cases that slowed down without losing accuracy", () => {
+    const start = T0 + DAY;
+    const events: AttemptLike[] = [
+      ...[true, true].map((c, i) => attempt("pairs", "AB", c, 1000, T0 + i)),
+      attempt("pairs", "AB", true, 1300, start + 1),
+    ];
+    const s = sessionSummary(attemptsOf(events), "pairs", start);
+    expect(s.regressed.map((c) => c.caseId)).toEqual(["AB"]);
+    expect(s.next).toEqual([{ kind: "speed-up", caseIds: ["AB"] }]);
   });
 
   it("points at the slowest kind of lookup in guided trace, and says keep going when nothing stands out", () => {
