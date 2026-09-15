@@ -9,7 +9,8 @@ import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { useReader, type Reader } from "@/lib/reader";
-import { getStorage, newId, nowIso } from "@/lib/storage-client";
+import { newId, nowIso } from "@/lib/ids";
+import { loadStorage } from "@/lib/storage-lazy";
 import { checkpointRng, gradeLetters, gradeSetup, letterItems, parityItems, setupItems, traceItems, type CheckpointItem, type PieceKind, type TraceRequirement } from "@/trainers/checkpoint-items";
 import { LessonMetaContext } from "./lesson-meta";
 import { useVoice } from "./use-voice";
@@ -93,8 +94,8 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
 
   useEffect(() => {
     if (!passed || recorded) return;
-    void getStorage()
-      .appendEvents([{ id: newId(), type: "lesson.checkpointPassed", at: nowIso(), lessonId, checkpointId: id, score: { correct, total } }])
+    void loadStorage()
+      .then((storage) => storage.appendEvents([{ id: newId(), type: "lesson.checkpointPassed", at: nowIso(), lessonId, checkpointId: id, score: { correct, total } }]))
       .then(() => {
         setRecorded(true);
         window.dispatchEvent(new CustomEvent("bld:progress"));

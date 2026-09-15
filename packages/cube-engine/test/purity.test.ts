@@ -25,4 +25,10 @@ describe("cube-engine purity", () => {
     const offenders = sourceFiles(srcDir).filter((file) => forbidden.test(readFileSync(file, "utf8")));
     expect(offenders.map((file) => relative(srcDir, file))).toEqual([]);
   });
+
+  it("takes Zod only from core/zod.ts, so jitless is set before any schema exists (D-034)", () => {
+    const direct = /import\s+(?!type\b)[^;]*from\s+["']zod["']/;
+    const offenders = sourceFiles(srcDir).filter((file) => relative(srcDir, file) !== join("core", "zod.ts") && direct.test(readFileSync(file, "utf8")));
+    expect(offenders.map((file) => relative(srcDir, file))).toEqual([]);
+  });
 });

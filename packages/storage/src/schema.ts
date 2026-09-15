@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod.js";
 
 /**
  * The local data schema, version 1 (docs/MIGRATION.md §3). One number covers the export envelope and

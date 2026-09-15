@@ -7,7 +7,7 @@ import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { itemLabel } from "@/lib/item-labels";
 import { useReader } from "@/lib/reader";
-import { getStorage } from "@/lib/storage-client";
+import { loadStorage } from "@/lib/storage-lazy";
 import { weakDeck } from "@/lib/weak";
 import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
 
@@ -22,8 +22,8 @@ export function HomeView() {
   const reader = useReader();
 
   useEffect(() => {
-    const storage = getStorage();
-    void Promise.all([storage.events(), storage.letterPairs()])
+    void loadStorage()
+      .then((storage) => Promise.all([storage.events(), storage.letterPairs()]))
       .then(([events, pairs]) => {
         setStarted(events.some((e) => e.type !== "legacy.memoAttempt"));
         // The same queue as the library's Review view: due cards for pairs that have an image.

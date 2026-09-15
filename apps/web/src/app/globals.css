@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@fontsource-variable/recursive/full.css";
+@import "../styles/fonts.css";
 @import "../styles/tokens.css";
 
 @theme inline {
@@ -17,8 +17,8 @@
   --color-face-r: var(--face-r);
   --color-face-b: var(--face-b);
   --color-face-d: var(--face-d);
-  --font-sans: "Recursive Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Recursive Variable", ui-monospace, monospace;
+  --font-sans: "Recursive Casual", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Recursive Mono", ui-monospace, monospace;
   --radius-tile: 4px;
   --radius-mark: 2px;
 }
@@ -66,9 +66,9 @@
   .t-body { font-size: 1.0625rem; line-height: 1.6; font-weight: 420; }
   .t-ui { font-size: 0.9375rem; line-height: 1.4; font-weight: 500; }
   .t-meta { font-size: 0.8125rem; line-height: 1.4; font-weight: 450; }
-  .t-notation { font-size: 1rem; line-height: 1.5; font-weight: 520; font-variation-settings: "CASL" 0, "MONO" 1; }
+  .t-notation { font-family: var(--font-mono); font-size: 1rem; line-height: 1.5; font-weight: 520; font-variation-settings: "CASL" 0, "MONO" 1; }
   .casual { font-variation-settings: "CASL" 1, "MONO" 0; }
-  .mono { font-variation-settings: "CASL" 0, "MONO" 1; }
+  .mono { font-family: var(--font-mono); font-variation-settings: "CASL" 0, "MONO" 1; }
   .prose-measure { max-width: 68ch; }
 
   .btn {
@@ -255,5 +255,5 @@ html[data-motion="reduce"] .transmission-window[open]::backdrop { animation: non
   .lesson-body ol { list-style: decimal; padding-left: 1.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
   .lesson-body strong { font-weight: 680; }
   .lesson-body em { font-style: normal; font-variation-settings: "CASL" 1, "MONO" 0; }
-  .lesson-body code { font-variation-settings: "CASL" 0, "MONO" 1; }
+  .lesson-body code { font-family: var(--font-mono); font-variation-settings: "CASL" 0, "MONO" 1; }
 }

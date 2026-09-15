@@ -1,4 +1,5 @@
-import { createRng } from "@bld/cube-engine";
+// The PRNG alone: the package root would pull the whole engine (and cubing.js) into every page's first load.
+import { createRng } from "@bld/cube-engine/prng";
 
 /**
  * The starfield (DESIGN.md, "Constellation layer"): a sticker is a star, a trace is a line between

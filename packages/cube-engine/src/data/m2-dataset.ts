@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "../core/zod.js";
 import { at } from "../core/arrays.js";
 import { composePerms, type StickerPerm } from "../core/move-table.js";
 import type { Puzzle } from "../core/puzzle.js";

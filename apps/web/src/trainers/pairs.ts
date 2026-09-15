@@ -1,7 +1,7 @@
 import { defaultRecencyWindow, selectionWeights, type Puzzle, type Rng, type Scheme } from "@bld/cube-engine";
 import { graphemes, type AppEvent, type LetterPair, type PairImage } from "@bld/storage";
 import { statsFor, type CaseSchedule } from "@bld/srs";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { scrambleTraces, sessionScramble } from "./guided-trace";
 
 /**

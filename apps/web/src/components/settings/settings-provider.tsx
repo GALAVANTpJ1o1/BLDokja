@@ -2,7 +2,13 @@
 
 import type { Palette, Settings, Theme, Voice } from "@bld/storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { getStorage, requestPersistentStorage } from "@/lib/storage-client";
+
+/**
+ * Storage (Dexie and the Zod schemas) loads after the page has painted: the provider sits in the root
+ * layout, so a static import would put it in every page's first download. Pages that use storage import
+ * it themselves anyway.
+ */
+const storageClient = () => import("@/lib/storage-client");
 
 /** Mirrors theme and palette for the first paint (read by public/appearance-boot.js). A convenience only: settings live in storage. */
 export const APPEARANCE_KEY = "bld.appearance";
@@ -56,8 +62,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    void getStorage()
-      .settings()
+    void storageClient()
+      .then((m) => m.getStorage().settings())
       .then((value) => {
         if (cancelled) return;
         setStored(value);
@@ -78,6 +84,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [ready, settings]);
 
   const update = useCallback(async (patch: Partial<Settings>) => {
+    const { getStorage, requestPersistentStorage } = await storageClient();
     const storage = getStorage();
     const next = await storage.transaction(async (tx) => {
       const merged: Settings = { ...(await tx.settings()), ...patch };

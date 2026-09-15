@@ -9,7 +9,8 @@ import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { GATE_B_BUFFERS, ReaderOverridesContext, type ReaderOverrides } from "@/lib/reader";
-import { getStorage, newId, nowIso } from "@/lib/storage-client";
+import { newId, nowIso } from "@/lib/ids";
+import { loadStorage } from "@/lib/storage-lazy";
 import { LessonMetaContext } from "./lesson-meta";
 import { lessonDone, useLessonProgress } from "./use-progress";
 import { LessonVoiceContext } from "./use-voice";
@@ -41,7 +42,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
   const chosen = settings.voice !== undefined && variants[settings.voice] !== undefined ? settings.voice : "plain";
 
   useEffect(() => {
-    void getStorage().appendEvents([{ id: newId(), type: "lesson.opened", at: nowIso(), lessonId: frontmatter.id }]);
+    void loadStorage().then((storage) => storage.appendEvents([{ id: newId(), type: "lesson.opened", at: nowIso(), lessonId: frontmatter.id }]));
   }, [frontmatter.id]);
 
   const byId = new Map(lessons.map((l) => [l.id, l]));

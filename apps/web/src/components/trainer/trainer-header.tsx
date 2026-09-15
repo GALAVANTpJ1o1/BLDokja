@@ -1,0 +1,49 @@
+"use client";
+
+import { TransitionLink } from "@/components/transitions/transition-link";
+import { en } from "@/i18n/en";
+
+export interface TrainerHeading {
+  readonly title: string;
+  readonly intro: string;
+  readonly lesson?: { readonly href: string; readonly title: string };
+}
+
+/**
+ * A trainer's header: where it sits, the lesson that teaches it, its title and intro, and the Keys button.
+ * Trainers render in the browser only, so their loaders show this same header in the static HTML while the
+ * trainer loads (without `onKeys`, the button is disabled). The text then paints with the page instead of
+ * seconds later, and nothing moves when the trainer arrives.
+ */
+export function TrainerHeader({ title, intro, lesson, onKeys }: TrainerHeading & { readonly onKeys?: () => void }) {
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-col gap-1">
+        <p className="t-meta text-quiet">
+          <TransitionLink href="/practice/">{en.nav.practice}</TransitionLink>
+          {lesson !== undefined ? (
+            <>
+              {" · "}
+              {en.trainer.learnIn} <TransitionLink href={lesson.href}>{lesson.title}</TransitionLink>
+            </>
+          ) : null}
+        </p>
+        <h1 className="t-title">{title}</h1>
+        <p className="t-body prose-measure text-quiet">{intro}</p>
+      </div>
+      <button type="button" className="btn" onClick={onKeys} disabled={onKeys === undefined} aria-keyshortcuts="?">
+        {en.trainer.keys}
+      </button>
+    </header>
+  );
+}
+
+/** What a trainer's loader shows until the trainer is ready: the real header and a quiet loading line. */
+export function TrainerLoading({ message, ...heading }: TrainerHeading & { readonly message: string }) {
+  return (
+    <div className="flex max-w-5xl flex-col gap-6">
+      <TrainerHeader {...heading} />
+      <p className="t-meta text-quiet">{message}</p>
+    </div>
+  );
+}

@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "../core/zod.js";
 import { AlgDatasetSchema } from "./alg-dataset.js";
 import { M2DatasetSchema, M2OpParityDatasetSchema } from "./m2-dataset.js";
 import { OpParityDatasetSchema, OpSetupsDatasetSchema } from "./op-dataset.js";

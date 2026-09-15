@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "../core/zod.js";
 import { at } from "../core/arrays.js";
 import { composePerms, identityPerm, moveTable, type StickerPerm } from "../core/move-table.js";
 import { faceletsOf, VERIFIED_MOVE_FAMILIES, type Puzzle } from "../core/puzzle.js";

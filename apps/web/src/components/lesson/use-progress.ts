@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getStorage } from "@/lib/storage-client";
+import { loadStorage } from "@/lib/storage-lazy";
 
 export interface LessonProgress {
   /** Checkpoint ids passed, per lesson. */
@@ -15,8 +15,8 @@ export function useLessonProgress(): LessonProgress | undefined {
   useEffect(() => {
     let cancelled = false;
     const load = () => {
-      void getStorage()
-        .events()
+      void loadStorage()
+        .then((storage) => storage.events())
         .then((events) => {
           if (cancelled) return;
           const passed = new Map<string, Set<string>>();

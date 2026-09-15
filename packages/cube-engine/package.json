@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./prng": {
+      "types": "./dist/random/prng.d.ts",
+      "import": "./dist/random/prng.js"
     }
   },
   "files": [

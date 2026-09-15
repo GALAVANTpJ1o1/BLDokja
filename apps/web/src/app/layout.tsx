@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { AppShell } from "@/components/shell/app-shell";
+import { ServiceWorkerRegistration } from "@/components/pwa/service-worker";
 import { SettingsProvider } from "@/components/settings/settings-provider";
 import { Starfield } from "@/components/starfield/starfield";
 import { PageTransitions } from "@/components/transitions/transition-link";
@@ -10,6 +11,7 @@ import { en } from "@/i18n/en";
 export const metadata: Metadata = {
   title: { default: en.site.name, template: `%s · ${en.site.name}` },
   description: en.site.tagline,
+  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }], apple: "/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
@@ -33,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script src="/appearance-boot.js" />
       </head>
       <body>
+        <ServiceWorkerRegistration />
         <Starfield />
         <SettingsProvider>
           <PageTransitions>

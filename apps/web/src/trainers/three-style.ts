@@ -1,6 +1,6 @@
 import { cancelMoves, entryForAlg, expandNodes, formatAlg, formatMoves, invertNodes, parseAlg, symmetryImageDataset, validateComm, type AlgDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
 import type { AlgOverrides } from "@bld/storage";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /**
  * The 3-style trainer's cases (BRIEF §7.3): an ordered pair of targets relative to a buffer, from the

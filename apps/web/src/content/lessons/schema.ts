@@ -1,5 +1,5 @@
 import { VOICES } from "@bld/storage";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 /**
  * Lesson frontmatter (BRIEF §6): `id`, `title`, `track`, `prerequisites`, `estimatedMinutes`,

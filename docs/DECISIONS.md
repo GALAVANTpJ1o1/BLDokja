@@ -1035,3 +1035,46 @@ Short records of choices that would be expensive to reverse, or where sources di
     - target count = wrong non-buffer slots + breaks;
     - every traced step is one of `interchangeableChoices`.
   - **Teeth:** dropping the avoidance, or forcing a break whenever the buffer holds its own colour, fails the fixtures and the oracle comparison.
+
+## D-034 · Zod runs jitless, so the strict CSP stays quiet
+
+**Status:** accepted 2026-09-16, Phase 8.
+
+- **Finding.** Lighthouse reported a Content Security Policy issue on every page, with no console error.
+  - Zod 4 compiles fast object parsers when it can.
+  - To find out whether it can, it runs `new Function("")` inside a try/catch the first time an object schema is created.
+  - The site's CSP forbids that, so the browser records a violation even though Zod swallows the error. Zod's own source comments on this.
+- **Decision.** `z.config({ jitless: true })`, applied before any schema exists.
+  - The engine, storage and web app each have a `zod.ts` that sets it and re-exports `z`.
+  - Every schema module imports `z` from there, never from "zod", so the setting always comes first.
+  - `test/purity.test.ts` fails if an engine source file imports "zod" directly. A deliberate direct import was caught, then reverted.
+- **Cost.** Parsing is interpreted instead of compiled. Measured on the same machine:
+  - the engine's dataset suite took 12.0 s against 12.5 s before;
+  - storage took 1.3 s against 1.5 s.
+  - No measurable slowdown at the site's data sizes.
+- **Reversal.** Easy: remove the three `config` calls. The CSP issue comes back.
+
+## D-035 · Offline: one service worker that precaches the whole static export
+
+**Status:** accepted 2026-09-16, Phase 8 (BRIEF §10: "lessons and all trainers work with no network").
+
+- **Build.** `scripts/sw.mjs` runs after `next build`, `segments.mjs` and `csp.mjs`, and writes `out/sw.js`:
+  - every file in `out/` is precached (264 files, about 7 MB), except the worker and the development-only `/lab` page;
+  - pages are cached under their URLs, so `learn/index.html` is `/learn/`;
+  - the cache name is a hash of every file's contents.
+- **Runtime:**
+  - **Requests:** served from this version's cache first, ignoring query strings (Next fetches route payloads as `….txt?_rsc=…`), then from the network.
+  - **HEAD prefetches:** answered from the cache.
+  - **An unknown page offline:** gets the 404 page.
+  - **A new deploy:** installs a new worker in the background. It takes over only when no tab still runs the old one, then deletes the old cache, so a page never mixes files from two builds.
+  - **Registration:** production builds only (`ServiceWorkerRegistration`), because in development it would cache pages that are still changing.
+- **Why precache everything.** The site is local-first, a learner may open any lesson or trainer first while offline, and every asset is already a static file. Runtime caching would only make pages you'd visited available offline.
+- **Manifest and icons.**
+  - `app/manifest.ts` is exported statically.
+  - The icons (SVG, 192 and 512 PNG, maskable, Apple touch) are drawn by `scripts/icons.mjs` from `design/palette.ts`, so no image is hand-made.
+- **Checked in the browser** against the static build:
+  1. load once, and the worker activates with 264 files cached;
+  2. stop the server;
+  3. **offline:** guided trace loads and grades an answer, client-side navigation reaches a lesson and Progress, and a full page load of a lesson not yet opened shows its 4 cubes and checkpoint.
+- **Deploy note.** `sw.js` should be served with `Cache-Control: no-cache`, so a new deploy is seen (docs/DEPLOY.md).
+- **Reversal.** Easy. Drop the registration and ship a worker that unregisters itself.

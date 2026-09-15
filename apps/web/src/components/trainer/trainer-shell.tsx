@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { TransitionLink } from "@/components/transitions/transition-link";
+import { TrainerHeader } from "@/components/trainer/trainer-header";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 
@@ -31,24 +31,7 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
 
   return (
     <div className="flex max-w-5xl flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <p className="t-meta text-quiet">
-            <TransitionLink href="/practice/">{en.nav.practice}</TransitionLink>
-            {lesson !== undefined ? (
-              <>
-                {" · "}
-                {en.trainer.learnIn} <TransitionLink href={lesson.href}>{lesson.title}</TransitionLink>
-              </>
-            ) : null}
-          </p>
-          <h1 className="t-title">{title}</h1>
-          <p className="t-body prose-measure text-quiet">{intro}</p>
-        </div>
-        <button type="button" className="btn" onClick={() => { setHelpOpen(true); }} aria-keyshortcuts="?">
-          {en.trainer.keys}
-        </button>
-      </header>
+      <TrainerHeader title={title} intro={intro} {...(lesson === undefined ? {} : { lesson })} onKeys={() => { setHelpOpen(true); }} />
       {settings !== undefined ? (
         <details className="panel">
           <summary className="cursor-pointer px-4 py-3 t-ui">{en.trainer.settings}</summary>

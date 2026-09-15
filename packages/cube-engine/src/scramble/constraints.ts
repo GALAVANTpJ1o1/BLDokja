@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "../core/zod.js";
 import { err, ok, type Result } from "../core/result.js";
 import type { TraceResult } from "../trace/trace.js";
 

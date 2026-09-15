@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../zod.js";
 
 /**
  * Corrections applied at import (MIGRATION.md §3.6). Corrections are data: each entry names a legacy

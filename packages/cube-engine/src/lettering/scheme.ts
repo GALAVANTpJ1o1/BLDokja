@@ -1,4 +1,4 @@
-import * as z from "zod";
+import { z } from "../core/zod.js";
 import type { Puzzle } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { PIECE_TYPE_SPECS, pieceType, type PieceType, type PieceTypeId, type StickerInfo } from "../pieces/piece-types.js";

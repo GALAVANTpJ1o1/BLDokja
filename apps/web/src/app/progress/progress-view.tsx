@@ -42,21 +42,15 @@ export function ProgressView() {
   const seconds = en.analytics.seconds;
   const percent = en.analytics.percent;
 
-  const header = (
-    <>
-      <h1 className="t-title">{en.analytics.title}</h1>
-      <p className="t-body prose-measure">{en.analytics.intro}</p>
-    </>
-  );
-  if (events === undefined || reader === undefined) return <div className="flex max-w-5xl flex-col gap-6">{header}<p className="t-meta text-quiet">{en.cube.loading}</p></div>;
+  // The page renders the title and intro; this view starts at the period filter.
+  if (events === undefined || reader === undefined) return <p className="t-meta text-quiet">{en.cube.loading}</p>;
 
   const days = new Set(attempts.map((a) => localDay(a.time))).size;
   const correct = attempts.filter((a) => a.correct).length;
 
   return (
-    <div className="flex max-w-5xl flex-col gap-10">
+    <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4">
-        {header}
         <Segmented<Range> label={en.analytics.range} options={["30", "90", "all"]} labels={en.analytics.ranges} value={range} onChange={setRange} />
         <p className="t-body">
           {en.analytics.attempts(attempts.length)} · {en.analytics.days(days)}
