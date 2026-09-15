@@ -595,3 +595,52 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Choice:** how to check the dashboard with no real drilling history yet.
 - **Picked:** about 580 generated attempts across four trainers and 21 days, imported through Settings into the dev browser's storage. Nothing generated is committed, and no dataset or fixture contains it.
 - **Reversal:** n/a.
+
+## Phase 7: 4BLD (stopped early, at a clean commit)
+
+### Phase 7 stops after orientation references and x-centre tracing
+
+- **Choice:** you said to stop inside Phase 7's engine work at a clean commit if it couldn't land today alongside Phases 5, 6 and 8 at Phase 1's standard. It can't, so I stopped.
+- **Landed** (a72a112, D-032 and D-033):
+  - 4x4 orientation references;
+  - x-centre tracing by colour.
+  - Both are checked against independent colour oracles, with hand-derived fixtures, replay properties and teeth tests.
+- **Not started as committed code:**
+  - r2 wings;
+  - U2 x-centres;
+  - 4x4 Old Pochmann corners and 4BLD parity;
+  - a 4BLD solver;
+  - the 4x4 trainers;
+  - 4BLD lessons 1–10.
+- **Why each remaining piece is bigger than it looks:**
+  - **Setup search.** The net-regime setup search packs every protected sticker's slot into one number. r2 protects 11 pieces and U2 protects 15, so that overflows. Throwaway prototypes of an exhaustive depth-limited search (not committed) needed depth 6 and took 6 s for r2 and about 60 s for U2. That's too slow for verification in the fast suite without a better search; meet-in-the-middle looks right.
+  - **Verification by colour.** Four x-centres of a colour are identical, so a parity alg or an OP corner swap on 4x4 only has to leave the right colours. The dataset verifiers compare exact sticker permutations, so they need a colour-equivalent mode for x-centres before 4x4 parity algs can be verified.
+  - **Special cases** need comm catalogues for 4x4 wings and x-centres with inner-slice generators. Their size and search time haven't been measured.
+  - **Downstream.** The lessons and trainers need all of the above: lessons 5–8 teach U2, r2, corners and parity, and every alg in them must be verified.
+- **Reversal:** n/a. The next session starts from `phase-7/4bld`.
+
+### What the prototypes showed (measured, not committed)
+
+- **r2** (buffer DFr, swap `2R2`, which is r2 in literature notation; D-006):
+  - **Setups with U D R L F B:** every wing except the side-effect wings UFr and DBr and the l-slice wings UFl, DBl and DFl, within 5 moves.
+  - **Adding the l slice (`2L`):** the three l-slice wings are reached at 6 moves by an l-slice move and then BUl's setup. That matches the tutorial PDF's "set up to Bu using l moves".
+- **U2** (buffer Ubr, which the U2 tutorial thread calls "Urb"; swap slot Ufl):
+  - **Pool:** D, R, L, F, B and the six inner slices.
+  - **Reached:** every x-centre except the side-effect slots Ubl and Ufr, within 6 moves. The D-face centres need 5–6 moves.
+- **These are starting points, not results.** Nothing from them is in a dataset.
+
+### The x-centre default: avoid the buffer's colour
+
+- **Choice:** which slot to shoot to when several of the right colour need it.
+- **Picked:** set aside slots holding the buffer's own colour, then take the lowest letter (D-033). On 8,000 sampled traces this averaged 19.3 targets against 20.1, with 0.12 breaks against 0.92, and was never longer.
+- **Why:** it's one rule that's easy to say, and it saves most breaks. Trainers will accept any valid slot (`interchangeableChoices`), so the default only decides what the engine shows as its answer.
+- **Reversal:** easy; it's one policy default.
+
+### Sources for 4BLD conventions are thin
+
+- **Finding:** of the pages read, only the Speedsolving wiki's r2 page and the tutorial PDF state conventions (the PDF is based on Xin Shi's 4BLD method).
+  - **r2:** buffer DFr, r2 as the swap, special algs for r- and l-slice wings, and an odd/even rule for FUr/BDr.
+  - **Silent:** the wiki's 4x4 BLD page and the U2 centres tutorial thread explain none of the mechanics. The thread only names the buffer "Urb" and says each target costs one U2.
+  - **No source** states an orientation reference.
+- **Picked:** the engine derives everything and cites only what a source actually says (D-032, D-033). Conventions no source states are yours to decide; they're listed in the Phase 7 checkpoint.
+- **Reversal:** n/a.

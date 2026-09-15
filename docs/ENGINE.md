@@ -50,13 +50,22 @@ Everything later is checked against states built this way: comms by applying the
 - a piece in its own slot but misoriented is reported separately (`orientedInPlace: "separate"`) or traced as two targets (`"asTargets"`);
 - parity is the real permutation parity of the piece type.
 
-**Frames.** On 3x3x3 the state is first rotated so the centres are solved (`frame: centers`), the way a solver holds the cube. On 4x4x4 the frame must be given explicitly; Phase 1 only supports `asIs` (D-014).
+**Frames.** Every frame is one of the 24 whole-cube rotations, applied after the scramble (`applyFrame`, D-014).
+- **3x3x3:** the state is first rotated so the centres are solved (`frame: centers`), the way a solver holds the cube.
+- **4x4x4:** the frame must be given: `asIs`, a named `rotation`, or a `corner` piece that the rotation brings home and oriented, the solver's orientation reference (D-032).
+
+**Interchangeable pieces** (4x4 x-centres, D-033) are traced by colour.
+- A slot is solved when it holds its colour, and the buffer's piece goes to any slot of its colour that still needs it.
+- The default sets aside slots holding the buffer's own colour, which saves most breaks.
+- `parity` is the parity of the swaps traced.
+- `interchangeableChoices` lists every slot a trainer should accept.
 
 `TraceResult` has the brief's fields plus `targetStickers`, `targetKinds`, `cycles` and `orientedInPlace`, which analytics and the guided trace trainer need.
 
 **How tracing is verified:**
 - 54 golden fixtures: 44 built from written targets, and 10 real scrambles traced by hand from colour nets (`test/fixtures/`, printed in `docs/fixtures/SPOT-CHECK.md` for a physical check);
 - an independent colour-reading oracle (`test/oracle/trace-oracle.ts`), compared on 62,720 traces;
+- an x-centre colour oracle (`test/oracle/xcentre-oracle.ts`) and 9 hand-derived x-centre fixtures;
 - property tests over random states.
 
 ## Memo
