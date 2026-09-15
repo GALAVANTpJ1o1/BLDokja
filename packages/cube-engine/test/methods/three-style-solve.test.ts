@@ -139,7 +139,7 @@ describe("3-style worked example", () => {
       "corners DBL UFL: [L2, F R F']",
       "corners RDF RUB: [B: [U2, U2 B D2 B']]",
       "corners UBL DFL: [U R U: [L2, U R' U']]",
-      "corners LUB UBR (partner): [L: [F', L' B L]]",
+      "corners LUB UBR (partner): [L F' L' F, B]",
       "edges BD DF: [U M' U' F, F2]",
       "edges UB UL: [L2: [U' S U, U2]]",
       "edges UR FL: [U', R E2 R']",

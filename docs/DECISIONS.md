@@ -393,7 +393,8 @@ Short records of choices that would be expensive to reverse, or where sources di
   - This is a deterministic tie-break, not a claim about ergonomics.
   - Each case keeps 4 distinct cancelled sequences: the best and three alternates. Cases with no comm are listed in `noComm`, never dropped.
   - **Observation for Gate B.** Ranking by ETM sometimes prefers a setup that cancels into the comm, so the notation looks unusual. For example `[L: [L' B L F, F']]` is 8 moves, and so is the more conventional `[B': [B, R' F' R]]`.
-- **Determinism.** The search has no time cutoff. It is exhaustive within the bounds, so the results are the same on any machine and a dataset can be regenerated exactly.
+- **Determinism.** The search has no time cutoff, so the results are the same on any machine and a dataset can be regenerated exactly.
+  - **Correction (D-031):** this said the search was exhaustive within the bounds. Until 2026-09-16 it wasn't: a case was looked up under the wrong one of its sticker cycles, which missed comms. It is exhaustive now, checked against an independent oracle.
 - **First measurements** (single-threaded, this machine; the benchmark gives the figures of record):
   - UFR corners, all 378 cases: 0.2 s pruned, 0.34 s unpruned.
   - UF edges, all 440 cases: 13.8 s pruned, plus the 2.5 s catalogue. The unpruned search took 85 s in the planning probe.
@@ -512,6 +513,7 @@ Short records of choices that would be expensive to reverse, or where sources di
   - **3-style: `separate`.** They're reported apart from the targets and solved with twist algs (14 corner: UFR with each other corner, both directions) and flip algs (11 edge: UF with each other edge). Milestone 8 generates and verifies them.
 - **What these choices mean, from the report:**
   - **3-style UFR:** all 378 cases have a comm. Best-comm ETM: 198 cases at 8, 110 at 9, 38 at 10, 26 at 11, 6 at 13 (mean 8.78).
+    - **Superseded by D-031:** after the search fix, 198 at 8, 126 at 9, 30 at 10, 18 at 11, 6 at 13 (mean 8.71), the same for every corner buffer.
   - **3-style UF:** all 440 cases have a comm. Best-comm ETM: 6 at 4, 12 at 5, 108 at 7, 240 at 8, 66 at 9, 8 at 10 (mean 7.80).
   - **OP UBL corners:** setups are at most 2 moves (mean 1.48). OP UR edges: at most 4 (mean 2.23).
   - **M2 DF:** 16 targets have 3-move setups and BU has 5. UF, FU, DB and BD are the special cases (milestone 10).
@@ -528,7 +530,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 
   | File | Records | Main-alg ETM: moves: records |
   |---|---|---|
-  | `3style-corners.UFR.json` | 378 cycles | 8: 198 · 9: 110 · 10: 38 · 11: 26 · 13: 6 |
+  | `3style-corners.UFR.json` | 378 cycles | 8: 198 · 9: 126 · 10: 30 · 11: 18 · 13: 6 (regenerated for D-031; was 9: 110 · 10: 38 · 11: 26) |
   | `3style-edges.UF.json` | 440 cycles | 4: 6 · 5: 12 · 7: 108 · 8: 240 · 9: 66 · 10: 8 |
   | `3style-twists.UFR.json` | 14 twists (7 corners × 2 directions) | 16: 14 |
   | `3style-flips.UF.json` | 11 flips | 12: 10 · 13: 1 |
@@ -939,3 +941,36 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Feature flags** (`src/lib/flags.ts`): `/lab` is on in development, and in production only with `NEXT_PUBLIC_FLAGS=lab`.
 - **Datasets in the app** (`src/content/algs.ts`) are parsed with the engine's Zod schemas where they cross in.
 - **Tests:** `src/design/palette.test.ts` checks `tokens.css` against `palette.ts`, every DESIGN.md contrast floor in both themes, and a 3:1 tile-letter contrast for every face in every palette.
+
+## D-031 · The comm search missed comms filed under a sibling sticker cycle
+
+**Status:** fixed 2026-09-16, before the Phase 5 3-style trainer. Found while building 3-style datasets for other buffers.
+
+- **How it showed up.** A rotation image of the UFR corner dataset, onto buffer UBL, held a 9-move comm for UBL → BUR → RDF: `[L' F': [F L' F L, B2]]`. It verifies in full and is within D-019's bounds, but a fresh search for UBL, pruned or not, returned 10 moves as the best.
+- **The cause.**
+  - A 3-cycle of corners moves three sticker cycles, one per orientation (edges: two).
+  - The catalogue files each comm under exactly one: the cycle starting at its lowest moved sticker (`THREE_CYCLE.classify`).
+  - `searchComms` looked a case up under the image of the buffer sticker's cycle, (S(b), S(t1), S(t2)). When that wasn't the cycle through the lowest moved sticker, the lookup found a different set of comms, and every comm filed under a sibling cycle was never considered.
+  - Pruned and unpruned searches share the lookup, so the test comparing them couldn't see it. The orientation search already keyed its cases the catalogue's way, and was unaffected.
+- **The fix** (`commutator/search.ts`): a case is keyed like the catalogue keys a comm. Build the case state, take every sticker it moves, and use the cycle through the lowest image under S.
+- **The oracle** (`test/commutator/comm-oracle.ts`) shares none of that keying.
+  - It files every catalogue comm under its whole sticker permutation.
+  - For every setup S, it asks which comms have exactly the permutation the case needs under S.
+  - **Fast suite:** the UBL regression, and 25 seeded UBL corner cases.
+  - **Slow suite:** every corner case for UFR, UBL and FDR, and 12 seeded edge cases each for UF and DF.
+  - The oracle's best comm for each case is also run through `validateComm`.
+- **Datasets regenerated** (`pnpm engine:generate`; every record verified).
+  - **`3style-corners.UFR`:**
+    - 24 cases are now one move shorter, and none is longer (ETM 9: 110→126, 10: 38→30, 11: 26→18);
+    - 170 main comms changed. The other 146 are the same length, with ties broken among more candidates.
+  - **`3style-edges.UF`:** no case changed length; 100 main comms changed at the same length.
+  - **Unchanged:** the OP, M2, twist, flip and parity datasets are byte-identical.
+- **What else changed.**
+  - **Pinned solutions:** golden fixture R02's pinned 3-style and M2 + 3-style solutions each show one changed comm: `[L: [F', L' B L]]` became `[L F' L' F, B]`. Both cancel to `L F' L' B L F L' B'`, so the moves on a physical cube are the same.
+  - **Reports:** `docs/reports/buffer-comparison.md` counts comm lengths for every buffer, so it was regenerated.
+- **The regenerated report confirms the fix, and it matters for Gate B.**
+  - Every corner buffer now has the same best-comm distribution (8: 198 · 9: 126 · 10: 30 · 11: 18 · 13: 6, mean 8.71), and every edge buffer the same (mean 7.80). That's what cube symmetry requires.
+  - Before, the D-layer corner buffers looked about 0.2 moves worse on average (mean 8.97–8.98 against 8.78), and some edge buffers slightly worse too. **Those differences were an artifact of the bug.** Gate B read these numbers (D-022), so any weight given to "U-layer buffers have shorter comms" should be dropped. The choice of UFR/UF itself doesn't change.
+  - **Search time.** Per edge buffer it went from 12–19 s to 22–30 s in the report run: more candidates are looked up, and other processes were running. That's still under D-019's 60 s budget, but the budget's formal three-cold-run figure hasn't been re-measured yet.
+- **Nothing on the site used the 3-style files yet**, so no lesson or trainer changed.
+

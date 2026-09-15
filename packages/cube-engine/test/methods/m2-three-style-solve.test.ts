@@ -99,7 +99,7 @@ describe("M2 + 3-style worked example", () => {
       "corners DBL UFL: [L2, F R F']",
       "corners RDF RUB: [B: [U2, U2 B D2 B']]",
       "corners UBL DFL: [U R U: [L2, U R' U']]",
-      "corners LUB UBR (partner): [L: [F', L' B L]]",
+      "corners LUB UBR (partner): [L F' L' F, B]",
       "edges UB: M2",
       "edges UL: F U F' M2 F U' F'",
       "edges UF: U2 M' U2 M'",

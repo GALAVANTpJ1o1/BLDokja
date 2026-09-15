@@ -111,25 +111,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [U', U B' M B]]",
-          "moves": "M B U B' M' B U' B'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [U', U B M B']]",
-          "moves": "M B' U B M' B' U' B",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [R, B M' B']]",
+          "alg": "[B' R B R, M']",
           "moves": "B' R B M' B' R' B M",
           "etm": 8,
           "qtm": 10,
@@ -138,7 +120,25 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, F' R' F]]",
+          "alg": "[M, B U B']",
+          "moves": "M B U B' M' B U' B'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M, B' U B]",
+          "moves": "M B' U B M' B' U' B",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M, M F' R' F]",
           "moves": "M2 F' R' F M' F' R F M'",
           "etm": 9,
           "qtm": 14,
@@ -233,7 +233,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [U', L' S L]]",
+          "alg": "[L U' L' F, S]",
           "moves": "L U' L' S L U L' S'",
           "etm": 8,
           "qtm": 10,
@@ -242,16 +242,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L' S' L F, F']]",
-          "moves": "S' L F' L' S L F L'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L': [U', L S L']]",
+          "alg": "[L' U' L F, S]",
           "moves": "L' U' L S L' U L S'",
           "etm": 8,
           "qtm": 10,
@@ -260,7 +251,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [R F R' F, S]]",
+          "alg": "[S', L F' L']",
+          "moves": "S' L F' L' S L F L'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[S R F R', S]",
           "moves": "S R F R' S R F' R' S2",
           "etm": 9,
           "qtm": 14,
@@ -1331,7 +1331,25 @@
       },
       "algs": [
         {
-          "alg": "[R M: [R' F R' F', M']]",
+          "alg": "[F U' F' R, M']",
+          "moves": "F U' F' M' F U F' M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F' U' F R, M']",
+          "moves": "F' U' F M' F' U F M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M, F R' F']",
           "moves": "M F R' F' M' F R F'",
           "etm": 8,
           "qtm": 10,
@@ -1340,28 +1358,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R M2: [M, R' B R B']]",
+          "alg": "[M, M2 B R B']",
           "moves": "M' B R B' M' B R' B' M2",
           "etm": 9,
           "qtm": 14,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R M: [M, R' U F2 U']]",
-          "moves": "M2 U F2 U' M' U F2 U' M'",
-          "etm": 9,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R M: [M, R' D R2 D']]",
-          "moves": "M2 D R2 D' M' D R2 D' M'",
-          "etm": 9,
-          "qtm": 16,
           "htm": 12,
           "stm": 9,
           "source": "engine-search"
@@ -1453,7 +1453,7 @@
       },
       "algs": [
         {
-          "alg": "[M U M: [M, M2 U2]]",
+          "alg": "[M: [U' M' U, U2]]",
           "moves": "M U' M' U2 M U' M'",
           "etm": 7,
           "qtm": 12,
@@ -1462,26 +1462,26 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M U M: [F2 R L M, M']]",
+          "alg": "[M: [U2, U2 D' S]]",
+          "moves": "M D' S U2 S' D U2 M'",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M: [U2, D S']]",
+          "moves": "M U2 D S' U2 S D' M'",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M U: [F2, F2 M]]",
           "moves": "M U M F2 M' F2 U' M'",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M U' M: [F2, F2 M']]",
-          "moves": "M U' F2 M F2 M' U M'",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M D S: [R2 F B S, S']]",
-          "moves": "M D S R2 S' R2 D' M'",
           "etm": 8,
           "qtm": 14,
           "htm": 12,
@@ -1523,7 +1523,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M D S: [D2 F B S, S']]",
+          "alg": "[M: [D S U D, D2]]",
           "moves": "M D S D2 S' D M'",
           "etm": 7,
           "qtm": 12,
@@ -1532,7 +1532,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [M, U' F2 U]]",
+          "alg": "[U M U' F, F2]",
           "moves": "U M U' F2 U M' U' F2",
           "etm": 8,
           "qtm": 12,
@@ -1541,8 +1541,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [F2, F2 B M]]",
-          "moves": "R B M F2 M' B' F2 R'",
+          "alg": "[D S D' F, F2]",
+          "moves": "D S D' F2 D S' D' F2",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -1575,7 +1575,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [M', R' F R' F']]",
+          "alg": "[M', F R' F']",
           "moves": "M' F R' F' M F R F'",
           "etm": 8,
           "qtm": 10,
@@ -1584,7 +1584,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [F2, U' M U]]",
+          "alg": "[U F2 U' R, M]",
           "moves": "U F2 U' M U F2 U' M'",
           "etm": 8,
           "qtm": 12,
@@ -1593,7 +1593,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R' D R2 D', M]]",
+          "alg": "[D R2 D' R, M]",
           "moves": "D R2 D' M D R2 D' M'",
           "etm": 8,
           "qtm": 12,
@@ -1602,7 +1602,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F L': [L F M F', R']]",
+          "alg": "[F: [R, R' F M F']]",
           "moves": "F2 M F' R' F M' F' R F'",
           "etm": 9,
           "qtm": 12,
@@ -1636,7 +1636,7 @@
       },
       "algs": [
         {
-          "alg": "[R': [F, R S' R']]",
+          "alg": "[R' F R F, S']",
           "moves": "R' F R S' R' F' R S",
           "etm": 8,
           "qtm": 10,
@@ -1645,7 +1645,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [U' R2 U F, S']]",
+          "alg": "[S, U' R2 U]",
           "moves": "S U' R2 U S' U' R2 U",
           "etm": 8,
           "qtm": 12,
@@ -1654,7 +1654,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [D' F2 D F, S']]",
+          "alg": "[S, D' F2 D]",
           "moves": "S D' F2 D S' D' F2 D",
           "etm": 8,
           "qtm": 12,
@@ -1697,7 +1697,7 @@
       },
       "algs": [
         {
-          "alg": "[F' R: [R2, R2 E]]",
+          "alg": "[F': [R E R, R2]]",
           "moves": "F' R E R2 E' R F",
           "etm": 7,
           "qtm": 10,
@@ -1715,7 +1715,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R U' S U, R2]]",
+          "alg": "[R2, U' S U]",
           "moves": "R2 U' S U R2 U' S' U",
           "etm": 8,
           "qtm": 12,
@@ -1724,7 +1724,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R D' M D, R2]]",
+          "alg": "[R2, D' M D]",
           "moves": "R2 D' M D R2 D' M' D",
           "etm": 8,
           "qtm": 12,
@@ -1758,7 +1758,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R' B R B', M2]]",
+          "alg": "[B R B' R, M2]",
           "moves": "B R B' M2 B R' B' M2",
           "etm": 8,
           "qtm": 14,
@@ -1767,7 +1767,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [M2, R' F R' F']]",
+          "alg": "[M2, F R' F']",
           "moves": "M2 F R' F' M2 F R F'",
           "etm": 8,
           "qtm": 14,
@@ -1785,8 +1785,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' R: [B' M' F B, B2]]",
-          "moves": "B' R B' M' B2 M B' R' B",
+          "alg": "[F' B': [L' S' R L, L2]]",
+          "moves": "F' B' L' S' L2 S L' B F",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -1819,7 +1819,7 @@
       },
       "algs": [
         {
-          "alg": "[F R2: [R, R F M' F']]",
+          "alg": "[F: [R, R' F M' F']]",
           "moves": "F2 M' F' R' F M F' R F'",
           "etm": 9,
           "qtm": 12,
@@ -1828,7 +1828,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[D' F' R: [R2, R2 E]]",
+          "alg": "[U' R': [B E F B, B2]]",
+          "moves": "U' R' B E B2 E' B R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' F': [R E R, R2]]",
           "moves": "D' F' R E R2 E' R F D",
           "etm": 9,
           "qtm": 12,
@@ -1837,19 +1846,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' D' R: [R2, R2 E]]",
+          "alg": "[F' D': [R E R, R2]]",
           "moves": "F' D' R E R2 E' R D F",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U2: [U B2 U' R, M']]",
-          "moves": "U' B2 U' M' U B2 U' M U2",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -1941,7 +1941,7 @@
       },
       "algs": [
         {
-          "alg": "[R': [F, R S2 R']]",
+          "alg": "[R' F R F, S2]",
           "moves": "R' F R S2 R' F' R S2",
           "etm": 8,
           "qtm": 14,
@@ -1950,7 +1950,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S L' F' L, S2]]",
+          "alg": "[S2, L' F' L]",
           "moves": "S2 L' F' L S2 L' F L",
           "etm": 8,
           "qtm": 14,
@@ -2020,8 +2020,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [U, F' E2 F]]",
-          "moves": "R U F' E2 F U' F' E2 F R'",
+          "alg": "[U': [R, R' F M2 F']]",
+          "moves": "U' F M2 F' R' F M2 F' R U",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -2029,8 +2029,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [U, B' M2 B]]",
-          "moves": "R U B' M2 B U' B' M2 B R'",
+          "alg": "[U': [R, R' B E2 B']]",
+          "moves": "U' B E2 B' R' B E2 B' R U",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -2063,7 +2063,7 @@
       },
       "algs": [
         {
-          "alg": "[R': [R', U' S U]]",
+          "alg": "[R', R' U' S U]",
           "moves": "R2 U' S U R U' S' U R",
           "etm": 9,
           "qtm": 12,
@@ -2072,7 +2072,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R': [R', D' M D]]",
+          "alg": "[R', R' D' M D]",
           "moves": "R2 D' M D R D' M' D R",
           "etm": 9,
           "qtm": 12,
@@ -2081,7 +2081,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S': [S U M U', F]]",
+          "alg": "[F U M U', F]",
           "moves": "F U M U' F U M' U' F2",
           "etm": 9,
           "qtm": 12,
@@ -2090,7 +2090,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S': [S D S D', F]]",
+          "alg": "[F D S D', F]",
           "moves": "F D S D' F D S' D' F2",
           "etm": 9,
           "qtm": 12,
@@ -2124,6 +2124,15 @@
       },
       "algs": [
         {
+          "alg": "[U' R': [F' M F, F2]]",
+          "moves": "U' R' F' M F2 M' F' R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' B: [L' S' R L, L2]]",
           "moves": "U' B L' S' L2 S L' B' U",
           "etm": 9,
@@ -2133,7 +2142,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' D R: [R2, R2 E]]",
+          "alg": "[F' D: [R E R, R2]]",
           "moves": "F' D R E R2 E' R D' F",
           "etm": 9,
           "qtm": 12,
@@ -2142,20 +2151,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[E' R: [B' M' F B, B2]]",
-          "moves": "E' R B' M' B2 M B' R' E",
+          "alg": "[F' L': [U M' U, U2]]",
+          "moves": "F' L' U M' U2 M U L F",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S U': [R E R, R2]]",
-          "moves": "S U' R E R2 E' R U S'",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -2185,7 +2185,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [E2, R' F' R]]",
+          "alg": "[R E2 R' F, F']",
           "moves": "R E2 R' F' R E2 R' F",
           "etm": 8,
           "qtm": 14,
@@ -2194,7 +2194,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S' L S2 L', F']]",
+          "alg": "[L S2 L' F, F']",
           "moves": "L S2 L' F' L S2 L' F",
           "etm": 8,
           "qtm": 14,
@@ -2203,7 +2203,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [S' U M U', F']]",
+          "alg": "[F, F2 U M U']",
           "moves": "F' U M U' F' U M' U' F2",
           "etm": 9,
           "qtm": 12,
@@ -2212,7 +2212,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [S' D S D', F']]",
+          "alg": "[F, F2 D S D']",
           "moves": "F' D S D' F' D S' D' F2",
           "etm": 9,
           "qtm": 12,
@@ -2246,6 +2246,15 @@
       },
       "algs": [
         {
+          "alg": "[U L': [B' M' F B, B2]]",
+          "moves": "U L' B' M' B2 M B' L U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U F: [R' S R, R2]]",
           "moves": "U F R' S R2 S' R' F' U'",
           "etm": 9,
@@ -2269,15 +2278,6 @@
           "etm": 9,
           "qtm": 12,
           "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[E R: [B' M' F B, B2]]",
-          "moves": "E R B' M' B2 M B' R' E'",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
           "stm": 9,
           "source": "engine-search"
         }
@@ -2307,7 +2307,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R, R' F' E2 F]]",
+          "alg": "[R, F' E2 F]",
           "moves": "R F' E2 F R' F' E2 F",
           "etm": 8,
           "qtm": 14,
@@ -2316,7 +2316,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R, R' B' M2 B]]",
+          "alg": "[R, B' M2 B]",
           "moves": "R B' M2 B R' B' M2 B",
           "etm": 8,
           "qtm": 14,
@@ -2325,7 +2325,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R, U' S U]]",
+          "alg": "[R, R U' S U]",
           "moves": "R2 U' S U R' U' S' U R'",
           "etm": 9,
           "qtm": 12,
@@ -2334,7 +2334,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R, D' M D]]",
+          "alg": "[R, R D' M D]",
           "moves": "R2 D' M D R' D' M' D R'",
           "etm": 9,
           "qtm": 12,
@@ -2368,6 +2368,24 @@
       },
       "algs": [
         {
+          "alg": "[M U: [F' E F, F2]]",
+          "moves": "M U F' E F2 E' F' U' M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M B: [D S U D, D2]]",
+          "moves": "M B D S D2 S' D B' M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[S U': [R' E' R, R2]]",
           "moves": "S U' R' E' R2 E R' U S'",
           "etm": 9,
@@ -2383,24 +2401,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R: [E, L U L']]",
-          "moves": "R E L U L' E' L U' L' R'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [R' F R F, S]]",
-          "moves": "L R' F R S R' F' R S' L'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -2438,7 +2438,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' R: [R' L' S' R, L2]]",
+          "alg": "[F': [L' S' R L, L2]]",
           "moves": "F' L' S' L2 S L' F",
           "etm": 7,
           "qtm": 10,
@@ -3231,7 +3231,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B E: [B2 U D E, E']]",
+          "alg": "[M': [B E F B, B2]]",
           "moves": "M' B E B2 E' B M",
           "etm": 7,
           "qtm": 12,
@@ -3301,7 +3301,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' E: [B2, E' B M']]",
+          "alg": "[M': [B2, B2 M B' E]]",
           "moves": "B' E B2 E' B M' B2 M",
           "etm": 8,
           "qtm": 14,
@@ -3353,7 +3353,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B E: [E, E2 B2]]",
+          "alg": "[M': [B' E' F B, B2]]",
           "moves": "M' B' E' B2 E B' M",
           "etm": 7,
           "qtm": 12,
@@ -3423,7 +3423,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B E': [B2, E B' M']]",
+          "alg": "[M': [B2, B2 M B E']]",
           "moves": "B E' B2 E B' M' B2 M",
           "etm": 8,
           "qtm": 14,
@@ -3475,7 +3475,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M F E: [E', E' F2]]",
+          "alg": "[M: [F E' F, F2]]",
           "moves": "M F E' F2 E F M'",
           "etm": 7,
           "qtm": 12,
@@ -3545,7 +3545,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F E': [F2, F2 E F' M]]",
+          "alg": "[M: [F2, M' F E']]",
           "moves": "M F2 M' F E' F2 E F'",
           "etm": 8,
           "qtm": 14,
@@ -3597,7 +3597,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M F E: [F2, F2 E']]",
+          "alg": "[M: [F' E F, F2]]",
           "moves": "M F' E F2 E' F' M'",
           "etm": 7,
           "qtm": 12,
@@ -3667,7 +3667,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' E: [F2, F2 E' F M]]",
+          "alg": "[M: [F2, M' F' E]]",
           "moves": "M F2 M' F' E F2 E' F",
           "etm": 8,
           "qtm": 14,
@@ -3710,7 +3710,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [U, B' M B]]",
+          "alg": "[B U B' R, M]",
           "moves": "B U B' M B U' B' M'",
           "etm": 8,
           "qtm": 10,
@@ -3719,7 +3719,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [U, B M B']]",
+          "alg": "[B' U B R, M]",
           "moves": "B' U B M B' U' B M'",
           "etm": 8,
           "qtm": 10,
@@ -3728,7 +3728,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [R', R B M' B']]",
+          "alg": "[M', B' R B]",
           "moves": "M' B' R B M B' R' B",
           "etm": 8,
           "qtm": 10,
@@ -3737,7 +3737,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [F' R' F R, M]]",
+          "alg": "[M F' R' F, M]",
           "moves": "M F' R' F M F' R F M2",
           "etm": 9,
           "qtm": 14,
@@ -3771,7 +3771,7 @@
       },
       "algs": [
         {
-          "alg": "[R M: [M', R' F R' F']]",
+          "alg": "[F R' F' R, M]",
           "moves": "F R' F' M F R F' M'",
           "etm": 8,
           "qtm": 10,
@@ -3780,28 +3780,28 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R M2: [R' B R B', M]]",
+          "alg": "[M', F U' F']",
+          "moves": "M' F U' F' M F U F'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M', F' U' F]",
+          "moves": "M' F' U' F M F' U F",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M', M' B R B']",
           "moves": "M2 B R B' M B R' B' M",
           "etm": 9,
           "qtm": 14,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R M: [R' U F2 U', M]]",
-          "moves": "M U F2 U' M U F2 U' M2",
-          "etm": 9,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R M: [R' D R2 D', M]]",
-          "moves": "M D R2 D' M D R2 D' M2",
-          "etm": 9,
-          "qtm": 16,
           "htm": 12,
           "stm": 9,
           "source": "engine-search"
@@ -3832,7 +3832,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [U', B' M B]]",
+          "alg": "[B U' B' R, M]",
           "moves": "B U' B' M B U B' M'",
           "etm": 8,
           "qtm": 10,
@@ -3841,16 +3841,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [L, L' B' M' B]]",
-          "moves": "M' B L' B' M B L B'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [U', B M B']]",
+          "alg": "[B' U' B R, M]",
           "moves": "B' U' B M B' U B M'",
           "etm": 8,
           "qtm": 10,
@@ -3859,7 +3850,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [F L F' R, M]]",
+          "alg": "[M', B L' B']",
+          "moves": "M' B L' B' M B L B'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M F L F', M]",
           "moves": "M F L F' M F L' F' M2",
           "etm": 9,
           "qtm": 14,
@@ -3893,7 +3893,7 @@
       },
       "algs": [
         {
-          "alg": "[L M: [M', L' F' L F]]",
+          "alg": "[F' L F R, M]",
           "moves": "F' L F M F' L' F M'",
           "etm": 8,
           "qtm": 10,
@@ -3902,28 +3902,28 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L M2: [L' B' L' B, M]]",
+          "alg": "[M', F U F']",
+          "moves": "M' F U F' M F U' F'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M', F' U F]",
+          "moves": "M' F' U F M F' U' F",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M', M' B' L' B]",
           "moves": "M2 B' L' B M B' L B M",
           "etm": 9,
           "qtm": 14,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L M: [L' U' F2 U, M]]",
-          "moves": "M U' F2 U M U' F2 U M2",
-          "etm": 9,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L M: [L' D' L2 D, M]]",
-          "moves": "M D' L2 D M D' L2 D M2",
-          "etm": 9,
-          "qtm": 16,
           "htm": 12,
           "stm": 9,
           "source": "engine-search"
@@ -3954,7 +3954,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' F2 U F, S']]",
+          "alg": "[F2, U S' U']",
           "moves": "F2 U S' U' F2 U S U'",
           "etm": 8,
           "qtm": 12,
@@ -3963,7 +3963,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [F2, B' U' S U]]",
+          "alg": "[F2, U' S U]",
           "moves": "F2 U' S U F2 U' S' U",
           "etm": 8,
           "qtm": 12,
@@ -3972,7 +3972,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [F2, B' D M D']]",
+          "alg": "[F2, D M D']",
           "moves": "F2 D M D' F2 D M' D'",
           "etm": 8,
           "qtm": 12,
@@ -3981,7 +3981,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [F2, B' D' M D]]",
+          "alg": "[F2, D' M D]",
           "moves": "F2 D' M D F2 D' M' D",
           "etm": 8,
           "qtm": 12,
@@ -4024,7 +4024,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U2: [U S' U' F, F2]]",
+          "alg": "[U': [S', U' F2 U]]",
           "moves": "U' S' U' F2 U S U' F2 U2",
           "etm": 9,
           "qtm": 14,
@@ -4033,8 +4033,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B D2 B' R, M]]",
-          "moves": "B2 D2 B' M B D2 B' M' B'",
+          "alg": "[D: [M', D B2 D']]",
+          "moves": "D M' D B2 D' M D B2 D2",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -4042,8 +4042,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [B' D2 B R, M]]",
-          "moves": "B2 D2 B M B' D2 B M' B",
+          "alg": "[D': [M', D' B2 D]]",
+          "moves": "D' M' D' B2 D M D' B2 D2",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -4076,7 +4076,7 @@
       },
       "algs": [
         {
-          "alg": "[B': [R, R' B M' B']]",
+          "alg": "[M', B' R' B]",
           "moves": "M' B' R' B M B' R B",
           "etm": 8,
           "qtm": 10,
@@ -4085,7 +4085,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', U' R2 U]]",
+          "alg": "[U' R2 U R, M]",
           "moves": "U' R2 U M U' R2 U M'",
           "etm": 8,
           "qtm": 12,
@@ -4094,7 +4094,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', D' F2 D]]",
+          "alg": "[D' F2 D R, M]",
           "moves": "D' F2 D M D' F2 D M'",
           "etm": 8,
           "qtm": 12,
@@ -4137,7 +4137,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [M', F R F']]",
+          "alg": "[F R F' R, M]",
           "moves": "F R F' M F R' F' M'",
           "etm": 8,
           "qtm": 10,
@@ -4146,7 +4146,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' M' U R, R2]]",
+          "alg": "[M', U R2 U']",
           "moves": "M' U R2 U' M U R2 U'",
           "etm": 8,
           "qtm": 12,
@@ -4155,7 +4155,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', M' D B2 D']]",
+          "alg": "[M', D B2 D']",
           "moves": "M' D B2 D' M D B2 D'",
           "etm": 8,
           "qtm": 12,
@@ -4164,7 +4164,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' U R: [R2, R2 E]]",
+          "alg": "[F' U: [R E R, R2]]",
           "moves": "F' U R E R2 E' R U' F",
           "etm": 9,
           "qtm": 12,
@@ -4207,7 +4207,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U2: [B2, U S U']]",
+          "alg": "[U': [U' B2 U F, S]]",
           "moves": "U2 B2 U S U' B2 U S' U",
           "etm": 9,
           "qtm": 14,
@@ -4216,8 +4216,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [E', B U2 B']]",
-          "moves": "B E' B U2 B' E B U2 B2",
+          "alg": "[D: [D F2 D' R, M]]",
+          "moves": "D2 F2 D' M D F2 D' M' D'",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -4225,8 +4225,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [E, B' U2 B]]",
-          "moves": "B' E B' U2 B E' B' U2 B2",
+          "alg": "[D': [D' F2 D R, M]]",
+          "moves": "D2 F2 D M D' F2 D M' D",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -4259,7 +4259,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [S, U' B2 U]]",
+          "alg": "[U S U' F, B2]",
           "moves": "U S U' B2 U S' U' B2",
           "etm": 8,
           "qtm": 12,
@@ -4268,7 +4268,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' U' S' U, B2]]",
+          "alg": "[U' S' U F, B2]",
           "moves": "U' S' U B2 U' S U B2",
           "etm": 8,
           "qtm": 12,
@@ -4277,7 +4277,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D M' D', B2]]",
+          "alg": "[D M' D' F, B2]",
           "moves": "D M' D' B2 D M D' B2",
           "etm": 8,
           "qtm": 12,
@@ -4286,7 +4286,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D' M' D, B2]]",
+          "alg": "[D' M' D F, B2]",
           "moves": "D' M' D B2 D' M D B2",
           "etm": 8,
           "qtm": 12,
@@ -4320,7 +4320,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [L', L B' M' B]]",
+          "alg": "[M', B L B']",
           "moves": "M' B L B' M B L' B'",
           "etm": 8,
           "qtm": 10,
@@ -4329,7 +4329,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [L2, U' M U]]",
+          "alg": "[U L2 U' R, M]",
           "moves": "U L2 U' M U L2 U' M'",
           "etm": 8,
           "qtm": 12,
@@ -4338,7 +4338,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', D F2 D']]",
+          "alg": "[D F2 D' R, M]",
           "moves": "D F2 D' M D F2 D' M'",
           "etm": 8,
           "qtm": 12,
@@ -4381,7 +4381,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [M', F' L' F]]",
+          "alg": "[F' L' F R, M]",
           "moves": "F' L' F M F' L F M'",
           "etm": 8,
           "qtm": 10,
@@ -4390,7 +4390,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', M' U' L2 U]]",
+          "alg": "[M', U' L2 U]",
           "moves": "M' U' L2 U M U' L2 U",
           "etm": 8,
           "qtm": 12,
@@ -4399,7 +4399,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', M' D' B2 D]]",
+          "alg": "[M', D' B2 D]",
           "moves": "M' D' B2 D M D' B2 D",
           "etm": 8,
           "qtm": 12,
@@ -4408,7 +4408,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F U' L: [L2 U D E, E']]",
+          "alg": "[F U': [L' E' R L, L2]]",
           "moves": "F U' L' E' L2 E L' U F'",
           "etm": 9,
           "qtm": 12,
@@ -4442,7 +4442,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [M', U' R U]]",
+          "alg": "[U' R U R, M]",
           "moves": "U' R U M U' R' U M'",
           "etm": 8,
           "qtm": 10,
@@ -4451,8 +4451,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [R2, R2 B M' B']]",
-          "moves": "M' B' R2 B M B' R2 B",
+          "alg": "[M', F' U2 F]",
+          "moves": "M' F' U2 F M F' U2 F",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4460,8 +4460,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', M' F' U2 F]]",
-          "moves": "M' F' U2 F M F' U2 F",
+          "alg": "[M', B' R2 B]",
+          "moves": "M' B' R2 B M B' R2 B",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4503,7 +4503,25 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' F' U F, S']]",
+          "alg": "[D F' D' R, M]",
+          "moves": "D F' D' M D F D' M'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' F' D R, M]",
+          "moves": "D' F' D M D' F D M'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F', U S' U']",
           "moves": "F' U S' U' F U S U'",
           "etm": 8,
           "qtm": 10,
@@ -4512,26 +4530,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' M' U, R]]",
-          "moves": "M' U R U' M U R' U'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [F', B' U' S U]]",
+          "alg": "[F', U' S U]",
           "moves": "F' U' S U F U' S' U",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [F', B' D M D']]",
-          "moves": "F' D M D' F D M' D'",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -4564,7 +4564,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [L', U' M U]]",
+          "alg": "[U L' U' R, M]",
           "moves": "U L' U' M U L U' M'",
           "etm": 8,
           "qtm": 10,
@@ -4573,8 +4573,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [L2, L2 B' M' B]]",
-          "moves": "M' B L2 B' M B L2 B'",
+          "alg": "[M', F U2 F']",
+          "moves": "M' F U2 F' M F U2 F'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4582,8 +4582,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', M' F U2 F']]",
-          "moves": "M' F U2 F' M F U2 F'",
+          "alg": "[M', B L2 B']",
+          "moves": "M' B L2 B' M B L2 B'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4625,7 +4625,25 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' F U F, S']]",
+          "alg": "[D F D' R, M]",
+          "moves": "D F D' M D F' D' M'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' F D R, M]",
+          "moves": "D' F D M D' F' D M'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F, U S' U']",
           "moves": "F U S' U' F' U S U'",
           "etm": 8,
           "qtm": 10,
@@ -4634,26 +4652,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [F, B' U' S U]]",
+          "alg": "[F, U' S U]",
           "moves": "F U' S U F' U' S' U",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [F, B' D M D']]",
-          "moves": "F D M D' F' D M' D'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [F, B' D' M D]]",
-          "moves": "F D' M D F' D' M' D",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -4686,7 +4686,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [S, U' B U]]",
+          "alg": "[U S U' F, B]",
           "moves": "U S U' B U S' U' B'",
           "etm": 8,
           "qtm": 10,
@@ -4695,7 +4695,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [B U' S' U, B]]",
+          "alg": "[U' R' U R, M]",
+          "moves": "U' R' U M U' R U M'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S' U F, B]",
           "moves": "U' S' U B U' S U B'",
           "etm": 8,
           "qtm": 10,
@@ -4704,17 +4713,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [B D M' D', B]]",
+          "alg": "[D M' D' F, B]",
           "moves": "D M' D' B D M D' B'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [B D' M' D, B]]",
-          "moves": "D' M' D B D' M D B'",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -4747,7 +4747,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' M' U R, R']]",
+          "alg": "[M', U R' U']",
           "moves": "M' U R' U' M U R U'",
           "etm": 8,
           "qtm": 10,
@@ -4756,8 +4756,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [U2, B' M B]]",
-          "moves": "B U2 B' M B U2 B' M'",
+          "alg": "[F R2 F' R, M]",
+          "moves": "F R2 F' M F R2 F' M'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4765,8 +4765,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', F R2 F']]",
-          "moves": "F R2 F' M F R2 F' M'",
+          "alg": "[B U2 B' R, M]",
+          "moves": "B U2 B' M B U2 B' M'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4808,7 +4808,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [L, U' M U]]",
+          "alg": "[U L U' R, M]",
           "moves": "U L U' M U L' U' M'",
           "etm": 8,
           "qtm": 10,
@@ -4817,7 +4817,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [S, U' B' U]]",
+          "alg": "[U S U' F, B']",
           "moves": "U S U' B' U S' U' B",
           "etm": 8,
           "qtm": 10,
@@ -4826,7 +4826,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B, B2 U' S' U]]",
+          "alg": "[U' S' U F, B']",
           "moves": "U' S' U B' U' S U B",
           "etm": 8,
           "qtm": 10,
@@ -4835,7 +4835,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B, B2 D M' D']]",
+          "alg": "[D M' D' F, B']",
           "moves": "D M' D' B' D M D' B",
           "etm": 8,
           "qtm": 10,
@@ -4869,7 +4869,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [M', M' U' L U]]",
+          "alg": "[M', U' L U]",
           "moves": "M' U' L U M U' L' U",
           "etm": 8,
           "qtm": 10,
@@ -4878,8 +4878,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [U2, B M B']]",
-          "moves": "B' U2 B M B' U2 B M'",
+          "alg": "[F' L2 F R, M]",
+          "moves": "F' L2 F M F' L2 F M'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -4887,8 +4887,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M', F' L2 F]]",
-          "moves": "F' L2 F M F' L2 F M'",
+          "alg": "[B' U2 B R, M]",
+          "moves": "B' U2 B M B' U2 B M'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -5113,16 +5113,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [U, U' B' M B]]",
-          "moves": "M B U' B' M' B U B'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [L', B' M' B]]",
+          "alg": "[B L' B' R, M']",
           "moves": "B L' B' M' B L B' M",
           "etm": 8,
           "qtm": 10,
@@ -5131,7 +5122,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [U, U' B M B']]",
+          "alg": "[M, B U' B']",
+          "moves": "M B U' B' M' B U B'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M, B' U' B]",
           "moves": "M B' U' B M' B' U B",
           "etm": 8,
           "qtm": 10,
@@ -5140,7 +5140,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, F L F']]",
+          "alg": "[M, M F L F']",
           "moves": "M2 F L F' M' F L' F' M'",
           "etm": 9,
           "qtm": 14,
@@ -6150,16 +6150,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [U, U' L' S L]]",
-          "moves": "S L U' L' S' L U L'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [F', L' S' L]]",
+          "alg": "[L F' L' F, S']",
           "moves": "L F' L' S' L F L' S",
           "etm": 8,
           "qtm": 10,
@@ -6168,7 +6159,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [U, U' L S L']]",
+          "alg": "[S, L U' L']",
+          "moves": "S L U' L' S' L U L'",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[S, L' U' L]",
           "moves": "S L' U' L S' L' U L",
           "etm": 8,
           "qtm": 10,
@@ -6177,7 +6177,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S, R F R']]",
+          "alg": "[S, S R F R']",
           "moves": "S2 R F R' S' R F' R' S'",
           "etm": 9,
           "qtm": 14,
@@ -6211,7 +6211,7 @@
       },
       "algs": [
         {
-          "alg": "[M U M: [M', M' U2]]",
+          "alg": "[M: [U M' U, U2]]",
           "moves": "M U M' U2 M U M'",
           "etm": 7,
           "qtm": 12,
@@ -6220,26 +6220,26 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M U M: [F2, F2 M']]",
+          "alg": "[M: [U2, U2 D S']]",
+          "moves": "M D S' U2 S D' U2 M'",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M: [U2, D' S]]",
+          "moves": "M U2 D' S U2 S' D M'",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M U: [F2 R L, M]]",
           "moves": "M U F2 M F2 M' U' M'",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M U' M: [F2 R L M, M']]",
-          "moves": "M U' M F2 M' F2 U M'",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M D S: [R2, R2 S']]",
-          "moves": "M D R2 S R2 S' D' M'",
           "etm": 8,
           "qtm": 14,
           "htm": 12,
@@ -6333,7 +6333,25 @@
       },
       "algs": [
         {
-          "alg": "[L M: [L' F' L F, M']]",
+          "alg": "[F U F' R, M']",
+          "moves": "F U F' M' F U' F' M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F' U F R, M']",
+          "moves": "F' U F M' F' U' F M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M, F' L F]",
           "moves": "M F' L F M' F' L' F",
           "etm": 8,
           "qtm": 10,
@@ -6342,28 +6360,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L M2: [M, L' B' L' B]]",
+          "alg": "[M, M2 B' L' B]",
           "moves": "M' B' L' B M' B' L B M2",
           "etm": 9,
           "qtm": 14,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L M: [M, L' U' F2 U]]",
-          "moves": "M2 U' F2 U M' U' F2 U M'",
-          "etm": 9,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L M: [M, L' D' L2 D]]",
-          "moves": "M2 D' L2 D M' D' L2 D M'",
-          "etm": 9,
-          "qtm": 16,
           "htm": 12,
           "stm": 9,
           "source": "engine-search"
@@ -6403,7 +6403,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M D S: [S, S2 D2]]",
+          "alg": "[M: [D' S' U D, D2]]",
           "moves": "M D' S' D2 S D' M'",
           "etm": 7,
           "qtm": 12,
@@ -6412,7 +6412,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U': [M, U F2 U']]",
+          "alg": "[U' M U F, F2]",
           "moves": "U' M U F2 U' M' U F2",
           "etm": 8,
           "qtm": 12,
@@ -6421,8 +6421,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [F2, F2 B' M]]",
-          "moves": "L' B' M F2 M' B F2 L",
+          "alg": "[D' S' D F, F2]",
+          "moves": "D' S' D F2 D' S D F2",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -6455,7 +6455,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [M', L' F' L F]]",
+          "alg": "[M', F' L F]",
           "moves": "M' F' L F M F' L' F",
           "etm": 8,
           "qtm": 10,
@@ -6464,7 +6464,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U': [F2, U M U']]",
+          "alg": "[U' F2 U R, M]",
           "moves": "U' F2 U M U' F2 U M'",
           "etm": 8,
           "qtm": 12,
@@ -6473,7 +6473,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L' D' L2 D, M]]",
+          "alg": "[D' L2 D R, M]",
           "moves": "D' L2 D M D' L2 D M'",
           "etm": 8,
           "qtm": 12,
@@ -6482,8 +6482,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' L: [L', F' M F]]",
-          "moves": "F2 M F L F' M' F L' F",
+          "alg": "[F: [F U' F' U, E']]",
+          "moves": "F2 U' F' E' F U F' E F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -6577,7 +6577,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [F', L' S2 L]]",
+          "alg": "[L F' L' F, S2]",
           "moves": "L F' L' S2 L F L' S2",
           "etm": 8,
           "qtm": 14,
@@ -6586,7 +6586,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S R F R', S2]]",
+          "alg": "[S2, R F R']",
           "moves": "S2 R F R' S2 R F' R'",
           "etm": 8,
           "qtm": 14,
@@ -6604,8 +6604,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L' F': [L' S R L, L2]]",
-          "moves": "L' F' L' S L2 S' L' F L",
+          "alg": "[R' F: [R S R, R2]]",
+          "moves": "R' F R S R2 S' R F' R",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -6638,7 +6638,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [L' B' L' B, M2]]",
+          "alg": "[B' L' B R, M2]",
           "moves": "B' L' B M2 B' L B M2",
           "etm": 8,
           "qtm": 14,
@@ -6647,7 +6647,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [M2, L' F' L F]]",
+          "alg": "[M2, F' L F]",
           "moves": "M2 F' L F M2 F' L' F",
           "etm": 8,
           "qtm": 14,
@@ -6665,8 +6665,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B L': [B M' F B, B2]]",
-          "moves": "B L' B M' B2 M B L B'",
+          "alg": "[F B: [R S R, R2]]",
+          "moves": "F B R S R2 S' R B' F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -6699,7 +6699,7 @@
       },
       "algs": [
         {
-          "alg": "[F' L: [L', F' M' F]]",
+          "alg": "[F': [L', L F' M' F]]",
           "moves": "F2 M' F L F' M F L' F",
           "etm": 9,
           "qtm": 12,
@@ -6708,7 +6708,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[D F L: [L2 U D E, E']]",
+          "alg": "[U L: [B' E' F B, B2]]",
+          "moves": "U L B' E' B2 E B' L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D F: [L' E' R L, L2]]",
           "moves": "D F L' E' L2 E L' F' D'",
           "etm": 9,
           "qtm": 12,
@@ -6717,19 +6726,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F D L: [L2 U D E, E']]",
+          "alg": "[F D: [L' E' R L, L2]]",
           "moves": "F D L' E' L2 E L' D' F'",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U2: [U' B2 U R, M']]",
-          "moves": "U B2 U M' U' B2 U M U2",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -6760,7 +6760,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [F', L' S L]]",
+          "alg": "[L F' L' F, S]",
           "moves": "L F' L' S L F L' S'",
           "etm": 8,
           "qtm": 10,
@@ -6769,7 +6769,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S': [U L2 U' F, S]]",
+          "alg": "[S', U L2 U']",
           "moves": "S' U L2 U' S U L2 U'",
           "etm": 8,
           "qtm": 12,
@@ -6778,7 +6778,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S': [D F2 D' F, S]]",
+          "alg": "[S', D F2 D']",
           "moves": "S' D F2 D' S D F2 D'",
           "etm": 8,
           "qtm": 12,
@@ -6821,7 +6821,7 @@
       },
       "algs": [
         {
-          "alg": "[F L: [L2 U D E, E']]",
+          "alg": "[F: [L' E' R L, L2]]",
           "moves": "F L' E' L2 E L' F'",
           "etm": 7,
           "qtm": 10,
@@ -6839,7 +6839,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L U S' U', L2]]",
+          "alg": "[L2, U S' U']",
           "moves": "L2 U S' U' L2 U S U'",
           "etm": 8,
           "qtm": 12,
@@ -6848,7 +6848,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L D M D', L2]]",
+          "alg": "[L2, D M D']",
           "moves": "L2 D M D' L2 D M' D'",
           "etm": 8,
           "qtm": 12,
@@ -6882,6 +6882,15 @@
       },
       "algs": [
         {
+          "alg": "[U L: [F M F, F2]]",
+          "moves": "U L F M F2 M' F L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U B': [R S R, R2]]",
           "moves": "U B' R S R2 S' R B U'",
           "etm": 9,
@@ -6891,7 +6900,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F D' L: [L2 U D E, E']]",
+          "alg": "[F D': [L' E' R L, L2]]",
           "moves": "F D' L' E' L2 E L' D F'",
           "etm": 9,
           "qtm": 12,
@@ -6900,20 +6909,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[E L': [B M' F B, B2]]",
-          "moves": "E L' B M' B2 M B L E'",
+          "alg": "[F R: [U' M' U, U2]]",
+          "moves": "F R U' M' U2 M U' R' F'",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S' U: [L' E' R L, L2]]",
-          "moves": "S' U L' E' L2 E L' U' S",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -6943,16 +6943,7 @@
       },
       "algs": [
         {
-          "alg": "[L': [E2, L F L']]",
-          "moves": "L' E2 L F L' E2 L F'",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S: [S' R' S2 R, F]]",
+          "alg": "[R' S2 R, F]",
           "moves": "R' S2 R F R' S2 R F'",
           "etm": 8,
           "qtm": 14,
@@ -6961,7 +6952,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S: [S' U' M U, F]]",
+          "alg": "[L' E2 L, F]",
+          "moves": "L' E2 L F L' E2 L F'",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F U' M U, F]",
           "moves": "F U' M U F U' M' U F2",
           "etm": 9,
           "qtm": 12,
@@ -6970,7 +6970,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S: [S' D' S' D, F]]",
+          "alg": "[F D' S' D, F]",
           "moves": "F D' S' D F D' S D F2",
           "etm": 9,
           "qtm": 12,
@@ -7004,6 +7004,24 @@
       },
       "algs": [
         {
+          "alg": "[U: [L', L F' M2 F]]",
+          "moves": "U F' M2 F L F' M2 F L' U'",
+          "etm": 10,
+          "qtm": 16,
+          "htm": 12,
+          "stm": 10,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U: [L', L B' E2 B]]",
+          "moves": "U B' E2 B L B' E2 B L' U'",
+          "etm": 10,
+          "qtm": 16,
+          "htm": 12,
+          "stm": 10,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U': [F', R E2 R']]",
           "moves": "U' F' R E2 R' F R E2 R' U",
           "etm": 10,
@@ -7015,24 +7033,6 @@
         {
           "alg": "[U': [F', L S2 L']]",
           "moves": "U' F' L S2 L' F L S2 L' U",
-          "etm": 10,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [U' S2 U, F]]",
-          "moves": "L U' S2 U F U' S2 U F' L'",
-          "etm": 10,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [D' M2 D, F]]",
-          "moves": "L D' M2 D F D' M2 D F' L'",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -7065,7 +7065,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [L, U S' U']]",
+          "alg": "[L, L U S' U']",
           "moves": "L2 U S' U' L' U S U' L'",
           "etm": 9,
           "qtm": 12,
@@ -7074,7 +7074,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L, D M D']]",
+          "alg": "[L, L D M D']",
           "moves": "L2 D M D' L' D M' D' L'",
           "etm": 9,
           "qtm": 12,
@@ -7083,7 +7083,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [S' U' M U, F']]",
+          "alg": "[F, F2 U' M U]",
           "moves": "F' U' M U F' U' M' U F2",
           "etm": 9,
           "qtm": 12,
@@ -7092,7 +7092,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [S' D' S' D, F']]",
+          "alg": "[F, F2 D' S' D]",
           "moves": "F' D' S' D F' D' S D F2",
           "etm": 9,
           "qtm": 12,
@@ -7126,6 +7126,24 @@
       },
       "algs": [
         {
+          "alg": "[M U': [F E' F, F2]]",
+          "moves": "M U' F E' F2 E F U M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M B': [D' S' U D, D2]]",
+          "moves": "M B' D' S' D2 S D' B M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[S' U: [L E R L, L2]]",
           "moves": "S' U L E L2 E' L U' S",
           "etm": 9,
@@ -7141,24 +7159,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L': [E', R' U' R]]",
-          "moves": "L' E' R' U' R E R' U R L",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R' L: [U, U' L' S L]]",
-          "moves": "R' S L U' L' S' L U L' R",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -7196,7 +7196,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F L: [R L' S R, R2]]",
+          "alg": "[F: [R S R, R2]]",
           "moves": "F R S R2 S' R F'",
           "etm": 7,
           "qtm": 10,
@@ -7248,6 +7248,15 @@
       },
       "algs": [
         {
+          "alg": "[U' R: [B M' F B, B2]]",
+          "moves": "U' R B M' B2 M B R' U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' F': [L S' R L, L2]]",
           "moves": "U' F' L S' L2 S L F U",
           "etm": 9,
@@ -7271,15 +7280,6 @@
           "etm": 9,
           "qtm": 12,
           "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[E' L': [B M' F B, B2]]",
-          "moves": "E' L' B M' B2 M B L E",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
           "stm": 9,
           "source": "engine-search"
         }
@@ -7309,7 +7309,7 @@
       },
       "algs": [
         {
-          "alg": "[L': [L', L F E2 F']]",
+          "alg": "[L', F E2 F']",
           "moves": "L' F E2 F' L F E2 F'",
           "etm": 8,
           "qtm": 14,
@@ -7318,7 +7318,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [L', L B M2 B']]",
+          "alg": "[L', B M2 B']",
           "moves": "L' B M2 B' L B M2 B'",
           "etm": 8,
           "qtm": 14,
@@ -7327,7 +7327,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [L', U S' U']]",
+          "alg": "[L', L' U S' U']",
           "moves": "L2 U S' U' L U S U' L",
           "etm": 9,
           "qtm": 12,
@@ -7336,7 +7336,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [L', D M D']]",
+          "alg": "[L', L' D M D']",
           "moves": "L2 D M D' L D M' D' L",
           "etm": 9,
           "qtm": 12,
@@ -7440,7 +7440,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M D S: [D2, D2 S']]",
+          "alg": "[M: [D' S U D, D2]]",
           "moves": "M D' S D2 S' D' M'",
           "etm": 7,
           "qtm": 12,
@@ -7449,7 +7449,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' F2 U R, M]]",
+          "alg": "[F2, U M U']",
           "moves": "F2 U M U' F2 U M' U'",
           "etm": 8,
           "qtm": 12,
@@ -7458,8 +7458,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [F2, F2 B' M']]",
-          "moves": "R B' M' F2 M B F2 R'",
+          "alg": "[F2, D S D']",
+          "moves": "F2 D S D' F2 D S' D'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -7553,7 +7553,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [S', U' F2 U]]",
+          "alg": "[U S' U' F, F2]",
           "moves": "U S' U' F2 U S U' F2",
           "etm": 8,
           "qtm": 12,
@@ -7562,7 +7562,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' U' S U, F2]]",
+          "alg": "[U' S U F, F2]",
           "moves": "U' S U F2 U' S' U F2",
           "etm": 8,
           "qtm": 12,
@@ -7571,7 +7571,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D M D', F2]]",
+          "alg": "[D M D' F, F2]",
           "moves": "D M D' F2 D M' D' F2",
           "etm": 8,
           "qtm": 12,
@@ -7580,7 +7580,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D' M D, F2]]",
+          "alg": "[D' M D F, F2]",
           "moves": "D' M D F2 D' M' D F2",
           "etm": 8,
           "qtm": 12,
@@ -7684,7 +7684,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M D S: [S', S' D2]]",
+          "alg": "[M: [D S' U D, D2]]",
           "moves": "M D S' D2 S D M'",
           "etm": 7,
           "qtm": 12,
@@ -7693,7 +7693,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U': [U F2 U' R, M]]",
+          "alg": "[F2, U' M U]",
           "moves": "F2 U' M U F2 U' M' U",
           "etm": 8,
           "qtm": 12,
@@ -7702,8 +7702,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [F2, F2 B M']]",
-          "moves": "L' B M' F2 M B' F2 L",
+          "alg": "[F2, D' S' D]",
+          "moves": "F2 D' S' D F2 D' S D",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -7754,17 +7754,17 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U S2 U' F, F2]",
-          "moves": "U S2 U' F2 U S2 U' F2",
+          "alg": "[M': [U2, M U' S']]",
+          "moves": "M' U2 M U' S' U2 S U",
           "etm": 8,
-          "qtm": 16,
-          "htm": 10,
+          "qtm": 14,
+          "htm": 12,
           "stm": 8,
           "source": "engine-search"
         },
         {
-          "alg": "[D M2 D' F, F2]",
-          "moves": "D M2 D' F2 D M2 D' F2",
+          "alg": "[U S2 U' F, F2]",
+          "moves": "U S2 U' F2 U S2 U' F2",
           "etm": 8,
           "qtm": 16,
           "htm": 10,
@@ -7806,7 +7806,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' U S: [S, S2 U2]]",
+          "alg": "[M': [U' S' U, U2]]",
           "moves": "M' U' S' U2 S U' M",
           "etm": 7,
           "qtm": 12,
@@ -7998,17 +7998,17 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U' S2 U F, F2]",
-          "moves": "U' S2 U F2 U' S2 U F2",
+          "alg": "[M': [U2, M U S]]",
+          "moves": "M' U2 M U S U2 S' U'",
           "etm": 8,
-          "qtm": 16,
-          "htm": 10,
+          "qtm": 14,
+          "htm": 12,
           "stm": 8,
           "source": "engine-search"
         },
         {
-          "alg": "[D' M2 D F, F2]",
-          "moves": "D' M2 D F2 D' M2 D F2",
+          "alg": "[U' S2 U F, F2]",
+          "moves": "U' S2 U F2 U' S2 U F2",
           "etm": 8,
           "qtm": 16,
           "htm": 10,
@@ -8050,7 +8050,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' U S: [U2 F B S, S']]",
+          "alg": "[M': [U S U, U2]]",
           "moves": "M' U S U2 S' U M",
           "etm": 7,
           "qtm": 12,
@@ -8651,7 +8651,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R' F R' F', M']]",
+          "alg": "[F R' F' R, M']",
           "moves": "F R' F' M' F R F' M",
           "etm": 8,
           "qtm": 10,
@@ -8660,7 +8660,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' M U F, F2]]",
+          "alg": "[M, U F2 U']",
           "moves": "M U F2 U' M' U F2 U'",
           "etm": 8,
           "qtm": 12,
@@ -8669,7 +8669,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [M, R' D R2 D']]",
+          "alg": "[M, D R2 D']",
           "moves": "M D R2 D' M' D R2 D'",
           "etm": 8,
           "qtm": 12,
@@ -8678,7 +8678,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F L': [R', L F M F']]",
+          "alg": "[F: [R', F M F']]",
           "moves": "F R' F M F' R F M' F2",
           "etm": 9,
           "qtm": 12,
@@ -8782,7 +8782,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U2: [F2, U S' U']]",
+          "alg": "[U': [U' F2 U F, S']]",
           "moves": "U2 F2 U S' U' F2 U S U",
           "etm": 9,
           "qtm": 14,
@@ -8791,8 +8791,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [M, B D2 B']]",
-          "moves": "B M B D2 B' M' B D2 B2",
+          "alg": "[D: [D B2 D' R, M']]",
+          "moves": "D2 B2 D' M' D B2 D' M D'",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -8800,8 +8800,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [M, B' D2 B]]",
-          "moves": "B' M B' D2 B M' B' D2 B2",
+          "alg": "[D': [D' B2 D R, M']]",
+          "moves": "D2 B2 D M' D' B2 D M D",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -8895,7 +8895,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [L' F' L F, M']]",
+          "alg": "[F' L F R, M']",
           "moves": "F' L F M' F' L' F M",
           "etm": 8,
           "qtm": 10,
@@ -8904,7 +8904,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U': [U M U' F, F2]]",
+          "alg": "[M, U' F2 U]",
           "moves": "M U' F2 U M' U' F2 U",
           "etm": 8,
           "qtm": 12,
@@ -8913,7 +8913,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [M, L' D' L2 D]]",
+          "alg": "[M, D' L2 D]",
           "moves": "M D' L2 D M' D' L2 D",
           "etm": 8,
           "qtm": 12,
@@ -8922,8 +8922,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' L: [L, L' F' M F]]",
-          "moves": "F' L F' M F L' F' M' F2",
+          "alg": "[F: [E', F U' F']]",
+          "moves": "F E' F U' F' E F U F2",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -8983,8 +8983,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F': [R', R F' M' F]]",
-          "moves": "F2 M' F R F' M F R' F",
+          "alg": "[F: [F D' F' U, E]]",
+          "moves": "F2 D' F' E F D F' E' F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -9227,8 +9227,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F': [F' D F U, E']]",
-          "moves": "F2 D F E' F' D' F E F",
+          "alg": "[F: [L, L' F M' F']]",
+          "moves": "F2 M' F' L' F M F' L F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -9593,8 +9593,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U F': [R' S R, R2]]",
-          "moves": "U F' R' S R2 S' R' F U'",
+          "alg": "[U L': [B M F B, B2]]",
+          "moves": "U L' B M B2 M' B L U'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -9715,8 +9715,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U' F: [L S' R L, L2]]",
-          "moves": "U' F L S' L2 S L F' U",
+          "alg": "[U' R: [B' M F B, B2]]",
+          "moves": "U' R B' M B2 M' B' R' U",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -9871,7 +9871,7 @@
       },
       "algs": [
         {
-          "alg": "[R': [R S' R', F]]",
+          "alg": "[S', R' F R]",
           "moves": "S' R' F R S R' F' R",
           "etm": 8,
           "qtm": 10,
@@ -9880,7 +9880,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S', U' R2 U]]",
+          "alg": "[U' R2 U F, S]",
           "moves": "U' R2 U S U' R2 U S'",
           "etm": 8,
           "qtm": 12,
@@ -9889,7 +9889,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S', D' F2 D]]",
+          "alg": "[D' F2 D F, S]",
           "moves": "D' F2 D S D' F2 D S'",
           "etm": 8,
           "qtm": 12,
@@ -9993,7 +9993,7 @@
       },
       "algs": [
         {
-          "alg": "[B': [R', B M' B']]",
+          "alg": "[B' R' B R, M']",
           "moves": "B' R' B M' B' R B M",
           "etm": 8,
           "qtm": 10,
@@ -10002,7 +10002,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [U' R2 U R, M']]",
+          "alg": "[M, U' R2 U]",
           "moves": "M U' R2 U M' U' R2 U",
           "etm": 8,
           "qtm": 12,
@@ -10011,7 +10011,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [D' F2 D R, M']]",
+          "alg": "[M, D' F2 D]",
           "moves": "M D' F2 D M' D' F2 D",
           "etm": 8,
           "qtm": 12,
@@ -10194,17 +10194,17 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F2, U S2 U']",
-          "moves": "F2 U S2 U' F2 U S2 U'",
+          "alg": "[M': [U2, U2 M U' S']]",
+          "moves": "U' S' U2 S U M' U2 M",
           "etm": 8,
-          "qtm": 16,
-          "htm": 10,
+          "qtm": 14,
+          "htm": 12,
           "stm": 8,
           "source": "engine-search"
         },
         {
-          "alg": "[F2, D M2 D']",
-          "moves": "F2 D M2 D' F2 D M2 D'",
+          "alg": "[F2, U S2 U']",
+          "moves": "F2 U S2 U' F2 U S2 U'",
           "etm": 8,
           "qtm": 16,
           "htm": 10,
@@ -10264,8 +10264,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F': [R, F' M' F]]",
-          "moves": "F' R F' M' F R' F' M F2",
+          "alg": "[F: [E, F D' F']]",
+          "moves": "F E F D' F' E' F D F2",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -11091,7 +11091,7 @@
       },
       "algs": [
         {
-          "alg": "[F' R: [R2 U D, E]]",
+          "alg": "[F': [R' E R, R2]]",
           "moves": "F' R' E R2 E' R' F",
           "etm": 7,
           "qtm": 10,
@@ -11109,7 +11109,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R' U' S U, R2]]",
+          "alg": "[U' S U R, R2]",
           "moves": "U' S U R2 U' S' U R2",
           "etm": 8,
           "qtm": 12,
@@ -11118,7 +11118,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R' D' M D, R2]]",
+          "alg": "[D' M D R, R2]",
           "moves": "D' M D R2 D' M' D R2",
           "etm": 8,
           "qtm": 12,
@@ -11213,7 +11213,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [F R F' R, M']]",
+          "alg": "[M, F R F']",
           "moves": "M F R F' M' F R' F'",
           "etm": 8,
           "qtm": 10,
@@ -11222,7 +11222,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [R2, U' M' U]]",
+          "alg": "[U R2 U' R, M']",
           "moves": "U R2 U' M' U R2 U' M",
           "etm": 8,
           "qtm": 12,
@@ -11231,7 +11231,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, M2 D B2 D']]",
+          "alg": "[D B2 D' R, M']",
           "moves": "D B2 D' M' D B2 D' M",
           "etm": 8,
           "qtm": 12,
@@ -11240,7 +11240,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' U R: [R2 U D, E]]",
+          "alg": "[F' U: [R' E R, R2]]",
           "moves": "F' U R' E R2 E' R' U' F",
           "etm": 9,
           "qtm": 12,
@@ -11335,8 +11335,8 @@
       },
       "algs": [
         {
-          "alg": "[L: [L' S2 L F, F']]",
-          "moves": "S2 L F' L' S2 L F L'",
+          "alg": "[R F R' F, S2]",
+          "moves": "R F R' S2 R F' R' S2",
           "etm": 8,
           "qtm": 14,
           "htm": 10,
@@ -11344,8 +11344,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S' R F R', S2]]",
-          "moves": "R F R' S2 R F' R' S2",
+          "alg": "[S2, L F' L']",
+          "moves": "S2 L F' L' S2 L F L'",
           "etm": 8,
           "qtm": 14,
           "htm": 10,
@@ -11362,8 +11362,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L' F': [L S R L, L2]]",
-          "moves": "L' F' L S L2 S' L F L",
+          "alg": "[R' F: [R' S R, R2]]",
+          "moves": "R' F R' S R2 S' R' F' R",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -11405,7 +11405,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' U S: [S', S' U2]]",
+          "alg": "[M': [U S' U, U2]]",
           "moves": "M' U S' U2 S U M",
           "etm": 7,
           "qtm": 12,
@@ -11701,7 +11701,7 @@
       },
       "algs": [
         {
-          "alg": "[M' D M: [M, M2 D2]]",
+          "alg": "[M': [D' M' U D, D2]]",
           "moves": "M' D' M' D2 M D' M",
           "etm": 7,
           "qtm": 12,
@@ -11780,7 +11780,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' U' R: [R2 U D, E]]",
+          "alg": "[F' U': [R' E R, R2]]",
           "moves": "F' U' R' E R2 E' R' U F",
           "etm": 9,
           "qtm": 12,
@@ -11789,11 +11789,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S U: [L' E' R L, L2]]",
-          "moves": "S U L' E' L2 E L' U' S'",
+          "alg": "[F' L: [D' M U D, D2]]",
+          "moves": "F' L D' M D2 M' D' L' F",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -11884,6 +11884,24 @@
       },
       "algs": [
         {
+          "alg": "[M' D: [B' E' F B, B2]]",
+          "moves": "M' D B' E' B2 E B' D' M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F: [U S' U, U2]]",
+          "moves": "M' F U S' U2 S U F' M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[E' R': [B' M' F B, B2]]",
           "moves": "E' R' B' M' B2 M B' R E",
           "etm": 9,
@@ -11899,24 +11917,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U': [S, D' F' D]]",
-          "moves": "U' S D' F' D S' D' F D U",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[D': [U L' U' R, M']]",
-          "moves": "D' U L' U' M' U L U' M D",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -12311,7 +12311,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R' F R' F', M2]]",
+          "alg": "[F R' F' R, M2]",
           "moves": "F R' F' M2 F R F' M2",
           "etm": 8,
           "qtm": 14,
@@ -12320,7 +12320,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [M2, R' B R B']]",
+          "alg": "[M2, B R B']",
           "moves": "M2 B R B' M2 B R' B'",
           "etm": 8,
           "qtm": 14,
@@ -12338,8 +12338,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' R: [B M' F B, B2]]",
-          "moves": "B' R B M' B2 M B R' B",
+          "alg": "[F' B': [L S' R L, L2]]",
+          "moves": "F' B' L S' L2 S L B F",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -12442,7 +12442,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U2: [U S U' F, B2]]",
+          "alg": "[U': [S, U' B2 U]]",
           "moves": "U' S U' B2 U S' U' B2 U2",
           "etm": 9,
           "qtm": 14,
@@ -12451,8 +12451,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B U2 B' U, E']]",
-          "moves": "B2 U2 B' E' B U2 B' E B'",
+          "alg": "[D: [M, D F2 D']]",
+          "moves": "D M D F2 D' M' D F2 D2",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -12460,8 +12460,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [B' U2 B U, E]]",
-          "moves": "B2 U2 B E B' U2 B E' B",
+          "alg": "[D': [M, D' F2 D]]",
+          "moves": "D' M D' F2 D M' D' F2 D2",
           "etm": 9,
           "qtm": 14,
           "htm": 11,
@@ -12555,7 +12555,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [L' F' L F, M2]]",
+          "alg": "[F' L F R, M2]",
           "moves": "F' L F M2 F' L' F M2",
           "etm": 8,
           "qtm": 14,
@@ -12564,7 +12564,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [M2, L' B' L' B]]",
+          "alg": "[M2, B' L' B]",
           "moves": "M2 B' L' B M2 B' L B",
           "etm": 8,
           "qtm": 14,
@@ -12582,8 +12582,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B L': [B' M' F B, B2]]",
-          "moves": "B L' B' M' B2 M B' L B'",
+          "alg": "[F B: [R' S R, R2]]",
+          "moves": "F B R' S R2 S' R' B' F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -13531,7 +13531,7 @@
       },
       "algs": [
         {
-          "alg": "[F R2: [R F M' F', R]]",
+          "alg": "[F: [R', F M' F']]",
           "moves": "F R' F M' F' R F M F2",
           "etm": 9,
           "qtm": 12,
@@ -13540,7 +13540,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[D' F' R: [R2 U D, E]]",
+          "alg": "[U' R': [B' E F B, B2]]",
+          "moves": "U' R' B' E B2 E' B' R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' F': [R' E R, R2]]",
           "moves": "D' F' R' E R2 E' R' F D",
           "etm": 9,
           "qtm": 12,
@@ -13549,19 +13558,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' D' R: [R2 U D, E]]",
+          "alg": "[F' D': [R' E R, R2]]",
           "moves": "F' D' R' E R2 E' R' D F",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U2: [M', U B2 U']]",
-          "moves": "U2 M' U B2 U' M U B2 U",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -13653,7 +13653,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' B2 U F, S]]",
+          "alg": "[B2, U S U']",
           "moves": "B2 U S U' B2 U S' U'",
           "etm": 8,
           "qtm": 12,
@@ -13662,7 +13662,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B U' S' U, B2]]",
+          "alg": "[B2, U' S' U]",
           "moves": "B2 U' S' U B2 U' S U",
           "etm": 8,
           "qtm": 12,
@@ -13671,7 +13671,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B D M' D', B2]]",
+          "alg": "[B2, D M' D']",
           "moves": "B2 D M' D' B2 D M D'",
           "etm": 8,
           "qtm": 12,
@@ -13680,7 +13680,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B D' M' D, B2]]",
+          "alg": "[B2, D' M' D]",
           "moves": "B2 D' M' D B2 D' M D",
           "etm": 8,
           "qtm": 12,
@@ -13775,7 +13775,7 @@
       },
       "algs": [
         {
-          "alg": "[F' L: [L, L' F' M' F]]",
+          "alg": "[F': [L, F' M' F]]",
           "moves": "F' L F' M' F L' F' M F2",
           "etm": 9,
           "qtm": 12,
@@ -13784,7 +13784,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[D F L: [L2, L2 E']]",
+          "alg": "[U L: [B E' F B, B2]]",
+          "moves": "U L B E' B2 E B L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D F: [L E' R L, L2]]",
           "moves": "D F L E' L2 E L F' D'",
           "etm": 9,
           "qtm": 12,
@@ -13793,19 +13802,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F D L: [L2, L2 E']]",
+          "alg": "[F D: [L E' R L, L2]]",
           "moves": "F D L E' L2 E L D' F'",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U2: [M', U' B2 U]]",
-          "moves": "U2 M' U' B2 U M U' B2 U'",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -14211,6 +14211,15 @@
           "source": "engine-search"
         },
         {
+          "alg": "[U L: [F' M' F, F2]]",
+          "moves": "U L F' M' F2 M F' L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U B: [R S R, R2]]",
           "moves": "U B R S R2 S' R B' U'",
           "etm": 9,
@@ -14220,19 +14229,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B U: [R S R, R2]]",
-          "moves": "B U R S R2 S' R U' B'",
+          "alg": "[F R: [D S U D, D2]]",
+          "moves": "F R D S D2 S' D R' F'",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [R2, R2 B M' B']]",
-          "moves": "B2 M' B' R2 B M B' R2 B'",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -14333,6 +14333,15 @@
           "source": "engine-search"
         },
         {
+          "alg": "[U' R': [F M' F, F2]]",
+          "moves": "U' R' F M' F2 M F R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' B': [L' S' R L, L2]]",
           "moves": "U' B' L' S' L2 S L' B U",
           "etm": 9,
@@ -14342,19 +14351,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' U': [L' S' R L, L2]]",
-          "moves": "B' U' L' S' L2 S L' U B",
+          "alg": "[F' L': [D' S' U D, D2]]",
+          "moves": "F' L' D' S' D2 S D' L F",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[F': [D2, D2 F' M F]]",
-          "moves": "F2 M F D2 F' M' F D2 F",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -14873,7 +14873,7 @@
       },
       "algs": [
         {
-          "alg": "[B: [L, B' M' B]]",
+          "alg": "[B L B' R, M']",
           "moves": "B L B' M' B L' B' M",
           "etm": 8,
           "qtm": 10,
@@ -14882,7 +14882,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' M U R, L2]]",
+          "alg": "[M, U L2 U']",
           "moves": "M U L2 U' M' U L2 U'",
           "etm": 8,
           "qtm": 12,
@@ -14891,7 +14891,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [D F2 D' R, M']]",
+          "alg": "[M, D F2 D']",
           "moves": "M D F2 D' M' D F2 D'",
           "etm": 8,
           "qtm": 12,
@@ -14995,7 +14995,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [L' S L F, F']]",
+          "alg": "[S, L F' L']",
           "moves": "S L F' L' S' L F L'",
           "etm": 8,
           "qtm": 10,
@@ -15004,7 +15004,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S': [S, U L2 U']]",
+          "alg": "[U L2 U' F, S']",
           "moves": "U L2 U' S' U L2 U' S",
           "etm": 8,
           "qtm": 12,
@@ -15013,7 +15013,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S': [S, D F2 D']]",
+          "alg": "[D F2 D' F, S']",
           "moves": "D F2 D' S' D F2 D' S",
           "etm": 8,
           "qtm": 12,
@@ -15074,17 +15074,17 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F2, U' S2 U]",
-          "moves": "F2 U' S2 U F2 U' S2 U",
+          "alg": "[M': [U2, U2 M U S]]",
+          "moves": "U S U2 S' U' M' U2 M",
           "etm": 8,
-          "qtm": 16,
-          "htm": 10,
+          "qtm": 14,
+          "htm": 12,
           "stm": 8,
           "source": "engine-search"
         },
         {
-          "alg": "[F2, D' M2 D]",
-          "moves": "F2 D' M2 D F2 D' M2 D",
+          "alg": "[F2, U' S2 U]",
+          "moves": "F2 U' S2 U F2 U' S2 U",
           "etm": 8,
           "qtm": 16,
           "htm": 10,
@@ -15144,8 +15144,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F': [E', F' D F]]",
-          "moves": "F' E' F' D F E F' D' F2",
+          "alg": "[F: [L', F M' F']]",
+          "moves": "F L' F M' F' L F M F2",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -15971,8 +15971,8 @@
       },
       "algs": [
         {
-          "alg": "[R': [R S2 R', F]]",
-          "moves": "S2 R' F R S2 R' F' R",
+          "alg": "[L' F' L F, S2]",
+          "moves": "L' F' L S2 L' F L S2",
           "etm": 8,
           "qtm": 14,
           "htm": 10,
@@ -15980,8 +15980,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [S' L' F' L, S2]]",
-          "moves": "L' F' L S2 L' F L S2",
+          "alg": "[S2, R' F R]",
+          "moves": "S2 R' F R S2 R' F' R",
           "etm": 8,
           "qtm": 14,
           "htm": 10,
@@ -16093,7 +16093,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [F' L' F R, M']]",
+          "alg": "[M, F' L' F]",
           "moves": "M F' L' F M' F' L F",
           "etm": 8,
           "qtm": 10,
@@ -16102,7 +16102,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, M2 U' L2 U]]",
+          "alg": "[U' L2 U R, M']",
           "moves": "U' L2 U M' U' L2 U M",
           "etm": 8,
           "qtm": 12,
@@ -16111,7 +16111,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, M2 D' B2 D]]",
+          "alg": "[D' B2 D R, M']",
           "moves": "D' B2 D M' D' B2 D M",
           "etm": 8,
           "qtm": 12,
@@ -16120,7 +16120,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F U' L: [L2, L2 E']]",
+          "alg": "[F U': [L E' R L, L2]]",
           "moves": "F U' L E' L2 E L U F'",
           "etm": 9,
           "qtm": 12,
@@ -16215,7 +16215,7 @@
       },
       "algs": [
         {
-          "alg": "[F L: [L2, L2 E']]",
+          "alg": "[F: [L E' R L, L2]]",
           "moves": "F L E' L2 E L F'",
           "etm": 7,
           "qtm": 10,
@@ -16233,7 +16233,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L' U S' U', L2]]",
+          "alg": "[U S' U' R, L2]",
           "moves": "U S' U' L2 U S U' L2",
           "etm": 8,
           "qtm": 12,
@@ -16242,7 +16242,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [L' D M D', L2]]",
+          "alg": "[D M D' R, L2]",
           "moves": "D M D' L2 D M' D' L2",
           "etm": 8,
           "qtm": 12,
@@ -16285,7 +16285,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' U S: [U2, U2 S']]",
+          "alg": "[M': [U' S U, U2]]",
           "moves": "M' U' S U2 S' U' M",
           "etm": 7,
           "qtm": 12,
@@ -16459,7 +16459,7 @@
       },
       "algs": [
         {
-          "alg": "[M' D M: [M', M' D2]]",
+          "alg": "[M': [D M' U D, D2]]",
           "moves": "M' D M' D2 M D M",
           "etm": 7,
           "qtm": 12,
@@ -16642,6 +16642,24 @@
       },
       "algs": [
         {
+          "alg": "[M' D': [B E F B, B2]]",
+          "moves": "M' D' B E B2 E' B D M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F': [U' S U, U2]]",
+          "moves": "M' F' U' S U2 S' U' F M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[E L: [B M' F B, B2]]",
           "moves": "E L B M' B2 M B L' E'",
           "etm": 9,
@@ -16657,24 +16675,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U: [S', D F D']]",
-          "moves": "U S' D F D' S D F' D' U'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[D: [U' R U R, M']]",
-          "moves": "D U' R U M' U' R' U M D'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -16782,7 +16782,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F U L: [L2, L2 E']]",
+          "alg": "[F U: [L E' R L, L2]]",
           "moves": "F U L E' L2 E L U' F'",
           "etm": 9,
           "qtm": 12,
@@ -16791,11 +16791,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S' U': [R E R, R2]]",
-          "moves": "S' U' R E R2 E' R U S",
+          "alg": "[F R': [D M U D, D2]]",
+          "moves": "F R' D M D2 M' D R F'",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -17209,8 +17209,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [U', U F' E2 F]]",
-          "moves": "R F' E2 F U F' E2 F U' R'",
+          "alg": "[U': [R', F M2 F']]",
+          "moves": "U' R' F M2 F' R F M2 F' U",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -17218,8 +17218,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [U', U B' M2 B]]",
-          "moves": "R B' M2 B U B' M2 B U' R'",
+          "alg": "[U': [R', B E2 B']]",
+          "moves": "U' R' B E2 B' R B E2 B' U",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -17261,7 +17261,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B E: [B2, B2 E']]",
+          "alg": "[M': [B' E F B, B2]]",
           "moves": "M' B' E B2 E' B' M",
           "etm": 7,
           "qtm": 12,
@@ -17313,7 +17313,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [U' R U R, M']]",
+          "alg": "[M, U' R U]",
           "moves": "M U' R U M' U' R' U",
           "etm": 8,
           "qtm": 10,
@@ -17322,8 +17322,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [R2, B M' B']]",
-          "moves": "B' R2 B M' B' R2 B M",
+          "alg": "[F' U2 F R, M']",
+          "moves": "F' U2 F M' F' U2 F M",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -17331,8 +17331,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, M2 F' U2 F]]",
-          "moves": "F' U2 F M' F' U2 F M",
+          "alg": "[B' R2 B R, M']",
+          "moves": "B' R2 B M' B' R2 B M",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -17435,6 +17435,15 @@
       },
       "algs": [
         {
+          "alg": "[U L: [F' M F, F2]]",
+          "moves": "U L F' M F2 M' F' L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U B': [R' S R, R2]]",
           "moves": "U B' R' S R2 S' R' B U'",
           "etm": 9,
@@ -17444,7 +17453,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F D' L: [L2, L2 E']]",
+          "alg": "[F D': [L E' R L, L2]]",
           "moves": "F D' L E' L2 E L D F'",
           "etm": 9,
           "qtm": 12,
@@ -17453,20 +17462,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[E L': [B' M' F B, B2]]",
-          "moves": "E L' B' M' B2 M B' L E'",
+          "alg": "[F R: [U M' U, U2]]",
+          "moves": "F R U M' U2 M U R' F'",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S' U: [L E' R L, L2]]",
-          "moves": "S' U L E' L2 E L U' S",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -17697,7 +17697,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' U' R: [R2, R2 E]]",
+          "alg": "[F' U': [R E R, R2]]",
           "moves": "F' U' R E R2 E' R U F",
           "etm": 9,
           "qtm": 12,
@@ -17706,11 +17706,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S U: [L E' R L, L2]]",
-          "moves": "S U L E' L2 E L U' S'",
+          "alg": "[F' L: [D M U D, D2]]",
+          "moves": "F' L D M D2 M' D L' F",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -17810,6 +17810,15 @@
           "source": "engine-search"
         },
         {
+          "alg": "[U L: [F M' F, F2]]",
+          "moves": "U L F M' F2 M F L' U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U B: [R' S R, R2]]",
           "moves": "U B R' S R2 S' R' B' U'",
           "etm": 9,
@@ -17819,19 +17828,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B U: [R' S R, R2]]",
-          "moves": "B U R' S R2 S' R' U' B'",
+          "alg": "[F R: [D' S U D, D2]]",
+          "moves": "F R D' S D2 S' D' R' F'",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [R2, B M' B']]",
-          "moves": "B R2 B M' B' R2 B M B2",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -17923,6 +17923,24 @@
       },
       "algs": [
         {
+          "alg": "[M' D': [B' E F B, B2]]",
+          "moves": "M' D' B' E B2 E' B' D M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F': [U S U, U2]]",
+          "moves": "M' F' U S U2 S' U F M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[E L: [B' M' F B, B2]]",
           "moves": "E L B' M' B2 M B' L' E'",
           "etm": 9,
@@ -17938,24 +17956,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U: [D F D' F, S']]",
-          "moves": "U D F D' S' D F' D' S U'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[D: [U F U' R, M]]",
-          "moves": "D U F U' M U F' U' M' D'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -17984,7 +17984,7 @@
       },
       "algs": [
         {
-          "alg": "[M' F M: [F2 R L M, M']]",
+          "alg": "[M': [F M F, F2]]",
           "moves": "M' F M F2 M' F M",
           "etm": 7,
           "qtm": 12,
@@ -17993,26 +17993,26 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' F M: [M, M2 U2]]",
+          "alg": "[M': [F2, F2 B E]]",
+          "moves": "M' B E F2 E' B' F2 M",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M': [F2, B' E']]",
+          "moves": "M' F2 B' E' F2 E B M",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F: [U2 R L M, M']]",
           "moves": "M' F U2 M' U2 M F' M",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M' F' M: [M', M' U2]]",
-          "moves": "M' F' M' U2 M U2 F M",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M' B R: [R' L2 E' R, L2]]",
-          "moves": "M' B L2 E' L2 E B' M",
           "etm": 8,
           "qtm": 14,
           "htm": 12,
@@ -18316,8 +18316,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' R': [U' S' U, U2]]",
-          "moves": "B' R' U' S' U2 S U' R B",
+          "alg": "[F' U': [L' S' R L, L2]]",
+          "moves": "F' U' L' S' L2 S L' U F",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -18411,7 +18411,7 @@
       },
       "algs": [
         {
-          "alg": "[R': [U' S U R, R']]",
+          "alg": "[R, R2 U' S U]",
           "moves": "R' U' S U R' U' S' U R2",
           "etm": 9,
           "qtm": 12,
@@ -18420,7 +18420,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R': [D' M D R, R']]",
+          "alg": "[R, R2 D' M D]",
           "moves": "R' D' M D R' D' M' D R2",
           "etm": 9,
           "qtm": 12,
@@ -18429,7 +18429,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S': [F, S U M U']]",
+          "alg": "[F, F U M U']",
           "moves": "F2 U M U' F' U M' U' F'",
           "etm": 9,
           "qtm": 12,
@@ -18438,7 +18438,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S': [F, S D S D']]",
+          "alg": "[F, F D S D']",
           "moves": "F2 D S D' F' D S' D' F'",
           "etm": 9,
           "qtm": 12,
@@ -18490,7 +18490,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' E: [B2, B2 E' B M']]",
+          "alg": "[M': [B2, M B' E]]",
           "moves": "M' B2 M B' E B2 E' B",
           "etm": 8,
           "qtm": 14,
@@ -18533,7 +18533,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [R, U' M' U]]",
+          "alg": "[U R U' R, M']",
           "moves": "U R U' M' U R' U' M",
           "etm": 8,
           "qtm": 10,
@@ -18542,7 +18542,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [S', U' F' U]]",
+          "alg": "[U S' U' F, F']",
           "moves": "U S' U' F' U S U' F",
           "etm": 8,
           "qtm": 10,
@@ -18551,7 +18551,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' U' S U, F']]",
+          "alg": "[U' S U F, F']",
           "moves": "U' S U F' U' S' U F",
           "etm": 8,
           "qtm": 10,
@@ -18560,7 +18560,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D M D', F']]",
+          "alg": "[D M D' F, F']",
           "moves": "D M D' F' D M' D' F",
           "etm": 8,
           "qtm": 10,
@@ -18655,16 +18655,7 @@
       },
       "algs": [
         {
-          "alg": "[L': [L F L' U, E2]]",
-          "moves": "F L' E2 L F' L' E2 L",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S: [F, S' R' S2 R]]",
+          "alg": "[F, R' S2 R]",
           "moves": "F R' S2 R F' R' S2 R",
           "etm": 8,
           "qtm": 14,
@@ -18673,7 +18664,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S: [F, S' U' M U]]",
+          "alg": "[F, L' E2 L]",
+          "moves": "F L' E2 L F' L' E2 L",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[F, F U' M U]",
           "moves": "F2 U' M U F' U' M' U F'",
           "etm": 9,
           "qtm": 12,
@@ -18682,7 +18682,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F S: [F, S' D' S' D]]",
+          "alg": "[F, F D' S' D]",
           "moves": "F2 D' S' D F' D' S D F'",
           "etm": 9,
           "qtm": 12,
@@ -19466,7 +19466,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' E B': [B, E' B M']]",
+          "alg": "[M': [B', M B' E]]",
           "moves": "M' B' M B' E B E' B",
           "etm": 8,
           "qtm": 12,
@@ -19631,6 +19631,15 @@
       },
       "algs": [
         {
+          "alg": "[U' R': [F M F, F2]]",
+          "moves": "U' R' F M F2 M' F R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' B: [L S' R L, L2]]",
           "moves": "U' B L S' L2 S L B' U",
           "etm": 9,
@@ -19640,7 +19649,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' D R: [R2 U D, E]]",
+          "alg": "[F' D: [R' E R, R2]]",
           "moves": "F' D R' E R2 E' R' D' F",
           "etm": 9,
           "qtm": 12,
@@ -19649,20 +19658,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[E' R: [B M' F B, B2]]",
-          "moves": "E' R B M' B2 M B R' E",
+          "alg": "[F' L': [U' M' U, U2]]",
+          "moves": "F' L' U' M' U2 M U' L F",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[S U': [R' E R, R2]]",
-          "moves": "S U' R' E R2 E' R' U S'",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -19701,7 +19701,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B E: [E', E' B2]]",
+          "alg": "[M': [B E' F B, B2]]",
           "moves": "M' B E' B2 E B M",
           "etm": 7,
           "qtm": 12,
@@ -19753,7 +19753,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' M U R, L']]",
+          "alg": "[M, U L' U']",
           "moves": "M U L' U' M' U L U'",
           "etm": 8,
           "qtm": 10,
@@ -19762,8 +19762,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [L2, B' M' B]]",
-          "moves": "B L2 B' M' B L2 B' M",
+          "alg": "[F U2 F' R, M']",
+          "moves": "F U2 F' M' F U2 F' M",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -19771,8 +19771,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [M, M2 F U2 F']]",
-          "moves": "F U2 F' M' F U2 F' M",
+          "alg": "[B L2 B' R, M']",
+          "moves": "B L2 B' M' B L2 B' M",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -19875,6 +19875,24 @@
       },
       "algs": [
         {
+          "alg": "[U: [L, F' M2 F]]",
+          "moves": "U L F' M2 F L' F' M2 F U'",
+          "etm": 10,
+          "qtm": 16,
+          "htm": 12,
+          "stm": 10,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U: [L, B' E2 B]]",
+          "moves": "U L B' E2 B L' B' E2 B U'",
+          "etm": 10,
+          "qtm": 16,
+          "htm": 12,
+          "stm": 10,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U': [R E2 R' F, F']]",
           "moves": "U' R E2 R' F' R E2 R' F U",
           "etm": 10,
@@ -19886,24 +19904,6 @@
         {
           "alg": "[U': [L S2 L' F, F']]",
           "moves": "U' L S2 L' F' L S2 L' F U",
-          "etm": 10,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [F, U' S2 U]]",
-          "moves": "L F U' S2 U F' U' S2 U L'",
-          "etm": 10,
-          "qtm": 16,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [F, D' M2 D]]",
-          "moves": "L F D' M2 D F' D' M2 D L'",
           "etm": 10,
           "qtm": 16,
           "htm": 12,
@@ -20119,6 +20119,24 @@
       },
       "algs": [
         {
+          "alg": "[M' D: [B E' F B, B2]]",
+          "moves": "M' D B E' B2 E B D' M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F: [U' S' U, U2]]",
+          "moves": "M' F U' S' U2 S U' F' M",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[E' R': [B M' F B, B2]]",
           "moves": "E' R' B M' B2 M B R E",
           "etm": 9,
@@ -20134,24 +20152,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[U': [D' F' D F, S]]",
-          "moves": "U' D' F' D S D' F D S' U",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[D': [U F' U' R, M]]",
-          "moves": "D' U F' U' M U F U' M' D",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -20250,6 +20250,15 @@
           "source": "engine-search"
         },
         {
+          "alg": "[U' R': [F' M' F, F2]]",
+          "moves": "U' R' F' M' F2 M F' R U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' B': [L S' R L, L2]]",
           "moves": "U' B' L S' L2 S L B U",
           "etm": 9,
@@ -20259,19 +20268,10 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' U': [L S' R L, L2]]",
-          "moves": "B' U' L S' L2 S L U B",
+          "alg": "[F' L': [D S' U D, D2]]",
+          "moves": "F' L' D S' D2 S D L F",
           "etm": 9,
           "qtm": 12,
-          "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[F': [D2, F' M F]]",
-          "moves": "F' D2 F' M F D2 F' M' F2",
-          "etm": 9,
-          "qtm": 14,
           "htm": 11,
           "stm": 9,
           "source": "engine-search"
@@ -20381,7 +20381,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F U L: [L2 U D E, E']]",
+          "alg": "[F U: [L' E' R L, L2]]",
           "moves": "F U L' E' L2 E L' U' F'",
           "etm": 9,
           "qtm": 12,
@@ -20390,11 +20390,11 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S' U': [R' E R, R2]]",
-          "moves": "S' U' R' E R2 E' R' U S",
+          "alg": "[F R': [D' M U D, D2]]",
+          "moves": "F R' D' M D2 M' D' R F'",
           "etm": 9,
-          "qtm": 14,
-          "htm": 13,
+          "qtm": 12,
+          "htm": 11,
           "stm": 9,
           "source": "engine-search"
         }
@@ -20424,7 +20424,7 @@
       },
       "algs": [
         {
-          "alg": "[M' F M: [F2, F2 M']]",
+          "alg": "[M': [F' M F, F2]]",
           "moves": "M' F' M F2 M' F' M",
           "etm": 7,
           "qtm": 12,
@@ -20433,26 +20433,26 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' F M: [M', M' U2]]",
+          "alg": "[M': [F2, F2 B' E']]",
+          "moves": "M' B' E' F2 E B F2 M",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M': [F2, B E]]",
+          "moves": "M' F2 B E F2 E' B' M",
+          "etm": 8,
+          "qtm": 14,
+          "htm": 12,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M' F: [U2, U2 M']]",
           "moves": "M' F M' U2 M U2 F' M",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M' F' M: [M, M2 U2]]",
-          "moves": "M' F' U2 M' U2 M F M",
-          "etm": 8,
-          "qtm": 14,
-          "htm": 12,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[M' B R: [R' E' R L, L2]]",
-          "moves": "M' B E' L2 E L2 B' M",
           "etm": 8,
           "qtm": 14,
           "htm": 12,
@@ -20634,8 +20634,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B L: [U S U, U2]]",
-          "moves": "B L U S U2 S' U L' B'",
+          "alg": "[F U: [R S R, R2]]",
+          "moves": "F U R S R2 S' R U' F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -20756,8 +20756,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [U, L' E' L]]",
-          "moves": "L' U L' E' L U' L' E L2",
+          "alg": "[L: [S, L F' L']]",
+          "moves": "L S L F' L' S' L F L2",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -20851,7 +20851,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R' F' R U, E2]]",
+          "alg": "[F', R E2 R']",
           "moves": "F' R E2 R' F R E2 R'",
           "etm": 8,
           "qtm": 14,
@@ -20860,7 +20860,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[S: [F', S' L S2 L']]",
+          "alg": "[F', L S2 L']",
           "moves": "F' L S2 L' F L S2 L'",
           "etm": 8,
           "qtm": 14,
@@ -20869,7 +20869,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [F', S' U M U']]",
+          "alg": "[F', F' U M U']",
           "moves": "F2 U M U' F U M' U' F",
           "etm": 9,
           "qtm": 12,
@@ -20878,7 +20878,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [F', S' D S D']]",
+          "alg": "[F', F' D S D']",
           "moves": "F2 D S D' F D S' D' F",
           "etm": 9,
           "qtm": 12,
@@ -20930,7 +20930,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B E': [B2, B2 E B' M']]",
+          "alg": "[M': [B2, M B E']]",
           "moves": "M' B2 M B E' B2 E B'",
           "etm": 8,
           "qtm": 14,
@@ -20973,7 +20973,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [S', U' F U]]",
+          "alg": "[U S' U', F]",
           "moves": "U S' U' F U S U' F'",
           "etm": 8,
           "qtm": 10,
@@ -20982,7 +20982,16 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' U' S U, F]]",
+          "alg": "[U' L' U R, M']",
+          "moves": "U' L' U M' U' L U M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[U' S U, F]",
           "moves": "U' S U F U' S' U F'",
           "etm": 8,
           "qtm": 10,
@@ -20991,17 +21000,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [B' D M D', F]]",
+          "alg": "[D M D', F]",
           "moves": "D M D' F D M' D' F'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [B' D' M D, F]]",
-          "moves": "D' M D F D' M' D F'",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -21095,7 +21095,7 @@
       },
       "algs": [
         {
-          "alg": "[L: [U S' U' R, L]]",
+          "alg": "[L U S' U', L]",
           "moves": "L U S' U' L U S U' L2",
           "etm": 9,
           "qtm": 12,
@@ -21104,7 +21104,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L: [D M D' R, L]]",
+          "alg": "[L D M D', L]",
           "moves": "L D M D' L D M' D' L2",
           "etm": 9,
           "qtm": 12,
@@ -21113,7 +21113,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [F', S' U' M U]]",
+          "alg": "[F', F' U' M U]",
           "moves": "F2 U' M U F U' M' U F",
           "etm": 9,
           "qtm": 12,
@@ -21122,7 +21122,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' S: [F', S' D' S' D]]",
+          "alg": "[F', F' D' S' D]",
           "moves": "F2 D' S' D F D' S D F",
           "etm": 9,
           "qtm": 12,
@@ -21784,7 +21784,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B': [B, B M B E']]",
+          "alg": "[M': [B, M B E']]",
           "moves": "M' B M B E' B' E B'",
           "etm": 8,
           "qtm": 12,
@@ -22071,6 +22071,15 @@
       },
       "algs": [
         {
+          "alg": "[U L': [B M' F B, B2]]",
+          "moves": "U L' B M' B2 M B L U'",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U F: [R S R, R2]]",
           "moves": "U F R S R2 S' R F' U'",
           "etm": 9,
@@ -22094,15 +22103,6 @@
           "etm": 9,
           "qtm": 12,
           "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[E R: [B M' F B, B2]]",
-          "moves": "E R B M' B2 M B R' E'",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
           "stm": 9,
           "source": "engine-search"
         }
@@ -22141,7 +22141,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M F E: [E, E2 F2]]",
+          "alg": "[M: [F' E' F, F2]]",
           "moves": "M F' E' F2 E F' M'",
           "etm": 7,
           "qtm": 12,
@@ -22193,7 +22193,25 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' B U F, S]]",
+          "alg": "[D B D' R, M']",
+          "moves": "D B D' M' D B' D' M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' B D R, M']",
+          "moves": "D' B D M' D' B' D M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B, U S U']",
           "moves": "B U S U' B' U S' U'",
           "etm": 8,
           "qtm": 10,
@@ -22202,26 +22220,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [B, B U' S' U]]",
+          "alg": "[B, U' S' U]",
           "moves": "B U' S' U B' U' S U",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [B, B D M' D']]",
-          "moves": "B D M' D' B' D M D'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B': [B, B D' M' D]]",
-          "moves": "B D' M' D B' D' M D",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -22315,6 +22315,24 @@
       },
       "algs": [
         {
+          "alg": "[M U': [F' E' F, F2]]",
+          "moves": "M U' F' E' F2 E F' U M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M B': [D S' U D, D2]]",
+          "moves": "M B' D S' D2 S D B M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[S' U: [L' E R L, L2]]",
           "moves": "S' U L' E L2 E' L' U' S",
           "etm": 9,
@@ -22330,24 +22348,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L': [R' U' R U, E']]",
-          "moves": "L' R' U' R E' R' U R E L",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R' L: [U', L' S L]]",
-          "moves": "R' L U' L' S L U L' S' R",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -22464,8 +22464,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U F': [R S R, R2]]",
-          "moves": "U F' R S R2 S' R F U'",
+          "alg": "[U L': [B' M F B, B2]]",
+          "moves": "U L' B' M B2 M' B' L U'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -23065,7 +23065,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M' B': [B M B E', B]]",
+          "alg": "[M': [B', B M B E']]",
           "moves": "B E' B E B' M' B' M",
           "etm": 8,
           "qtm": 12,
@@ -23108,7 +23108,7 @@
       },
       "algs": [
         {
-          "alg": "[M B M: [B2 R L M, M']]",
+          "alg": "[M: [B M F B, B2]]",
           "moves": "M B M B2 M' B M'",
           "etm": 7,
           "qtm": 12,
@@ -23291,7 +23291,7 @@
       },
       "algs": [
         {
-          "alg": "[R: [R', F' E2 F]]",
+          "alg": "[R', R F' E2 F]",
           "moves": "F' E2 F R F' E2 F R'",
           "etm": 8,
           "qtm": 14,
@@ -23300,7 +23300,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [R', B' M2 B]]",
+          "alg": "[R', R B' M2 B]",
           "moves": "B' M2 B R B' M2 B R'",
           "etm": 8,
           "qtm": 14,
@@ -23309,7 +23309,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [U' S U, R]]",
+          "alg": "[R U' S U, R]",
           "moves": "R U' S U R U' S' U R2",
           "etm": 9,
           "qtm": 12,
@@ -23318,7 +23318,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[R: [D' M D, R]]",
+          "alg": "[R D' M D, R]",
           "moves": "R D' M D R D' M' D R2",
           "etm": 9,
           "qtm": 12,
@@ -23370,7 +23370,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F E': [F2, E F' M]]",
+          "alg": "[M: [F2, F2 M' F E']]",
           "moves": "F E' F2 E F' M F2 M'",
           "etm": 8,
           "qtm": 14,
@@ -23413,7 +23413,7 @@
       },
       "algs": [
         {
-          "alg": "[U: [R', U' M' U]]",
+          "alg": "[U R' U' R, M']",
           "moves": "U R' U' M' U R U' M",
           "etm": 8,
           "qtm": 10,
@@ -23422,8 +23422,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B: [U2, U2 B' M B]]",
-          "moves": "M B U2 B' M' B U2 B'",
+          "alg": "[M, F R2 F']",
+          "moves": "M F R2 F' M' F R2 F'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -23431,8 +23431,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [F R2 F' R, M']]",
-          "moves": "M F R2 F' M' F R2 F'",
+          "alg": "[M, B U2 B']",
+          "moves": "M B U2 B' M' B U2 B'",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -23544,7 +23544,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F L: [R' L' S R, R2]]",
+          "alg": "[F: [R' S R, R2]]",
           "moves": "F R' S R2 S' R' F'",
           "etm": 7,
           "qtm": 10,
@@ -24233,8 +24233,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B L: [U' S U, U2]]",
-          "moves": "B L U' S U2 S' U' L' B'",
+          "alg": "[F U: [R' S R, R2]]",
+          "moves": "F U R' S R2 S' R' U' F'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -24511,6 +24511,24 @@
       },
       "algs": [
         {
+          "alg": "[M U: [F E F, F2]]",
+          "moves": "M U F E F2 E' F U' M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[M B: [D' S U D, D2]]",
+          "moves": "M B D' S D2 S' D' B' M'",
+          "etm": 9,
+          "qtm": 14,
+          "htm": 13,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[S U': [R E' R, R2]]",
           "moves": "S U' R E' R2 E R U S'",
           "etm": 9,
@@ -24526,24 +24544,6 @@
           "qtm": 14,
           "htm": 13,
           "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[R: [L U L' U, E]]",
-          "moves": "R L U L' E L U' L' E' R'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[L: [R U R' F, S']]",
-          "moves": "L R U R' S' R U' R' S L'",
-          "etm": 10,
-          "qtm": 12,
-          "htm": 12,
-          "stm": 10,
           "source": "engine-search"
         }
       ]
@@ -24581,7 +24581,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M F E: [F2 U D E, E']]",
+          "alg": "[M: [F E F, F2]]",
           "moves": "M F E F2 E' F M'",
           "etm": 7,
           "qtm": 12,
@@ -24633,7 +24633,25 @@
       },
       "algs": [
         {
-          "alg": "[U: [U' B' U F, S]]",
+          "alg": "[D B' D' R, M']",
+          "moves": "D B' D' M' D B D' M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[D' B' D R, M']",
+          "moves": "D' B' D M' D' B D M",
+          "etm": 8,
+          "qtm": 10,
+          "htm": 10,
+          "stm": 8,
+          "source": "engine-search"
+        },
+        {
+          "alg": "[B', U S U']",
           "moves": "B' U S U' B U S' U'",
           "etm": 8,
           "qtm": 10,
@@ -24642,26 +24660,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U: [U' M U R, L]]",
-          "moves": "M U L U' M' U L' U'",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [B', B' U' S' U]]",
+          "alg": "[B', U' S' U]",
           "moves": "B' U' S' U B U' S U",
-          "etm": 8,
-          "qtm": 10,
-          "htm": 10,
-          "stm": 8,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[B: [B', B' D M' D']]",
-          "moves": "B' D M' D' B D M D'",
           "etm": 8,
           "qtm": 10,
           "htm": 10,
@@ -24755,6 +24755,15 @@
       },
       "algs": [
         {
+          "alg": "[U' R: [B' M' F B, B2]]",
+          "moves": "U' R B' M' B2 M B' R' U",
+          "etm": 9,
+          "qtm": 12,
+          "htm": 11,
+          "stm": 9,
+          "source": "engine-search"
+        },
+        {
           "alg": "[U' F': [L' S' R L, L2]]",
           "moves": "U' F' L' S' L2 S L' F U",
           "etm": 9,
@@ -24778,15 +24787,6 @@
           "etm": 9,
           "qtm": 12,
           "htm": 11,
-          "stm": 9,
-          "source": "engine-search"
-        },
-        {
-          "alg": "[E' L': [B' M' F B, B2]]",
-          "moves": "E' L' B' M' B2 M B' L E",
-          "etm": 9,
-          "qtm": 14,
-          "htm": 13,
           "stm": 9,
           "source": "engine-search"
         }
@@ -24904,8 +24904,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[U' F: [L' S' R L, L2]]",
-          "moves": "U' F L' S' L2 S L' F' U",
+          "alg": "[U' R: [B M F B, B2]]",
+          "moves": "U' R B M B2 M' B R' U",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -25383,7 +25383,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' E B': [B', B E' B M']]",
+          "alg": "[M': [B, B' M B' E]]",
           "moves": "B' E B' E' B M' B M",
           "etm": 8,
           "qtm": 12,
@@ -25548,7 +25548,7 @@
       },
       "algs": [
         {
-          "alg": "[M B M: [B2, B2 M']]",
+          "alg": "[M: [B' M F B, B2]]",
           "moves": "M B' M B2 M' B' M'",
           "etm": 7,
           "qtm": 12,
@@ -25740,7 +25740,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' R: [R' L S' R, L2]]",
+          "alg": "[F': [L S' R L, L2]]",
           "moves": "F' L S' L2 S L F",
           "etm": 7,
           "qtm": 10,
@@ -25810,7 +25810,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[F' E: [F2, E' F M]]",
+          "alg": "[M: [F2, F2 M' F' E]]",
           "moves": "F' E F2 E' F M F2 M'",
           "etm": 8,
           "qtm": 14,
@@ -25853,7 +25853,7 @@
       },
       "algs": [
         {
-          "alg": "[M: [M, M2 U' L U]]",
+          "alg": "[U' L U R, M']",
           "moves": "U' L U M' U' L' U M",
           "etm": 8,
           "qtm": 10,
@@ -25862,8 +25862,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B': [U2, U2 B M B']]",
-          "moves": "M B' U2 B M' B' U2 B",
+          "alg": "[M, F' L2 F]",
+          "moves": "M F' L2 F M' F' L2 F",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -25871,8 +25871,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[M: [F' L2 F R, M']]",
-          "moves": "M F' L2 F M' F' L2 F",
+          "alg": "[M, B' U2 B]",
+          "moves": "M B' U2 B M' B' U2 B",
           "etm": 8,
           "qtm": 12,
           "htm": 10,
@@ -25975,7 +25975,7 @@
       },
       "algs": [
         {
-          "alg": "[L': [L, F E2 F']]",
+          "alg": "[L, L' F E2 F']",
           "moves": "F E2 F' L' F E2 F' L",
           "etm": 8,
           "qtm": 14,
@@ -25984,7 +25984,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [L, B M2 B']]",
+          "alg": "[L, L' B M2 B']",
           "moves": "B M2 B' L' B M2 B' L",
           "etm": 8,
           "qtm": 14,
@@ -25993,7 +25993,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [U S' U' R, L']]",
+          "alg": "[L, L2 U S' U']",
           "moves": "L' U S' U' L' U S U' L2",
           "etm": 9,
           "qtm": 12,
@@ -26002,7 +26002,7 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [D M D' R, L']]",
+          "alg": "[L, L2 D M D']",
           "moves": "L' D M D' L' D M' D' L2",
           "etm": 9,
           "qtm": 12,
@@ -26551,8 +26551,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[B' R': [U S' U, U2]]",
-          "moves": "B' R' U S' U2 S U R B",
+          "alg": "[F' U': [L S' R L, L2]]",
+          "moves": "F' U' L S' L2 S L U F",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
@@ -26673,8 +26673,8 @@
           "source": "engine-search"
         },
         {
-          "alg": "[L': [U', U L' E' L]]",
-          "moves": "L2 E' L U L' E L U' L",
+          "alg": "[L: [L F' L' F, S]]",
+          "moves": "L2 F' L' S L F L' S' L'",
           "etm": 9,
           "qtm": 12,
           "htm": 11,
