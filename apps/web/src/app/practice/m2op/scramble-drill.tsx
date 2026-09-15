@@ -5,12 +5,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { LetterNotch } from "@/components/letters/letters";
 import { piecesOf } from "@/components/lesson/op-demos";
-import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import type { Reader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { sessionScramble } from "@/trainers/guided-trace";
-import { scrambleDrill, type ScrambleDrill, type ScrambleMethod } from "@/trainers/m2op-cases";
+import { scrambleDrill, type MethodDatasets, type ScrambleDrill, type ScrambleMethod } from "@/trainers/m2op-cases";
 
 interface RunProps {
   readonly reader: Reader;
@@ -168,9 +167,9 @@ function ScrambleRun({ reader, drill, sighted, onGraded, onNext }: RunProps) {
  * solver, walked step by step from the state the previous step left. Each step is logged under the same
  * case id as the per-target drills, so it feeds the same schedules and mastery.
  */
-export function ScrambleDrillView({ reader, method, sighted, seed, append }: { reader: Reader; method: ScrambleMethod; sighted: boolean; seed: string; append: (events: readonly AppEvent[]) => Promise<void> }) {
+export function ScrambleDrillView({ reader, datasets, method, sighted, seed, append }: { reader: Reader; datasets: MethodDatasets; method: ScrambleMethod; sighted: boolean; seed: string; append: (events: readonly AppEvent[]) => Promise<void> }) {
   const [index, setIndex] = useState(0);
-  const drill = useMemo(() => scrambleDrill(reader.puzzle, reader.scheme, method, sessionScramble(`${seed}:${method}`, index), algDatasets()), [reader, method, seed, index]);
+  const drill = useMemo(() => scrambleDrill(reader.puzzle, reader.scheme, method, sessionScramble(`${seed}:${method}`, index), datasets), [reader, datasets, method, seed, index]);
 
   const onGraded = useCallback(
     (step: number, correct: boolean, responseMs: number) => {

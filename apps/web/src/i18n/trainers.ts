@@ -92,6 +92,7 @@ export const trainerCopy = {
     nothingDue: "Nothing is due. Pick another order to keep drilling.",
     progress: (mastered: number, total: number) => `${mastered} of ${total} mastered`,
     illegalNext: "Show another",
+    buffersFailed: (reason: string) => `Your OP or M2 buffers couldn't be built and verified (${reason}). Pick others in Settings, or go back to the standard buffers.`,
     illegalFamily: (label: string, family: string) => `${label}: a setup that turns ${family}`,
     illegalRule: (family: string, pieces: string) => `Turning ${family} moves ${pieces}, which the swap relies on.`,
     illegalShortcut: (label: string, target: string) => `${label}: a shortcut for ${target}`,

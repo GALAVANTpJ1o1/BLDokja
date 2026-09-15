@@ -1,13 +1,14 @@
 "use client";
 
 import { VOICES, type Voice } from "@bld/storage";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
+import { GATE_B_BUFFERS, ReaderOverridesContext, type ReaderOverrides } from "@/lib/reader";
 import { getStorage, newId, nowIso } from "@/lib/storage-client";
 import { LessonMetaContext } from "./lesson-meta";
 import { lessonDone, useLessonProgress } from "./use-progress";
@@ -25,7 +26,15 @@ export interface LessonSummary {
  * 2026-09-15 answer); until then the plain voice shows.
  */
 export function LessonView({ frontmatter, variants, lessons }: { frontmatter: LessonFrontmatter; variants: Partial<Record<Voice, ReactNode>>; lessons: readonly LessonSummary[] }) {
-  const { settings, ready, update } = useSettings();
+  const { settings, stored, ready, update } = useSettings();
+  const overrides = useMemo<ReaderOverrides>(() => (frontmatter.lettering === "speffz" ? { buffers: "standard", lettering: "speffz" } : { buffers: "standard" }), [frontmatter.lettering]);
+  const ownBuffers = stored?.buffers;
+  const buffersDiffer =
+    ownBuffers !== undefined &&
+    (["op", "m2", "threeStyle"] as const).some((m) => {
+      const own = ownBuffers[m];
+      return own !== undefined && (own.corners !== GATE_B_BUFFERS[m].corners || own.edges !== GATE_B_BUFFERS[m].edges);
+    });
   const progress = useLessonProgress();
   const [pickerDismissed, setPickerDismissed] = useState(false);
   const available = VOICES.filter((v) => variants[v] !== undefined);
@@ -44,6 +53,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
   const next = lessons[position + 1];
 
   return (
+    <ReaderOverridesContext.Provider value={overrides}>
     <LessonMetaContext.Provider value={{ lessonId: frontmatter.id, checkpoints: frontmatter.checkpoints }}>
       <LessonVoiceContext.Provider value={chosen}>
         <article className="flex max-w-3xl flex-col gap-6">
@@ -95,6 +105,14 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
             </section>
           ) : null}
 
+          {buffersDiffer || (frontmatter.lettering === "speffz" && stored?.scheme !== undefined) ? (
+            <p className="t-meta border-l-2 border-rule pl-3 text-quiet">
+              {buffersDiffer ? en.lesson.standardBuffers : null}
+              {buffersDiffer && frontmatter.lettering === "speffz" && stored?.scheme !== undefined ? " " : null}
+              {frontmatter.lettering === "speffz" && stored?.scheme !== undefined ? en.lesson.speffzHere : null}
+            </p>
+          ) : null}
+
           <div className="lesson-body prose-measure flex flex-col gap-4 t-body">{variants[chosen] ?? variants.plain}</div>
 
           {next !== undefined ? (
@@ -117,5 +135,6 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
         </TransmissionWindow>
       </LessonVoiceContext.Provider>
     </LessonMetaContext.Provider>
+    </ReaderOverridesContext.Provider>
   );
 }

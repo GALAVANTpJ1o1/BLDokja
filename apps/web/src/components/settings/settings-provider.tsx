@@ -17,6 +17,8 @@ export interface ResolvedSettings {
 
 interface SettingsContextValue {
   readonly settings: ResolvedSettings;
+  /** Everything stored, for the settings that have no default here (scheme, buffers, algs, difficulty). */
+  readonly stored: Settings | undefined;
   readonly ready: boolean;
   readonly update: (patch: Partial<Settings>) => Promise<void>;
 }
@@ -92,7 +94,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ settings, ready, update }), [settings, ready, update]);
+  const value = useMemo(() => ({ settings, stored, ready, update }), [settings, stored, ready, update]);
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 

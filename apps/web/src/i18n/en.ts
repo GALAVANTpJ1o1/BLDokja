@@ -5,6 +5,7 @@
  * warnings are plain on purpose, so nothing important is ever unclear.
  */
 import type { Voice } from "@bld/storage";
+import { toolsCopy } from "./tools";
 import { trainerCopy } from "./trainers";
 
 export type Voiced = Readonly<Record<Voice, string>>;
@@ -120,6 +121,8 @@ export const en = {
   },
   lesson: {
     minutes: (n: number) => `${n} min`,
+    standardBuffers: "You've chosen your own buffers. Lessons teach with the standard ones (OP: UBL and UR; M2: DF), because the setups and swap spots they explain belong to those. Your trainers use yours.",
+    speffzHere: "This lesson teaches Speffz, so its examples show Speffz letters even though you use your own scheme.",
     objectives: "In this lesson",
     recap: "Before you start",
     voice: "Voice",
@@ -190,6 +193,7 @@ export const en = {
     intro: "Every token, type style and component in one place, for design review. Hidden in production builds.",
   },
   ...trainerCopy,
+  ...toolsCopy,
   common: {
     loading: "Loading…",
     error: "Something went wrong.",

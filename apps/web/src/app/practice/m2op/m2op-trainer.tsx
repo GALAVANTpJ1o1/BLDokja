@@ -7,12 +7,12 @@ import { Cube } from "@/components/cube/cube";
 import { LetterTile } from "@/components/letters/letters";
 import { piecesOf } from "@/components/lesson/op-demos";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
-import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
+import { m2opData, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
-import { FAMILIES, familyOf, shotCases, type Family, type ShotCase, type ShotMode } from "@/trainers/m2op-cases";
+import { FAMILIES, familyOf, shotCases, type Family, type MethodDatasets, type ShotCase, type ShotMode } from "@/trainers/m2op-cases";
 import { ScrambleDrillView } from "./scramble-drill";
 
 type Mode = ShotMode | "scramble-op" | "scramble-m2" | "illegal";
@@ -45,8 +45,9 @@ function inverseOf(setup: string): string {
 }
 
 /** Every worked example of a forbidden or tempting setup the datasets carry, with its damage. */
-function illegalExamples(): IllegalExample[] {
-  const { opCorners, opEdges, m2Edges } = algDatasets();
+function illegalExamples(datasets: MethodDatasets): IllegalExample[] {
+  const { corners: opCorners, edges: opEdges } = datasets.op;
+  const m2Edges = datasets.m2.edges;
   const legalFor = (setup: string | undefined) => (setup === undefined ? en.m2op.specialNote : setup === "" ? en.m2op.illegalOnSwapSpot : en.m2op.illegalLegal(setup));
   const op = (dataset: typeof opCorners, label: string) =>
     dataset.forbidden.map((f) => ({
@@ -99,12 +100,14 @@ export function M2OpTrainer() {
   const revealMs = useRef(0);
   const selector = useRef<Selector | undefined>(undefined);
 
+  const built = useMethodData(reader, m2opData);
+  const datasets = built?.ok === true ? built.value : undefined;
   const cases = useMemo(() => {
-    if (reader === undefined || !isShotMode(mode)) return [];
-    const all = shotCases(mode, algDatasets(), reader.scheme);
+    if (reader === undefined || datasets === undefined || !isShotMode(mode)) return [];
+    const all = shotCases(mode, datasets, reader.scheme);
     return family === "all" || mode === "m2-special" ? all : all.filter((c) => familyOf(c.target) === family);
-  }, [reader, mode, family]);
-  const examples = useMemo(() => illegalExamples(), []);
+  }, [reader, datasets, mode, family]);
+  const examples = useMemo(() => (datasets === undefined ? [] : illegalExamples(datasets)), [datasets]);
   const schedules = useMemo<Map<string, CaseSchedule>>(() => scheduleAll(cases.map((c) => c.id), reviewsByCase(events ?? [], TRAINER), new Date()), [cases, events]);
 
   const pick = useCallback(() => {
@@ -195,9 +198,10 @@ export function M2OpTrainer() {
     </TrainerShell>
   );
 
-  if (reader === undefined) return shell(<p className="t-meta text-quiet">{en.trainer.loading}</p>);
+  if (reader === undefined || built === undefined) return shell(<p className="t-meta text-quiet">{en.trainer.loading}</p>);
+  if (!built.ok || datasets === undefined) return shell(<p className="t-body" role="alert">{en.m2op.buffersFailed(built.ok ? "" : built.reason)}</p>);
 
-  if (mode === "scramble-op" || mode === "scramble-m2") return shell(<ScrambleDrillView reader={reader} method={mode === "scramble-op" ? "op" : "m2"} sighted={sighted} seed={seed} append={append} />);
+  if (mode === "scramble-op" || mode === "scramble-m2") return shell(<ScrambleDrillView reader={reader} datasets={datasets} method={mode === "scramble-op" ? "op" : "m2"} sighted={sighted} seed={seed} append={append} />);
 
   if (mode === "illegal") {
     const example = examples[illegalIndex % examples.length];
@@ -255,7 +259,7 @@ export function M2OpTrainer() {
 
   const setupState = drillScramble(reader.puzzle, current.moves);
   const undo = current.setup === "" ? "" : inverseOf(current.setup);
-  const core = current.setup === "" ? current.notation : mode === "m2-edges" || mode === "m2-special" ? algDatasets().m2Edges.swap.alg : (mode === "op-edges" ? algDatasets().opEdges : algDatasets().opCorners).swap.alg;
+  const core = current.setup === "" ? current.notation : mode === "m2-edges" || mode === "m2-special" ? datasets.m2.edges.swap.alg : (mode === "op-edges" ? datasets.op.edges : datasets.op.corners).swap.alg;
 
   return shell(
     <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

@@ -367,3 +367,57 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - **One FSRS schedule per pair** across all drill modes.
 - **Why:** both are what's already built, as you asked. Keeping either needs no change to stored data: attempts already carry `detail.mode`, so per-mode schedules could be derived later without migrating anything.
 - **Reversal:** easy for both. A per-mode schedule would be a change to `reviewsByCase` keys, not to stored data.
+
+## Phase 5: 3-style trainer, comm sandbox, custom schemes, difficulty customiser
+
+### The comm search wasn't exhaustive; fixed before building on it (D-031)
+
+- **Finding:** while making 3-style datasets for other buffers, a symmetry image turned up a 9-move comm the search had missed. The search looked cases up under the wrong one of a 3-cycle's sticker cycles.
+- **Picked:**
+  - fix the engine, check it against an independent oracle, and regenerate the datasets: 24 corner cases are one move shorter, none longer; the OP, M2 and parity datasets are unchanged;
+  - record it as D-031.
+- **Why it matters beyond the datasets:** the buffer comparison used for Gate B showed U-layer buffers with shorter 3-style comms than D-layer ones. That difference was the bug. Every corner buffer is now identical, and so is every edge buffer. **Your UFR/UF choice stands, but if comm length weighed in it, it shouldn't have.**
+- **Reversal:** not wanted. The old datasets were correct but sometimes longer than necessary.
+
+### Lessons keep the standard buffers; trainers use yours
+
+- **Choice:** BRIEF §7.6 says lessons read your buffers, and your 2026-09-15 answer said lesson examples use your scheme and buffers.
+- **Picked:**
+  - **Lettering:** lessons use your scheme, except the Speffz lesson, which always shows Speffz and says why.
+  - **Buffers:** lessons always use the standard ones (OP UBL/UR, M2 DF), with a note when yours differ.
+  - **Trainers:** they use your scheme and your buffers.
+  - **Prose:** three sentences that promised examples would follow your buffers, or called letters "Speffz", were reworded.
+- **Why:** the OP lessons teach one buffer's swap spot (RDF, UL) and its setup rule ("which D, R or F turns bring this sticker to RDF"). With another buffer the prose would be wrong while the cube showed something else. The worked trace scrambles are also checked to show a break or a twist for the standard buffers, and may not for others. **This goes against your earlier answer for buffers, so please check it.**
+- **Reversal:** moderate. It's one context value per lesson, but the OP lessons' prose would need rewriting around `<Buffer>` components.
+
+### Buffer choices are limited to what the engine can verify
+
+- **Choice:** which buffers the settings offer.
+- **Picked:**
+  - **OP:** the 48 corner/edge pairs a cube symmetry maps (UBL, UR) onto (`opBufferPairs`).
+  - **M2/OP:** the 8 pairs for (UBL, DF) that keep M2 an M move.
+  - **3-style:** any corner and any edge, as the orientation-reference sticker of each piece.
+  - **Datasets:** built and verified in memory for the chosen buffers. OP takes about 0.1 s and M2/OP about 2 s in Node, on the main thread behind a loading message. 3-style datasets are rotation images of the committed sets, verified in full (about 0.3 s each).
+- **Why:** anything else would need a parity alg or special cases the engine hasn't searched. The site never offers a buffer it can't back with verified algs.
+- **Reversal:** easy to widen once the engine can search parity for arbitrary pairs.
+
+### Scheme, buffers, alg overrides, presets and scratchpad live in the settings record
+
+- **Choice:** where Phase 5's user data is stored.
+- **Picked:** optional fields on the existing settings record: `scheme`, `buffers`, `algOverrides`, `difficulty`, `difficultyPresets` and `scratchpad`. Storage validates their shape; the engine validates meaning (scheme gaps and duplicates, alg correctness) wherever they're used.
+- **Why:** it needs no schema version bump or IndexedDB migration, it's exported with every backup, and none of these grow large.
+- **Reversal:** moderate. Moving any of them to its own collection needs a v2 migration.
+
+### M2/OP case ids include the buffer when it isn't the standard one
+
+- **Choice:** how drill history separates across buffers.
+- **Picked:** standard-buffer ids are unchanged (`op-corners:UBR`); other buffers add themselves (`op-corners@DBL:UBR`).
+- **Why:** the same target from another buffer is a different setup, so it needs its own FSRS schedule. Keeping the standard ids as they were means none of your Phase 4 history is orphaned.
+- **Reversal:** easy.
+
+### A seeded random-move scramble provider in the engine
+
+- **Choice:** how the difficulty customiser generates constrained scrambles in the browser.
+- **Picked:** `seededMoveProvider`: seeded random face turns with the state computed by applying them. No solver is involved. It works with `generateConstrained`.
+- **Why:** the random-state provider needs cubing.js's search worker, which still isn't checked under the static CSP (Phase 8). Trainers already used random-move scrambles.
+- **Reversal:** easy. Swap the provider.

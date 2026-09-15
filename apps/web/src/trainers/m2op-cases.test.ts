@@ -1,17 +1,17 @@
-import { drillScramble, loadPuzzle, M2DatasetSchema, M2OpParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
+import { drillScramble, loadPuzzle, m2OpSystem, opSystem, M2DatasetSchema, M2OpParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { sessionScramble } from "./guided-trace";
-import { familyOf, scrambleDrill, shotCases, type MethodDatasets, type ShotDatasets } from "./m2op-cases";
+import { familyOf, scrambleDrill, shotCases, type MethodDatasets } from "./m2op-cases";
 
 const read = (name: string) => JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "..", "content", "algs", "3x3", name), "utf8")) as unknown;
-const datasets: ShotDatasets = {
-  opCorners: OpSetupsDatasetSchema.parse(read("op-corners.UBL.json")),
-  opEdges: OpSetupsDatasetSchema.parse(read("op-edges.UR.json")),
-  m2Edges: M2DatasetSchema.parse(read("m2-edges.DF.json")),
+const opCorners = OpSetupsDatasetSchema.parse(read("op-corners.UBL.json"));
+const datasets: MethodDatasets = {
+  op: { corners: opCorners, edges: OpSetupsDatasetSchema.parse(read("op-edges.UR.json")), parity: OpParityDatasetSchema.parse(read("op-parity.UBL-UR.json")) },
+  m2: { corners: opCorners, edges: M2DatasetSchema.parse(read("m2-edges.DF.json")), parity: M2OpParityDatasetSchema.parse(read("m2op-parity.UBL-DF.json")) },
 };
-const methods: MethodDatasets = { ...datasets, opParity: OpParityDatasetSchema.parse(read("op-parity.UBL-UR.json")), m2opParity: M2OpParityDatasetSchema.parse(read("m2op-parity.UBL-DF.json")) };
+const methods = datasets;
 
 describe("M2/OP trainer cases", () => {
   it("has one case per target (21 corner, 22 edge, 22 M2) and 8 M2 special cases, all with unique ids", async () => {
@@ -27,7 +27,7 @@ describe("M2/OP trainer cases", () => {
     const puzzle = await loadPuzzle("3x3x3");
     const scheme = speffzScheme(puzzle);
     for (const mode of ["op-corners", "op-edges", "m2-edges"] as const) {
-      const records = mode === "m2-edges" ? datasets.m2Edges.records : (mode === "op-corners" ? datasets.opCorners : datasets.opEdges).records;
+      const records = mode === "m2-edges" ? datasets.m2.edges.records : (mode === "op-corners" ? datasets.op.corners : datasets.op.edges).records;
       for (const c of shotCases(mode, datasets, scheme)) {
         const record = records.find((r) => r.target === c.target);
         if (record === undefined) throw new Error(c.id);
@@ -43,14 +43,14 @@ describe("M2/OP trainer cases", () => {
     const puzzle = await loadPuzzle("3x3x3");
     const scheme = speffzScheme(puzzle);
     const specials = shotCases("m2-special", datasets, scheme);
-    for (const rule of datasets.m2Edges.oddStepRule) {
+    for (const rule of datasets.m2.edges.oddStepRule) {
       const odd = specials.find((c) => c.target === rule.target && c.position === "odd");
       const even = specials.find((c) => c.target === rule.target && c.position === "even");
       expect(odd?.shootAs).toBe(rule.shootAs);
-      expect(odd?.moves).toBe(datasets.m2Edges.records.find((r) => r.target === rule.shootAs)?.algs[0]?.moves);
-      expect(even?.moves).toBe(datasets.m2Edges.records.find((r) => r.target === rule.target)?.algs[0]?.moves);
+      expect(odd?.moves).toBe(datasets.m2.edges.records.find((r) => r.target === rule.shootAs)?.algs[0]?.moves);
+      expect(even?.moves).toBe(datasets.m2.edges.records.find((r) => r.target === rule.target)?.algs[0]?.moves);
     }
-    expect(datasets.m2Edges.oddStepRule.map((r) => `${r.target}>${r.shootAs}`).sort()).toEqual(["BD>FU", "DB>UF", "FU>BD", "UF>DB"]);
+    expect(datasets.m2.edges.oddStepRule.map((r) => `${r.target}>${r.shootAs}`).sort()).toEqual(["BD>FU", "DB>UF", "FU>BD", "UF>DB"]);
   });
 
   it("letters come from the scheme", async () => {
@@ -96,4 +96,24 @@ describe("M2/OP trainer cases", () => {
     expect(parities).toBeGreaterThan(0);
     expect(oddSpecials).toBeGreaterThan(0);
   });
+
+  it("another buffer's cases carry the buffer in their ids, and a full scramble logs under the same ids", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const scheme = speffzScheme(puzzle);
+    const op = opSystem(puzzle, { cornerBuffer: "DBL", edgeBuffer: "BR" });
+    const m2 = m2OpSystem(puzzle, { cornerBuffer: "DBL", edgeBuffer: "UF" });
+    if (!op.ok || !m2.ok) throw new Error("systems failed");
+    const other: MethodDatasets = { op: op.value, m2: m2.value };
+    expect(shotCases("op-corners", other, scheme).every((c) => c.id.startsWith("op-corners@DBL:"))).toBe(true);
+    expect(shotCases("m2-special", other, scheme).every((c) => c.id.startsWith("m2-special@UF:"))).toBe(true);
+    expect(shotCases("op-corners", datasets, scheme).every((c) => /^op-corners:[A-Z]+$/.test(c.id))).toBe(true);
+    const ids = new Set((["op-corners", "op-edges", "m2-edges", "m2-special"] as const).flatMap((m) => shotCases(m, other, scheme).map((c) => c.id)));
+    for (const method of ["op", "m2"] as const)
+      for (let i = 0; i < 10; i++) {
+        const drill = scrambleDrill(puzzle, scheme, method, sessionScramble("other-buffers", i), other);
+        if (drill === undefined) throw new Error("no drill");
+        for (const item of drill.items) if (item.kind === "target") expect(ids.has(item.caseId), item.caseId).toBe(true);
+        expect(puzzle.kpuzzle.defaultPattern().applyAlg(drill.scramble).applyAlg(drill.moves).isIdentical(puzzle.kpuzzle.defaultPattern())).toBe(true);
+      }
+  }, 60_000);
 });

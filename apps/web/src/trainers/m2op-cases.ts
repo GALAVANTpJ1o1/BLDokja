@@ -1,4 +1,5 @@
-import { formatMoves, solveM2Op, solveOpOp, stepMoves, type AlgMove, type M2Dataset, type M2OpParityDataset, type OpParityDataset, type OpSetupsDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
+import { formatMoves, solveM2Op, solveOpOp, stepMoves, type AlgMove, type M2Dataset, type OpSetupsDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
+import type { M2Data, OpData } from "@/lib/methods";
 
 /**
  * The cases the M2/OP trainer drills, taken from the verified datasets (D-024, D-025), never typed in.
@@ -31,10 +32,20 @@ export interface ShotCase {
   readonly lit: readonly string[];
 }
 
-export interface ShotDatasets {
-  readonly opCorners: OpSetupsDataset;
-  readonly opEdges: OpSetupsDataset;
-  readonly m2Edges: M2Dataset;
+/** The verified datasets for the reader's OP buffers and M2 buffers (lib/methods.ts). */
+export interface MethodDatasets {
+  readonly op: OpData;
+  readonly m2: M2Data;
+}
+
+/**
+ * The mode part of a case id. With the standard buffers (D-022) it's the mode alone, as in Phase 4, so
+ * existing history keeps its schedules; another buffer adds itself (`op-corners@DBL`), because its setups
+ * are different cases and its history must not mix with the standard buffer's.
+ */
+const STANDARD_BUFFER = { "op-corners": "UBL", "op-edges": "UR", "m2-edges": "DF", "m2-special": "DF" } as const;
+export function caseMode(mode: ShotMode, buffer: string): string {
+  return buffer === STANDARD_BUFFER[mode] ? mode : `${mode}@${buffer}`;
 }
 
 function letterOf(scheme: Scheme, pieceType: "corners" | "edges", sticker: string): string {
@@ -47,7 +58,7 @@ function opCases(dataset: OpSetupsDataset, scheme: Scheme, mode: "op-corners" | 
     const alg = record.algs[0];
     if (alg === undefined) throw new Error(`${dataset.id}: ${record.target} has no alg`);
     return {
-      id: `${mode}:${record.target}`,
+      id: `${caseMode(mode, dataset.buffer)}:${record.target}`,
       mode,
       pieceType,
       target: record.target,
@@ -67,7 +78,7 @@ function m2Case(dataset: M2Dataset, scheme: Scheme, target: string, mode: "m2-ed
   const alg = record.algs[0];
   if (alg === undefined) throw new Error(`m2 dataset: ${record.target} has no alg`);
   return {
-    id: position === undefined ? `${mode}:${target}` : `${mode}:${target}:${position}`,
+    id: position === undefined ? `${caseMode(mode, dataset.buffer)}:${target}` : `${caseMode(mode, dataset.buffer)}:${target}:${position}`,
     mode,
     pieceType: "edges",
     target,
@@ -81,16 +92,16 @@ function m2Case(dataset: M2Dataset, scheme: Scheme, target: string, mode: "m2-ed
   };
 }
 
-export function shotCases(mode: ShotMode, datasets: ShotDatasets, scheme: Scheme): ShotCase[] {
+export function shotCases(mode: ShotMode, datasets: MethodDatasets, scheme: Scheme): ShotCase[] {
   switch (mode) {
     case "op-corners":
-      return opCases(datasets.opCorners, scheme, "op-corners");
+      return opCases(datasets.op.corners, scheme, "op-corners");
     case "op-edges":
-      return opCases(datasets.opEdges, scheme, "op-edges");
+      return opCases(datasets.op.edges, scheme, "op-edges");
     case "m2-edges":
-      return datasets.m2Edges.records.map((r) => m2Case(datasets.m2Edges, scheme, r.target, "m2-edges"));
+      return datasets.m2.edges.records.map((r) => m2Case(datasets.m2.edges, scheme, r.target, "m2-edges"));
     case "m2-special":
-      return datasets.m2Edges.specialTargets.flatMap((t) => [m2Case(datasets.m2Edges, scheme, t, "m2-special", "even"), m2Case(datasets.m2Edges, scheme, t, "m2-special", "odd")]);
+      return datasets.m2.edges.specialTargets.flatMap((t) => [m2Case(datasets.m2.edges, scheme, t, "m2-special", "even"), m2Case(datasets.m2.edges, scheme, t, "m2-special", "odd")]);
   }
 }
 
@@ -134,11 +145,6 @@ export interface ScrambleDrill {
   readonly moves: string;
 }
 
-export interface MethodDatasets extends ShotDatasets {
-  readonly opParity: OpParityDataset;
-  readonly m2opParity: M2OpParityDataset;
-}
-
 /**
  * A full scramble to drill (BRIEF §7.2), step by step, from the engine's OP/OP or M2/OP solver: edges,
  * then parity when the counts are odd, then corners, with M2's odd/even rule already applied by the
@@ -147,8 +153,8 @@ export interface MethodDatasets extends ShotDatasets {
 export function scrambleDrill(puzzle: Puzzle, scheme: Scheme, method: ScrambleMethod, scramble: string, datasets: MethodDatasets): ScrambleDrill | undefined {
   const solved =
     method === "op"
-      ? solveOpOp(puzzle, { alg: scramble }, { scheme, corners: datasets.opCorners, edges: datasets.opEdges, parity: datasets.opParity })
-      : solveM2Op(puzzle, { alg: scramble }, { scheme, corners: datasets.opCorners, edges: datasets.m2Edges, parity: datasets.m2opParity });
+      ? solveOpOp(puzzle, { alg: scramble }, { scheme, corners: datasets.op.corners, edges: datasets.op.edges, parity: datasets.op.parity })
+      : solveM2Op(puzzle, { alg: scramble }, { scheme, corners: datasets.m2.corners, edges: datasets.m2.edges, parity: datasets.m2.parity });
   if (!solved.ok) return undefined;
   const solution = solved.value;
   const items: ScrambleItem[] = [];
@@ -159,10 +165,12 @@ export function scrambleDrill(puzzle: Puzzle, scheme: Scheme, method: ScrambleMe
     if (step.kind === "target") {
       counts[step.pieceType] += 1;
       const m2 = method === "m2" && step.pieceType === "edges";
-      const special = m2 && datasets.m2Edges.specialTargets.includes(step.target);
+      const special = m2 && datasets.m2.edges.specialTargets.includes(step.target);
       const position = step.traceIndex % 2 === 1 ? "odd" : "even";
-      const opDataset = step.pieceType === "corners" ? datasets.opCorners : datasets.opEdges;
-      const caseId = special ? `m2-special:${step.target}:${position}` : m2 ? `m2-edges:${step.target}` : `${step.pieceType === "corners" ? "op-corners" : "op-edges"}:${step.target}`;
+      const opDataset = step.pieceType === "corners" ? (method === "op" ? datasets.op.corners : datasets.m2.corners) : datasets.op.edges;
+      const shotMode: ShotMode = special ? "m2-special" : m2 ? "m2-edges" : step.pieceType === "corners" ? "op-corners" : "op-edges";
+      const caseBuffer = m2 ? datasets.m2.edges.buffer : step.pieceType === "corners" ? (method === "op" ? datasets.op.corners.buffer : datasets.m2.corners.buffer) : datasets.op.edges.buffer;
+      const caseId = special ? `${caseMode(shotMode, caseBuffer)}:${step.target}:${position}` : `${caseMode(shotMode, caseBuffer)}:${step.target}`;
       items.push({
         kind: "target",
         caseId,
@@ -177,7 +185,7 @@ export function scrambleDrill(puzzle: Puzzle, scheme: Scheme, method: ScrambleMe
         undo: formatMoves(step.undo),
         before: formatMoves(before),
         moves: formatMoves(moves),
-        lit: m2 ? [datasets.m2Edges.buffer, step.target, datasets.m2Edges.swap.swapSticker] : [opDataset.buffer, step.target, opDataset.swap.swapSticker, ...opDataset.swap.sideEffectPieces],
+        lit: m2 ? [datasets.m2.edges.buffer, step.target, datasets.m2.edges.swap.swapSticker] : [opDataset.buffer, step.target, opDataset.swap.swapSticker, ...opDataset.swap.sideEffectPieces],
       });
     } else if (step.kind === "parity") {
       items.push({
@@ -188,7 +196,7 @@ export function scrambleDrill(puzzle: Puzzle, scheme: Scheme, method: ScrambleMe
         undo: "",
         before: formatMoves(before),
         moves: formatMoves(moves),
-        lit: [...step.cancels.corners, ...step.cancels.edges, datasets.opCorners.buffer, method === "op" ? datasets.opEdges.buffer : datasets.m2Edges.buffer],
+        lit: [...step.cancels.corners, ...step.cancels.edges, method === "op" ? datasets.op.corners.buffer : datasets.m2.corners.buffer, method === "op" ? datasets.op.edges.buffer : datasets.m2.edges.buffer],
       });
     }
     before.push(...moves);

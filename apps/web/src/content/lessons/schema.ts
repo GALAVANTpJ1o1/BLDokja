@@ -31,6 +31,12 @@ export const LessonFrontmatterSchema = z
     checkpoints: z.array(CheckpointSpecSchema).min(1),
     /** One short recap line per idea this lesson builds on (your 2026-09-15 answer: a recap at the start). */
     recap: z.array(z.string().min(1)).default([]),
+    /**
+     * Which lettering the lesson's examples show: yours (the default), or always Speffz for a lesson that
+     * teaches Speffz itself. Buffers in lessons are always the standard ones: the prose teaches their
+     * swap spots and setup rules (docs/OVERNIGHT.md).
+     */
+    lettering: z.enum(["yours", "speffz"]).default("yours"),
   })
   .strict();
 

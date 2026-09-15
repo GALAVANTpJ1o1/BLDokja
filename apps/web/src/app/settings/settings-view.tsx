@@ -3,6 +3,7 @@
 import { exportData, importData, PALETTES, parseExport, THEMES, VOICES, type ExportV1, type ImportDataError, type Palette, type Theme, type Voice } from "@bld/storage";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
+import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 import { getStorage, nowIso, storageIsPersistent } from "@/lib/storage-client";
@@ -127,6 +128,13 @@ export function SettingsView() {
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
         <Choice<Voice> legend={en.settings.voice} hint={en.settings.voiceHint} options={VOICES} labels={en.settings.voices} value={settings.voice} onChange={(voice) => void update({ voice })} />
+      </Section>
+
+      <Section title={en.scheme.lettering}>
+        <p className="flex flex-col gap-1">
+          <TransitionLink href="/settings/lettering/" className="t-ui font-[650]">{en.scheme.link}</TransitionLink>
+          <span className="t-body text-quiet">{en.scheme.linkHint}</span>
+        </p>
       </Section>
 
       <Section title={en.settings.data}>
