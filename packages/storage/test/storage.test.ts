@@ -35,6 +35,24 @@ describe.each(backends)("storage on the %s backend", (_name, make) => {
     await expect(s.appendEvents([{ id: "d2", type: "pairs.discovered", at: AT, pairId: "EO", word: "", added: true }])).rejects.toBeInstanceOf(StorageValidationError);
   });
 
+  it("keeps a custom scheme, buffers, alg overrides, difficulty presets and the scratchpad in settings, and refuses bad shapes", async () => {
+    const s = createStorage(make());
+    const settings = {
+      scheme: { id: "mine", name: "Mine", letters: { corners: { UBL: "Ä", UBR: "B" }, edges: { UB: "a" } } },
+      buffers: { threeStyle: { corners: "UBL", edges: "DF" } },
+      algOverrides: { "3style-corners.UBL": { "UBR-UFL": ["[R: [U, R' D R]]"] } },
+      difficulty: { pieces: "edges" as const, constraints: { edges: { targets: { min: 8, max: 10 }, parity: false } }, time: { mode: "hard" as const, seconds: 3 }, relook: false, seed: "abc" },
+      difficultyPresets: [{ id: "p1", name: "No parity", difficulty: { constraints: { corners: { parity: false } } } }],
+      scratchpad: "[R, U]",
+    };
+    await s.putSettings(settings);
+    expect(await s.settings()).toEqual(settings);
+    await expect(s.putSettings({ scheme: { id: "x", name: "x", letters: { corners: { UBL: "AB" } } } })).rejects.toBeInstanceOf(StorageValidationError);
+    await expect(s.putSettings({ algOverrides: { "3style-corners.UBL": { "UBR-UFL": [] } } })).rejects.toBeInstanceOf(StorageValidationError);
+    await expect(s.putSettings({ difficulty: { constraints: { edges: { targets: { min: 9, max: 3 } } } } })).rejects.toBeInstanceOf(StorageValidationError);
+    await expect(s.putSettings({ buffers: { op: { corners: "ufr", edges: "UF" } } })).rejects.toBeInstanceOf(StorageValidationError);
+  });
+
   it("refuses invalid writes", async () => {
     const s = createStorage(make());
     await expect(s.putLetterPair({ ...pair("AB"), id: "BA" })).rejects.toBeInstanceOf(StorageValidationError);

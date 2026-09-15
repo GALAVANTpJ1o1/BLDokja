@@ -186,6 +186,75 @@ export const THEMES = ["system", "dark", "light"] as const;
 export const PALETTES = ["standard", "high-contrast", "deuteranopia"] as const;
 export const VOICES = ["plain", "tsundere", "casual", "roast"] as const;
 
+/** A sticker or piece name as the engine generates it ("UFR", "FUR", "UFr"). The engine checks it exists. */
+const StickerNameSchema = z.string().regex(/^[UDRLFB]{1,3}[udrlfb]{0,2}$/, "not a sticker name");
+
+/**
+ * A lettering scheme you edited (BRIEF §7.6): sticker name → one letter, per piece type. Storage checks
+ * the shape; the engine's scheme validation (duplicates, gaps, stickers that don't exist) runs where it's
+ * used, and an invalid scheme is never applied.
+ */
+export const StoredSchemeSchema = z
+  .object({
+    id: z.string().min(1).max(64),
+    name: z.string().min(1).max(100),
+    letters: z
+      .object({
+        corners: z.record(StickerNameSchema, LetterSchema).optional(),
+        edges: z.record(StickerNameSchema, LetterSchema).optional(),
+        wings: z.record(StickerNameSchema, LetterSchema).optional(),
+        xcenters: z.record(StickerNameSchema, LetterSchema).optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
+const BufferPairSchema = z.object({ corners: StickerNameSchema, edges: StickerNameSchema }).strict();
+
+/** Buffer stickers per method. Unset methods use the Gate B defaults (D-022). */
+export const BuffersSchema = z.object({ op: BufferPairSchema.optional(), m2: BufferPairSchema.optional(), threeStyle: BufferPairSchema.optional() }).strict();
+
+/**
+ * Your own algs for 3-style cases (BRIEF §7.3), main first. Keyed by dataset (`3style-corners.UFR`), then
+ * case id (`UBR-UBL`), so changing buffer keeps them for when you change back. The engine verifies an alg
+ * solves its case before it's saved, and again before it's used.
+ */
+export const AlgOverridesSchema = z.record(
+  z.string().regex(/^3style-(corners|edges).[UDRLFB]{2,3}$/, "not a 3-style dataset id"),
+  z.record(z.string().regex(/^[UDRLFB]{2,3}-[UDRLFB]{2,3}$/, "not a case id"), z.array(z.string().min(1).max(200)).min(1).max(4)),
+);
+
+const RangeSchema = z
+  .object({ min: z.number().int().nonnegative().optional(), max: z.number().int().nonnegative().optional() })
+  .strict()
+  .refine((r) => r.min === undefined || r.max === undefined || r.min <= r.max, { message: "min is greater than max" });
+
+/** The same shape as the engine's trace constraints for one piece type (BRIEF §5.6). */
+const PieceDifficultySchema = z
+  .object({ targets: RangeSchema.optional(), cycleBreaks: RangeSchema.optional(), misoriented: RangeSchema.optional(), parity: z.boolean().optional() })
+  .strict();
+
+/** The difficulty customiser's shared settings (BRIEF §7.7). Each trainer uses the fields that apply to it. */
+export const DifficultySchema = z
+  .object({
+    pieces: z.enum(["both", "edges", "corners"]).optional(),
+    constraints: z.object({ edges: PieceDifficultySchema.optional(), corners: PieceDifficultySchema.optional() }).strict().optional(),
+    /** Case subsets, by trainer id. An empty or missing list means every case. */
+    cases: z.record(z.string().min(1).max(40), z.array(z.string().min(1).max(40)).max(1000)).optional(),
+    time: z
+      .discriminatedUnion("mode", [
+        z.object({ mode: z.literal("none") }).strict(),
+        z.object({ mode: z.literal("soft"), seconds: z.number().positive().max(600) }).strict(),
+        z.object({ mode: z.literal("hard"), seconds: z.number().positive().max(600) }).strict(),
+      ])
+      .optional(),
+    relook: z.boolean().optional(),
+    seed: z.string().min(1).max(64).optional(),
+  })
+  .strict();
+
+export const DifficultyPresetSchema = z.object({ id: z.string().min(1).max(64), name: z.string().min(1).max(60), difficulty: DifficultySchema }).strict();
+
 /** Preferences. Every field is optional so a new preference never needs a migration. */
 export const SettingsSchema = z
   .object({
@@ -197,6 +266,13 @@ export const SettingsSchema = z
     lastBackupAt: isoInstant.optional(),
     /** Whether the browser granted persistent storage, last time it was asked. */
     persistentStorage: z.enum(["granted", "denied", "unsupported"]).optional(),
+    scheme: StoredSchemeSchema.optional(),
+    buffers: BuffersSchema.optional(),
+    algOverrides: AlgOverridesSchema.optional(),
+    difficulty: DifficultySchema.optional(),
+    difficultyPresets: z.array(DifficultyPresetSchema).max(50).optional(),
+    /** The comm sandbox's scratchpad. */
+    scratchpad: z.string().max(20_000).optional(),
   })
   .strict();
 
@@ -249,3 +325,8 @@ export type ExportV1 = z.infer<typeof ExportV1Schema>;
 export type Theme = (typeof THEMES)[number];
 export type Palette = (typeof PALETTES)[number];
 export type Voice = (typeof VOICES)[number];
+export type StoredScheme = z.infer<typeof StoredSchemeSchema>;
+export type Buffers = z.infer<typeof BuffersSchema>;
+export type AlgOverrides = z.infer<typeof AlgOverridesSchema>;
+export type Difficulty = z.infer<typeof DifficultySchema>;
+export type DifficultyPreset = z.infer<typeof DifficultyPresetSchema>;
