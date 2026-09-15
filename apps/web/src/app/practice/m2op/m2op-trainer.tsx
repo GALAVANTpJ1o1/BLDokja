@@ -12,11 +12,15 @@ import { en } from "@/i18n/en";
 import { useReader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
-import { shotCases, type ShotCase, type ShotMode } from "@/trainers/m2op-cases";
+import { FAMILIES, familyOf, shotCases, type Family, type ShotCase, type ShotMode } from "@/trainers/m2op-cases";
+import { ScrambleDrillView } from "./scramble-drill";
 
-type Mode = ShotMode | "illegal";
+type Mode = ShotMode | "scramble-op" | "scramble-m2" | "illegal";
+type FamilyChoice = Family | "all";
 type Strategy = Extract<SelectionStrategy, "coverage" | "weakness" | "uniform" | "spaced">;
-const MODES: readonly Mode[] = ["op-corners", "op-edges", "m2-edges", "m2-special", "illegal"];
+const MODES: readonly Mode[] = ["op-corners", "op-edges", "m2-edges", "m2-special", "scramble-op", "scramble-m2", "illegal"];
+const FAMILY_CHOICES: readonly FamilyChoice[] = ["all", ...FAMILIES];
+const isShotMode = (m: Mode): m is ShotMode => m !== "illegal" && m !== "scramble-op" && m !== "scramble-m2";
 const STRATEGIES: readonly Strategy[] = ["coverage", "weakness", "uniform", "spaced"];
 const TRAINER = "m2op";
 
@@ -83,6 +87,7 @@ export function M2OpTrainer() {
   const [mode, setMode] = useState<Mode>(() => readPreference("bld.m2op.mode", "op-corners", isMode));
   const [strategy, setStrategy] = useState<Strategy>(() => readPreference("bld.m2op.strategy", "coverage", isStrategy));
   const [sighted, setSighted] = useState(false);
+  const [family, setFamily] = useState<FamilyChoice>("all");
   const [seed] = useState(() => newId());
   const [current, setCurrent] = useState<ShotCase | undefined>(undefined);
   const [revealed, setRevealed] = useState(false);
@@ -94,7 +99,11 @@ export function M2OpTrainer() {
   const revealMs = useRef(0);
   const selector = useRef<Selector | undefined>(undefined);
 
-  const cases = useMemo(() => (reader === undefined || mode === "illegal" ? [] : shotCases(mode, algDatasets(), reader.scheme)), [reader, mode]);
+  const cases = useMemo(() => {
+    if (reader === undefined || !isShotMode(mode)) return [];
+    const all = shotCases(mode, algDatasets(), reader.scheme);
+    return family === "all" || mode === "m2-special" ? all : all.filter((c) => familyOf(c.target) === family);
+  }, [reader, mode, family]);
   const examples = useMemo(() => illegalExamples(), []);
   const schedules = useMemo<Map<string, CaseSchedule>>(() => scheduleAll(cases.map((c) => c.id), reviewsByCase(events ?? [], TRAINER), new Date()), [cases, events]);
 
@@ -115,11 +124,11 @@ export function M2OpTrainer() {
   // A new selector whenever the case set or the order changes; events only update the stats it reads.
   useEffect(() => {
     if (cases.length === 0 || events === undefined) return;
-    const created = createSelector({ strategy, cases: cases.map((c) => c.id), seed: `${seed}:${mode}:${strategy}` });
+    const created = createSelector({ strategy, cases: cases.map((c) => c.id), seed: `${seed}:${mode}:${family}:${strategy}` });
     selector.current = created.ok ? created.value : undefined;
     pick();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- re-picking on every event would skip cases
-  }, [cases, strategy, seed, mode, events === undefined]);
+  }, [cases, strategy, seed, mode, family, events === undefined]);
 
   const reveal = useCallback(() => {
     if (current === undefined || revealed) return;
@@ -139,7 +148,7 @@ export function M2OpTrainer() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement) return;
+      if (event.target instanceof HTMLInputElement || !isShotMode(mode) && mode !== "illegal") return;
       if (mode === "illegal") {
         if (event.key === "Enter" || event.key === "ArrowRight") setIllegalIndex((i) => (i + 1) % examples.length);
         return;
@@ -160,7 +169,8 @@ export function M2OpTrainer() {
   const settings = (
     <>
       <Segmented<Mode> label={en.m2op.mode} options={MODES} labels={en.m2op.modes} value={mode} onChange={(v) => { setMode(v); writePreference("bld.m2op.mode", v); }} />
-      {mode !== "illegal" ? <Segmented<Strategy> label={en.m2op.strategy} options={STRATEGIES} labels={en.m2op.strategies} value={strategy} onChange={(v) => { setStrategy(v); writePreference("bld.m2op.strategy", v); }} /> : null}
+      {isShotMode(mode) ? <Segmented<Strategy> label={en.m2op.strategy} options={STRATEGIES} labels={en.m2op.strategies} value={strategy} onChange={(v) => { setStrategy(v); writePreference("bld.m2op.strategy", v); }} /> : null}
+      {isShotMode(mode) && mode !== "m2-special" ? <Segmented<FamilyChoice> label={en.m2op.family} options={FAMILY_CHOICES} labels={en.m2op.families} value={family} onChange={setFamily} /> : null}
       <label className="flex items-center gap-2 t-ui">
         <input type="checkbox" checked={sighted} onChange={(e) => { setSighted(e.target.checked); }} />
         {en.m2op.sighted}
@@ -176,6 +186,7 @@ export function M2OpTrainer() {
           { keys: en.m2op.keyRight, action: en.m2op.keyRightAction },
           { keys: en.m2op.keyWrong, action: en.m2op.keyWrongAction },
           { keys: en.m2op.keyR, action: en.m2op.keyRAction },
+          ...(isShotMode(mode) ? [] : [{ keys: en.m2op.keyN, action: en.m2op.keyNAction }]),
         ];
 
   const shell = (children: React.ReactNode, summary?: React.ReactNode) => (
@@ -185,6 +196,8 @@ export function M2OpTrainer() {
   );
 
   if (reader === undefined) return shell(<p className="t-meta text-quiet">{en.trainer.loading}</p>);
+
+  if (mode === "scramble-op" || mode === "scramble-m2") return shell(<ScrambleDrillView reader={reader} method={mode === "scramble-op" ? "op" : "m2"} sighted={sighted} seed={seed} append={append} />);
 
   if (mode === "illegal") {
     const example = examples[illegalIndex % examples.length];

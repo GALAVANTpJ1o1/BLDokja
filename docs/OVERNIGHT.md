@@ -229,6 +229,24 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Why:** coverage is the right start when every case is new (weakness with no history just ties). Pretending a case is due would teach the wrong schedule.
 - **Reversal:** easy.
 
+### M2/OP "case family" means the face the target is on
+
+- **Choice:** what BRIEF §7.2's "drill by case family" groups by.
+- **Picked:** the face of the target sticker (U, F, R, D, L, B), as a filter on the OP corner, OP edge and M2 edge drills. The special-case drill is already its own family.
+- **Why:** it's the grouping a solver learns setups in, it needs no hand-made table, and it matches the site's rule that a colour always means its face. Grouping by setup length would be the other obvious choice.
+- **Reversal:** easy.
+
+### Full-scramble drill walks the engine's solver steps
+
+- **Choice:** how "drill by full scramble" works.
+- **Picked:**
+  - two modes, OP/OP and M2 edges with OP corners;
+  - a seeded random-move scramble, solved by the engine's `solveOpOp` or `solveM2Op` with the verified datasets;
+  - each step drilled in order (recall, reveal on the cube from where the previous step left it, mark yourself): edges, parity when the edge memo is odd, then corners;
+  - each step logged under the per-target drills' case id (`m2-special:UF:odd` and so on), so a full scramble feeds the same schedules; parity logs as `op-parity` or `m2op-parity`.
+- **Why:** the solver already applies the odd/even rule and parity and is property-tested. The trainer only labels its steps. A test solves 80 scrambles through the drill and checks each step against the per-target cases.
+- **Reversal:** easy.
+
 ### Words found in "find a word" are a new event type, `pairs.discovered`
 
 - **Choice:** how to log discovery separately from drilling (AUDIT §6, Q4).

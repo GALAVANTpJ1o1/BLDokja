@@ -1,8 +1,9 @@
-import { drillScramble, loadPuzzle, M2DatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
+import { drillScramble, loadPuzzle, M2DatasetSchema, M2OpParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { shotCases, type ShotDatasets } from "./m2op-cases";
+import { sessionScramble } from "./guided-trace";
+import { familyOf, scrambleDrill, shotCases, type MethodDatasets, type ShotDatasets } from "./m2op-cases";
 
 const read = (name: string) => JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "..", "content", "algs", "3x3", name), "utf8")) as unknown;
 const datasets: ShotDatasets = {
@@ -10,6 +11,7 @@ const datasets: ShotDatasets = {
   opEdges: OpSetupsDatasetSchema.parse(read("op-edges.UR.json")),
   m2Edges: M2DatasetSchema.parse(read("m2-edges.DF.json")),
 };
+const methods: MethodDatasets = { ...datasets, opParity: OpParityDatasetSchema.parse(read("op-parity.UBL-UR.json")), m2opParity: M2OpParityDatasetSchema.parse(read("m2op-parity.UBL-DF.json")) };
 
 describe("M2/OP trainer cases", () => {
   it("has one case per target (21 corner, 22 edge, 22 M2) and 8 M2 special cases, all with unique ids", async () => {
@@ -55,5 +57,43 @@ describe("M2/OP trainer cases", () => {
     const puzzle = await loadPuzzle("3x3x3");
     const scheme = speffzScheme(puzzle);
     for (const c of shotCases("op-edges", datasets, scheme)) expect(c.letter).toBe(scheme.letters.edges?.[c.target]);
+  });
+
+  it("every target belongs to exactly one face family", async () => {
+    const scheme = speffzScheme(await loadPuzzle("3x3x3"));
+    for (const mode of ["op-corners", "op-edges", "m2-edges"] as const) for (const c of shotCases(mode, datasets, scheme)) expect(familyOf(c.target), c.id).toBe(c.target[0]);
+  });
+
+  it("a full-scramble drill is the solver's solution step by step, and it solves the scramble", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const scheme = speffzScheme(puzzle);
+    const solved = puzzle.kpuzzle.defaultPattern();
+    const ids = new Set((["op-corners", "op-edges", "m2-edges", "m2-special"] as const).flatMap((m) => shotCases(m, datasets, scheme).map((c) => c.id)));
+    const specials = shotCases("m2-special", datasets, scheme);
+    let parities = 0;
+    let oddSpecials = 0;
+    for (const method of ["op", "m2"] as const)
+      for (let i = 0; i < 40; i++) {
+        const scramble = sessionScramble("m2op-scramble-test", i);
+        const drill = scrambleDrill(puzzle, scheme, method, scramble, methods);
+        if (drill === undefined) throw new Error(`${method} #${String(i)} did not solve`);
+        expect(solved.applyAlg(scramble).applyAlg(drill.moves).isIdentical(solved)).toBe(true);
+        expect(drill.items.map((it) => it.moves).join(" ").trim()).toBe(drill.moves);
+        for (const [k, item] of drill.items.entries()) {
+          expect(item.before, `${method} #${String(i)} step ${String(k)}`).toBe(drill.items.slice(0, k).map((it) => it.moves).join(" ").trim());
+          if (item.kind === "parity") parities++;
+          else {
+            expect(ids.has(item.caseId), item.caseId).toBe(true);
+            if (item.position === "odd") {
+              oddSpecials++;
+              expect(item.moves).toBe(specials.find((c) => c.id === item.caseId)?.moves);
+            }
+          }
+        }
+        const edgeItems = drill.items.filter((it) => it.pieceType === "edges");
+        expect(edgeItems.map((it) => it.letter)).toEqual(drill.memo.edges.slice(0, edgeItems.length));
+      }
+    expect(parities).toBeGreaterThan(0);
+    expect(oddSpecials).toBeGreaterThan(0);
   });
 });

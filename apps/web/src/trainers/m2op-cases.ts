@@ -1,4 +1,4 @@
-import type { M2Dataset, OpSetupsDataset, Scheme } from "@bld/cube-engine";
+import { formatMoves, solveM2Op, solveOpOp, stepMoves, type AlgMove, type M2Dataset, type M2OpParityDataset, type OpParityDataset, type OpSetupsDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
 
 /**
  * The cases the M2/OP trainer drills, taken from the verified datasets (D-024, D-025), never typed in.
@@ -92,4 +92,106 @@ export function shotCases(mode: ShotMode, datasets: ShotDatasets, scheme: Scheme
     case "m2-special":
       return datasets.m2Edges.specialTargets.flatMap((t) => [m2Case(datasets.m2Edges, scheme, t, "m2-special", "even"), m2Case(datasets.m2Edges, scheme, t, "m2-special", "odd")]);
   }
+}
+
+/** Case families for drilling a subset: the face the target sticker is on. */
+export const FAMILIES = ["U", "F", "R", "D", "L", "B"] as const;
+export type Family = (typeof FAMILIES)[number];
+
+export function familyOf(target: string): Family | undefined {
+  return FAMILIES.find((f) => target.startsWith(f));
+}
+
+export type ScrambleMethod = "op" | "m2";
+
+export interface ScrambleItem {
+  readonly kind: "target" | "parity";
+  /** The same case id the per-target drills use, so a full scramble feeds the same schedules. */
+  readonly caseId: string;
+  readonly pieceType?: "corners" | "edges";
+  readonly target?: string;
+  readonly letter?: string;
+  /** 1-based position among this piece type's targets. */
+  readonly number?: number;
+  /** For M2 special targets. */
+  readonly position?: "even" | "odd";
+  readonly shotAs?: string;
+  readonly setup: string;
+  readonly core: string;
+  readonly undo: string;
+  /** Every move executed before this step, after the scramble. */
+  readonly before: string;
+  readonly moves: string;
+  readonly lit: readonly string[];
+}
+
+export interface ScrambleDrill {
+  readonly method: ScrambleMethod;
+  readonly scramble: string;
+  readonly memo: { readonly edges: readonly string[]; readonly corners: readonly string[] };
+  readonly items: readonly ScrambleItem[];
+  /** The whole solution, as the engine's solver returned it. */
+  readonly moves: string;
+}
+
+export interface MethodDatasets extends ShotDatasets {
+  readonly opParity: OpParityDataset;
+  readonly m2opParity: M2OpParityDataset;
+}
+
+/**
+ * A full scramble to drill (BRIEF §7.2), step by step, from the engine's OP/OP or M2/OP solver: edges,
+ * then parity when the counts are odd, then corners, with M2's odd/even rule already applied by the
+ * solver. Nothing here chooses an alg; it only labels the solver's steps.
+ */
+export function scrambleDrill(puzzle: Puzzle, scheme: Scheme, method: ScrambleMethod, scramble: string, datasets: MethodDatasets): ScrambleDrill | undefined {
+  const solved =
+    method === "op"
+      ? solveOpOp(puzzle, { alg: scramble }, { scheme, corners: datasets.opCorners, edges: datasets.opEdges, parity: datasets.opParity })
+      : solveM2Op(puzzle, { alg: scramble }, { scheme, corners: datasets.opCorners, edges: datasets.m2Edges, parity: datasets.m2opParity });
+  if (!solved.ok) return undefined;
+  const solution = solved.value;
+  const items: ScrambleItem[] = [];
+  const before: AlgMove[] = [];
+  const counts = { corners: 0, edges: 0 };
+  for (const step of solution.steps) {
+    const moves = stepMoves(step);
+    if (step.kind === "target") {
+      counts[step.pieceType] += 1;
+      const m2 = method === "m2" && step.pieceType === "edges";
+      const special = m2 && datasets.m2Edges.specialTargets.includes(step.target);
+      const position = step.traceIndex % 2 === 1 ? "odd" : "even";
+      const opDataset = step.pieceType === "corners" ? datasets.opCorners : datasets.opEdges;
+      const caseId = special ? `m2-special:${step.target}:${position}` : m2 ? `m2-edges:${step.target}` : `${step.pieceType === "corners" ? "op-corners" : "op-edges"}:${step.target}`;
+      items.push({
+        kind: "target",
+        caseId,
+        pieceType: step.pieceType,
+        target: step.target,
+        letter: solution.traces[step.pieceType].targets[step.traceIndex] ?? letterOf(scheme, step.pieceType, step.target),
+        number: counts[step.pieceType],
+        ...(special ? { position } : {}),
+        ...(step.shotAs === undefined ? {} : { shotAs: step.shotAs }),
+        setup: formatMoves(step.setup),
+        core: formatMoves(step.core),
+        undo: formatMoves(step.undo),
+        before: formatMoves(before),
+        moves: formatMoves(moves),
+        lit: m2 ? [datasets.m2Edges.buffer, step.target, datasets.m2Edges.swap.swapSticker] : [opDataset.buffer, step.target, opDataset.swap.swapSticker, ...opDataset.swap.sideEffectPieces],
+      });
+    } else if (step.kind === "parity") {
+      items.push({
+        kind: "parity",
+        caseId: `${method === "op" ? "op" : "m2op"}-parity`,
+        setup: "",
+        core: formatMoves(step.alg),
+        undo: "",
+        before: formatMoves(before),
+        moves: formatMoves(moves),
+        lit: [...step.cancels.corners, ...step.cancels.edges, datasets.opCorners.buffer, method === "op" ? datasets.opEdges.buffer : datasets.m2Edges.buffer],
+      });
+    }
+    before.push(...moves);
+  }
+  return { method, scramble, memo: { edges: solution.traces.edges.targets, corners: solution.traces.corners.targets }, items, moves: formatMoves(solution.moves) };
 }
