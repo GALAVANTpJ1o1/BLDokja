@@ -89,3 +89,37 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Choice:** whether `/lab`'s sample strings go through the dictionary.
 - **Picked:** they're inline. It's a development page behind a flag, and its samples are design fixtures, not site copy.
 - **Reversal:** easy.
+
+## Constellation direction (your DESIGN-DIRECTION.md message)
+
+### Reconciling DESIGN-DIRECTION.md with the existing system
+
+- **Choice:** where the two documents disagree (see DESIGN.md, "Reconciling the constellation direction").
+- **Picked:**
+  - stars and glows are **chalk**, not an accent colour, because colour still means a face;
+  - DESIGN-DIRECTION.md §4's "sticker colours for piece types, tracks, states" gives way to your face-only answer;
+  - parallax and page travel run only in response to scrolling or navigating, never on a timer;
+  - the transmission window is the one square-cornered surface;
+  - no starfield in the light theme.
+- **Why:** DESIGN-DIRECTION.md §6 says to keep what's already decided. CLAUDE.md allows motion only in response to user action.
+- **Tension to flag:** CLAUDE.md also says motion should happen "only when it shows what changed". Parallax is atmosphere and doesn't show a change. I implemented it because you asked for it explicitly, kept it small (0.1–0.3× scroll), and made reduced motion remove it entirely.
+- **Reversal:** easy. Chalk values and motion durations are tokens and CSS; turning parallax off is one flag in `starfield-model.ts` (`LAYER_SPEEDS`).
+
+### Reduced motion: "static" still allows a cross-fade between pages
+
+- **Choice:** what "collapse everything to static" means for page transitions.
+- **Picked:** nothing moves. No parallax, no scaling, no streaking, no dialog entrance. Page changes are a 160ms opacity cross-fade.
+- **Why:** DESIGN-DIRECTION.md §3 asks for "a plain cross-fade — never a hard cut" under reduced motion, and opacity isn't spatial motion.
+- **Reversal:** one CSS rule. Replace the `fade` keyframes with `animation: none` for an instant change.
+
+### Transmission window replaces the inline settings confirmations
+
+- **Choice:** where the new dialog shell is used now.
+- **Picked:** the import review and "Delete all my data" confirmation in Settings. The Phase 3 voice picker will use it too.
+- **Reversal:** easy.
+
+### Committed on `phase-2/app-shell`, then `phase-3/lessons` rebased onto it
+
+- **Choice:** where this work lives.
+- **Picked:** the Phase 2 branch, in its own commits, as you asked; the Phase 3 branch then continues from it.
+- **Reversal:** none needed.

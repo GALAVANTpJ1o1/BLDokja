@@ -1,16 +1,41 @@
 # BLDokja design system
 
-Design tokens and the reasoning behind them (BRIEF §9). The choices come from your answers on 2026-09-15; where I had to fill a gap, the gap is named in `docs/OVERNIGHT.md`. Tokens live in `apps/web/src/styles/tokens.css`, and `/lab` shows every one of them.
+Design tokens and the reasoning behind them (BRIEF §9), combined with the constellation direction in `DESIGN-DIRECTION.md`. The base system comes from your answers on 2026-09-15; the constellation layer (starfield, page transitions, transmission window, letters as stars) is added on top of it, as DESIGN-DIRECTION.md §6 asks. Where I had to fill a gap or reconcile the two, it's named below and in `docs/OVERNIGHT.md`. Tokens live in `apps/web/src/styles/tokens.css`, and `/lab` shows every one of them.
 
-## Three principles
+## The idea underneath
 
-1. **The cube is the only colour.** The six face colours are the only hues on the site, and **a colour always means its face**. A red mark says "this is on R". Everything else is slate, chalk and ink. Tracks, piece types and states are told apart by type, shape, position and tone, never by a colour of their own.
-2. **Letters are places.** A letter is a sticker. Every letter the site shows can say where it lives: the live target sits on a tile in its sticker's colour, and letters elsewhere carry a small notch in their face colour. The interface around the letters stays quiet so the letters and the cube read first.
-3. **Still until touched.** Nothing moves on its own. Motion happens only in response to what you do, and only to show what changed: a comm turning, a target advancing, a panel opening where you clicked. `prefers-reduced-motion` turns every transition into an instant change, cube animations included (the cube jumps to the end state and offers stepping).
+Tracing a memo is drawing a path through fixed points in a fixed order. So the site's second layer of meaning is a night sky:
+
+- a **sticker or letter** is a star;
+- a **trace** is the line drawn from star to star as each target is shot;
+- a **cycle** is a constellation closing into a shape;
+- the **buffer** is the anchor star everything returns to.
+
+The persistent starfield is the quiet version of this on every page. The loud version, where guided trace draws targets as points and a completed cycle closes into a visible shape, is a Phase 4 stretch goal. Nothing in this system should fight it.
+
+## Four principles
+
+1. **The cube is the only colour.** The six face colours are the only hues on the site, and **a colour always means its face**. A red mark says "this is on R". Everything else is slate, chalk and ink, the starfield and its glows included. Tracks, piece types and states are told apart by type, shape, position and tone, never by a colour of their own.
+2. **Letters are places, and places are stars.** A letter is a sticker. Every letter the site shows can say where it lives: the live target sits on a tile in its sticker's colour, and letters elsewhere carry a small notch in their face colour. On the starfield, a letter can also be drawn as a star (chalk with a soft glow) to mark a completion or a target.
+3. **Moves only when you do.** Nothing animates on a timer or on load. Motion happens only in response to what you do: a comm turning, a target advancing, a dialog opening where you asked for it, the stars drifting as you scroll, the sky rushing past as you move to another page. Motion that carries information (the cube) is primary; the atmospheric kind (parallax, page travel) stays small, short and optional.
+4. **Everything collapses to still.** Under `prefers-reduced-motion`, nothing moves: no parallax, no page travel (a plain cross-fade instead), no dialog entrance, and cube animations jump to their end with stepping. This is checked in script and in tests, not left to a media query.
 
 ## Where this departs from the brief
 
 BRIEF §9 suggests mapping *piece types, tracks and states* to face colours. That collides with the cube: on a screen with a cube, a red "corners" label would read as "the R face". So colour means one thing only, the face, and the rest of the information architecture is carried by type and layout. You chose this on 2026-09-15.
+
+## Reconciling the constellation direction
+
+DESIGN-DIRECTION.md extends this system; where the two touch, this is how they fit:
+
+| DESIGN-DIRECTION.md says | Existing system | Combined |
+|---|---|---|
+| Stars "white/accent-tinted"; windows have a "glowing border in the accent colour" | There is no accent colour; colour means a face (principle 1) | Stars and glows are **chalk** (the warm off-white text colour) in the dim-room theme, **ink** where a window shows in daylight. No new hue. |
+| §4: sticker colours stay "the primary semantic language across the UI (piece types, tracks, states)" | Your 2026-09-15 answer: colour means only its face | The face-only rule stands; DESIGN-DIRECTION.md §6 says to keep what's already decided. |
+| Parallax on scroll, page travel, dialog entrance | "Still until touched"; CLAUDE.md: motion only in response to user action | Principle 3 is restated as "moves only when you do". All three respond to something you did (scroll, navigate, open) and never run on their own. |
+| Angular transmission windows | Sticker grid: 4px radii | The transmission window is the one deliberately angular surface, so dialogs read as a different layer from the page. |
+| Starfield in light mode: off or near zero | Daylight is a designed theme, not an inversion | The starfield isn't drawn in the light theme at all. |
+| No references to any specific work | — | The HUD and starfield vocabulary stays generic; copy in windows is plain sentences. |
 
 ## Colour
 
@@ -100,13 +125,51 @@ Pages without a cube (the letter-pair library, progress) use the same rail and a
 
 **Home adapts.** A new visitor lands on the learning path. Once any lesson or drill is started, home becomes *Today*: reviews due, the next lesson, the weak 20.
 
+## The constellation layer
+
+### Starfield (`components/starfield`)
+
+- **One `<canvas>`** fixed behind all content: never per-star DOM nodes. It is `aria-hidden` and ignores the pointer.
+- **Stars** are small points in chalk at 4–10% strength, three depth layers with slightly larger, brighter near stars. They're placed by a seeded best-candidate scatter, so the field is irregular (no grid, no clumps) and the same on every visit.
+- **Parallax:** stars move only when you scroll, at 0.1×, 0.2× and 0.3× the scroll speed by layer. There is no animation loop: the canvas repaints on scroll, resize and theme change, and not otherwise.
+- **Adaptive count:** one star per 9,000 px² of viewport, capped at 240 on large screens and 90 on phones, and halved again where the browser reports low memory, few CPU cores or data saving.
+- **Contrast by construction:** each star is painted opaque, in the ground colour blended toward chalk by at most 10%, onto a canvas filled with the ground. Overlapping stars overwrite instead of adding up, so no pixel is brighter than one star at 10%. `starfield.test.ts` checks body text, quiet text and the focus ring against that brightest colour (brightest star colour `#404255`: text 8.2:1, quiet text 5.0:1, focus ring 8.2:1; the test prints the ratios).
+- **Light theme:** not drawn.
+- **Reduced motion:** scrolling isn't even listened to; the field is painted once and stays put. A test paints the whole field at two scroll positions and requires identical output.
+
+### Moving between pages (`components/transitions`)
+
+- **Mechanism:** the View Transitions API, through `TransitionLink` (used by the nav). The route change runs inside `document.startViewTransition`, and the kind of transition is stamped on `<html>` as `data-transition` while it runs.
+- **Full motion, "travel":** the old sky streaks outward (scale to 1.08 with a faint blur) and fades; the old page recedes (scale 0.97) and fades; the new sky settles from 1.05 to rest while the new page arrives from 0.98. Nothing exceeds 110% scale, and everything finishes within 360ms.
+- **Reduced motion, "fade":** a 160ms cross-fade of the whole page. Nothing scales, streaks or moves.
+- **No View Transitions API:** the page just changes.
+- The effect only shows once there are lessons to move between (Phase 3); the mechanism is in place now.
+
+### Transmission window (`components/ui/transmission-window.tsx`)
+
+- **The one dialog shell:** settings confirmations now, the first-visit voice picker and trainer dialogs later.
+- **Shape:** a square-cornered panel on a slightly lifted ground, a 1px chalk border at 38% with a soft chalk glow, and small L-shaped corner brackets. The backdrop is the ground at 55% with a 6px blur, not a flat scrim.
+- **Behaviour:** native `<dialog>` with `showModal()`, so focus stays inside, Escape and a backdrop click close it, and the page behind is inert.
+- **Entrance:** scale from 95% and fade, 160ms. With reduced motion it simply appears.
+- **Copy:** plain. A clear heading and ordinary sentences; no invented terminology, no bracketed system-message phrasing.
+
+### Letters as stars
+
+`LetterStar` draws a letter in chalk with a two-step soft glow, in the casual display style: for a lesson's completion mark, or a target display on the starfield. It's the literal form of principle 2.
+
 ## Motion
 
-- **Durations:** 120ms for state changes in the interface (a panel opening, a mark appearing); cube move timing is cubing.js's, scaled by the tempo setting.
-- **Easing:** `cubic-bezier(0.2, 0, 0, 1)`, a quick start that settles.
-- **Allowed:** the cube turning; a tile flipping to its next letter; a panel expanding from the control that opened it.
-- **Not allowed:** entrance animations, parallax, hover lifts, looping decoration, skeleton shimmer.
-- **Reduced motion:** all of the above become instant; cube animations jump to their end with step controls.
+- **Durations:** 120ms for state changes in the interface (a mark appearing, a button state); 160ms for a dialog entrance and the reduced-motion cross-fade; up to 360ms for page travel. Cube move timing is cubing.js's, scaled by the tempo setting.
+- **Easing:** `cubic-bezier(0.2, 0, 0, 1)`, a quick start that settles; page travel accelerates out and decelerates in.
+- **Allowed:** the cube turning; a tile flipping to its next letter; a dialog entering where you opened it; stars drifting while you scroll; page travel when you navigate.
+- **Not allowed:** anything on a timer or on load; entrance animations for page sections; hover lifts; looping decoration; skeleton shimmer; zoom beyond 110%.
+- **Reduced motion, checked in script as well as by media query** (`design/motion.ts` stamps `data-motion` on `<html>`, and the CSS keys its reduced rules on both):
+  - no parallax;
+  - page travel becomes a cross-fade;
+  - dialogs appear without an entrance;
+  - cube animations jump to their end.
+
+  `motion.test.ts` checks the script path, the transition kinds, and that every moving rule in the stylesheet has both overrides.
 
 ## Review against the brief and CLAUDE.md
 
@@ -120,8 +183,10 @@ Pages without a cube (the letter-pair library, progress) use the same rail and a
 | One word coloured or italicised in a headline | Landing copy | Colour means a face; headlines are plain |
 | `→` on buttons | Calls to action | Verbs only: "Start lesson", "Drill these" |
 | Fade-and-slide-up entrances | Every section | Principle 3: nothing moves on load |
+| Space theme as decoration | A starfield on every page | The starfield means something (letters are stars, traces are lines), stays at 4–10%, moves only with scroll, and gives nothing an exemption from the rules above |
+| Glowing neon HUD everywhere | Dialogs | Only the transmission window uses the HUD vocabulary, in chalk, with plain copy |
 
-**Is anything still generic?** The slate/lilac pairing is calm but plain on its own. What makes it this site is that the only colour anywhere is a sticker, and the letters act as places. If `/lab` looks like "a dark dashboard", the fix is more letters and cubes, not an accent.
+**Is anything still generic?** The slate/lilac pairing is calm but plain on its own. What makes it this site is that the only colour anywhere is a sticker, the letters act as places, and places are stars. If `/lab` looks like "a dark dashboard" or "a generic space theme", the fix is more letters, cubes and traces, not an accent.
 
 ## Accessibility floor (built in from the start)
 
@@ -129,3 +194,6 @@ Pages without a cube (the letter-pair library, progress) use the same rail and a
 - Full keyboard operation with visible focus (the `--focus` ring above); trainer shortcuts are single keys, listed under `?`.
 - Every palette is available in both themes; a palette never depends on a theme.
 - Touch targets at least 44×44px on phones.
+- The starfield and page transitions are `aria-hidden` and decorative; screen-reader users lose nothing without them.
+- Text over the starfield keeps WCAG AA against the brightest star colour possible, checked in `starfield.test.ts`.
+- Reduced motion collapses every moving part to still (principle 4), checked in `motion.test.ts` and `starfield.test.ts`.
