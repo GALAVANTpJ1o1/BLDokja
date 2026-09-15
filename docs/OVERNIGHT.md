@@ -193,3 +193,38 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Picked:** client-only, via `next/dynamic` with `ssr: false`.
 - **Why:** they read the URL seed and local preferences as they start, and prerendering them would only produce a flash of the wrong state.
 - **Reversal:** easy.
+
+### The M2/OP drill reveals the setup, swap and undo, not just the setup
+
+- **Choice:** what "reveal" shows for a target.
+- **Picked:**
+  - the setup, the swap alg and the undo written out;
+  - the cube starting from the target's drill state and playing the shot once (autoplay; replay with R);
+  - for a target with its own alg (M2 special cases), that alg.
+- **Why:** your answer asked for recall, reveal and self-grade, with the animation playing once before stepping. Writing out all three parts is what you check yourself against. The undo is computed as the setup's inverse by the engine, never typed in.
+- **Reversal:** easy.
+
+### The illegal-setup mode explains each case from the dataset's own fields
+
+- **Choice:** what to show for "why is this setup illegal?".
+- **Picked:**
+  - OP: every forbidden family's worked example, plus which pieces the family's turn moves (`disturbs`) and the verified legal setup for the same target;
+  - M2: every tempting shortcut, plus the damage and the legal setup, or the special-case note when no setup exists.
+- **Why:** each sentence is built from verified dataset fields, so nothing is asserted by hand. The wording is mine, and it's the part I'm least sure reads well.
+- **Reversal:** easy.
+
+### Sighted mode halves the animation tempo and doesn't autoplay
+
+- **Choice:** what "sighted" means in the M2/OP trainer.
+- **Picked:** the shot animates at half tempo, only when you press play or step, so you can follow it on a real cube. The attempt is logged with `detail.sighted: true`, so stats can separate it later.
+- **Why:** BRIEF §7.2 asks for a sighted mode without defining it. This is the smallest version that's useful with a real cube in hand.
+- **Reversal:** easy.
+
+### M2/OP order: coverage by default; "Due for review" can run dry
+
+- **Choice:** the default order, and what happens when nothing is due.
+- **Picked:**
+  - "Every case once" (coverage) by default;
+  - "Due for review" uses the engine's spaced strategy over FSRS due dates, and says so plainly when nothing is due instead of drilling something that isn't.
+- **Why:** coverage is the right start when every case is new (weakness with no history just ties). Pretending a case is due would teach the wrong schedule.
+- **Reversal:** easy.
