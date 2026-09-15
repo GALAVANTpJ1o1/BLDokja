@@ -6,7 +6,7 @@
     "node": ">=22.3.0"
   },
   "scripts": {
-    "dev": "pnpm --filter @bld/cube-engine --filter @bld/storage --filter @bld/srs build && pnpm --filter @bld/web dev",
+    "dev": "pnpm --filter @bld/cube-engine --filter @bld/storage --filter @bld/srs --filter @bld/analytics build && pnpm --filter @bld/web dev",
     "build": "pnpm -r --if-present build",
     "test": "pnpm -r --if-present test",
     "test:engine": "pnpm --filter @bld/cube-engine test",

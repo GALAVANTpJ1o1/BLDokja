@@ -1,0 +1,26 @@
+{
+  "name": "@bld/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Derived statistics from the drill event log: trace diagnostics, heatmaps, trends, Weak 20, session summaries.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  }
+}
