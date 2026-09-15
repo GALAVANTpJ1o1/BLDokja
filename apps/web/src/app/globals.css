@@ -122,10 +122,18 @@
     view-transition-name: page;
   }
 
+  /* A letter as a star. The glow belongs to the night sky, so the light theme draws the letter plainly in --text (DESIGN-DIRECTION §4). */
   .letter-star {
-    color: var(--chalk);
-    text-shadow: 0 0 6px color-mix(in srgb, var(--chalk) 45%, transparent), 0 0 18px color-mix(in srgb, var(--chalk) 18%, transparent);
+    color: var(--text);
     font-variation-settings: "CASL" 1, "MONO" 0;
+  }
+  :root[data-theme="dark"] .letter-star {
+    text-shadow: 0 0 6px color-mix(in srgb, var(--chalk) 45%, transparent), 0 0 18px color-mix(in srgb, var(--chalk) 18%, transparent);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .letter-star {
+      text-shadow: 0 0 6px color-mix(in srgb, var(--chalk) 45%, transparent), 0 0 18px color-mix(in srgb, var(--chalk) 18%, transparent);
+    }
   }
 
   .transmission-window {

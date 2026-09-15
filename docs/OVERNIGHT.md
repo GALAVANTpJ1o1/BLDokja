@@ -343,3 +343,27 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - **Mastery display:** DESIGN.md's lightness ramp as a strip on each cell, plus the ring, dot and square marks. Diagonal cells are shaded and explain what a self-pair is for.
 - **Why:** 576 readable cells don't fit a phone. The list keeps what the overview shows (word, gap, mastery) and adds no horizontal scroll.
 - **Reversal:** easy.
+
+## Before Phase 5 (2026-09-16, second run)
+
+### DESIGN-DIRECTION.md was already applied; two small gaps fixed
+
+- **Finding:** the constellation layer landed in Phase 2 (34e0c92, d3aaf06):
+  - the starfield canvas, with adaptive star count, parallax, and nothing drawn in the light theme;
+  - the transmission-window dialog, which every dialog uses (settings, lesson voice picker, trainer keys, pair editor);
+  - View Transitions page changes;
+  - DESIGN.md describes the combined direction.
+- **Gaps fixed:**
+  - `LetterStar` used chalk on every ground, which fails contrast on the light theme's lilac mist. It now uses `--text`, with the glow only in the dark theme.
+  - Two plain `next/link` links (home, lesson prerequisites) skipped the page transition. They now go through `TransitionLink`.
+- **Not done:** DESIGN-DIRECTION §1's stretch goal, drawing a guided trace as a constellation. It remains a stretch goal.
+- **Reversal:** easy.
+
+### Phase 4's two open questions: no dictionary, one shared schedule
+
+- **Choice:** the two items flagged in the Phase 4 checkpoint.
+- **Picked:**
+  - **No dictionary.** "Did you mean" keeps using only your own words.
+  - **One FSRS schedule per pair** across all drill modes.
+- **Why:** both are what's already built, as you asked. Keeping either needs no change to stored data: attempts already carry `detail.mode`, so per-mode schedules could be derived later without migrating anything.
+- **Reversal:** easy for both. A per-mode schedule would be a change to `reviewsByCase` keys, not to stored data.

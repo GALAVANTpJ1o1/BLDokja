@@ -1,8 +1,8 @@
 "use client";
 
 import { dueCases, reviewsByCase, scheduleAll } from "@bld/srs";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { getStorage } from "@/lib/storage-client";
 import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
@@ -36,9 +36,9 @@ export function HomeView() {
         <h1 className="t-title">{en.home.newTitle}</h1>
         <p className="t-body prose-measure">{en.home.newIntro}</p>
         <div>
-          <Link href="/learn/" className="btn btn-strong no-underline">
+          <TransitionLink href="/learn/" className="btn btn-strong no-underline">
             {en.home.startPath}
-          </Link>
+          </TransitionLink>
         </div>
       </div>
     );
@@ -49,7 +49,7 @@ export function HomeView() {
       <h1 className="t-title">{en.home.todayTitle}</h1>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.nextLesson}</h2>
-        <Link href="/learn/" className="t-body">{en.home.continueLesson}</Link>
+        <TransitionLink href="/learn/" className="t-body">{en.home.continueLesson}</TransitionLink>
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.reviewsDue}</h2>
@@ -58,14 +58,14 @@ export function HomeView() {
         ) : (
           <>
             <p className="t-body">{en.pairs.due(pairsDue)}</p>
-            <Link href="/practice/pairs/" className="t-body">{en.home.reviewsLink}</Link>
+            <TransitionLink href="/practice/pairs/" className="t-body">{en.home.reviewsLink}</TransitionLink>
           </>
         )}
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.weakTitle}</h2>
         <p className="t-body text-quiet">{en.home.weakEmpty}</p>
-        <Link href="/practice/" className="t-body">{en.home.practiceLink}</Link>
+        <TransitionLink href="/practice/" className="t-body">{en.home.practiceLink}</TransitionLink>
       </section>
     </div>
   );

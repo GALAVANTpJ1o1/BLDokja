@@ -1,7 +1,6 @@
 "use client";
 
 import { VOICES, type Voice } from "@bld/storage";
-import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
@@ -79,7 +78,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
               {missing.map((id, i) => (
                 <span key={id}>
                   {i > 0 ? ", " : ""}
-                  <Link href={`/learn/${id}/`}>{byId.get(id)?.title ?? id}</Link>
+                  <TransitionLink href={`/learn/${id}/`}>{byId.get(id)?.title ?? id}</TransitionLink>
                 </span>
               ))}
             </p>
