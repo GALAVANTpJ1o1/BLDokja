@@ -1,8 +1,7 @@
 "use client";
 
-import { attemptsOf, weakItems, type WeakItem } from "@bld/analytics";
+import type { WeakItem } from "@bld/analytics";
 import { drillScramble } from "@bld/cube-engine";
-import { reviewsByCase, scheduleCase } from "@bld/srs";
 import type { AppEvent } from "@bld/storage";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Cube } from "@/components/cube/cube";
@@ -17,12 +16,13 @@ import { m2opData, threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader, type Reader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { useEvents } from "@/lib/use-events";
+import { weakDeck } from "@/lib/weak";
 import { shotCases } from "@/trainers/m2op-cases";
 import { mainImage } from "@/trainers/pairs";
 import { commCases } from "@/trainers/three-style";
 import { useLibrary } from "../pairs/use-library";
 
-const TRAINERS = ["trace", "pairs", "m2op", "3style"] as const;
+type TrainerKey = keyof typeof en.analytics.trainers;
 
 interface Prompt {
   /** What to show before the answer. */
@@ -55,10 +55,7 @@ export function WeakDrill() {
   // Build the deck once, from every attempt so far; later answers don't reshuffle it mid-session.
   useEffect(() => {
     if (events === undefined || deck !== undefined) return;
-    const attempts = attemptsOf(events);
-    const now = new Date();
-    const reviews = new Map(TRAINERS.map((t) => [t, reviewsByCase(events, t)]));
-    const items = weakItems(attempts, { retrievability: (trainer, caseId) => scheduleCase(caseId, reviews.get(trainer as (typeof TRAINERS)[number])?.get(caseId) ?? [], now).retrievability });
+    const items = weakDeck(events, new Date());
     queueMicrotask(() => { setDeck(items); });
   }, [events, deck]);
 
@@ -109,7 +106,7 @@ export function WeakDrill() {
   return shell(
     <div className="flex flex-col gap-4">
       <p className="t-meta text-quiet">
-        {en.weak.progress(index + 1, deck.length)} · {en.analytics.trainers[item.trainer as (typeof TRAINERS)[number]]} · {itemLabel(reader, item.trainer, item.caseId)}
+        {en.weak.progress(index + 1, deck.length)} · {en.analytics.trainers[item.trainer as TrainerKey]} · {itemLabel(reader, item.trainer, item.caseId)}
       </p>
       {prompt === "unavailable" ? (
         <>

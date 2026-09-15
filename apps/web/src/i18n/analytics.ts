@@ -47,7 +47,7 @@ export const analyticsCopy = {
     firstTarget: "First target",
     secondTarget: "Second target",
     weakTitle: "Weak 20",
-    weakCaption: "The twenty items doing worst across every trainer: mistakes count most, then slowness compared with your other cases, then how likely you are to have forgotten them.",
+    weakCaption: "The twenty items doing worst across every trainer: mistakes count most, then slowness compared with your other cases, then how likely you are to have forgotten them. It covers all your history, whatever the period above.",
     weakEmpty: "No weak items yet. Items need at least two attempts to be ranked.",
     weakDrill: "Drill these 20",
     reasons: { errors: "mistakes", slow: "slow", forgetting: "fading" },

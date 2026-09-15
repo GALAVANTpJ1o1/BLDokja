@@ -1,6 +1,6 @@
 "use client";
 
-import { attemptsOf, weakItems, type WeakItem } from "@bld/analytics";
+import type { WeakItem } from "@bld/analytics";
 import { dueCases, reviewsByCase, scheduleAll } from "@bld/srs";
 import { useEffect, useState } from "react";
 import { TransitionLink } from "@/components/transitions/transition-link";
@@ -8,6 +8,7 @@ import { en } from "@/i18n/en";
 import { itemLabel } from "@/lib/item-labels";
 import { useReader } from "@/lib/reader";
 import { getStorage } from "@/lib/storage-client";
+import { weakDeck } from "@/lib/weak";
 import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
 
 /**
@@ -29,7 +30,7 @@ export function HomeView() {
         const ids = pairs.filter((p) => mainImage(p) !== undefined).map((p) => p.id);
         const now = new Date();
         setPairsDue(dueCases(scheduleAll(ids, reviewsByCase(events, PAIRS_TRAINER), now), now).length);
-        setWeak(weakItems(attemptsOf(events), { limit: 20 }));
+        setWeak(weakDeck(events, now));
       })
       .catch(() => { setStarted(false); });
   }, []);

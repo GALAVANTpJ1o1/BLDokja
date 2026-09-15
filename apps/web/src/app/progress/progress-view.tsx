@@ -1,7 +1,6 @@
 "use client";
 
-import { attemptsOf, heatCells, LOOKUP_KINDS, MIN_SAMPLES, traceDiagnostics, trend, weakItems, type Attempt } from "@bld/analytics";
-import { reviewsByCase, scheduleCase } from "@bld/srs";
+import { attemptsOf, heatCells, LOOKUP_KINDS, MIN_SAMPLES, traceDiagnostics, trend, type Attempt } from "@bld/analytics";
 import { useMemo, useState } from "react";
 import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/charts/charts";
 import { Segmented } from "@/components/trainer/trainer-shell";
@@ -11,6 +10,7 @@ import { itemLabel } from "@/lib/item-labels";
 import { threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { useEvents } from "@/lib/use-events";
+import { weakDeck } from "@/lib/weak";
 import { gridStickers } from "@/trainers/three-style";
 import { libraryLetters } from "@/trainers/pairs";
 
@@ -20,8 +20,9 @@ const TRAINERS: readonly TrainerKey[] = ["trace", "pairs", "m2op", "3style"];
 const localDay = (time: number) => new Date(time).toLocaleDateString("en-CA");
 
 /**
- * Progress analytics (BRIEF §8). One period filter scopes every view below it: trace diagnostics, trends,
- * the letter-pair heatmap, the 3-style grid and Weak 20. All of it is recomputed from the event log.
+ * Progress analytics (BRIEF §8). The period filter scopes trace diagnostics, trends, the letter-pair heatmap
+ * and the 3-style grid. Weak 20 always covers all your history, like the deck it links to. All of it is
+ * recomputed from the event log.
  */
 export function ProgressView() {
   const reader = useReader();
@@ -120,7 +121,7 @@ export function ProgressView() {
         )}
       </section>
 
-      <WeakList attempts={attempts} all={all} />
+      <WeakList events={events} />
 
       <section className="flex flex-col gap-2 border-t border-rule pt-6">
         <h2 className="t-heading">{en.analytics.dataTitle}</h2>
@@ -196,14 +197,9 @@ function Heatmap({ attempts, letters }: { attempts: readonly Attempt[]; letters:
   );
 }
 
-function WeakList({ attempts, all }: { attempts: readonly Attempt[]; all: readonly Attempt[] }) {
+function WeakList({ events }: { events: Parameters<typeof weakDeck>[0] }) {
   const reader = useReader();
-  const items = useMemo(() => {
-    const now = new Date();
-    // FSRS recall probability comes from every attempt ever made, not just the period shown.
-    const reviews = new Map(TRAINERS.map((t) => [t, reviewsByCase(all.map((a) => ({ type: "drill.attempt", at: a.at, trainer: a.trainer, caseId: a.caseId, correct: a.correct })), t)]));
-    return weakItems(attempts, { retrievability: (trainer, caseId) => scheduleCase(caseId, reviews.get(trainer as TrainerKey)?.get(caseId) ?? [], now).retrievability });
-  }, [attempts, all]);
+  const items = useMemo(() => weakDeck(events, new Date()), [events]);
   if (reader === undefined) return null;
   return (
     <section className="flex flex-col gap-3 border-t border-rule pt-6">
