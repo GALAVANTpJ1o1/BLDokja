@@ -28,6 +28,13 @@ describe.each(backends)("storage on the %s backend", (_name, make) => {
     expect(await s.settings()).toEqual({ theme: "dark", palette: "deuteranopia" });
   });
 
+  it("keeps a word found in discovery mode as its own event type, apart from drill attempts", async () => {
+    const s = createStorage(make());
+    await s.appendEvents([{ id: "d1", type: "pairs.discovered", at: AT, pairId: "EO", word: "emo", added: true }, attempt("e1", AT)]);
+    expect((await s.events({ type: "pairs.discovered" })).map((e) => e.id)).toEqual(["d1"]);
+    await expect(s.appendEvents([{ id: "d2", type: "pairs.discovered", at: AT, pairId: "EO", word: "", added: true }])).rejects.toBeInstanceOf(StorageValidationError);
+  });
+
   it("refuses invalid writes", async () => {
     const s = createStorage(make());
     await expect(s.putLetterPair({ ...pair("AB"), id: "BA" })).rejects.toBeInstanceOf(StorageValidationError);

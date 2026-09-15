@@ -121,7 +121,23 @@ export const LessonEventSchema = z
   })
   .strict();
 
-export const AppEventSchema = z.discriminatedUnion("type", [LegacyMemoAttemptEventSchema, DrillAttemptEventSchema, LessonEventSchema]);
+/**
+ * A word found for a letter pair in "find a word" mode (AUDIT §6, Q4). Kept apart from drill attempts so
+ * discovering an image never counts as recalling one, and never changes an image's use count.
+ */
+export const PairDiscoveryEventSchema = z
+  .object({
+    id: z.string().min(1),
+    type: z.literal("pairs.discovered"),
+    at: isoInstant,
+    pairId: z.string().min(2),
+    word: z.string().min(1),
+    /** False when the word was already one of the pair's images. */
+    added: z.boolean(),
+  })
+  .strict();
+
+export const AppEventSchema = z.discriminatedUnion("type", [LegacyMemoAttemptEventSchema, DrillAttemptEventSchema, LessonEventSchema, PairDiscoveryEventSchema]);
 
 export const LegacySettingSchema = z.object({ rowid: z.number().int(), key: z.string(), value: z.string() }).strict();
 
@@ -223,6 +239,7 @@ export type LegacyPairWordRow = z.infer<typeof LegacyPairWordRowSchema>;
 export type LegacyMemoAttemptEvent = z.infer<typeof LegacyMemoAttemptEventSchema>;
 export type DrillAttemptEvent = z.infer<typeof DrillAttemptEventSchema>;
 export type LessonEvent = z.infer<typeof LessonEventSchema>;
+export type PairDiscoveryEvent = z.infer<typeof PairDiscoveryEventSchema>;
 export type AppEvent = z.infer<typeof AppEventSchema>;
 export type LegacySetting = z.infer<typeof LegacySettingSchema>;
 export type ImportReport = z.infer<typeof ImportReportSchema>;
