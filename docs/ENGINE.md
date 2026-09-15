@@ -66,10 +66,11 @@ Everything later is checked against states built this way: comms by applying the
 ## Commutators
 
 - **Parsing** (`parse.ts`, D-016): moves and bracket groups, `[A, B]` and `[A: B]`, with the nesting rules in the file header. It's separate from cubing.js's parser, which can't read most comm forms.
-- **Expansion and cancellation** (`expand.ts`, D-017): same-axis runs merge family by family; different families never merge. Cancelling never lengthens an alg or changes its effect.
+- **Expansion and cancellation** (`expand.ts`, D-017): same-axis runs merge family by family; different families never merge. Cancelling never lengthens an alg or changes its effect. `invertNodes` writes an alg's inverse in bracket notation (`[A, B]` → `[B, A]`, `[S: X]` → `[S: X⁻¹]`).
 - **Metrics** (`metrics.ts`, D-017): HTM, QTM, STM and ETM from the geometry model.
 - **Validation** (`validate.ts`, D-018): `threeCyclePattern` builds the state a solver would trace as exactly `[t1, t2]`, and a comm is valid only if applying it solves the whole puzzle. There's no written rule for "direction" to get wrong.
 - **Search** (`catalogue.ts`, `conjugate-search.ts`, `search.ts`, D-019): a catalogue of pure comms indexed by their 3-cycle, shared by every buffer, then `[setup: comm]` per case with exact pruning and a deterministic ranking. `orientation-search.ts` does the same for twist and flip algs (D-023).
+  - **Keying (D-031):** a 3-cycle moves several sticker cycles, and the catalogue files a comm under the one through its lowest moved sticker, so a case must be looked up the same way. `test/commutator/comm-oracle.ts` checks the search against whole-permutation matching.
 
 ## Methods
 
@@ -80,7 +81,10 @@ A method solver takes a scramble, traces it with the method's policy, and return
 - **3-style** (`three-style.ts`, D-026): comms from the dataset, parity with a Jb perm at the end, twists and flips last.
 - **Illegal setups** (`illegal-setup.ts`): runs any setup and reports exactly which pieces it damages, for the "why is this setup illegal?" trainer.
 
-**Other buffers.** `opSystem` and `m2OpSystem` build and verify datasets in memory for any buffer a cube symmetry maps onto the committed ones.
+**Other buffers.**
+- `opSystem` and `m2OpSystem` build and verify datasets in memory for any buffer a cube symmetry maps onto the committed ones.
+- `opBufferPairs` and `m2BufferPairs` list those pairs, so the app only offers buffers it can verify.
+- `symmetryImageDataset` carries a 3-style dataset to any buffer sticker by the rotation between them. It rebuilds every record from its case and verifies the result in full; the slow suite covers every sticker.
 
 ## Datasets
 
@@ -99,7 +103,7 @@ pnpm engine:generate --check    # regenerate in memory; fail if a committed file
 
 ## Scrambles and selection
 
-- **Providers** (`scramble/providers.ts`, D-027): `seededStateProvider3x3` (seeded uniform states, with a wide-move orientation suffix) and `cubingProvider` (cubing.js's official random scrambles). A candidate's state is available at once; its scramble is computed only when asked.
+- **Providers** (`scramble/providers.ts`, D-027): `seededStateProvider3x3` (seeded uniform states, with a wide-move orientation suffix), `cubingProvider` (cubing.js's official random scrambles) and `seededMoveProvider` (seeded random-move scrambles, no solver). A candidate's state is available at once; its scramble is computed only when asked.
 - **Constrained generation** (`constrained.ts`): rejection sampling within a fixed budget.
   - Constraints are Zod-validated data, so presets can be saved and shared.
   - An accepted scramble is traced again before it's returned, so a mismatch can't slip out.

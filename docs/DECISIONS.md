@@ -971,6 +971,10 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **The regenerated report confirms the fix, and it matters for Gate B.**
   - Every corner buffer now has the same best-comm distribution (8: 198 · 9: 126 · 10: 30 · 11: 18 · 13: 6, mean 8.71), and every edge buffer the same (mean 7.80). That's what cube symmetry requires.
   - Before, the D-layer corner buffers looked about 0.2 moves worse on average (mean 8.97–8.98 against 8.78), and some edge buffers slightly worse too. **Those differences were an artifact of the bug.** Gate B read these numbers (D-022), so any weight given to "U-layer buffers have shorter comms" should be dropped. The choice of UFR/UF itself doesn't change.
-  - **Search time.** Per edge buffer it went from 12–19 s to 22–30 s in the report run: more candidates are looked up, and other processes were running. That's still under D-019's 60 s budget, but the budget's formal three-cold-run figure hasn't been re-measured yet.
+  - **Search time.** More candidates are now looked up, so the search is slower. `pnpm engine:bench comms` re-measured the budget (three cold runs of the slowest buffer, 2026-09-16, same machine as D-019):
+    - corners: **0.83 s**, was 0.64 s;
+    - edges: **18.22 s**, was 14.41 s.
+    - Both are within the 60 s budget.
+    - Exact evaluations per edge buffer are now about 45.4M, against 19.7–30.9M before, and they no longer differ between buffers.
 - **Nothing on the site used the 3-style files yet**, so no lesson or trainer changed.
 
