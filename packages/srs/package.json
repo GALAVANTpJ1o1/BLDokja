@@ -1,0 +1,29 @@
+{
+  "name": "@bld/srs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FSRS scheduling for drill cases, derived from the event log.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "ts-fsrs": "5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
+  }
+}
