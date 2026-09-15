@@ -4,12 +4,15 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type Syntheti
 import { Cube } from "@/components/cube/cube";
 import { LetterNotch } from "@/components/letters/letters";
 import { useVoice } from "@/components/lesson/use-voice";
+import { useSettings } from "@/components/settings/settings-provider";
+import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { useReader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
+import { constrainedScramble, timeVerdict, traceConstraints, type ConstrainedScramble } from "@/trainers/difficulty";
 import { afterScramble, chooseLevel, explanationWanted, lookupKind, resumeAuto, scrambleTraces, sessionScramble, startRamp, summarise, type Level, type LookupKind, type RampState, type TargetResult, type TracePieces } from "@/trainers/guided-trace";
 
 const RAMP_KEY = "bld.trace.ramp";
@@ -33,16 +36,22 @@ export function TraceTrainer() {
   const reader = useReader();
   const voice = useVoice();
   const { events, append } = useEvents();
+  const { stored } = useSettings();
+  const difficulty = stored?.difficulty;
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
 
   // This component only renders in the browser (see page.tsx), so the URL and localStorage can be read up front.
-  const [seed, setSeed] = useState<string | undefined>(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("seed");
-    return fromUrl !== null && fromUrl !== "" ? fromUrl : randomSeed();
-  });
+  const [urlSeed] = useState(() => new URLSearchParams(window.location.search).get("seed"));
+  // A seed in the address wins, then one you type or ask for here, then the difficulty settings' seed, then a random one.
+  const [seedChoice, setSeed] = useState<string | undefined>(() => (urlSeed !== null && urlSeed !== "" ? urlSeed : undefined));
+  const [fallbackSeed] = useState(randomSeed);
+  const seed: string = seedChoice ?? difficulty?.seed ?? fallbackSeed;
   const [index, setIndex] = useState(0);
-  const [pieces, setPieces] = useState<TracePieces>(() => readPreference(PIECES_KEY, "both", isPieces));
+  const [piecesPreference] = useState<TracePieces>(() => readPreference(PIECES_KEY, "both", isPieces));
+  const [piecesChoice, setPieces] = useState<TracePieces | undefined>(undefined);
+  // Your choice here wins for this session, then the difficulty settings' piece filter, then your last choice.
+  const pieces: TracePieces = piecesChoice ?? difficulty?.pieces ?? piecesPreference;
   const [ramp, setRamp] = useState<RampState>(() => readPreference(RAMP_KEY, startRamp(), isRamp));
   const [position, setPosition] = useState(0);
   const [typed, setTyped] = useState("");
@@ -52,18 +61,41 @@ export function TraceTrainer() {
   const [looked, setLooked] = useState<number | undefined>(undefined);
   const [forceExplain, setForceExplain] = useState(false);
   const [change, setChange] = useState<"up" | "down" | undefined>(undefined);
+  const [relooks, setRelooks] = useState(0);
+  const [constrained, setConstrained] = useState<{ key: string; result: ConstrainedScramble } | undefined>(undefined);
   const promptStart = useRef(0);
   const scrambleStart = useRef(0);
   const counted = useRef(false);
 
   useEffect(() => {
-    if (seed === undefined) return;
     const url = new URL(window.location.href);
     url.searchParams.set("seed", seed);
     window.history.replaceState(null, "", url);
   }, [seed]);
 
-  const scramble = useMemo(() => (seed === undefined ? undefined : sessionScramble(seed, index)), [seed, index]);
+  // With scramble limits set, each scramble comes from the engine's constrained generation (traced again before use).
+  const constraints = useMemo(() => {
+    const all = traceConstraints(difficulty);
+    if (all === undefined) return undefined;
+    const kept = Object.fromEntries(Object.entries(all).filter(([name]) => pieces === "both" || name === pieces));
+    return Object.keys(kept).length === 0 ? undefined : kept;
+  }, [difficulty, pieces]);
+  const constraintKey = reader === undefined || constraints === undefined ? "" : JSON.stringify([seed, index, constraints, reader.buffers.op, reader.scheme.id]);
+  useEffect(() => {
+    if (reader === undefined || constraints === undefined) return;
+    let cancelled = false;
+    void constrainedScramble(reader.puzzle, reader.scheme, reader.buffers.op, constraints, seed, index).then((result) => {
+      if (!cancelled) setConstrained({ key: constraintKey, result });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [reader, seed, index, constraints, constraintKey]);
+  const scramble = useMemo(() => {
+    if (constraints === undefined) return sessionScramble(seed, index);
+    return constrained?.key === constraintKey && constrained.result.ok ? constrained.result.scramble : undefined;
+  }, [seed, index, constraints, constrained, constraintKey]);
+  const noMatch = constraints !== undefined && constrained?.key === constraintKey && !constrained.result.ok;
   const traces = useMemo(() => (reader === undefined || scramble === undefined ? [] : scrambleTraces(reader.puzzle, reader.scheme, scramble, pieces, reader.buffers.op)), [reader, scramble, pieces]);
   const flat = useMemo(() => traces.flatMap((t) => t.steps.map((step) => ({ pieceType: t.pieceType, buffer: t.buffer, step }))), [traces]);
   const current = flat[position];
@@ -113,6 +145,7 @@ export function TraceTrainer() {
     setLooked(undefined);
     setChange(undefined);
     setForceExplain(false);
+    setRelooks(0);
     input.current?.focus();
   }, []);
 
@@ -142,7 +175,7 @@ export function TraceTrainer() {
 
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (current === undefined || scramble === undefined || seed === undefined) return;
+    if (current === undefined || scramble === undefined) return;
     if (done && typed === "") return;
     const answer = typed.trim().toLocaleUpperCase("en-GB");
     const expected = current.step.letter.toLocaleUpperCase("en-GB");
@@ -158,7 +191,8 @@ export function TraceTrainer() {
     }
     const responseMs = Math.round(performance.now() - promptStart.current);
     const kind = lookupKind(current.step);
-    const correct = answer === expected;
+    const verdict = timeVerdict(difficulty, responseMs);
+    const correct = answer === expected && verdict !== "timed-out";
     setResults((r) => [...r, { kind, correct, responseMs }]);
     void append([
       {
@@ -170,16 +204,16 @@ export function TraceTrainer() {
         seed,
         correct,
         responseMs,
-        detail: { kind, level: ramp.level, index: current.step.index, pieceType: current.pieceType, letter: current.step.letter, typed: answer, scramble, scrambleIndex: index, ...(looked === undefined ? {} : { lookMs: Math.round(looked) }) },
+        detail: { kind, level: ramp.level, index: current.step.index, pieceType: current.pieceType, letter: current.step.letter, typed: answer, scramble, scrambleIndex: index, time: verdict, relooks, ...(looked === undefined ? {} : { lookMs: Math.round(looked) }) },
       },
     ]);
     setTyped("");
     if (correct) {
-      setFeedback({ ok: true, text: voiced.traceCorrect[voice](current.step.letter) });
+      setFeedback({ ok: true, text: `${voiced.traceCorrect[voice](current.step.letter)}${verdict === "over-target" ? ` ${en.difficulty.overTarget}` : ""}` });
       setForceExplain(false);
       setPosition((p) => p + 1);
     } else {
-      setFeedback({ ok: false, text: voiced.traceWrong[voice](current.step.letter) });
+      setFeedback({ ok: false, text: verdict === "timed-out" ? `${en.difficulty.timedOut} ${en.trace.retype(current.step.letter)}` : voiced.traceWrong[voice](current.step.letter) });
       setMustRetype(current.step.letter);
     }
   };
@@ -201,11 +235,12 @@ export function TraceTrainer() {
       <div className="flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1 t-ui">
           {en.trainer.seed}
-          <input className="field mono w-48" value={seed ?? ""} onChange={(e) => { setSeed(e.target.value); setIndex(0); setPosition(0); setResults([]); setLooked(undefined); }} />
+          <input className="field mono w-48" value={seed} onChange={(e) => { setSeed(e.target.value); setIndex(0); setPosition(0); setResults([]); setLooked(undefined); }} />
         </label>
         <button type="button" className="btn" onClick={() => { setSeed(randomSeed()); setIndex(0); setPosition(0); setResults([]); setLooked(undefined); }}>{en.trainer.newSeed}</button>
       </div>
       <p className="t-meta text-quiet">{en.trainer.seedHint}</p>
+      <DifficultySummary scrambles time relook seed />
     </>
   );
 
@@ -218,8 +253,8 @@ export function TraceTrainer() {
 
   if (reader === undefined || scramble === undefined) {
     return (
-      <TrainerShell title={en.trace.title} intro={en.trace.intro} lesson={{ href: "/learn/tracing-a-cycle/", title: en.trace.lessonTitle }} shortcuts={shortcuts}>
-        <p className="t-meta text-quiet">{en.trainer.loading}</p>
+      <TrainerShell title={en.trace.title} intro={en.trace.intro} lesson={{ href: "/learn/tracing-a-cycle/", title: en.trace.lessonTitle }} settings={settings} shortcuts={shortcuts}>
+        <p className="t-meta text-quiet" role={noMatch ? "alert" : undefined}>{noMatch ? en.difficulty.noMatch : constraints !== undefined ? en.difficulty.finding : en.trainer.loading}</p>
       </TrainerShell>
     );
   }
@@ -281,6 +316,11 @@ export function TraceTrainer() {
                 {en.lesson.pieces[current.pieceType]} · {en.lesson.buffer} <span className="t-notation">{current.buffer}</span> · {en.trace.target(position + 1, flat.length)}
               </p>
               {explanation !== undefined ? <p className="t-body" aria-live="polite">{explanation}</p> : null}
+              {cubeHidden && difficulty?.relook !== false ? (
+                <div>
+                  <button type="button" className="btn" onClick={() => { setLooked(undefined); setRelooks((n) => n + 1); }}>{en.difficulty.lookAgain}</button>
+                </div>
+              ) : null}
               <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {mustRetype === undefined ? en.trace.target(position + 1, flat.length) : en.trace.retype(mustRetype)}

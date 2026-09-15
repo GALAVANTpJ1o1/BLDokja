@@ -450,3 +450,28 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - The M2/OP trainer's M2 modes still link to the OP lessons.
 - **Why:** writing eight lessons in your voice system without being asked is exactly the kind of scope I shouldn't guess at. They'd also need the voice review lessons 1–3 had.
 - **Reversal:** n/a. **Tell me which phase they belong to.**
+
+### The difficulty customiser: what each trainer takes from it
+
+- **Choice:** BRIEF §7.7 lists fields for "every trainer", but not every field means something everywhere.
+- **Picked:**
+
+  | Trainer | Uses |
+  |---|---|
+  | Guided trace | piece filter, scramble limits (targets, breaks, flips/twists, parity), time pressure per target, looking again at level 4, seed |
+  | M2/OP | case subset, time pressure on recall, seed; scramble limits in the full-scramble modes |
+  | 3-style | case subset (per piece type), time pressure on recall, seed |
+  | Letter pairs | seed (rapid fire is already its own time pressure) |
+
+- **Soft and hard time:** a soft target marks slow answers but keeps the grade. A hard cutoff counts them as wrong: guided trace judges it when you submit; M2/OP and 3-style reveal the answer when time runs out.
+- **Case subsets:** chosen by first target. An empty subset, or one that matches none of the current cases (for example after changing buffers), means every case.
+- **Parity:** one control sets it for both piece types. With the centres solved they always agree on 3x3.
+- **Why:** each field lands where it has a meaning. Constrained scrambles go through the engine's generator, which retraces the accepted scramble, so a scramble can never be shown as matching limits it doesn't meet.
+- **Reversal:** easy.
+
+### Presets are shared in the URL fragment
+
+- **Choice:** how "share a preset as a URL" works with no backend.
+- **Picked:** `/practice/difficulty/#preset=<base64url JSON>`. Opening the link validates the preset against the stored-preset schema and offers "Use it now" or "Save it as a preset". Nothing is applied until you choose.
+- **Why:** a fragment never reaches a server, and a preset holds nothing personal. Validation stops a hand-edited link from storing anything malformed.
+- **Reversal:** easy.

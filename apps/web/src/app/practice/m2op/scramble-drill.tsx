@@ -1,6 +1,6 @@
 "use client";
 
-import type { AppEvent } from "@bld/storage";
+import type { AppEvent, Difficulty } from "@bld/storage";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { LetterNotch } from "@/components/letters/letters";
@@ -8,6 +8,7 @@ import { piecesOf } from "@/components/lesson/op-demos";
 import { en } from "@/i18n/en";
 import type { Reader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
+import { constrainedScramble, traceConstraints, type ConstrainedScramble } from "@/trainers/difficulty";
 import { sessionScramble } from "@/trainers/guided-trace";
 import { scrambleDrill, type MethodDatasets, type ScrambleDrill, type ScrambleMethod } from "@/trainers/m2op-cases";
 
@@ -167,9 +168,26 @@ function ScrambleRun({ reader, drill, sighted, onGraded, onNext }: RunProps) {
  * solver, walked step by step from the state the previous step left. Each step is logged under the same
  * case id as the per-target drills, so it feeds the same schedules and mastery.
  */
-export function ScrambleDrillView({ reader, datasets, method, sighted, seed, append }: { reader: Reader; datasets: MethodDatasets; method: ScrambleMethod; sighted: boolean; seed: string; append: (events: readonly AppEvent[]) => Promise<void> }) {
+export function ScrambleDrillView({ reader, datasets, method, sighted, seed, difficulty, append }: { reader: Reader; datasets: MethodDatasets; method: ScrambleMethod; sighted: boolean; seed: string; difficulty: Difficulty | undefined; append: (events: readonly AppEvent[]) => Promise<void> }) {
   const [index, setIndex] = useState(0);
-  const drill = useMemo(() => scrambleDrill(reader.puzzle, reader.scheme, method, sessionScramble(`${seed}:${method}`, index), datasets), [reader, datasets, method, seed, index]);
+  // Scramble limits from the difficulty settings go through the engine's constrained generation.
+  const constraints = useMemo(() => traceConstraints(difficulty), [difficulty]);
+  const buffers = method === "op" ? reader.buffers.op : reader.buffers.m2;
+  const key = JSON.stringify([seed, method, index, constraints, buffers, reader.scheme.id]);
+  const [constrained, setConstrained] = useState<{ key: string; result: ConstrainedScramble } | undefined>(undefined);
+  useEffect(() => {
+    if (constraints === undefined) return;
+    let cancelled = false;
+    void constrainedScramble(reader.puzzle, reader.scheme, buffers, constraints, `${seed}:${method}`, index).then((result) => {
+      if (!cancelled) setConstrained({ key, result });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [reader, buffers, constraints, seed, method, index, key]);
+  const scramble = constraints === undefined ? sessionScramble(`${seed}:${method}`, index) : constrained?.key === key && constrained.result.ok ? constrained.result.scramble : undefined;
+  const noMatch = constraints !== undefined && constrained?.key === key && !constrained.result.ok;
+  const drill = useMemo(() => (scramble === undefined ? undefined : scrambleDrill(reader.puzzle, reader.scheme, method, scramble, datasets)), [reader, datasets, method, scramble]);
 
   const onGraded = useCallback(
     (step: number, correct: boolean, responseMs: number) => {
@@ -180,6 +198,7 @@ export function ScrambleDrillView({ reader, datasets, method, sighted, seed, app
     [drill, append, seed, method, index, sighted],
   );
 
-  if (drill === undefined) return <p className="t-meta text-quiet">{en.trainer.loading}</p>;
+  if (noMatch) return <p className="t-body" role="alert">{en.difficulty.noMatch}</p>;
+  if (drill === undefined) return <p className="t-meta text-quiet">{constraints === undefined ? en.trainer.loading : en.difficulty.finding}</p>;
   return <ScrambleRun key={`${method}-${String(index)}`} reader={reader} drill={drill} sighted={sighted} onGraded={onGraded} onNext={() => { setIndex((i) => i + 1); }} />;
 }

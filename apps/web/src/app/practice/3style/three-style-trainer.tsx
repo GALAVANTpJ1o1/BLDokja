@@ -7,7 +7,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { piecesOf } from "@/components/lesson/op-demos";
 import { useSettings } from "@/components/settings/settings-provider";
+import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { caseStatus } from "@/components/trainer/mastery";
+import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
@@ -15,6 +17,7 @@ import { threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
+import { subsetOf, timeVerdict } from "@/trainers/difficulty";
 import { checkUserAlg, commCases, gridStickers, importOverrides, overridesFile, THREE_STYLE_TRAINER, withoutUserAlg, withUserAlg, type CommCase } from "@/trainers/three-style";
 import { CaseGrid } from "./case-grid";
 
@@ -41,7 +44,11 @@ export function ThreeStyleTrainer() {
   const [pieces, setPieces] = useState<Pieces>(() => readPreference("bld.3style.pieces", "corners", isPieces));
   const [mode, setMode] = useState<Mode>(() => readPreference("bld.3style.mode", "recall", isMode));
   const [strategy, setStrategy] = useState<Strategy>(() => readPreference("bld.3style.strategy", "coverage", isStrategy));
-  const [seed] = useState(() => newId());
+  const [sessionSeed] = useState(() => newId());
+  const difficulty = stored?.difficulty;
+  const seed = difficulty?.seed ?? sessionSeed;
+  const [timedOut, setTimedOut] = useState(false);
+  const [overTarget, setOverTarget] = useState(false);
   const [current, setCurrent] = useState<CommCase | undefined>(undefined);
   const [revealed, setRevealed] = useState(false);
   const [replay, setReplay] = useState(0);
@@ -56,6 +63,8 @@ export function ThreeStyleTrainer() {
   const built = useMethodData(reader, threeStyleForReader);
   const dataset = built?.ok === true ? built.value[pieces] : undefined;
   const { cases, rejected } = useMemo(() => (reader === undefined || dataset === undefined ? { cases: [], rejected: [] } : commCases(reader.puzzle, dataset, reader.scheme, stored?.algOverrides)), [reader, dataset, stored?.algOverrides]);
+  // The drill order runs over your case subset when one is set; the grid still shows every case.
+  const drilled = useMemo(() => subsetOf(difficulty, pieces === "corners" ? "3style-corners" : "3style-edges", cases), [difficulty, pieces, cases]);
   const stickers = useMemo(() => (reader === undefined || dataset === undefined ? [] : gridStickers(reader.puzzle, dataset, reader.scheme)), [reader, dataset]);
   const { schedules, now } = useMemo(() => {
     const at = new Date();
@@ -65,6 +74,8 @@ export function ThreeStyleTrainer() {
   const show = useCallback((c: CommCase | undefined) => {
     setCurrent(c);
     setRevealed(false);
+    setTimedOut(false);
+    setOverTarget(false);
     setReplay(0);
     setMessage(undefined);
     setTyped("");
@@ -83,10 +94,10 @@ export function ThreeStyleTrainer() {
     show(cases.find((c) => c.id === next.value));
   }, [cases, schedules, show]);
 
-  const caseKey = cases.map((c) => c.id).join(",");
+  const caseKey = drilled.cases.map((c) => c.id).join(",");
   useEffect(() => {
-    if (cases.length === 0 || events === undefined) return;
-    const created = createSelector({ strategy, cases: cases.map((c) => c.id), seed: `${seed}:${pieces}:${strategy}` });
+    if (drilled.cases.length === 0 || events === undefined) return;
+    const created = createSelector({ strategy, cases: drilled.cases.map((c) => c.id), seed: `${seed}:${pieces}:${strategy}` });
     selector.current = created.ok ? created.value : undefined;
     pick();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- a new selector only when the case set or the order changes
@@ -98,18 +109,28 @@ export function ThreeStyleTrainer() {
   const reveal = useCallback(() => {
     if (shown === undefined || revealed || mode === "learn") return;
     revealMs.current = performance.now() - shownAt.current;
+    setOverTarget(timeVerdict(difficulty, revealMs.current) === "over-target");
     setRevealed(true);
-  }, [shown, revealed, mode]);
+  }, [shown, revealed, mode, difficulty]);
 
   const grade = useCallback(
     (correct: boolean) => {
       if (shown === undefined || mode !== "recall" || !revealed) return;
-      void append([{ id: newId(), type: "drill.attempt", at: nowIso(), trainer: THREE_STYLE_TRAINER, caseId: shown.id, strategy, seed, correct, responseMs: Math.round(revealMs.current), detail: { pieceType: shown.pieceType, buffer: shown.buffer, targets: `${shown.targets[0]}-${shown.targets[1]}`, alg: shown.algs[0]?.alg ?? "" } }]);
+      const time = timedOut ? "timed-out" : timeVerdict(difficulty, revealMs.current);
+      void append([{ id: newId(), type: "drill.attempt", at: nowIso(), trainer: THREE_STYLE_TRAINER, caseId: shown.id, strategy, seed, correct: correct && time !== "timed-out", responseMs: Math.round(revealMs.current), detail: { pieceType: shown.pieceType, buffer: shown.buffer, targets: `${shown.targets[0]}-${shown.targets[1]}`, alg: shown.algs[0]?.alg ?? "", time } }]);
       setSessionCount((n) => n + 1);
       pick();
     },
-    [shown, mode, revealed, append, strategy, seed, pick],
+    [shown, mode, revealed, timedOut, difficulty, append, strategy, seed, pick],
   );
+
+  // A hard cutoff reveals the comm when time runs out; the attempt then counts as wrong.
+  const expire = useCallback(() => {
+    revealMs.current = performance.now() - shownAt.current;
+    setTimedOut(true);
+    setRevealed(true);
+  }, []);
+  useHardCutoff(difficulty, shown === undefined ? undefined : `${shown.id}:${String(sessionCount)}`, mode === "recall" && !revealed && shown !== undefined, expire);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -140,6 +161,7 @@ export function ThreeStyleTrainer() {
       <Segmented<Pieces> label={en.threeStyle.pieces} options={PIECES} labels={en.threeStyle.pieceTypes} value={pieces} onChange={(v) => { setPieces(v); writePreference("bld.3style.pieces", v); }} />
       <Segmented<Mode> label={en.threeStyle.mode} options={MODES} labels={en.threeStyle.modes} value={mode} onChange={(v) => { setMode(v); writePreference("bld.3style.mode", v); setRevealed(false); }} />
       <Segmented<Strategy> label={en.threeStyle.order} options={STRATEGIES} labels={en.m2op.strategies} value={strategy} onChange={(v) => { setStrategy(v); writePreference("bld.3style.strategy", v); }} />
+      <DifficultySummary subsets time seed />
     </>
   );
   const shell = (children: React.ReactNode, summary?: React.ReactNode) => (
@@ -224,11 +246,21 @@ export function ThreeStyleTrainer() {
                   {main.inverse} <span className="t-meta text-quiet">· {main.inverseMoves}</span>
                 </dd>
               </dl>
-              {mode === "recall" ? (
-                <div className="flex gap-2">
-                  <button type="button" className="btn" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.threeStyle.wrong}</button>
-                  <button type="button" className="btn btn-strong" onClick={() => { grade(true); }} aria-keyshortcuts="J">{en.threeStyle.right}</button>
-                </div>
+              {mode === "recall" && timedOut ? (
+                <>
+                  <p className="t-body font-[600]" role="status">{en.difficulty.timedOut}</p>
+                  <div>
+                    <button type="button" className="btn btn-strong" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.threeStyle.next}</button>
+                  </div>
+                </>
+              ) : mode === "recall" ? (
+                <>
+                  {overTarget ? <p className="t-meta" role="status">{en.difficulty.overTarget}</p> : null}
+                  <div className="flex gap-2">
+                    <button type="button" className="btn" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.threeStyle.wrong}</button>
+                    <button type="button" className="btn btn-strong" onClick={() => { grade(true); }} aria-keyshortcuts="J">{en.threeStyle.right}</button>
+                  </div>
+                </>
               ) : (
                 <div>
                   <button type="button" className="btn btn-strong" onClick={pick} aria-keyshortcuts="N">{en.threeStyle.next}</button>
@@ -288,6 +320,7 @@ export function ThreeStyleTrainer() {
         {en.threeStyle.progress(mastered, cases.length)} · {en.threeStyle.sessionCount(sessionCount)}
       </p>
       {rejected.length > 0 ? <p className="t-meta" role="alert">{en.threeStyle.rejectedStored(rejected.length)}</p> : null}
+      {drilled.applied ? <p className="t-meta">{en.difficulty.subsetOn}</p> : null}
       <CaseGrid reader={reader} cases={cases} stickers={stickers} schedules={schedules} now={now} current={shown?.id} onPick={show} />
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" className="btn" onClick={exportAlgs}>{en.threeStyle.export}</button>

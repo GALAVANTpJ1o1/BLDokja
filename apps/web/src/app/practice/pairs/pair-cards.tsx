@@ -3,6 +3,8 @@
 import { createRng, type Rng } from "@bld/cube-engine";
 import { dueCases } from "@bld/srs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSettings } from "@/components/settings/settings-provider";
+import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { Segmented } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { newId, nowIso } from "@/lib/storage-client";
@@ -208,7 +210,10 @@ export function PairReview({ ctx }: { ctx: LibraryContext }) {
 export function PairDrill({ ctx }: { ctx: LibraryContext }) {
   const [mode, setMode] = useState<DrillMode>(() => readPreference("bld.pairs.drill", "pair-image", isDrillMode));
   const [rapid, setRapid] = useState<RapidSeconds>(() => readPreference("bld.pairs.rapid", 3, isRapid));
-  const [seed] = useState(() => newId());
+  const [sessionSeed] = useState(() => newId());
+  const { stored } = useSettings();
+  // The difficulty settings' seed replays the same drill order; rapid fire is this drill's own time pressure.
+  const seed = stored?.difficulty?.seed ?? sessionSeed;
   const rng = useRef<Rng | undefined>(undefined);
   const recent = useRef<string[]>([]);
   const [current, setCurrent] = useState<string | undefined>(undefined);
@@ -238,6 +243,7 @@ export function PairDrill({ ctx }: { ctx: LibraryContext }) {
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
         <Segmented<DrillMode> label={en.pairs.tabs.drill} options={DRILL_MODES} labels={en.pairs.drillModes} value={mode} onChange={(v) => { setMode(v); writePreference("bld.pairs.drill", v); pick(); }} />
+        <DifficultySummary seed />
         {mode === "rapid" ? (
           <Segmented<`${RapidSeconds}`> label={en.pairs.rapidTime} options={RAPID_SECONDS.map((s) => String(s) as `${RapidSeconds}`)} labels={{ "2": en.pairs.time(2), "3": en.pairs.time(3), "5": en.pairs.time(5) }} value={String(rapid) as `${RapidSeconds}`} onChange={(v) => { const s = Number(v) as RapidSeconds; setRapid(s); writePreference("bld.pairs.rapid", s); }} />
         ) : null}

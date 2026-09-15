@@ -6,12 +6,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { LetterTile } from "@/components/letters/letters";
 import { piecesOf } from "@/components/lesson/op-demos";
+import { useSettings } from "@/components/settings/settings-provider";
+import { DifficultySummary } from "@/components/trainer/difficulty-summary";
+import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { m2opData, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
+import { subsetOf, timeVerdict } from "@/trainers/difficulty";
 import { FAMILIES, familyOf, shotCases, type Family, type MethodDatasets, type ShotCase, type ShotMode } from "@/trainers/m2op-cases";
 import { ScrambleDrillView } from "./scramble-drill";
 
@@ -85,11 +89,16 @@ function illegalExamples(datasets: MethodDatasets): IllegalExample[] {
 export function M2OpTrainer() {
   const reader = useReader();
   const { events, append } = useEvents();
+  const { stored } = useSettings();
+  const difficulty = stored?.difficulty;
   const [mode, setMode] = useState<Mode>(() => readPreference("bld.m2op.mode", "op-corners", isMode));
   const [strategy, setStrategy] = useState<Strategy>(() => readPreference("bld.m2op.strategy", "coverage", isStrategy));
   const [sighted, setSighted] = useState(false);
   const [family, setFamily] = useState<FamilyChoice>("all");
-  const [seed] = useState(() => newId());
+  const [sessionSeed] = useState(() => newId());
+  const seed = difficulty?.seed ?? sessionSeed;
+  const [timedOut, setTimedOut] = useState(false);
+  const [overTarget, setOverTarget] = useState(false);
   const [current, setCurrent] = useState<ShotCase | undefined>(undefined);
   const [revealed, setRevealed] = useState(false);
   const [replay, setReplay] = useState(0);
@@ -105,8 +114,9 @@ export function M2OpTrainer() {
   const cases = useMemo(() => {
     if (reader === undefined || datasets === undefined || !isShotMode(mode)) return [];
     const all = shotCases(mode, datasets, reader.scheme);
-    return family === "all" || mode === "m2-special" ? all : all.filter((c) => familyOf(c.target) === family);
-  }, [reader, datasets, mode, family]);
+    const inFamily = family === "all" || mode === "m2-special" ? all : all.filter((c) => familyOf(c.target) === family);
+    return subsetOf(difficulty, "m2op", inFamily).cases;
+  }, [reader, datasets, mode, family, difficulty]);
   const examples = useMemo(() => (datasets === undefined ? [] : illegalExamples(datasets)), [datasets]);
   const schedules = useMemo<Map<string, CaseSchedule>>(() => scheduleAll(cases.map((c) => c.id), reviewsByCase(events ?? [], TRAINER), new Date()), [cases, events]);
 
@@ -114,6 +124,8 @@ export function M2OpTrainer() {
     if (selector.current === undefined) return;
     const next = selector.current.next({ stats: (id) => statsFor(schedules.get(id)), now: Date.now() });
     setRevealed(false);
+    setTimedOut(false);
+    setOverTarget(false);
     if (!next.ok) {
       setCurrent(undefined);
       setNothingDue(next.error.reason === "nothing-due");
@@ -136,18 +148,29 @@ export function M2OpTrainer() {
   const reveal = useCallback(() => {
     if (current === undefined || revealed) return;
     revealMs.current = Math.round(performance.now() - promptStart.current);
+    setOverTarget(timeVerdict(difficulty, revealMs.current) === "over-target");
     setRevealed(true);
-  }, [current, revealed]);
+  }, [current, revealed, difficulty]);
 
   const grade = useCallback(
     (correct: boolean) => {
       if (current === undefined || !revealed) return;
-      void append([{ id: newId(), type: "drill.attempt", at: nowIso(), trainer: TRAINER, caseId: current.id, strategy, seed, correct, responseMs: revealMs.current, detail: { mode: current.mode, target: current.target, sighted, ...(current.position === undefined ? {} : { position: current.position }) } }]);
+      const time = timedOut ? "timed-out" : timeVerdict(difficulty, revealMs.current);
+      void append([{ id: newId(), type: "drill.attempt", at: nowIso(), trainer: TRAINER, caseId: current.id, strategy, seed, correct: correct && time !== "timed-out", responseMs: revealMs.current, detail: { mode: current.mode, target: current.target, sighted, time, ...(current.position === undefined ? {} : { position: current.position }) } }]);
       setSessionCount((n) => n + 1);
       pick();
     },
-    [current, revealed, append, strategy, seed, sighted, pick],
+    [current, revealed, timedOut, difficulty, append, strategy, seed, sighted, pick],
   );
+
+  // A hard cutoff reveals the answer when time runs out; the attempt then counts as wrong.
+  const expire = useCallback(() => {
+    if (current === undefined) return;
+    revealMs.current = Math.round(performance.now() - promptStart.current);
+    setTimedOut(true);
+    setRevealed(true);
+  }, [current]);
+  useHardCutoff(difficulty, current === undefined ? undefined : `${current.id}:${String(sessionCount)}`, !revealed && isShotMode(mode), expire);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -178,6 +201,7 @@ export function M2OpTrainer() {
         <input type="checkbox" checked={sighted} onChange={(e) => { setSighted(e.target.checked); }} />
         {en.m2op.sighted}
       </label>
+      <DifficultySummary subsets time seed scrambles={mode === "scramble-op" || mode === "scramble-m2"} />
     </>
   );
 
@@ -201,7 +225,7 @@ export function M2OpTrainer() {
   if (reader === undefined || built === undefined) return shell(<p className="t-meta text-quiet">{en.trainer.loading}</p>);
   if (!built.ok || datasets === undefined) return shell(<p className="t-body" role="alert">{en.m2op.buffersFailed(built.ok ? "" : built.reason)}</p>);
 
-  if (mode === "scramble-op" || mode === "scramble-m2") return shell(<ScrambleDrillView reader={reader} datasets={datasets} method={mode === "scramble-op" ? "op" : "m2"} sighted={sighted} seed={seed} append={append} />);
+  if (mode === "scramble-op" || mode === "scramble-m2") return shell(<ScrambleDrillView reader={reader} datasets={datasets} method={mode === "scramble-op" ? "op" : "m2"} sighted={sighted} seed={seed} difficulty={difficulty} append={append} />);
 
   if (mode === "illegal") {
     const example = examples[illegalIndex % examples.length];
@@ -309,10 +333,22 @@ export function M2OpTrainer() {
                 </>
               )}
             </dl>
-            <div className="flex gap-2">
-              <button type="button" className="btn" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.m2op.wrong}</button>
-              <button type="button" className="btn btn-strong" onClick={() => { grade(true); }} aria-keyshortcuts="J">{en.m2op.right}</button>
-            </div>
+            {timedOut ? (
+              <>
+                <p className="t-body font-[600]" role="status">{en.difficulty.timedOut}</p>
+                <div>
+                  <button type="button" className="btn btn-strong" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.pairs.next}</button>
+                </div>
+              </>
+            ) : (
+              <>
+                {overTarget ? <p className="t-meta" role="status">{en.difficulty.overTarget}</p> : null}
+                <div className="flex gap-2">
+                  <button type="button" className="btn" onClick={() => { grade(false); }} aria-keyshortcuts="F">{en.m2op.wrong}</button>
+                  <button type="button" className="btn btn-strong" onClick={() => { grade(true); }} aria-keyshortcuts="J">{en.m2op.right}</button>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
