@@ -14,6 +14,7 @@ export const trainerCopy = {
     loading: "Getting a scramble ready…",
     correctMark: "Correct",
     wrongMark: "Wrong",
+    mastery: { mastered: "mastered", due: "due", new: "new", learning: "learning" },
   },
   trace: {
     title: "Guided trace",

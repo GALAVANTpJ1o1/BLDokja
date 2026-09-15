@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: en.practice.title };
 const TRAINERS = [
   { href: "/practice/trace/", name: en.practice.trace, blurb: en.practice.traceBlurb },
   { href: "/practice/m2op/", name: en.practice.m2op, blurb: en.practice.m2opBlurb },
+  { href: "/practice/3style/", name: en.practice.threeStyle, blurb: en.practice.threeStyleBlurb },
   { href: "/practice/pairs/", name: en.practice.pairs, blurb: en.practice.pairsBlurb },
 ] as const;
 

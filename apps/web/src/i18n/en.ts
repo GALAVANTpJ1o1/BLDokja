@@ -57,6 +57,8 @@ export const en = {
     traceBlurb: "Read a scramble target by target, with as much help as you need.",
     m2op: "M2 / OP",
     m2opBlurb: "Setups, swaps and every M2 special case, one target at a time.",
+    threeStyle: "3-style",
+    threeStyleBlurb: "Every comm for your buffer, with the moves and the inverse; learn a case, then recall it.",
     pairs: "Letter pairs",
     pairsBlurb: "Your 24 × 24 library of images, with spaced review.",
   },

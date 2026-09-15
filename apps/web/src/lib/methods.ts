@@ -78,6 +78,11 @@ export function threeStyleData(puzzle: Puzzle, buffers: BufferPair): Built<Three
   });
 }
 
+/** The 3-style datasets for the reader's 3-style buffers. */
+export function threeStyleForReader(puzzle: Puzzle, buffers: Reader["buffers"]): Built<ThreeStyleData> {
+  return threeStyleData(puzzle, buffers.threeStyle);
+}
+
 /** OP and M2 together, as the M2/OP trainer needs them. */
 export function m2opData(puzzle: Puzzle, buffers: Reader["buffers"]): Built<{ op: OpData; m2: M2Data }> {
   const op = opData(puzzle, buffers.op);

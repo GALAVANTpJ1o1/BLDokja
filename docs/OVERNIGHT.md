@@ -421,3 +421,32 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Picked:** `seededMoveProvider`: seeded random face turns with the state computed by applying them. No solver is involved. It works with `generateConstrained`.
 - **Why:** the random-state provider needs cubing.js's search worker, which still isn't checked under the static CSP (Phase 8). Trainers already used random-move scrambles.
 - **Reversal:** easy. Swap the provider.
+
+### 3-style trainer: recall attempts are logged, learn mode isn't
+
+- **Choice:** what BRIEF §7.3's learning and recall modes record.
+- **Picked:**
+  - **Recall:** state the comm, reveal, mark yourself. The attempt is logged under trainer `3style` with case id `corners@UFR:UBR-UBL`; the buffer is always in the id, since there's no older history to keep.
+  - **Learn:** the alg is shown and nothing is logged.
+- **Why:** seeing the answer isn't evidence of recall. Logging it would inflate FSRS stability.
+- **Reversal:** easy.
+
+### Your 3-style algs are verified before they're saved, and again every time they're shown
+
+- **Choice:** how "the alg dataset is user-editable" (BRIEF §7.3) stays inside the rule that nothing unverified ships.
+- **Picked:**
+  - An alg you type is run through `validateComm` for that case, and saved only if it solves it.
+  - Saved algs are checked again whenever the case list is built. Any that fail are listed as rejected and never shown as an answer.
+  - Import checks every alg in the file the same way, against the verified dataset for that file's buffer.
+  - Your algs come first. Dataset algs with the same cancelled moves are hidden so nothing shows twice.
+- **Why:** a typo in your own alg would otherwise teach a wrong comm.
+- **Reversal:** easy.
+
+### Lessons 16–23 aren't in any phase of BRIEF §14
+
+- **Finding:** BRIEF §6 lists 23 lessons in the 3BLD track: M2, accuracy, memo time, commutators, 3-style, and building comms. §14 schedules only lessons 1–15 (Phase 3), and Phases 5–7 don't mention the rest.
+- **Picked:**
+  - I haven't written them. The 3-style trainer has no "Learn it in" link yet.
+  - The M2/OP trainer's M2 modes still link to the OP lessons.
+- **Why:** writing eight lessons in your voice system without being asked is exactly the kind of scope I shouldn't guess at. They'd also need the voice review lessons 1–3 had.
+- **Reversal:** n/a. **Tell me which phase they belong to.**
