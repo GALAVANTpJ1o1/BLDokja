@@ -9,6 +9,7 @@ const TRAINERS = [
   { href: "/practice/m2op/", name: en.practice.m2op, blurb: en.practice.m2opBlurb },
   { href: "/practice/3style/", name: en.practice.threeStyle, blurb: en.practice.threeStyleBlurb },
   { href: "/practice/pairs/", name: en.practice.pairs, blurb: en.practice.pairsBlurb },
+  { href: "/practice/sandbox/", name: en.sandbox.link, blurb: en.sandbox.blurb },
 ] as const;
 
 export default function PracticePage() {
