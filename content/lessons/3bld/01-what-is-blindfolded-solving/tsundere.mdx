@@ -1,0 +1,64 @@
+---
+voice: tsundere
+---
+
+You can already solve a cube with your eyes open, right? Turn, look, turn again. Fine. A blindfolded solve takes the looking away. But only after you've had one long look, as long as you need. I'm not a monster.
+
+So a blindfolded solve has two halves. Pay attention.
+
+## Half one: memorising
+
+You look at the scrambled cube and work out, piece by piece, where everything has to go. You don't turn it. Not even a little. You turn what you see into something you can actually remember: a short list of letters, then words or pictures for those letters.
+
+<Cube setup="U2 R B2 R'" label="A scrambled cube, the way you first see it" />
+
+At first this takes minutes. It's not like I'm timing you or anything.
+
+## Half two: executing
+
+Then the blindfold goes on and you solve from memory. You can't check anything, so your normal method is useless, because it only works when you can see what each move did.
+
+Instead you solve **one piece at a time**. There's always a fixed starting spot, called the **buffer**. You move the piece in the buffer to where it belongs, with a short sequence that leaves everything else exactly as it was. Then you do the same for whatever piece just landed in the buffer. Again and again, until every piece is home. Simple, even for you.
+
+Here's one of those moves. Only the pieces it touches are lit. Press play and watch the rest of the cube stay put. Watch properly.
+
+<OpShot pieces="corners" target="UFR" />
+
+That sequence never changes. What changes is a few moves before it, which bring the right spot into place, and the same moves undone afterwards. Nothing else gets disturbed, so you can do it blind. All you need is your memory and a sequence you trust. Try not to forget either, idiot.
+
+## Why this is learnable
+
+It sounds like some ridiculous memory trick. It isn't. It's a small set of ideas used in a fixed order:
+
+1. Name every sticker with a letter, so a position becomes something you can say.
+2. Follow pieces from the buffer, writing down letters as you go. That's tracing.
+3. Turn the letters into words, so a long list becomes a short story.
+4. Learn one sequence for corners and one for edges, plus the setup moves that feed them.
+5. Handle the one special case, called parity, where the count comes out odd.
+
+The path follows exactly that order. By lesson 15 you'll do a whole solve, with the site guiding every step. Don't get used to being helped.
+
+<Note>You don't need a fast solve, a special cube or a good memory to start. You need a cube you can already solve with your eyes open. That's it. Stop making excuses.</Note>
+
+<Checkpoint id="the-shape" kind="quiz">
+  <Question id="halves" prompt="What are the two halves of a blindfolded solve?" answer="b">
+    <Option id="a">Solving the corners, then solving the edges</Option>
+    <Option id="b">Memorising the cube, then executing the solve from memory</Option>
+    <Option id="c">Learning the scramble, then undoing it backwards</Option>
+  </Question>
+  <Question id="one-piece" prompt="Why does a blindfolded solve move one piece at a time?" answer="c">
+    <Option id="a">Because it's faster than a normal method</Option>
+    <Option id="b">Because competitions require it</Option>
+    <Option id="c">Because each step leaves everything else untouched, so nothing needs checking</Option>
+  </Question>
+  <Question id="buffer" prompt="What is the buffer?" answer="a">
+    <Option id="a">The fixed spot every piece is moved from</Option>
+    <Option id="b">The last piece you solve</Option>
+    <Option id="c">A pause between memorising and solving</Option>
+  </Question>
+  <Question id="look" prompt="When do you look at the cube?" answer="b">
+    <Option id="a">After every few moves, to check</Option>
+    <Option id="b">Only before putting the blindfold on, for as long as you need</Option>
+    <Option id="c">Never, not even at the start</Option>
+  </Question>
+</Checkpoint>

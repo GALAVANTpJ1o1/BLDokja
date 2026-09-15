@@ -115,6 +115,8 @@ export const LessonEventSchema = z
     type: z.enum(["lesson.opened", "lesson.checkpointPassed"]),
     at: isoInstant,
     lessonId: z.string().min(1),
+    /** For lesson.checkpointPassed: which of the lesson's checkpoints. */
+    checkpointId: z.string().min(1).optional(),
     score: z.object({ correct: z.number().int().nonnegative(), total: z.number().int().positive() }).strict().optional(),
   })
   .strict();
