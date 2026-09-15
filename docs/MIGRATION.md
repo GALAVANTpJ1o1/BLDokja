@@ -1,6 +1,6 @@
 # Migration: legacy `letterpairs.db` → versioned local schema
 
-**Status:** approved at the Phase 0 review (2026-09-13). Nothing described here is built yet. Per [BRIEF.md](../BRIEF.md) §14, the importer and its tests are built in **Phase 2**, together with the storage layer.
+**Status:** approved at the Phase 0 review (2026-09-13); **built in Phase 2 (2026-09-16, DECISIONS D-029)**. The importer, its tests and the storage layer are in `packages/storage`.
 
 - **[confirmed]** marks something you decided explicitly. Your answers are recorded in [AUDIT.md §6](AUDIT.md#6-decisions-from-the-phase-0-review).
 - **[proposed]** marks something accepted as part of this plan.
