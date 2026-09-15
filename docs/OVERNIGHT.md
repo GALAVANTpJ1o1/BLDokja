@@ -163,3 +163,33 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Lesson 13:** "you may recognise it as the T permutation" is the one algorithm name stated in prose (D-024 records the swap as the T perm). The alg itself is from the dataset.
 - **Lesson 14:** the "why parity happens" explanation (a quarter turn is a four-cycle, which takes three swaps) is correct, but compressed. It's the paragraph most likely to lose people.
 - **Lesson 15:** the walkthrough scramble has parity on purpose so the step is seen. A first solve with parity may feel harder than it needs to; an easier no-parity scramble could come first.
+
+## Phase 4: trainers
+
+### SRS state is rebuilt from the event log, not stored
+
+- **Choice:** where FSRS card state lives.
+- **Picked:** nowhere. `packages/srs` replays a case's graded `drill.attempt` events through ts-fsrs, with fuzz off so the result is deterministic. A right answer is rated Good, a wrong one Again.
+- **Why:** there's no schema v2 migration, the log stays the one source of truth, and backups carry scheduling with them automatically. It's cheap at this scale.
+- **Reversal:** moderate. A cached card collection could be added later as a pure optimisation.
+
+### Guided trace uses 25-move random scrambles, not random-state
+
+- **Choice:** how guided trace scrambles are made.
+- **Picked:** seeded 25-move random face turns (`sessionScramble`). The engine's random-state provider (D-027) needs cubing.js's solver, which runs in a web worker.
+- **Why:** it keeps the trainer free of the worker, which I haven't tested under the static CSP. For tracing practice, a random-move scramble is equally useful.
+- **Reversal:** easy. Swap `sessionScramble` for `seededStateProvider3x3` once the worker is checked in Phase 8.
+
+### Trainer preferences (help level, pieces) are kept in localStorage
+
+- **Choice:** where per-viewer trainer preferences live.
+- **Picked:** localStorage, read through a guarded helper.
+- **Why:** these are conveniences, not data worth backing up, and the settings schema stays unchanged.
+- **Reversal:** easy.
+
+### Trainers render only in the browser
+
+- **Choice:** static prerendering or client-only rendering for trainer pages.
+- **Picked:** client-only, via `next/dynamic` with `ssr: false`.
+- **Why:** they read the URL seed and local preferences as they start, and prerendering them would only produce a flash of the wrong state.
+- **Reversal:** easy.

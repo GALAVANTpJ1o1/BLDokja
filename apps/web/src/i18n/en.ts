@@ -5,6 +5,7 @@
  * warnings are plain on purpose, so nothing important is ever unclear.
  */
 import type { Voice } from "@bld/storage";
+import { trainerCopy } from "./trainers";
 
 export type Voiced = Readonly<Record<Voice, string>>;
 
@@ -188,6 +189,7 @@ export const en = {
     title: "Lab",
     intro: "Every token, type style and component in one place, for design review. Hidden in production builds.",
   },
+  ...trainerCopy,
   common: {
     loading: "Loading…",
     error: "Something went wrong.",

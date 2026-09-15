@@ -63,6 +63,17 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
   const setupPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, setup)), [puzzle, setup]);
   const finalPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, `${setup} ${alg}`)), [puzzle, setup, alg]);
   const description = useMemo(() => (puzzle === undefined || setupPattern === undefined ? [] : describeCube(netCells(puzzle, setupPattern))), [puzzle, setupPattern]);
+  // With no highlight, every facelet is regular: setting this mask clears an earlier highlight on a live player.
+  const mask = useMemo(() => {
+    if (puzzle === undefined || setupPattern === undefined) return undefined;
+    const chosen = new Set(highlightKey === "" ? [] : highlightKey.split(","));
+    return stickeringMask(puzzle, setupPattern, (v: SlotView): FaceletMask => (chosen.size === 0 || chosen.has(v.slot) ? "regular" : dim === "soft" ? "dim" : "ignored"));
+  }, [puzzle, setupPattern, highlightKey, dim]);
+  const maskRef = useRef(mask);
+  useEffect(() => {
+    maskRef.current = mask;
+    if (player.current !== null && mask !== undefined) player.current.experimentalStickeringMaskOrbits = mask;
+  }, [mask]);
 
   useEffect(() => {
     const container = host.current;
@@ -74,7 +85,7 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
         await installPlayerPalette();
         const { TwistyPlayer: Player } = await import("cubing/twisty");
         if (life.disposed) return;
-        const chosen = new Set(highlightKey === "" ? [] : highlightKey.split(","));
+        const initialMask = maskRef.current;
         created = new Player({
           puzzle: "3x3x3",
           visualization: "PG3D",
@@ -84,7 +95,7 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
           experimentalSetupAlg: setup,
           alg,
           tempoScale: tempo,
-          ...(chosen.size > 0 ? { experimentalStickeringMaskOrbits: stickeringMask(puzzle, setupPattern, (v: SlotView): FaceletMask => (chosen.has(v.slot) ? "regular" : dim === "soft" ? "dim" : "ignored")) } : {}),
+          ...(initialMask === undefined ? {} : { experimentalStickeringMaskOrbits: initialMask }),
         });
         created.style.width = "100%";
         created.style.height = "100%";
@@ -102,8 +113,9 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
       created?.remove();
       player.current = null;
     };
-    // The palette is read when the player is created, so a palette change remounts it.
-  }, [puzzle, setupPattern, setup, alg, highlightKey, dim, tempo, autoplay, settings.palette]);
+    // The palette is read when the player is created, so a palette change remounts it. Highlight changes
+    // don't: the mask effect above updates the live player.
+  }, [puzzle, setupPattern, setup, alg, tempo, autoplay, settings.palette]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
