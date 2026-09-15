@@ -4,7 +4,7 @@ import type { Palette, Settings, Theme, Voice } from "@bld/storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getStorage, requestPersistentStorage } from "@/lib/storage-client";
 
-/** Mirrors theme and palette for the first paint (see APPEARANCE_BOOT in app/layout.tsx). A convenience only: settings live in storage. */
+/** Mirrors theme and palette for the first paint (read by public/appearance-boot.js). A convenience only: settings live in storage. */
 export const APPEARANCE_KEY = "bld.appearance";
 
 export interface ResolvedSettings {

@@ -32,6 +32,8 @@ let scripts = 0;
 for (const file of htmlFiles(outDir)) {
   const html = readFileSync(file, "utf8");
   if (html.includes('http-equiv="Content-Security-Policy"')) throw new Error(`${file} already has a CSP meta tag`);
+  // next/script's beforeInteractive code is injected inline at run time, so no hash here would cover it.
+  if (html.includes("self.__next_s")) throw new Error(`${file} has a beforeInteractive script; load it as a same-origin file instead`);
   const hashes = new Set();
   for (const match of html.matchAll(INLINE_SCRIPT)) {
     const body = match[2] ?? "";

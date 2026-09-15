@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { AppShell } from "@/components/shell/app-shell";
@@ -22,21 +21,18 @@ export const viewport: Viewport = {
   ],
 };
 
-/**
- * Applies the saved theme and palette before first paint, so a chosen theme doesn't flash. It reads a
- * mirror in localStorage (the real settings are in IndexedDB, which can't be read synchronously). A
- * fixed string, never user input; the build's CSP step allows it by hash (scripts/csp.mjs).
- */
-const APPEARANCE_BOOT =
-  'try{var a=JSON.parse(localStorage.getItem("bld.appearance")||"{}"),r=document.documentElement;if(a.theme==="dark"||a.theme==="light")r.dataset.theme=a.theme;if(a.palette==="high-contrast"||a.palette==="deuteranopia")r.dataset.palette=a.palette}catch(e){}';
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en-GB" suppressHydrationWarning>
+      <head>
+        {/*
+          Applies the saved theme and palette before first paint (public/appearance-boot.js). A blocking,
+          same-origin file: next/script's beforeInteractive injects its code inline after the runtime
+          loads, which is both too late and blocked by the build's CSP.
+        */}
+        <script src="/appearance-boot.js" />
+      </head>
       <body>
-        <Script id="appearance-boot" strategy="beforeInteractive">
-          {APPEARANCE_BOOT}
-        </Script>
         <Starfield />
         <SettingsProvider>
           <PageTransitions>
