@@ -978,3 +978,60 @@ Short records of choices that would be expensive to reverse, or where sources di
     - Exact evaluations per edge buffer are now about 45.4M, against 19.7–30.9M before, and they no longer differ between buffers.
 - **Nothing on the site used the 3-style files yet**, so no lesson or trainer changed.
 
+
+## D-032 · 4x4 orientation references: a named corner, or a named rotation
+
+**Status:** accepted 2026-09-16, Phase 7. Carries out D-014's commitment.
+
+- **The question.** A 4x4 has no fixed centres, so "solved" corners, wings and x-centres only mean something once the solver fixes how the cube is held. BRIEF §6 (4BLD lesson 2) asks the site to teach choosing that reference.
+- **Sources.** None of the pages read state a convention: the Speedsolving wiki's 4x4 BLD page (a short event description), its r2 page, the 4x4 U2 centres tutorial thread, and a 4BLD tutorial PDF based on Xin Shi's method (zodzhao.github.io/res/4bld.pdf), all retrieved 2026-09-16. So nothing here is taken from a source; the engine offers the mechanisms and the lessons explain them.
+- **Engine** (`trace/trace.ts`, `applyFrame`). Two new frames, both one of the 24 whole-cube rotations applied after the scramble, as D-014 requires:
+  - **`{ kind: "corner", piece }`:** the one rotation that brings that corner piece home and oriented. The 24 rotations act freely and transitively on a corner's 24 placements, so exactly one exists.
+  - **`{ kind: "rotation", alg }`:** any alg equal to one of the 24 rotations. Anything else is `unknown-rotation`.
+  - Both are refused on 3x3x3, where the centres fix the frame. `asIs` stays available on both puzzles.
+- **Verification** (`test/trace/frames.test.ts`):
+  - **Corner reference, all 8 corners, random scrambles with wide moves and rotations:**
+    - the geometry model's colours, after the scramble and the chosen rotation, show that corner solved;
+    - no other rotation does;
+    - a rotation added to the scramble changes nothing.
+  - **Traces under a corner frame** (x-centres, wings, corners) match the colour oracles run on geometry colours rotated until that corner is solved. The rotation there is found by the test itself.
+  - **Parity:** wing and corner parity are the same under all 24 rotations, as D-008 predicts.
+- **Which reference the site teaches** is a lesson and trainer choice (Phase 7), recorded in OVERNIGHT.
+
+## D-033 · Tracing x-centres: by colour, avoiding the buffer's colour when there's a choice
+
+**Status:** accepted 2026-09-16, Phase 7. Found computationally; no source was used for the rule.
+
+- **Why x-centres differ.** The four x-centres of a colour are identical, so a slot is solved when it holds its colour, and the buffer's piece can go to any slot of its colour that still needs it. Tracing had refused interchangeable pieces (`interchangeable-pieces-unsupported`) until now.
+- **The rules** (`runInterchangeableTrace`):
+  - **Normal target:** the buffer holds colour X. Shoot it to a slot of colour X that doesn't hold X. One exists unless X is the buffer's own colour, because each colour has exactly as many pieces as slots.
+  - **Break:** the buffer holds its own colour and every slot of that colour is done. If anything is unsolved, break into an unsolved slot (`breakOrder`). A later target filling that slot is a `cycleClose`.
+  - **Parity:** there is no permutation to take the parity of, because swapping two identical pieces changes nothing visible. `parity` is the parity of the number of swaps traced, which is what a swap method has to fix. Different valid choices can give different parities.
+- **The choice between slots** (`policy.sameColour`):
+  - **`lowestLetter`:** the lowest letter.
+  - **`avoidBufferColour`** (the default): first set aside slots holding the buffer's own colour, then the lowest letter. That colour then returns to the buffer as late as possible, which is what forces a break.
+  - **Measured** on 4,000 random-move states (80 moves) for buffers Ubl and Ubr:
+
+    | Policy | Mean targets | Mean breaks |
+    |---|---|---|
+    | `lowestLetter` | 20.07 | 0.92 |
+    | `avoidBufferColour` | 19.27 | 0.12 |
+
+  - The avoiding policy was never longer in those 8,000 traces, and was shorter in 53% of them. That's a measurement, not a proof, so no test asserts it.
+- **Trainers:** since several answers can be right, `interchangeableChoices` lists the slots a trainer should accept at each step.
+- **Verification** (`test/trace/xcentres.test.ts`):
+  - **9 hand-derived fixtures:**
+    - choices between slots;
+    - a break forced by `lowestLetter` that the default avoids, which also flips the parity;
+    - a reversed-Greek scheme;
+    - a solved buffer;
+    - a `breakOrder` list;
+    - a fully solved type;
+    - another buffer.
+  - **Agreement with an independent colour oracle** (`test/oracle/xcentre-oracle.ts`, geometry colours, no kpuzzle): 60 random states × 24 buffers × two schemes × both policies.
+  - **Properties on 150 random states:**
+    - replaying the swaps solves the colours;
+    - every break happens only when all the buffer colour's slots are done;
+    - target count = wrong non-buffer slots + breaks;
+    - every traced step is one of `interchangeableChoices`.
+  - **Teeth:** dropping the avoidance, or forcing a break whenever the buffer holds its own colour, fails the fixtures and the oracle comparison.

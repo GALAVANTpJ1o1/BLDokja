@@ -87,9 +87,9 @@ describe("trace errors", () => {
     expect(code(trace(four, { alg: "R" }, { pieceType: "wings", buffer: "UFr", scheme: s4, frame: { kind: "centers" } }))).toBe(
       "frame-not-supported",
     );
-    expect(code(trace(four, { alg: "R" }, { pieceType: "xcenters", buffer: "Ufr", scheme: s4, frame: { kind: "asIs" } }))).toBe(
-      "interchangeable-pieces-unsupported",
-    );
+    expect(code(trace(four, { alg: "R" }, { pieceType: "xcenters", buffer: "Ufr", scheme: s4, frame: { kind: "rotation", alg: "R" } }))).toBe("unknown-rotation");
+    expect(code(trace(four, { alg: "R" }, { pieceType: "xcenters", buffer: "Ufr", scheme: s4, frame: { kind: "corner", piece: "UFr" } }))).toBe("unknown-reference-corner");
+    expect(code(trace(three, { alg: "R" }, { pieceType: "corners", buffer: "UFR", scheme: s3, frame: { kind: "corner", piece: "DBL" } }))).toBe("frame-not-supported");
     const broken = { ...s3, letters: { ...s3.letters, corners: { ...s3.letters.corners, UFR: "A" } } };
     expect(code(trace(three, { alg: "R" }, { pieceType: "corners", buffer: "UFR", scheme: broken }))).toBe("invalid-scheme");
   });

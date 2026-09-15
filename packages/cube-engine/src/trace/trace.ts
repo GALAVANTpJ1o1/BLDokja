@@ -1,6 +1,6 @@
 import type { KPattern } from "cubing/kpuzzle";
 import { at, mod, permutationParity } from "../core/arrays.js";
-import { normaliseByCenters } from "../core/frame.js";
+import { centersRotation, wholeCubeRotationAlgs } from "../core/frame.js";
 import type { Puzzle, PuzzleId } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { compileLettering, compareLetters, type Lettering, type Scheme, type SchemeIssue } from "../lettering/scheme.js";
@@ -24,16 +24,40 @@ import { PIECE_TYPE_SPECS, pieceType, type PieceType, type PieceTypeId, type Sti
  * - The buffer piece ending in its own slot but misoriented is reported, never a target.
  * - Pairs run straight across cycle boundaries; only a final odd target is left single.
  * - Parity is the actual permutation parity of the piece type, not a count of targets.
+ *
+ * Interchangeable pieces (4x4 x-centres) follow the same swap model with colours instead of pieces
+ * (`runInterchangeableTrace`): a slot is solved when it holds its own colour, and the buffer's piece
+ * may go to any slot of its colour that doesn't have that colour yet. Which one is a policy choice.
  */
 
 export type TargetKind = "normal" | "cycleBreak" | "cycleClose" | "orientationTarget";
 
-export type Frame = { readonly kind: "centers" } | { readonly kind: "asIs" };
+/**
+ * How the cube is held while memorising (D-014). Every frame is one of the 24 whole-cube rotations,
+ * applied after the scramble, so letters keep naming fixed slots in space.
+ * - `centers` (3x3x3): the rotation that solves the centres.
+ * - `asIs`: no rotation.
+ * - `rotation` (4x4x4): a rotation you name, such as `x y`.
+ * - `corner` (4x4x4): the one rotation that brings this corner piece home and oriented. A 4x4 has no
+ *   fixed centres, so a corner is the orientation reference (DECISIONS D-032).
+ */
+export type Frame =
+  | { readonly kind: "centers" }
+  | { readonly kind: "asIs" }
+  | { readonly kind: "rotation"; readonly alg: string }
+  | { readonly kind: "corner"; readonly piece: string };
 
 export interface TracePolicy {
   /** `"scheme"`: the lowest letter among eligible stickers. A list: first listed eligible sticker, then scheme order. */
   readonly breakOrder?: "scheme" | readonly string[];
   readonly orientedInPlace?: "separate" | "asTargets";
+  /**
+   * Interchangeable pieces only: which slot the buffer's piece goes to when several slots of its colour
+   * need it. `"avoidBufferColour"` (default) first sets aside slots holding the buffer's own colour, so
+   * that colour comes back to the buffer as late as possible, then picks by `breakOrder`; `"lowestLetter"`
+   * picks by `breakOrder` alone. Avoiding the buffer's colour saves breaks (DECISIONS D-033).
+   */
+  readonly sameColour?: "lowestLetter" | "avoidBufferColour";
 }
 
 export interface TraceConfig {
@@ -100,7 +124,51 @@ export type TraceError =
   | { readonly code: "frame-required"; readonly puzzle: PuzzleId }
   | { readonly code: "frame-not-supported"; readonly puzzle: PuzzleId; readonly frame: Frame["kind"] }
   | { readonly code: "centers-not-normalisable" }
-  | { readonly code: "interchangeable-pieces-unsupported"; readonly pieceType: PieceTypeId };
+  | { readonly code: "unknown-rotation"; readonly alg: string }
+  | { readonly code: "unknown-reference-corner"; readonly piece: string };
+
+export type FrameError = Extract<TraceError, { readonly code: "frame-not-supported" | "centers-not-normalisable" | "unknown-rotation" | "unknown-reference-corner" }>;
+
+/**
+ * The rotation a frame calls for on this pattern, and the rotated pattern. The alg is a shortest x/y/z
+ * form (empty when there's no rotation); applying it after the scramble gives the rotated pattern.
+ */
+export function applyFrame(puzzle: Puzzle, pattern: KPattern, frame: Frame): Result<{ readonly alg: string; readonly pattern: KPattern }, FrameError> {
+  switch (frame.kind) {
+    case "asIs":
+      return ok({ alg: "", pattern });
+    case "centers": {
+      if (puzzle.id !== "3x3x3") return err({ code: "frame-not-supported", puzzle: puzzle.id, frame: frame.kind });
+      const found = centersRotation(puzzle, pattern);
+      return found === undefined ? err({ code: "centers-not-normalisable" }) : ok(found);
+    }
+    case "rotation": {
+      if (puzzle.id === "3x3x3") return err({ code: "frame-not-supported", puzzle: puzzle.id, frame: frame.kind });
+      let named;
+      try {
+        named = puzzle.kpuzzle.identityTransformation().applyAlg(frame.alg);
+      } catch {
+        return err({ code: "unknown-rotation", alg: frame.alg });
+      }
+      const rotation = wholeCubeRotationAlgs(puzzle).find((r) => r.transformation.isIdentical(named));
+      if (rotation === undefined) return err({ code: "unknown-rotation", alg: frame.alg });
+      return ok({ alg: rotation.alg, pattern: pattern.applyTransformation(rotation.transformation) });
+    }
+    case "corner": {
+      if (puzzle.id === "3x3x3") return err({ code: "frame-not-supported", puzzle: puzzle.id, frame: frame.kind });
+      const corners = pieceType(puzzle, "corners");
+      const position = corners.pieceByName(frame.piece)?.position;
+      if (position === undefined) return err({ code: "unknown-reference-corner", piece: frame.piece });
+      // Rotations act freely and transitively on a corner's 24 placements, so exactly one fits.
+      for (const rotation of wholeCubeRotationAlgs(puzzle)) {
+        const rotated = pattern.applyTransformation(rotation.transformation);
+        const data = rotated.patternData[corners.orbit];
+        if (data?.pieces[position] === position && data.orientation[position] === 0) return ok({ alg: rotation.alg, pattern: rotated });
+      }
+      throw new Error(`no rotation brings ${frame.piece} home; the pattern is not a valid state`);
+    }
+  }
+}
 
 /** Compiled letterings, cached per scheme object (schemes are treated as immutable values). */
 const letteringCache = new WeakMap<Scheme, Map<string, Result<Lettering, SchemeIssue[]>>>();
@@ -132,7 +200,6 @@ export function trace(puzzle: Puzzle, input: TraceInput, config: TraceConfig): R
     return err({ code: "piece-type-not-on-puzzle", pieceType: config.pieceType, puzzle: puzzle.id });
   }
   const type = pieceType(puzzle, config.pieceType);
-  if (type.interchangeable) return err({ code: "interchangeable-pieces-unsupported", pieceType: type.id });
 
   const bufferSticker = type.stickerByName(config.buffer);
   if (bufferSticker === undefined) return err({ code: "unknown-buffer", buffer: config.buffer });
@@ -153,15 +220,17 @@ export function trace(puzzle: Puzzle, input: TraceInput, config: TraceConfig): R
 
   const frame = config.frame ?? (puzzle.id === "3x3x3" ? { kind: "centers" as const } : undefined);
   if (frame === undefined) return err({ code: "frame-required", puzzle: puzzle.id });
-  if (frame.kind === "centers") {
-    if (puzzle.id !== "3x3x3") return err({ code: "frame-not-supported", puzzle: puzzle.id, frame: frame.kind });
-    const normalised = normaliseByCenters(puzzle, pattern);
-    if (normalised === undefined) return err({ code: "centers-not-normalisable" });
-    pattern = normalised;
-  }
+  const framed = applyFrame(puzzle, pattern, frame);
+  if (!framed.ok) return framed;
+  pattern = framed.value.pattern;
 
   const data = pattern.patternData[type.orbit];
   if (data === undefined) throw new Error(`pattern has no ${type.orbit} orbit`);
+  if (type.interchangeable) {
+    // A piece value names its colour by the solved slot that holds it; identical pieces share one value.
+    const homes = at(puzzle.stickerMap.orbits, type.orbitIndex).defaultPieces;
+    return ok(runInterchangeableTrace(type, lettering.value, bufferSticker, data.pieces.map((v) => at(homes, v)), homes, config.policy ?? {}));
+  }
   return ok(runTrace(puzzle, type, lettering.value, bufferSticker, [...data.pieces], [...data.orientation], config.policy ?? {}));
 }
 
@@ -307,4 +376,111 @@ function runTrace(
     cycles,
     orientedInPlace,
   };
+}
+
+/**
+ * Tracing for interchangeable pieces, by colour. `start[p]` is the colour in slot p and `homes[p]` the
+ * colour that belongs there (both as solved-state piece values).
+ *
+ * - The buffer holds colour X: shoot it to a slot whose colour is X that doesn't hold X yet, chosen by
+ *   `sameColour` and `breakOrder`. Such a slot always exists unless X is the buffer's own colour, since
+ *   there are as many pieces of a colour as slots.
+ * - The buffer holds its own colour and every slot of that colour is done: if anything is unsolved,
+ *   break into an unsolved slot (by `breakOrder`); otherwise the trace is over.
+ *
+ * Each normal target solves a slot for good, and a break is always followed by one, so it ends. There is
+ * no permutation to take the parity of: two identical pieces can be exchanged without changing the cube.
+ * `parity` is the parity of the swaps the trace performs, which is what a swap method has to fix.
+ */
+function runInterchangeableTrace(type: PieceType, lettering: Lettering, buffer: StickerInfo, start: readonly number[], homes: readonly number[], policy: TracePolicy): TraceResult {
+  const colours = [...start];
+  const pb = buffer.position;
+  const bufferColour = at(homes, pb);
+  const breakOrder = policy.breakOrder ?? "scheme";
+  const avoidBufferColour = (policy.sameColour ?? "avoidBufferColour") === "avoidBufferColour";
+  const positions = type.pieces.map((p) => p.position);
+  const isSolved = (q: number) => at(colours, q) === at(homes, q);
+  const solvedPieces = type.pieces.filter((p) => isSolved(p.position)).map((p) => p.name);
+  const stickerOf = (q: number) => at(at(type.pieces, q).stickers, 0);
+
+  const choose = (candidates: readonly number[]): number => {
+    if (breakOrder !== "scheme") {
+      for (const name of breakOrder) {
+        const preferred = candidates.find((q) => stickerOf(q).name === name);
+        if (preferred !== undefined) return preferred;
+      }
+    }
+    return candidates.reduce((best, q) => (compareLetters(lettering.letterOfPiece(q), lettering.letterOfPiece(best)) < 0 ? q : best));
+  };
+
+  const targets: Target[] = [];
+  const cycles: TraceCycle[] = [];
+  let cycleStart = 0;
+  let cycleKind: TraceCycle["kind"] = "buffer";
+  let breakPosition = -1;
+  const swapWithBuffer = (q: number) => {
+    const held = at(colours, pb);
+    colours[pb] = at(colours, q);
+    colours[q] = held;
+  };
+
+  const maxSteps = positions.length * 3;
+  for (let step = 0; ; step++) {
+    if (step > maxSteps) throw new Error("trace did not terminate; the pattern is not a valid state");
+    const held = at(colours, pb);
+    const needing = positions.filter((q) => q !== pb && at(homes, q) === held && at(colours, q) !== held);
+    if (needing.length > 0) {
+      const preferred = avoidBufferColour ? needing.filter((q) => at(colours, q) !== bufferColour) : needing;
+      const q = choose(preferred.length > 0 ? preferred : needing);
+      targets.push({ position: q, label: 0, kind: q === breakPosition ? "cycleClose" : "normal" });
+      if (q === breakPosition) breakPosition = -1;
+      swapWithBuffer(q);
+      continue;
+    }
+    if (held !== bufferColour) throw new Error("no slot needs the buffer's colour; the pattern is not a valid state");
+    if (targets.length > cycleStart) cycles.push({ start: cycleStart, end: targets.length, kind: cycleKind });
+    const unsolved = positions.filter((q) => q !== pb && !isSolved(q));
+    if (unsolved.length === 0) break;
+    const q = choose(unsolved);
+    cycleKind = "break";
+    cycleStart = targets.length;
+    targets.push({ position: q, label: 0, kind: "cycleBreak" });
+    swapWithBuffer(q);
+    breakPosition = q;
+  }
+
+  const letters = targets.map((t) => lettering.letterOfPiece(t.position));
+  const pairs: [string, string?][] = [];
+  for (let i = 0; i < letters.length; i += 2) {
+    const second = letters[i + 1];
+    pairs.push(second === undefined ? [at(letters, i)] : [at(letters, i), second]);
+  }
+  return {
+    targets: letters,
+    pairs,
+    cycleBreaks: targets.flatMap((t, i) => (t.kind === "cycleBreak" ? [i] : [])),
+    flipped: [],
+    twisted: [],
+    solvedPieces,
+    parity: targets.length % 2 === 1,
+    targetCount: targets.length,
+    buffer: { sticker: buffer.name, piece: at(type.pieces, pb).name },
+    targetStickers: targets.map((t) => stickerOf(t.position).name),
+    targetKinds: targets.map((t) => t.kind),
+    cycles,
+    orientedInPlace: [],
+  };
+}
+
+/**
+ * The slots an interchangeable trace may shoot to next, for a trainer that accepts any of them: every
+ * slot of the buffer's colour still missing that colour, or, when there is none, every unsolved slot as
+ * a break (empty when the type is solved). `colours` and `homes` are as in the trace.
+ */
+export function interchangeableChoices(type: PieceType, bufferPosition: number, colours: readonly number[], homes: readonly number[]): { readonly kind: "target" | "break"; readonly positions: number[] } {
+  const held = at(colours, bufferPosition);
+  const positions = type.pieces.map((p) => p.position).filter((q) => q !== bufferPosition);
+  const needing = positions.filter((q) => at(homes, q) === held && at(colours, q) !== held);
+  if (needing.length > 0) return { kind: "target", positions: needing };
+  return { kind: "break", positions: positions.filter((q) => at(colours, q) !== at(homes, q)) };
 }

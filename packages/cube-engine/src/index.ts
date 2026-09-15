@@ -17,8 +17,11 @@ export {
 } from "./lettering/scheme.js";
 export { blankScheme, buildFaceCycleScheme, speffzScheme, SPEFFZ_RULE, type FaceCycleRule } from "./lettering/speffz.js";
 export {
+  applyFrame,
+  interchangeableChoices,
   trace,
   type Frame,
+  type FrameError,
   type OrientedInPlace,
   type TargetKind,
   type TraceConfig,
