@@ -149,3 +149,5 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 ### Lesson notes (one line each: what I'm unsure reads well)
 
 - **Lesson 1:** the Tsundere and Roast voices lean on the second person hard ("idiot", "your last solve"). It's within your limits, but check that the Tsundere voice's "idiot" count doesn't feel mean rather than affectionate in the pilot.
+- **Lesson 2:** "Face turns never move the centres, so on a 3x3 the centres tell you which face is which" is true but skips why slices and rotations are still fine. That comes in lesson 3; check whether the forward reference is needed.
+- **Lesson 3:** I'm unsure whether three MoveExplorers in one lesson is too many buttons on a phone. They wrap, but the page gets long at 380px.

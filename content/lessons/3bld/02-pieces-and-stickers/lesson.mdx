@@ -1,0 +1,90 @@
+---
+id: pieces-and-stickers
+title: Pieces, stickers, and why we talk about stickers
+track: 3bld
+order: 2
+prerequisites:
+  - what-is-blindfolded-solving
+estimatedMinutes: 6
+objectives:
+  - Count the corners, edges and centres, and the stickers on each
+  - Hold the cube the same way every time
+  - Explain why a sticker says more than a piece does
+checkpoints:
+  - id: pieces
+    title: Pieces and stickers
+recap:
+  - A blindfolded solve is memorising, then executing one piece at a time from a fixed spot called the buffer.
+---
+
+To memorise a cube you need to say exactly what's where. That starts with knowing what a cube is made of.
+
+## Three kinds of piece
+
+A cube has 26 pieces you can see:
+
+- **8 corners**, each with 3 stickers.
+- **12 edges**, each with 2 stickers.
+- **6 centres**, each with 1 sticker.
+
+That's 24 corner stickers, 24 edge stickers and 6 centre stickers: 54 in all.
+
+Here's one corner lit up. It's the corner where the top, front and right faces meet, and all three of its stickers are lit.
+
+<Cube highlight="UFR FUR RUF" label="The top-front-right corner, with its three stickers lit" />
+
+## Hold it the same way, every time
+
+Face turns never move the centres, so on a 3x3 the centres tell you which face is which. Blindfolded solvers hold the cube the same way every time: **white on top, green in front**. Red is then on the right, orange on the left, blue at the back and yellow underneath.
+
+With the cube held like that, every place on it has a fixed name. The top face is U (up), then D (down), F (front), B (back), R (right) and L (left).
+
+A piece is named by the faces it touches. The corner above is UFR: up, front, right. The edge between the top and the front is UF.
+
+## Why stickers, not pieces
+
+Say the UFR corner is in its own place, but turned. It can sit there three ways: its white sticker facing up, facing front, or facing right. If you only said "the UFR corner is here", you'd lose which way it's turned, and that matters for solving it.
+
+A sticker fixes both at once. So we name each **sticker** by its own face first, then the rest of its piece:
+
+- UFR is the corner's top sticker.
+- FUR is its front sticker.
+- RUF is its right sticker.
+
+Here's the same corner with only its front sticker, FUR, lit.
+
+<Cube highlight="FUR" label="Only the front sticker of the top-front-right corner, FUR, lit" />
+
+Edges work the same way with two stickers: UF is the top sticker of the top-front edge, and FU is its front sticker.
+
+<Cube highlight="UF FU" label="The top-front edge, with both of its stickers lit" />
+
+From the next lesson on, when this site says "the sticker in UFR", it means a place on the cube, not a colour. Whatever sticker is sitting in that place right now is what you read.
+
+<Checkpoint id="pieces" kind="quiz">
+  <Question id="corners" prompt="How many stickers does a corner have?" answer="c">
+    <Option id="a">One</Option>
+    <Option id="b">Two</Option>
+    <Option id="c">Three</Option>
+  </Question>
+  <Question id="edge-count" prompt="How many edges does a 3x3 have?" answer="b">
+    <Option id="a">8</Option>
+    <Option id="b">12</Option>
+    <Option id="c">24</Option>
+  </Question>
+  <Question id="hold" prompt="How is the cube held for blindfolded solving on this site?" answer="a">
+    <Option id="a">White on top, green in front</Option>
+    <Option id="b">Yellow on top, red in front</Option>
+    <Option id="c">Any way, as long as you remember it</Option>
+  </Question>
+  <Question id="why" prompt="Why name stickers rather than pieces?" answer="b">
+    <Option id="a">Stickers are easier to see in the dark</Option>
+    <Option id="b">A sticker says both where a piece is and which way it's turned</Option>
+    <Option id="c">Pieces don't have names</Option>
+  </Question>
+  <Question id="fur" prompt="FUR is which sticker?" answer="c">
+    <Option id="a">The top sticker of the top-front-right corner</Option>
+    <Option id="b">The right sticker of the top-front-right corner</Option>
+    <Option id="c">The front sticker of the top-front-right corner</Option>
+  </Question>
+</Checkpoint>

@@ -1,0 +1,71 @@
+---
+voice: casual
+---
+
+Blind methods are written as move sequences, and a few of those moves are ones your normal solve basically never uses. Quick refresher, with a cube you can poke.
+
+## Face turns
+
+A letter on its own turns that face a quarter turn **clockwise, as if you were looking straight at that face**:
+
+- **R** turns the right face, **L** the left, **U** the top, **D** the bottom, **F** the front, **B** the back.
+- An apostrophe, **R'** (say "R prime"), turns it counterclockwise.
+- A 2, **R2**, turns it twice. Direction doesn't matter for a double, it lands the same.
+
+The "looking at that face" bit is where L, D and B get sneaky. L clockwise, seen from the left, moves the front of the left face down. Try R then L and watch them go opposite ways from the front. Wild but true.
+
+<MoveExplorer moves="R R' R2 L L' U U' D F B" label="Face turns: press a move to turn the cube" />
+
+## Slice moves
+
+A slice move turns just a middle layer. There are three, and each one copies **the direction of one of the faces next to it**:
+
+- **M** is the layer between L and R. It turns like **L**.
+- **E** is the layer between U and D. It turns like **D**.
+- **S** is the layer between F and B. It turns like **F**.
+
+Slice moves shift the centres, so after an M the white centre isn't on top anymore. Totally fine. Methods that use slices always put the centres back where they belong.
+
+<MoveExplorer moves="M M' M2 E E' S S'" label="Slice moves: press a move to turn a middle layer" />
+
+## Wide moves and rotations
+
+A **wide move** turns a face plus the middle layer next to it. **Rw** turns the right face and the M layer together, in R's direction. You'll also see it lowercase, **r**. This site sticks with Rw.
+
+A **rotation** spins the whole cube in your hands and doesn't change the pieces at all:
+
+- **x** turns the whole cube like R.
+- **y** turns it like U.
+- **z** turns it like F.
+
+<MoveExplorer moves="Rw Rw' Uw x x' y y' z" label="Wide moves and rotations: press a move" />
+
+<Note>For the rest of the path it's mostly face turns, a few wide moves in setups, and M later for edges. If a sequence looks cursed, come back here and press it one move at a time.</Note>
+
+<Checkpoint id="moves" kind="quiz">
+  <Question id="prime" prompt="What does U' mean?" answer="b">
+    <Option id="a">Turn the top face clockwise, looking down at it</Option>
+    <Option id="b">Turn the top face counterclockwise, looking down at it</Option>
+    <Option id="c">Turn the top face twice</Option>
+  </Question>
+  <Question id="m-direction" prompt="M turns in the same direction as which face?" answer="a">
+    <Option id="a">L</Option>
+    <Option id="b">R</Option>
+    <Option id="c">U</Option>
+  </Question>
+  <Question id="e-direction" prompt="E turns in the same direction as which face?" answer="c">
+    <Option id="a">U</Option>
+    <Option id="b">F</Option>
+    <Option id="c">D</Option>
+  </Question>
+  <Question id="wide" prompt="What does Rw turn?" answer="b">
+    <Option id="a">The right face only, twice</Option>
+    <Option id="b">The right face and the middle layer next to it, together</Option>
+    <Option id="c">The whole cube, like R</Option>
+  </Question>
+  <Question id="y" prompt="Which rotation turns the whole cube the same way as U?" answer="c">
+    <Option id="a">x</Option>
+    <Option id="b">z</Option>
+    <Option id="c">y</Option>
+  </Question>
+</Checkpoint>
