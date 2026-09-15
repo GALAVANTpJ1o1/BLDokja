@@ -51,7 +51,7 @@ export {
   type ParsedAlg,
   type QuarterTurns,
 } from "./commutator/parse.js";
-export { cancelMoves, expandAlg, expandNodes, formatMoves, invertMoves, moveAxis, type ExpandOptions } from "./commutator/expand.js";
+export { cancelMoves, expandAlg, expandNodes, formatMoves, invertMoves, invertNodes, moveAxis, type ExpandOptions } from "./commutator/expand.js";
 export { moveCounts, type MoveCounts } from "./commutator/metrics.js";
 export { affectedStickers, type AffectedOrbit } from "./commutator/effect.js";
 export {

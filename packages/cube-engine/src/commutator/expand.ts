@@ -19,6 +19,23 @@ export function invertMoves(moves: readonly AlgMove[]): AlgMove[] {
   return moves.map((move): AlgMove => ({ ...move, amount: (4 - move.amount) as QuarterTurns })).reverse();
 }
 
+/**
+ * The inverse written in bracket notation: the sequence reversed, each move inverted, [A, B] as [B, A],
+ * and [S: X] as [S: X⁻¹]. Expanding it gives exactly `invertMoves` of the original (tested).
+ */
+export function invertNodes(nodes: readonly AlgNode[]): AlgNode[] {
+  return [...nodes].reverse().map((node): AlgNode => {
+    switch (node.type) {
+      case "move":
+        return { ...node, amount: (4 - node.amount) as QuarterTurns };
+      case "commutator":
+        return { type: "commutator", a: node.b, b: node.a };
+      case "conjugate":
+        return { type: "conjugate", setup: node.setup, body: invertNodes(node.body) };
+    }
+  });
+}
+
 export function expandNodes(nodes: readonly AlgNode[]): AlgMove[] {
   return nodes.flatMap((node): AlgMove[] => {
     switch (node.type) {
