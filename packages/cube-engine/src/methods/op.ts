@@ -2,7 +2,7 @@ import type { KPattern } from "cubing/kpuzzle";
 import { centersRotation } from "../core/frame.js";
 import type { Puzzle } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
-import { cubeSymmetries, relabelMove } from "../core/symmetry.js";
+import { cubeSymmetries, relabelMove, type CubeSymmetry } from "../core/symmetry.js";
 import { expandNodes, formatMoves, invertMoves } from "../commutator/expand.js";
 import { parseAlg, type AlgMove } from "../commutator/parse.js";
 import {
@@ -156,6 +156,40 @@ export type OpSystemError =
   | { readonly code: "verification-failed"; readonly problems: readonly OpDatasetProblem[] };
 
 const systemCache = new WeakMap<Puzzle, Map<string, Result<OpSystem, OpSystemError>>>();
+
+/** A corner and an edge buffer, as the orientation-reference sticker of each piece (the U/D sticker; F/B on the E slice). */
+export interface BufferPair {
+  readonly corners: string;
+  readonly edges: string;
+}
+
+function referenceSticker(puzzle: Puzzle, typeId: "corners" | "edges", position: number): string {
+  const piece = pieceType(puzzle, typeId).pieces.find((p) => p.position === position);
+  const sticker = piece?.stickers.find((s) => s.isOrientationReference) ?? piece?.stickers[0];
+  if (sticker === undefined) throw new Error(`no ${typeId} piece at ${String(position)}`);
+  return sticker.name;
+}
+
+/**
+ * Every buffer pair `opSystem` can build: the images of (UBL, UR) under the 48 cube symmetries, as
+ * reference stickers, sorted. Any sticker of these pieces is accepted too; these are the ones to offer.
+ */
+export function opBufferPairs(puzzle: Puzzle, filter: (g: CubeSymmetry) => boolean = () => true, reference: { readonly corners: string; readonly edges: string } = { corners: REFERENCE_SWAPS["op-corners"].bufferPiece, edges: REFERENCE_SWAPS["op-edges"].bufferPiece }): BufferPair[] {
+  const corner = pieceType(puzzle, "corners").pieceByName(reference.corners)?.stickers[0];
+  const edge = pieceType(puzzle, "edges").pieceByName(reference.edges)?.stickers[0];
+  if (corner === undefined || edge === undefined) throw new Error("reference buffer pieces not found");
+  const cornerPosition = new Map(pieceType(puzzle, "corners").stickers.map((s) => [s.index, s.position]));
+  const edgePosition = new Map(pieceType(puzzle, "edges").stickers.map((s) => [s.index, s.position]));
+  const pairs = new Map<string, BufferPair>();
+  for (const g of cubeSymmetries(puzzle).filter(filter)) {
+    const c = cornerPosition.get(g.sticker[corner.index] ?? -1);
+    const e = edgePosition.get(g.sticker[edge.index] ?? -1);
+    if (c === undefined || e === undefined) continue;
+    const pair = { corners: referenceSticker(puzzle, "corners", c), edges: referenceSticker(puzzle, "edges", e) };
+    pairs.set(`${pair.corners}/${pair.edges}`, pair);
+  }
+  return [...pairs.values()].sort((a, b) => (a.corners + a.edges < b.corners + b.edges ? -1 : 1));
+}
 
 /**
  * The OP/OP datasets for a corner buffer and an edge buffer (stickers), built and verified in memory.

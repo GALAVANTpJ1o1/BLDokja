@@ -113,8 +113,10 @@ export {
 } from "./methods/swap-algs.js";
 export {
   opPhase,
+  opBufferPairs,
   opSystem,
   solveOpOp,
+  type BufferPair,
   traceForSolve,
   type OpOpConfig,
   type OpPhaseError,
@@ -124,6 +126,7 @@ export {
   type SolveTraceError,
 } from "./methods/op.js";
 export {
+  m2BufferPairs,
   m2OpSystem,
   m2Phase,
   solveM2Op,
@@ -206,6 +209,7 @@ export {
   type DatasetProblem,
   type RecordCase,
 } from "./data/alg-dataset.js";
+export { relabelNodes, rotationBetween, symmetryImageDataset, type SymmetryImageError } from "./data/alg-dataset-symmetry.js";
 export {
   buildOpParityDataset,
   buildOpSetupsDataset,
@@ -270,8 +274,10 @@ export {
   cubingProvider,
   nextScramble,
   orientationSuffixes,
+  seededMoveProvider,
   seededStateProvider3x3,
   type CubingEvent,
+  type SeededMoveProviderOptions,
   type ScrambleCandidate,
   type ScrambleProvider,
   type SeededProviderOptions,

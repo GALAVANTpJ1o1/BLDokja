@@ -11,7 +11,7 @@ import { pieceName } from "../pieces/names.js";
 import { pieceType } from "../pieces/piece-types.js";
 import type { TracePolicy, TraceInput, TraceResult } from "../trace/trace.js";
 import { M2_SPECIAL_BOUNDS } from "./m2-search.js";
-import { opPhase, traceForSolve, type OpPhaseError, type SolveTraceError } from "./op.js";
+import { opBufferPairs, opPhase, traceForSolve, type BufferPair, type OpPhaseError, type SolveTraceError } from "./op.js";
 import { GATE_B_SETUP_FAMILIES } from "./setup-search.js";
 import { m2Swaps, REFERENCE_SWAPS, swapVariants } from "./swap-algs.js";
 import { stepMoves, type MethodSolution, type MethodStep, type TargetStep } from "./solution.js";
@@ -132,6 +132,11 @@ function specialCatalogue(puzzle: Puzzle): CommCatalogue {
  * symmetry, the M2 swap is the M2 variant for the buffer, and the special cases and parity alg are
  * searched for the buffer stickers given (D-025). Other pairs return `no-verified-m2-system`.
  */
+/** Every buffer pair `m2OpSystem` can build: the images of (UBL, DF) under the symmetries that keep M2 an M move. */
+export function m2BufferPairs(puzzle: Puzzle): BufferPair[] {
+  return opBufferPairs(puzzle, (g) => relabelMove(puzzle, g, { family: "M", amount: 2 }).family === "M", { corners: REFERENCE_SWAPS["op-corners"].bufferPiece, edges: REFERENCE_SWAPS.m2.bufferPiece });
+}
+
 export function m2OpSystem(puzzle: Puzzle, buffers: { readonly cornerBuffer: string; readonly edgeBuffer: string }): Result<M2OpSystem, M2OpSystemError> {
   const key = `${buffers.cornerBuffer}/${buffers.edgeBuffer}`;
   let byPuzzle = systems.get(puzzle);

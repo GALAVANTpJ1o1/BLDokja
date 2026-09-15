@@ -2,11 +2,11 @@ import type { KPattern } from "cubing/kpuzzle";
 import { randomScrambleForEvent } from "cubing/scramble";
 import { experimentalSolve3x3x3IgnoringCenters } from "cubing/search";
 import { centersRotation, normaliseByCenters, wholeCubeRotationAlgs } from "../core/frame.js";
-import type { Puzzle, PuzzleId } from "../core/puzzle.js";
+import { verifiedMoves, type Puzzle, type PuzzleId } from "../core/puzzle.js";
 import { expandNodes, formatMoves, invertMoves } from "../commutator/expand.js";
 import { parseAlg } from "../commutator/parse.js";
 import { createRng } from "../random/prng.js";
-import { randomState3x3 } from "../random/random-state.js";
+import { randomMoveSequence, randomState3x3 } from "../random/random-state.js";
 
 /**
  * Scramble providers (BRIEF §5.6, DECISIONS D-027): a port every trainer draws scrambles from.
@@ -91,6 +91,41 @@ export function seededStateProvider3x3(puzzle: Puzzle, options: SeededProviderOp
         return pending;
       };
       return Promise.resolve({ state, scramble });
+    },
+  };
+}
+
+export interface SeededMoveProviderOptions {
+  readonly seed: string;
+  /** Moves to draw from, each verified for the puzzle. Default: the face turns U D R L F B with ' and 2. */
+  readonly moves?: readonly string[];
+  /** Moves per scramble. Default 25. */
+  readonly length?: number;
+}
+
+/**
+ * Seeded random-move scrambles: no two consecutive moves of one family, and no solver. States aren't
+ * uniformly distributed, but after 25 face turns they're close enough for practice, and the provider
+ * runs anywhere, including a browser where cubing.js's search worker isn't available. The same seed
+ * gives the same scrambles. On 3x3 the state is rotated so the centres are solved, like every provider.
+ */
+export function seededMoveProvider(puzzle: Puzzle, options: SeededMoveProviderOptions): ScrambleProvider {
+  const verified = new Set(verifiedMoves(puzzle.id));
+  const moves = options.moves ?? verifiedMoves(puzzle.id).filter((m) => /^[UDRLFB]['2]?$/.test(m));
+  const unverified = moves.filter((m) => !verified.has(m));
+  if (unverified.length > 0) throw new RangeError(`moves not verified for ${puzzle.id}: ${unverified.join(" ")}`);
+  if (moves.length === 0) throw new RangeError("no moves to draw from");
+  const length = options.length ?? 25;
+  if (!Number.isInteger(length) || length < 1) throw new RangeError(`length must be a positive integer, not ${String(length)}`);
+  const rng = createRng(options.seed);
+  return {
+    puzzle: puzzle.id,
+    next: () => {
+      const text = canonical(puzzle.id, randomMoveSequence(rng, moves, length).join(" "), false);
+      const applied = puzzle.kpuzzle.defaultPattern().applyAlg(text);
+      const state = puzzle.id === "3x3x3" ? normaliseByCenters(puzzle, applied) : applied;
+      if (state === undefined) throw new Error(`"${text}" has no centre frame`);
+      return Promise.resolve({ state, scramble: () => Promise.resolve(text) });
     },
   };
 }
