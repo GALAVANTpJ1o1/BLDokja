@@ -103,3 +103,138 @@
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
 }
+
+/*
+ * Constellation layer (DESIGN.md): the starfield, page transitions and the transmission window.
+ * Every moving rule here has a reduced-motion override keyed on BOTH the media query and
+ * html[data-motion="reduce"], which src/design/motion.ts sets from script. motion.test.ts checks it.
+ */
+@layer components {
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    view-transition-name: starfield;
+  }
+
+  .page-content {
+    view-transition-name: page;
+  }
+
+  .letter-star {
+    color: var(--chalk);
+    text-shadow: 0 0 6px color-mix(in srgb, var(--chalk) 45%, transparent), 0 0 18px color-mix(in srgb, var(--chalk) 18%, transparent);
+    font-variation-settings: "CASL" 1, "MONO" 0;
+  }
+
+  .transmission-window {
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    max-width: min(34rem, calc(100vw - 2rem));
+    width: 100%;
+    overflow: visible;
+  }
+  .transmission-window::backdrop {
+    background: color-mix(in srgb, var(--ground) 55%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .transmission-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: color-mix(in srgb, var(--ground) 92%, var(--text));
+    border: 1px solid color-mix(in srgb, var(--text) 38%, transparent);
+    border-radius: 0;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 6%, transparent), 0 0 18px color-mix(in srgb, var(--text) 14%, transparent);
+  }
+  .transmission-window[open] .transmission-panel {
+    animation: transmission-in 160ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .transmission-window[open]::backdrop {
+    animation: transmission-backdrop-in 160ms linear;
+  }
+  .bracket {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--text);
+    border-style: solid;
+    border-width: 0;
+  }
+  .bracket-tl { top: -4px; left: -4px; border-top-width: 2px; border-left-width: 2px; }
+  .bracket-tr { top: -4px; right: -4px; border-top-width: 2px; border-right-width: 2px; }
+  .bracket-bl { bottom: -4px; left: -4px; border-bottom-width: 2px; border-left-width: 2px; }
+  .bracket-br { bottom: -4px; right: -4px; border-bottom-width: 2px; border-right-width: 2px; }
+}
+
+@keyframes transmission-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes transmission-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Page transitions: "travel" (full motion). Scale stays under 110%; everything ends by 360ms. */
+@keyframes stars-streak-out {
+  from { opacity: 1; transform: scale(1); filter: blur(0); }
+  to { opacity: 0; transform: scale(1.08); filter: blur(1px); }
+}
+@keyframes stars-settle-in {
+  from { opacity: 0; transform: scale(1.05); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes page-recede {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.97); }
+}
+@keyframes page-arrive {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes plain-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes plain-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+html[data-transition="travel"]::view-transition-old(starfield) { animation: stars-streak-out 360ms cubic-bezier(0.4, 0, 1, 1) both; }
+html[data-transition="travel"]::view-transition-new(starfield) { animation: stars-settle-in 360ms cubic-bezier(0, 0, 0.2, 1) both; }
+html[data-transition="travel"]::view-transition-old(page) { animation: page-recede 200ms cubic-bezier(0.4, 0, 1, 1) both; }
+html[data-transition="travel"]::view-transition-new(page) { animation: page-arrive 260ms cubic-bezier(0, 0, 0.2, 1) 100ms both; }
+
+/* Reduced motion: a plain cross-fade, nothing scales or moves. */
+html[data-transition="fade"]::view-transition-old(starfield),
+html[data-transition="fade"]::view-transition-old(page),
+html[data-transition="fade"]::view-transition-old(root) { animation: plain-fade-out 160ms linear both; }
+html[data-transition="fade"]::view-transition-new(starfield),
+html[data-transition="fade"]::view-transition-new(page),
+html[data-transition="fade"]::view-transition-new(root) { animation: plain-fade-in 160ms linear both; }
+
+/* Reduced motion, by media query AND by the script-set attribute. */
+@media (prefers-reduced-motion: reduce) {
+  html::view-transition-old(starfield),
+  html::view-transition-new(starfield),
+  html::view-transition-old(page),
+  html::view-transition-new(page) { animation-name: plain-fade-out; transform: none; filter: none; }
+  html::view-transition-new(starfield),
+  html::view-transition-new(page) { animation-name: plain-fade-in; }
+  .transmission-window[open] .transmission-panel,
+  .transmission-window[open]::backdrop { animation: none; }
+}
+html[data-motion="reduce"]::view-transition-old(starfield),
+html[data-motion="reduce"]::view-transition-old(page) { animation: plain-fade-out 160ms linear both; transform: none; filter: none; }
+html[data-motion="reduce"]::view-transition-new(starfield),
+html[data-motion="reduce"]::view-transition-new(page) { animation: plain-fade-in 160ms linear both; transform: none; }
+html[data-motion="reduce"] .transmission-window[open] .transmission-panel,
+html[data-motion="reduce"] .transmission-window[open]::backdrop { animation: none; }

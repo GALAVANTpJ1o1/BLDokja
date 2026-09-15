@@ -30,3 +30,12 @@ export function LetterNotch({ letter, face, className }: { letter: string; face:
     </span>
   );
 }
+
+/** A letter drawn as a star (DESIGN.md, "Letters as stars"): chalk with a soft glow, for completion marks and target displays on the starfield. */
+export function LetterStar({ letter, label }: { letter: string; label?: string }) {
+  return (
+    <span className="letter-star t-display-letter inline-block" aria-label={label}>
+      {letter}
+    </span>
+  );
+}

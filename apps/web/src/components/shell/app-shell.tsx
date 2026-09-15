@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { TransitionLink as Link } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 
 const SECTIONS = [
@@ -75,7 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
       </header>
 
-      <main id="content" className="min-w-0 px-4 pb-24 pt-6 sm:px-6 lg:px-10 lg:pb-12 lg:pt-10">
+      <main id="content" className="page-content min-w-0 px-4 pb-24 pt-6 sm:px-6 lg:px-10 lg:pb-12 lg:pt-10">
         {children}
       </main>
 

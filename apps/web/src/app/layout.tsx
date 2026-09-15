@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { AppShell } from "@/components/shell/app-shell";
 import { SettingsProvider } from "@/components/settings/settings-provider";
+import { Starfield } from "@/components/starfield/starfield";
+import { PageTransitions } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 
 export const metadata: Metadata = {
@@ -35,8 +37,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Script id="appearance-boot" strategy="beforeInteractive">
           {APPEARANCE_BOOT}
         </Script>
+        <Starfield />
         <SettingsProvider>
-          <AppShell>{children}</AppShell>
+          <PageTransitions>
+            <AppShell>{children}</AppShell>
+          </PageTransitions>
         </SettingsProvider>
       </body>
     </html>

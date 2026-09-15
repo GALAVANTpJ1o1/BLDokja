@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { CHALK, contrastRatio, CUBE_BODY, FACE_ORDER, INK, INTERFACE, STICKER_PALETTES, tileLetterColour, type PaletteName, type ThemeName } from "./palette";
 
-const css = readFileSync(join(import.meta.dirname, "..", "styles", "tokens.css"), "utf8");
+// Normalised, so the checks don't depend on git's line-ending conversion.
+const css = readFileSync(join(import.meta.dirname, "..", "styles", "tokens.css"), "utf8").replaceAll("\r\n", "\n");
 
 /** The custom properties declared in the first block whose selector matches exactly. */
 function block(selector: string): Record<string, string> {

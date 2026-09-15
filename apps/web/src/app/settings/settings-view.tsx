@@ -3,6 +3,7 @@
 import { exportData, importData, PALETTES, parseExport, THEMES, VOICES, type ExportV1, type ImportDataError, type Palette, type Theme, type Voice } from "@bld/storage";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
+import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 import { getStorage, nowIso, storageIsPersistent } from "@/lib/storage-client";
 
@@ -46,6 +47,7 @@ export function SettingsView() {
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [pending, setPending] = useState<ExportV1 | undefined>(undefined);
   const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [quarantined, setQuarantined] = useState(0);
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState<number | undefined>(undefined);
@@ -147,28 +149,45 @@ export function SettingsView() {
             {en.settings.importPick}
             <input type="file" accept="application/json,.json" className="field py-2" onChange={(e) => { const f = e.target.files?.[0]; if (f !== undefined) void pickFile(f); }} />
           </label>
-          {pending !== undefined ? (
-            <div className="panel flex flex-col gap-3 p-4" role="region" aria-label={en.settings.importReview}>
-              <p className="t-subheading">{en.settings.importReview}</p>
-              <p className="t-body">{en.settings.importCounts(pending.letterPairs.length, pending.events.length)}</p>
-              <div className="flex gap-2">
-                <button type="button" className="btn btn-strong" disabled={busy} onClick={() => void confirmImport()}>{en.settings.importConfirm}</button>
-                <button type="button" className="btn" onClick={() => { setPending(undefined); }}>{en.settings.importCancel}</button>
-              </div>
-            </div>
-          ) : null}
         </div>
+
+        <TransmissionWindow
+          open={pending !== undefined}
+          title={en.settings.importReview}
+          onClose={() => { setPending(undefined); }}
+          actions={
+            <>
+              <button type="button" className="btn" onClick={() => { setPending(undefined); }}>{en.settings.importCancel}</button>
+              <button type="button" className="btn btn-strong" disabled={busy} onClick={() => void confirmImport()}>{en.settings.importConfirm}</button>
+            </>
+          }
+        >
+          {pending !== undefined ? <p>{en.settings.importCounts(pending.letterPairs.length, pending.events.length)}</p> : null}
+        </TransmissionWindow>
 
         <div className="flex flex-col gap-3">
           <h3 className="t-subheading">{en.settings.deleteAll}</h3>
-          <label className="flex flex-col gap-1 t-body">
+          <div>
+            <button type="button" className="btn" onClick={() => { setDeleting(true); }}>{en.settings.deleteAll}</button>
+          </div>
+        </div>
+
+        <TransmissionWindow
+          open={deleting}
+          title={en.settings.deleteAll}
+          onClose={() => { setDeleting(false); setConfirmText(""); }}
+          actions={
+            <>
+              <button type="button" className="btn" onClick={() => { setDeleting(false); setConfirmText(""); }}>{en.settings.importCancel}</button>
+              <button type="button" className="btn btn-strong" disabled={confirmText !== en.settings.deleteWord} onClick={() => void deleteAll()}>{en.settings.deleteAll}</button>
+            </>
+          }
+        >
+          <label className="flex flex-col gap-2">
             {en.settings.deleteConfirm}
             <input className="field max-w-48 mono" value={confirmText} onChange={(e) => { setConfirmText(e.target.value); }} autoComplete="off" />
           </label>
-          <div>
-            <button type="button" className="btn" disabled={confirmText !== en.settings.deleteWord} onClick={() => void deleteAll()}>{en.settings.deleteAll}</button>
-          </div>
-        </div>
+        </TransmissionWindow>
         <p role="status" className="t-body">{status}</p>
       </Section>
     </div>
