@@ -1,15 +1,35 @@
 "use client";
 
-import type { AppEvent } from "@bld/storage";
-import { useCallback, useEffect, useState } from "react";
+import { DrillAttemptEventSchema, type AppEvent, type DrillAttemptEvent, type Settings } from "@bld/storage";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSettings } from "@/components/settings/settings-provider";
 import { getStorage } from "./storage-client";
 
 /**
+ * The settings in force when an attempt was made (BRIEF §8: "settings snapshot"): the difficulty
+ * settings, your buffers (or "standard"), and which lettering scheme. Enough to tell later whether a slow
+ * week was a harder preset or a new buffer.
+ */
+export function settingsSnapshot(stored: Settings | undefined): NonNullable<DrillAttemptEvent["settings"]> {
+  // Round-tripped through JSON (dropping undefined fields) and parsed with the event schema, so the
+  // snapshot is exactly what will be stored.
+  const plain: unknown = JSON.parse(JSON.stringify({ difficulty: stored?.difficulty ?? {}, buffers: stored?.buffers ?? "standard", scheme: stored?.scheme?.id ?? "speffz" }));
+  const parsed = DrillAttemptEventSchema.shape.settings.unwrap().safeParse(plain);
+  return parsed.success ? parsed.data : { scheme: stored?.scheme?.id ?? "speffz" };
+}
+
+/**
  * The event log, loaded once, with an `append` that writes through storage and updates the local copy.
- * Trainers read their history from it (FSRS schedules, explanation counts) and log every graded attempt.
+ * Trainers read their history from it (FSRS schedules, explanation counts) and log every graded attempt;
+ * a drill attempt without a settings snapshot gets one here, so no trainer can forget it.
  */
 export function useEvents(): { events: readonly AppEvent[] | undefined; append: (events: readonly AppEvent[]) => Promise<void> } {
   const [events, setEvents] = useState<readonly AppEvent[] | undefined>(undefined);
+  const { stored } = useSettings();
+  const latest = useRef(stored);
+  useEffect(() => {
+    latest.current = stored;
+  }, [stored]);
   useEffect(() => {
     let cancelled = false;
     void getStorage()
@@ -22,8 +42,9 @@ export function useEvents(): { events: readonly AppEvent[] | undefined; append: 
     };
   }, []);
   const append = useCallback(async (added: readonly AppEvent[]) => {
-    await getStorage().appendEvents(added);
-    setEvents((current) => [...(current ?? []), ...added]);
+    const withSettings = added.map((e) => (e.type === "drill.attempt" && e.settings === undefined ? { ...e, settings: settingsSnapshot(latest.current) } : e));
+    await getStorage().appendEvents(withSettings);
+    setEvents((current) => [...(current ?? []), ...withSettings]);
   }, []);
   return { events, append };
 }
