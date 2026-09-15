@@ -16,6 +16,7 @@ export interface LibraryContext {
   readonly expected: ReadonlyMap<string, number> | undefined;
   readonly now: Date;
   readonly save: (changed: readonly LetterPair[]) => Promise<boolean>;
+  readonly events: readonly AppEvent[];
   readonly append: (events: readonly AppEvent[]) => Promise<void>;
   readonly openEditor: (id: string) => void;
 }

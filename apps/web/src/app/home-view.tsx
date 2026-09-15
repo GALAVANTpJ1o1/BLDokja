@@ -1,9 +1,12 @@
 "use client";
 
+import { attemptsOf, weakItems, type WeakItem } from "@bld/analytics";
 import { dueCases, reviewsByCase, scheduleAll } from "@bld/srs";
 import { useEffect, useState } from "react";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { itemLabel } from "@/lib/item-labels";
+import { useReader } from "@/lib/reader";
 import { getStorage } from "@/lib/storage-client";
 import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
 
@@ -14,6 +17,8 @@ import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
 export function HomeView() {
   const [started, setStarted] = useState<boolean | undefined>(undefined);
   const [pairsDue, setPairsDue] = useState(0);
+  const [weak, setWeak] = useState<readonly WeakItem[]>([]);
+  const reader = useReader();
 
   useEffect(() => {
     const storage = getStorage();
@@ -24,6 +29,7 @@ export function HomeView() {
         const ids = pairs.filter((p) => mainImage(p) !== undefined).map((p) => p.id);
         const now = new Date();
         setPairsDue(dueCases(scheduleAll(ids, reviewsByCase(events, PAIRS_TRAINER), now), now).length);
+        setWeak(weakItems(attemptsOf(events), { limit: 20 }));
       })
       .catch(() => { setStarted(false); });
   }, []);
@@ -64,7 +70,18 @@ export function HomeView() {
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.weakTitle}</h2>
-        <p className="t-body text-quiet">{en.home.weakEmpty}</p>
+        {weak.length === 0 || reader === undefined ? (
+          <p className="t-body text-quiet">{en.home.weakEmpty}</p>
+        ) : (
+          <>
+            <ul className="ml-5 list-disc t-body">
+              {weak.slice(0, 3).map((w) => (
+                <li key={`${w.trainer}|${w.caseId}`}>{itemLabel(reader, w.trainer, w.caseId)}</li>
+              ))}
+            </ul>
+            <TransitionLink href="/practice/weak/" className="t-body">{en.home.weakDrill(weak.length)}</TransitionLink>
+          </>
+        )}
         <TransitionLink href="/practice/" className="t-body">{en.home.practiceLink}</TransitionLink>
       </section>
     </div>

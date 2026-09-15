@@ -8,6 +8,7 @@ import { useReader } from "@/lib/reader";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { expectedOccurrence, libraryHealth, libraryLetters, PAIRS_TRAINER, seenPairs } from "@/trainers/pairs";
 import frequencyReport from "../../../../../../docs/reports/letter-pair-frequencies.json";
+import { SessionReport } from "@/components/trainer/session-report";
 import { PairDrill, PairReview } from "./pair-cards";
 import { PairEditor } from "./pair-editor";
 import { PairGrid } from "./pair-grid";
@@ -68,7 +69,7 @@ export function PairsLibrary() {
 
   if (reader === undefined || pairs === undefined || events === undefined) return shell(<p className="t-meta text-quiet">{en.pairs.loading}</p>);
 
-  const ctx: LibraryContext = { reader, letters, pairs, byId, schedules: derived.schedules, seen: derived.seen, expected, now: derived.now, save, append, openEditor: setEditing };
+  const ctx: LibraryContext = { reader, letters, pairs, byId, schedules: derived.schedules, seen: derived.seen, expected, now: derived.now, save, append, events, openEditor: setEditing };
   const health = libraryHealth(pairs, letters, derived.seen, expected);
 
   return shell(
@@ -86,6 +87,7 @@ export function PairsLibrary() {
       {tab === "grid" ? <PairGrid ctx={ctx} /> : null}
       {tab === "review" ? <PairReview ctx={ctx} /> : null}
       {tab === "drill" ? <PairDrill ctx={ctx} /> : null}
+      {tab === "review" || tab === "drill" ? <SessionReport reader={reader} trainer="pairs" events={events} /> : null}
       {tab === "discover" ? <PairDiscover ctx={ctx} health={health} /> : null}
       {tab === "health" ? <PairHealth ctx={ctx} health={health} /> : null}
       {tab === "sentence" ? <PairSentence ctx={ctx} /> : null}

@@ -10,6 +10,7 @@ const TRAINERS = [
   { href: "/practice/3style/", name: en.practice.threeStyle, blurb: en.practice.threeStyleBlurb },
   { href: "/practice/pairs/", name: en.practice.pairs, blurb: en.practice.pairsBlurb },
   { href: "/practice/sandbox/", name: en.sandbox.link, blurb: en.sandbox.blurb },
+  { href: "/practice/weak/", name: en.weak.title, blurb: en.weak.intro },
   { href: "/practice/difficulty/", name: en.difficulty.link, blurb: en.difficulty.blurb },
 ] as const;
 

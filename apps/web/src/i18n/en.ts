@@ -37,6 +37,7 @@ export const en = {
     reviewsLink: "Review them",
     weakTitle: "Weak 20",
     weakEmpty: "Drill a few cases and your weakest ones will show up here.",
+    weakDrill: (n: number) => `Drill your ${n === 20 ? "Weak 20" : `${n} weakest`}`,
     practiceLink: "Go to practice",
   },
   learn: {
@@ -65,8 +66,6 @@ export const en = {
   },
   progress: {
     title: "Progress",
-    intro: "Charts of where your time goes arrive with the analytics phase. Your drill history is already being recorded locally.",
-    events: (n: number) => `${n} recorded ${n === 1 ? "attempt" : "attempts"}`,
   },
   settings: {
     title: "Settings",

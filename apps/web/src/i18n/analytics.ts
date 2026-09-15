@@ -71,6 +71,7 @@ export const analyticsCopy = {
     check: "Check",
     next: "Next",
     done: "That's all twenty.",
+    score: (right: number, total: number) => `${right} of ${total} right.`,
     again: "Start again",
     typeLetter: (sticker: string) => `Which letter is ${sticker}?`,
     recallImage: "Say the image for this pair, then reveal.",

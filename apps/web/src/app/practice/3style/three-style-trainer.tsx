@@ -8,6 +8,7 @@ import { Cube } from "@/components/cube/cube";
 import { piecesOf } from "@/components/lesson/op-demos";
 import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
+import { SessionReport } from "@/components/trainer/session-report";
 import { caseStatus } from "@/components/trainer/mastery";
 import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
@@ -316,6 +317,7 @@ export function ThreeStyleTrainer() {
 
   const summary = (
     <div className="flex flex-col gap-3">
+      {mode === "recall" ? <SessionReport reader={reader} trainer={THREE_STYLE_TRAINER} events={events} /> : null}
       <p className="t-meta">
         {en.threeStyle.progress(mastered, cases.length)} · {en.threeStyle.sessionCount(sessionCount)}
       </p>

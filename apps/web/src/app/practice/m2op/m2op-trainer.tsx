@@ -8,6 +8,7 @@ import { LetterTile } from "@/components/letters/letters";
 import { piecesOf } from "@/components/lesson/op-demos";
 import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
+import { SessionReport } from "@/components/trainer/session-report";
 import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
@@ -259,6 +260,7 @@ export function M2OpTrainer() {
 
   const masteryPanel = (
     <div className="flex flex-col gap-3">
+      <SessionReport reader={reader} trainer={TRAINER} events={events} />
       <p className="t-meta">
         {en.m2op.progress(mastered, cases.length)} · {en.m2op.sessionCount(sessionCount)}
       </p>

@@ -6,6 +6,7 @@ import { LetterNotch } from "@/components/letters/letters";
 import { useVoice } from "@/components/lesson/use-voice";
 import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
+import { SessionReport } from "@/components/trainer/session-report";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
@@ -287,8 +288,11 @@ export function TraceTrainer() {
             <div>
               <button type="button" className="btn btn-strong" onClick={nextScramble} aria-keyshortcuts="N">{en.trace.next}</button>
             </div>
+            <SessionReport reader={reader} trainer="trace" events={events} />
           </div>
-        ) : undefined
+        ) : (
+          <SessionReport reader={reader} trainer="trace" events={events} />
+        )
       }
     >
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
