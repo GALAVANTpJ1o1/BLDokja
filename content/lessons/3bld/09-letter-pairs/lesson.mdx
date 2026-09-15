@@ -1,0 +1,69 @@
+---
+id: letter-pairs
+title: "Memorisation 1: letter pairs and images"
+track: 3bld
+order: 9
+prerequisites:
+  - twists-and-flips
+estimatedMinutes: 6
+objectives:
+  - Split a list of targets into letter pairs
+  - Turn each pair into an image you can picture
+  - Handle a letter left over at the end
+checkpoints:
+  - id: pairs
+    title: Pairs and images
+recap:
+  - Tracing turns a scramble into a list of target letters, one list for corners and one for edges.
+---
+
+Tracing gives you a list like I Q C S for the corners. Ten or twenty letters in a row are hard to hold; a handful of pictures are easy. So the letters are grouped in twos, and every two-letter group gets an image.
+
+## Pairs
+
+Read the list two letters at a time, straight through. Cycle breaks and twists don't change anything here: the pairs run right across them.
+
+<TraceWalk scramble="U2 R B2 R'" pieces="corners" mode="show" shows="no-breaks" label="Tracing corners into a memo to split into pairs" />
+
+That memo is I Q, C S: two pairs.
+
+## Images
+
+For each pair, think of **the first word or picture that comes to mind**. It can be a thing, a person, a place, an in-joke. IQ might be an intelligence test; CS might be a computer science lecture hall. It doesn't have to start with those letters, or be spelled with them. It has to be vivid and yours.
+
+Then the memo isn't four letters, it's two pictures: a test paper, a lecture hall. Make them interact if you like, the test paper blowing into the lecture hall. A tiny story is easier to recall than a list.
+
+Over time you'll build an image for every pair. There are 24 × 24 = 576 cells, and you don't need them all on day one: pairs you actually meet in traces come first. The **letter pair library** in Practice keeps yours, and reviews them before you forget.
+
+## A letter left over
+
+If a list has an odd number of targets, one letter is left alone at the end. The simplest habit is to **double it**: a lone U becomes the pair UU, with its own image. That's what this site does by default.
+
+<TraceWalk scramble="D B2 D2" pieces="corners" mode="show" shows="no-breaks" label="An odd-length corner memo, with a letter left over" />
+
+That memo is V B, W X, and a lone U, remembered as UU.
+
+<Note>An odd number of targets also means parity, which changes how you solve, not how you memorise. That's lesson 14.</Note>
+
+<Checkpoint id="pairs" kind="quiz">
+  <Question id="split" prompt="How do you split the targets A B C D E F into pairs?" answer="a">
+    <Option id="a">AB, CD, EF</Option>
+    <Option id="b">AF, BE, CD</Option>
+    <Option id="c">ABC, DEF</Option>
+  </Question>
+  <Question id="breaks" prompt="Do cycle breaks change how targets are paired?" answer="b">
+    <Option id="a">Yes: each cycle is paired on its own</Option>
+    <Option id="b">No: pairs run straight across breaks and twists</Option>
+    <Option id="c">Only for edges</Option>
+  </Question>
+  <Question id="image" prompt="What makes a good image for a pair?" answer="c">
+    <Option id="a">A word spelled with exactly those two letters</Option>
+    <Option id="b">The same image everyone else uses</Option>
+    <Option id="c">Whatever comes to mind first, as long as it's vivid and yours</Option>
+  </Question>
+  <Question id="lone" prompt="The corner memo ends with a single letter, K. How does this site suggest you remember it?" answer="a">
+    <Option id="a">As the pair KK, with its own image</Option>
+    <Option id="b">Leave it out; it solves itself</Option>
+    <Option id="c">Add the buffer's letter to make a pair</Option>
+  </Question>
+</Checkpoint>

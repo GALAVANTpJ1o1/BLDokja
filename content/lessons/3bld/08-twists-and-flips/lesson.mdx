@@ -1,0 +1,54 @@
+---
+id: twists-and-flips
+title: Flipped edges and twisted corners
+track: 3bld
+order: 8
+prerequisites:
+  - cycle-breaks
+estimatedMinutes: 6
+objectives:
+  - Spot a piece that's in its own place but turned the wrong way
+  - Trace a twisted corner or flipped edge as two targets
+  - Know what to do when the buffer itself is twisted or flipped
+checkpoints:
+  - id: trace-twists
+    title: Trace a twisted or flipped piece
+recap:
+  - When a cycle closes early, break into the lowest-lettered sticker of an unsolved piece, and trace on until that piece comes up again.
+---
+
+A piece can be in exactly the right place and still be wrong: a corner turned a third of a turn, or an edge flipped over. Tracing never walks into it, because nothing points there. So it needs its own treatment.
+
+## Spotting one
+
+After you've traced and broken through every loop, look for pieces that are home but turned:
+
+- A **twisted corner** shows its top or bottom colour on a side face instead.
+- A **flipped edge** has both colours on the wrong faces.
+
+A piece like that isn't solved, so it counts when you look for somewhere to break in.
+
+## Tracing it as two targets
+
+With Old Pochmann you handle it with the tools you already have: you trace it as a tiny cycle of **two targets**.
+
+1. **Break in** on one of its stickers, following the usual rule: the lowest letter.
+2. **Read** what's sitting in that sticker's place. It's another sticker of the same piece, because the piece is home. Write that letter down, and the little cycle is closed.
+
+Shooting those two targets moves the piece out and back in, turned the right way. It costs two targets, which is why faster methods handle twists differently later on.
+
+## Watch one
+
+Here a corner is twisted in place. Follow the last two targets.
+
+<TraceWalk scramble="F' D' B' L U2 D L2 F' L2" pieces="corners" mode="show" shows="twist" label="Worked example: a twisted corner" />
+
+## Your turn
+
+<TraceWalk scramble="U L U' L' B' U2 B" pieces="edges" shows="twist" label="Trace the edges, including a flipped edge" />
+
+## When the buffer is the twisted one
+
+If the buffer's own piece is home but turned, you don't write anything for it. Every other piece gets its targets as usual; once they're all solved, the buffer can only be solved too, because the cube can't have just one corner twisted or just one edge flipped.
+
+<Checkpoint id="trace-twists" kind="trace" count="4" pieces="corners edges" requires="twist" maxTargets="8" />

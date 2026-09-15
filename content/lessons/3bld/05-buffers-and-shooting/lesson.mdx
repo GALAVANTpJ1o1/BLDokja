@@ -1,0 +1,73 @@
+---
+id: buffers-and-shooting
+title: Buffers and the idea of shooting
+track: 3bld
+order: 5
+prerequisites:
+  - speffz
+estimatedMinutes: 6
+objectives:
+  - Say what a buffer is, and which buffers this path uses
+  - Describe shooting a target as setup, swap, undo
+  - Explain why the swap can repeat without breaking what's already solved
+checkpoints:
+  - id: shooting
+    title: Buffers and targets
+recap:
+  - Every corner and edge sticker has a letter from A to X, in the Speffz scheme.
+  - A blindfolded solve moves one piece at a time from a fixed spot.
+---
+
+Everything in a beginner blindfolded solve comes back to one spot on the cube for each kind of piece. That spot is the **buffer**.
+
+## The buffers on this path
+
+This path starts with a method called Old Pochmann. It uses:
+
+- for corners, the buffer <Buffer method="op" pieces="corners" />, the top-back-left corner;
+- for edges, the buffer <Buffer method="op" pieces="edges" />, the top-right edge.
+
+Those are the usual buffers for Old Pochmann. If you've set different ones, every example here follows your settings.
+
+## Shooting a target
+
+Look at the sticker sitting in the corner buffer. It belongs somewhere; its home has a letter. That letter is a **target**. Solving it is called **shooting** to that target, and it always has three parts:
+
+1. **Setup:** a few moves that bring the target's place to one fixed spot, called the swap spot, without touching the buffer.
+2. **Swap:** one fixed sequence that exchanges the buffer with the swap spot.
+3. **Undo:** the setup moves backwards, so everything the setup moved goes back.
+
+The corner swap is always the same sequence: <SwapAlg pieces="corners" />. Only the setup changes from target to target. Here's one target shot, with the buffer and target lit:
+
+<OpShot pieces="corners" target="UFR" />
+
+After the undo, the piece that was in the buffer is home, and the piece that was sitting at the target is now in the buffer. Its sticker gives you the next target. That's the loop the whole solve is made of.
+
+## Why nothing else breaks
+
+The swap does move two other pieces as a side effect. For the corner swap it's two top-layer edges, and they swap back the next time you use it. That's why setups must never move the buffer or those side-effect pieces, and why some moves are off limits in setups. You'll see exactly which ones, and what goes wrong, in the Old Pochmann corners lesson.
+
+<Note>You don't need to memorise the swap yet. First learn to read targets: that's tracing, next.</Note>
+
+<Checkpoint id="shooting" kind="quiz">
+  <Question id="buffer" prompt="What is the buffer?" answer="a">
+    <Option id="a">The spot every target is shot from, one per piece type</Option>
+    <Option id="b">The spot the swap sequence moves pieces to</Option>
+    <Option id="c">The first piece you solve, which then stays put</Option>
+  </Question>
+  <Question id="parts" prompt="What are the three parts of shooting a target?" answer="c">
+    <Option id="a">Look, turn, check</Option>
+    <Option id="b">Swap, setup, swap again</Option>
+    <Option id="c">Setup, swap, undo the setup</Option>
+  </Question>
+  <Question id="changes" prompt="What changes from one corner target to the next?" answer="b">
+    <Option id="a">The swap sequence</Option>
+    <Option id="b">The setup moves, and so their undo</Option>
+    <Option id="c">The buffer</Option>
+  </Question>
+  <Question id="next" prompt="After shooting a target, where do you find the next one?" answer="a">
+    <Option id="a">From the sticker that has just arrived in the buffer</Option>
+    <Option id="b">From the swap spot</Option>
+    <Option id="c">From the lowest letter left on the cube</Option>
+  </Question>
+</Checkpoint>

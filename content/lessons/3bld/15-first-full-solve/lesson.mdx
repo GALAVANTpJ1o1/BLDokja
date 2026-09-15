@@ -1,0 +1,51 @@
+---
+id: first-full-solve
+title: Your first full solve
+track: 3bld
+order: 15
+prerequisites:
+  - parity
+estimatedMinutes: 8
+objectives:
+  - Take a whole scramble from memo to solved, step by step
+  - Follow the order edges, parity, corners
+  - Know what to practise next
+checkpoints:
+  - id: full-memo
+    title: Trace a whole scramble
+recap:
+  - Memo is tracing plus pairs and images; review before the blindfold.
+  - Solve edges first, then the parity step if the count is odd, then corners. Each target is setup, swap, undo.
+---
+
+This is the whole thing, once, slowly. No timer, no blindfold yet: the site walks you through a real scramble and shows every step. Do it on a real cube alongside if you have one.
+
+## 1. Memo
+
+Trace the edges and the corners, split them into pairs, and note whether the count is odd. The walkthrough below shows the memo for its scramble first; cover it and trace the scramble yourself before you look.
+
+## 2. Execute
+
+Press Start. Each step shows its setup, swap and undo, animated from exactly where the previous step left the cube, with the pieces it moves lit:
+
+- first every **edge** target, in memo order;
+- then the **parity** step, because this scramble has an odd count;
+- then every **corner** target.
+
+<SolveWalkthrough scramble="B F U2 L2 U2 B' F' D'" />
+
+## 3. Then do it blind
+
+Once the walkthrough makes sense, try the same scramble on a real cube: memorise it, blindfold on, and solve. If it doesn't come out, don't start again from scratch. Check, in this order:
+
+1. **The memo.** Trace it again with your eyes; does it match what you remembered?
+2. **The setups.** Did every undo exactly reverse its setup?
+3. **Parity.** Was the count odd, and did you do the parity step between edges and corners?
+
+Most failed early solves are one wrong letter or one missed undo. The practice section has a guided trace trainer for the first, and an Old Pochmann trainer for setups.
+
+## Check your memo
+
+The checkpoint traces whole scrambles, corners and edges, with breaks and twists included. Type every target in order.
+
+<Checkpoint id="full-memo" kind="trace" count="4" pieces="edges corners" requires="any" maxTargets="10" />

@@ -1,0 +1,49 @@
+---
+id: parity
+title: Parity
+track: 3bld
+order: 14
+prerequisites:
+  - op-edges
+estimatedMinutes: 7
+objectives:
+  - Say what parity is and why it happens
+  - Tell from a memo whether a solve has parity
+  - Perform the parity step at the right moment
+checkpoints:
+  - id: spot-parity
+    title: Spot parity
+recap:
+  - Each edge swap also swaps the corners UBR and UFR; each corner swap also swaps the edges UB and UL.
+  - Old Pochmann solves edges first, then corners.
+---
+
+Some solves end with two pieces swapped that you never touched on purpose. That's parity, and it has one fix, done at one moment.
+
+## Why it happens
+
+A quarter turn of any face moves four corners round in a loop and four edges round in a loop. Undoing a loop of four takes three swaps: an odd number. And a turn always does it to corners and edges together. So however a cube was scrambled, **the corners and the edges are both "odd" or both "even"**, and the number of targets you trace tells you which: an odd number of corner targets means an odd number of edge targets too.
+
+Each target is one swap. With an odd number, the swaps can't all pair up and cancel, and something is left over.
+
+Here's how it shows up in Old Pochmann. Each edge swap also swaps the corners UBR and UFR. With an even number of edge targets, that side effect happens an even number of times and cancels. With an odd number, the edges finish solved but **UBR and UFR are left swapped**. The corner phase has the matching problem with the edges UB and UL.
+
+## The fix
+
+When the counts are odd, do the **parity sequence** after the edges and before the corners. It swaps UBR and UFR back, and it also swaps UB and UL, which the odd corner phase swaps back at the end.
+
+<ParityAlg />
+
+So the full order is: edges, then parity if the count was odd, then corners. Done anywhere else, the swaps don't line up.
+
+## Spotting it from the memo
+
+You already have what you need: count the edge targets while you memorise. Odd means parity. You don't need to count the corners too, since they always agree, but counting both is a good check that you traced correctly.
+
+<TraceWalk scramble="D B2 D2" pieces="corners" mode="show" label="A corner memo with an odd number of targets" />
+
+That memo has five targets, so this solve has parity.
+
+<Note>Twisted and flipped pieces add two targets each, so they never change whether a count is odd. A lone doubled letter in your memo, like UU, still counts as one target.</Note>
+
+<Checkpoint id="spot-parity" kind="parity" count="8" />

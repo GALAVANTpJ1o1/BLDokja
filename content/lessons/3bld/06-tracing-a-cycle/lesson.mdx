@@ -1,0 +1,57 @@
+---
+id: tracing-a-cycle
+title: Tracing a cycle
+track: 3bld
+order: 6
+prerequisites:
+  - buffers-and-shooting
+estimatedMinutes: 8
+objectives:
+  - Read targets from a scramble, starting at the buffer
+  - Follow a cycle until the buffer's own piece comes home
+  - Trace corners and edges without making a move
+checkpoints:
+  - id: trace-simple
+    title: Trace a cycle
+recap:
+  - The corner buffer is UBL and the edge buffer is UR, unless you've chosen others.
+  - Shooting a target moves the buffer's piece home and brings the target's piece into the buffer.
+---
+
+Tracing is how a scramble becomes a list of letters. You do it with your eyes, before the blindfold, and you never make a move while you do it.
+
+## The loop
+
+Tracing copies what shooting will do, in your head:
+
+1. Look at the **buffer**. Read the sticker in it and ask: where does this sticker belong? That place's letter is your first target.
+2. Look at **that** place on the cube. Whatever sticker is sitting there belongs somewhere too. Its home's letter is your next target.
+3. Keep going. Each target tells you where to look for the next one.
+
+The chain stops when the sticker you read belongs to the buffer's own piece. Everything you've read so far forms a **cycle**, and every piece in it is accounted for.
+
+The trick is step 2: you read what's **physically in** the place you just named, on the scrambled cube. You're not moving anything; you're following arrows.
+
+## Watch one
+
+Here the lit sticker is where to look. Press Next to see each target and the memo it builds.
+
+<TraceWalk scramble="U2 R B2 R'" pieces="corners" mode="show" shows="no-breaks" label="Worked example: tracing corners" />
+
+When the next sticker you'd read is part of the buffer piece, the cycle is closed. In this scramble that happens after the last target, so every corner is covered.
+
+## Your turn: corners
+
+Same idea, on a new scramble. Type the letter of each target. If you get one wrong, the site shows the right one and you type it before moving on.
+
+<TraceWalk scramble="L2 F2 R2 F2 D' L" pieces="corners" shows="no-breaks" label="Trace the corners" />
+
+## Your turn: edges
+
+Edges work exactly the same way, from the edge buffer, with the edge letters.
+
+<TraceWalk scramble="L2 U F L2" pieces="edges" shows="no-breaks" label="Trace the edges" />
+
+<Note>Keep your eyes moving and your hands still. Beginners often pick the cube up to look at the back; turning it in your hands is fine, as long as you turn it back to white on top, green in front before reading the next sticker. The floating stickers beside this site's cube show the hidden faces so you don't have to.</Note>
+
+<Checkpoint id="trace-simple" kind="trace" count="5" pieces="corners edges" requires="no-breaks" maxTargets="6" />

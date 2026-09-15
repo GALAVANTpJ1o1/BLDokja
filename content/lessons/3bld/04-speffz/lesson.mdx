@@ -1,0 +1,56 @@
+---
+id: speffz
+title: The Speffz lettering scheme
+track: 3bld
+order: 4
+prerequisites:
+  - pieces-and-stickers
+estimatedMinutes: 8
+objectives:
+  - Letter every corner and edge sticker from A to X
+  - Use the rule behind the letters instead of memorising 48 of them one by one
+  - Find a sticker from its letter, and a letter from its sticker
+checkpoints:
+  - id: letters
+    title: Name the sticker
+recap:
+  - A corner has 3 stickers and an edge has 2; there are 24 of each kind.
+  - Hold the cube white on top, green in front. A sticker is named by its own face first, so FUR is the front sticker of the top-front-right corner.
+---
+
+A blindfolded memo is a list of places. Saying "the front sticker of the top-front-right corner" every time would be hopeless, so every sticker gets a single letter. The scheme this site uses by default is called **Speffz**.
+
+## Two alphabets, one rule
+
+Corners and edges each get their own A to X: 24 letters for 24 stickers. The same letter means a corner sticker when you're tracing corners and an edge sticker when you're tracing edges. You'll never mix them up, because you trace one kind at a time.
+
+Both alphabets follow the same rule:
+
+1. The faces are lettered in the order **U, L, F, R, B, D**. Each face gets four letters: U gets A to D, L gets E to H, F gets I to L, R gets M to P, B gets Q to T, and D gets U to X.
+2. On each face, the letters go **clockwise, starting at the top-left**, as you look at that face with the cube held white on top and green in front.
+3. On the top and bottom faces, "top-left" means the corner furthest from you on the left (for U) and nearest you on the left (for D), the way they sit in a net.
+
+So on the top face the corners are <Letter sticker="UBL" /> back-left, <Letter sticker="UBR" /> back-right, <Letter sticker="UFR" /> front-right and <Letter sticker="UFL" /> front-left.
+
+## Edges follow the corners
+
+Each edge sticker takes the letter of the corner sticker just before it, going clockwise. On the top face that makes the back edge <Letter sticker="UB" />, the right edge <Letter sticker="UR" />, the front edge <Letter sticker="UF" /> and the left edge <Letter sticker="UL" />.
+
+You don't need to memorise that separately. Find the corner letters on a face, then each edge shares the letter of the corner just counterclockwise of it.
+
+## Try it
+
+Choose corners or edges, then press stickers. The letters are printed on the net; the colours are the faces they belong to. Start with the top face, then walk around L, F, R, B and finish on D.
+
+<SpeffzExplorer pieces="corners" />
+
+A few to check your understanding before the drill:
+
+- The front sticker of the top-front-right corner, FUR, is <Letter sticker="FUR" />.
+- The right sticker of the same corner, RUF, is <Letter sticker="RUF" />.
+- The bottom sticker of the bottom-front-right corner, DFR, is <Letter sticker="DFR" />.
+- The front sticker of the top-front edge, FU, is <Letter sticker="FU" />.
+
+<Note>Speed with letters comes from use, not from staring at a net. The drill below is short; run it again tomorrow. The tracing lessons will use these letters constantly, and that's where they stick.</Note>
+
+<Checkpoint id="letters" kind="letters" count="10" pieces="corners edges" />

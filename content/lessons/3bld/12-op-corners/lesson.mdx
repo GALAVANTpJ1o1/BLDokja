@@ -1,0 +1,62 @@
+---
+id: op-corners
+title: Old Pochmann corners
+track: 3bld
+order: 12
+prerequisites:
+  - buffers-and-shooting
+  - memo-order-and-review
+estimatedMinutes: 8
+objectives:
+  - Perform the corner swap from the buffer to the swap spot
+  - Find a setup for any corner target using only D, R and F
+  - Explain why U, L and B are forbidden in setups
+checkpoints:
+  - id: corner-setups
+    title: Corner setups
+recap:
+  - Shooting a target is setup, swap, undo. The swap exchanges the buffer with a fixed swap spot and has a side effect that cancels the next time.
+  - The corner buffer is UBL.
+---
+
+Time to shoot corners for real. Everything here is one swap sequence and a handful of setups.
+
+## The swap
+
+The corner swap exchanges the buffer, <Buffer method="op" pieces="corners" />, with the swap spot, the right sticker of the bottom-front-right corner: RDF, <Letter sticker="RDF" /> in Speffz. As a side effect it also swaps two top-layer edges, UB and UL.
+
+<SwapAlg pieces="corners" />
+
+Learn it until your hands do it without you. It's 15 moves, and you'll do it for every corner target.
+
+A target sitting on the swap spot needs no setup at all:
+
+<OpShot pieces="corners" target="RDF" />
+
+## Setups
+
+Every other target needs a setup: moves that bring **that target sticker** to the swap spot, RDF. The rule for choosing them:
+
+- Use only **D, R and F** turns.
+- Keep it short: every corner target has a setup of at most two moves.
+- Undo it straight after the swap, in reverse.
+
+Two examples, one on the top layer and one underneath:
+
+<OpShot pieces="corners" target="UFR" />
+
+<OpShot pieces="corners" target="DFR" />
+
+Notice that the setup has to bring the exact sticker, not just the piece, to RDF. The same corner needs different setups for its three stickers.
+
+## Why U, L and B are off limits
+
+The swap only works if the buffer and its side-effect edges, UB and UL, are where it expects them. A U turn moves the buffer and both edges; L moves the buffer and UL; B moves the buffer and UB. A setup using them can bring the target to the swap spot and still wreck the solve.
+
+Here's a tempting setup that uses U. Watch what's out of place after the undo:
+
+<IllegalSetup pieces="corners" family="U" />
+
+<Note>You don't need to memorise a table of 21 setups. For any target, ask: which D, R or F turns bring this sticker to RDF? Try it, check it on a real cube, and the setups become obvious within a week.</Note>
+
+<Checkpoint id="corner-setups" kind="setup" count="6" pieces="corners" />

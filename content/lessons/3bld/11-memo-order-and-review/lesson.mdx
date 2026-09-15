@@ -1,0 +1,79 @@
+---
+id: memo-order-and-review
+title: "Memorisation 3: order, review, and what to memorise first"
+track: 3bld
+order: 11
+prerequisites:
+  - memory-palaces
+estimatedMinutes: 6
+objectives:
+  - Choose an order for memorising and an order for solving
+  - Review a memo before the blindfold goes on
+  - Note what else the memo needs besides the pairs
+checkpoints:
+  - id: memo-habits
+    title: Memo habits
+recap:
+  - Pairs become images, and images go on a route of places in a fixed order.
+---
+
+You can trace and you can memorise. This lesson is about putting them together so that the memo you need is still there when you need it.
+
+## Solve order on this path
+
+Old Pochmann on this path solves in this order:
+
+1. **Edges**, target by target.
+2. **Parity**, if the number of targets is odd (lesson 14 explains why).
+3. **Corners**, target by target.
+
+That order is fixed by the method, because the parity step only works between the two.
+
+## Memorise the first thing you'll solve last
+
+Memory fades fastest right after you stop rehearsing. So a good default is:
+
+- memorise **corners first**;
+- memorise **edges last**, so they're the freshest thing in your head;
+- put the blindfold on and start with **edges**, while they're still fresh.
+
+Edges usually have more targets than corners too, so they're the ones that most need to be fresh. If you find your corners fading by the time you reach them, try the opposite order for a week and compare. There's no single right answer, only the order you can repeat.
+
+## Practise on one scramble
+
+Trace this scramble's corners first, then its edges, and memorise each as you go.
+
+<TraceWalk scramble="B F U2 L2 U2 B' F' D'" pieces="corners" mode="show" label="Corners first: trace and memorise" />
+
+<TraceWalk scramble="B F U2 L2 U2 B' F' D'" pieces="edges" mode="show" label="Edges last: trace and memorise" />
+
+## Review before the blindfold
+
+Before you put the blindfold on, walk your routes once more, from the first image to the last, and check each one gives the letters you traced. It takes seconds and catches most mistakes while you can still look.
+
+Also note one fact that isn't a pair: **is the number of targets odd?** On this scramble both counts are odd, so this solve needs the parity step. Tie it to the last image, or just say "parity" to yourself at the end of the review.
+
+<Note>At first, write the memo on paper and check your recall against it after the solve. You'll learn quickly which pairs your memory drops, and those are the ones to give better images.</Note>
+
+<Checkpoint id="memo-habits" kind="quiz">
+  <Question id="solve-order" prompt="In what order does this path's Old Pochmann solve?" answer="b">
+    <Option id="a">Corners, parity, edges</Option>
+    <Option id="b">Edges, parity if needed, corners</Option>
+    <Option id="c">Parity, edges, corners</Option>
+  </Question>
+  <Question id="fresh" prompt="Why memorise edges last if you solve them first?" answer="a">
+    <Option id="a">So they're the freshest memo when you start solving</Option>
+    <Option id="b">Because edges can't be memorised before corners</Option>
+    <Option id="c">Because it makes the parity step shorter</Option>
+  </Question>
+  <Question id="review" prompt="When is the best time to review the whole memo?" answer="c">
+    <Option id="a">Halfway through solving the edges</Option>
+    <Option id="b">After the solve</Option>
+    <Option id="c">Once more, just before the blindfold goes on</Option>
+  </Question>
+  <Question id="extra" prompt="Besides the pairs, what else should the memo record?" answer="b">
+    <Option id="a">The scramble</Option>
+    <Option id="b">Whether the number of targets is odd, so you know to do parity</Option>
+    <Option id="c">The time it took to trace</Option>
+  </Question>
+</Checkpoint>

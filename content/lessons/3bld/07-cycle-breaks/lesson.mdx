@@ -1,0 +1,53 @@
+---
+id: cycle-breaks
+title: Cycle breaks
+track: 3bld
+order: 7
+prerequisites:
+  - tracing-a-cycle
+estimatedMinutes: 7
+objectives:
+  - Recognise when a cycle closes before every piece is solved
+  - Break into a new cycle at the right sticker
+  - Close the new cycle and carry on tracing
+checkpoints:
+  - id: trace-breaks
+    title: Trace through a cycle break
+recap:
+  - Tracing starts at the buffer and follows each target to the next, until the buffer's own piece comes home.
+---
+
+Sometimes the buffer's own piece comes home while other pieces are still out of place. Your chain of targets has run out, but the cube isn't solved. That's a **cycle break**, and it's completely normal: most scrambles have at least one.
+
+## What's happening
+
+The pieces of a scrambled cube form separate loops. The buffer is in one loop. Tracing from the buffer only ever walks around that loop; it can't reach pieces in another one. When that loop closes, you have to jump into the next loop yourself.
+
+## How to break in
+
+When the sticker you'd read next belongs to the buffer piece:
+
+1. **Skip every solved piece.** A piece already in place with the right orientation needs no targets at all.
+2. **Pick a sticker on a piece that isn't solved.** This site picks the one with the **lowest letter**, which gives you a rule instead of a decision. Write that letter down as your next target. It's a target you chose, not one you read.
+3. **Carry on tracing** from there, exactly as before: look at the place you just named, read the sticker sitting in it.
+4. The new loop **closes** when you read a sticker belonging to the piece you broke into. Write that letter down too. It's often a different sticker of that piece than the one you broke in on.
+
+Then check again: is anything else unsolved? If so, break again.
+
+## Watch one
+
+The break is marked. Notice that the break letter and the closing letter are on the same piece.
+
+<TraceWalk scramble="B2 F2 R2 F2" pieces="corners" mode="show" shows="break" label="Worked example: a corner cycle break" />
+
+## Your turn
+
+Corners first, then edges. The site explains the break when you reach it.
+
+<TraceWalk scramble="R' B2 R U2 B2 U2 R" pieces="corners" shows="break" label="Trace the corners through a break" />
+
+<TraceWalk scramble="B U2 B' L' U'" pieces="edges" shows="break" label="Trace the edges through a break" />
+
+<Note>Why does breaking into any unsolved sticker work? Because shooting the break target swaps the buffer's piece into that loop. From then on the buffer is part of it, so ordinary tracing walks it round until it closes. The lowest-letter rule is only there so you never have to think about which one to pick.</Note>
+
+<Checkpoint id="trace-breaks" kind="trace" count="5" pieces="corners edges" requires="break" maxTargets="8" />

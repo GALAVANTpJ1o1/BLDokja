@@ -34,9 +34,9 @@ const each = (fn: (lesson: LessonSource) => void) => {
 };
 
 describe("the 3BLD path", () => {
-  it("numbers its lessons 1, 2, 3… without gaps, with unique ids", () => {
+  it("has lessons 1–15 in order, with unique ids", () => {
     const track = lessons.filter((l) => l.frontmatter.track === "3bld");
-    expect(track.map((l) => l.frontmatter.order)).toEqual(Array.from({ length: track.length }, (_, i) => i + 1));
+    expect(track.map((l) => l.frontmatter.order)).toEqual(Array.from({ length: 15 }, (_, i) => i + 1));
     expect(new Set(lessons.map((l) => l.frontmatter.id)).size).toBe(lessons.length);
   });
 

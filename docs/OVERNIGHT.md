@@ -151,3 +151,15 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
 - **Lesson 1:** the Tsundere and Roast voices lean on the second person hard ("idiot", "your last solve"). It's within your limits, but check that the Tsundere voice's "idiot" count doesn't feel mean rather than affectionate in the pilot.
 - **Lesson 2:** "Face turns never move the centres, so on a 3x3 the centres tell you which face is which" is true but skips why slices and rotations are still fine. That comes in lesson 3; check whether the forward reference is needed.
 - **Lesson 3:** I'm unsure whether three MoveExplorers in one lesson is too many buttons on a phone. They wrap, but the page gets long at 380px.
+- **Lesson 4:** rule 3 ("top-left" on U and D means the far and near corners on the left, the way they sit in a net) is the part of Speffz people get wrong most. I'm unsure one sentence is enough without an animated net walk.
+- **Lesson 5:** introduces the swap spot and the side effect before tracing. It might be too much this early; they're mentioned so lesson 12's rules don't come from nowhere.
+- **Lesson 6:** the "read what's physically in the place you just named" instruction is the crux. The guided cube lights it, but I'd like you to try it on a real cube and see whether the wording lands.
+- **Lesson 7:** the Note explaining why breaking into any sticker works may be more theory than a beginner wants. It's optional reading, but it's there.
+- **Lesson 8:** "the cube can't have just one corner twisted" is stated without proof. It's true, and lesson 14 gives the matching parity argument, but a curious reader might want one more sentence.
+- **Lesson 9:** the example images (an intelligence test, a lecture hall) are deliberately bland so they aren't anyone's personal library. They may read as flat.
+- **Lesson 10:** the route example (front door, doormat, coat hooks) assumes a house. Some readers won't have that; the text says any familiar route works.
+- **Lesson 11:** **genuinely unsure.** "Memorise corners first, edges last, solve edges first" is presented as a default with its reason (freshness), not as the one right way. Sources and solvers disagree, and I didn't find a computational way to settle it. Please check it against your own experience before learners see it.
+- **Lesson 12:** the setup for DFR (`D' F'`) is shown straight from the dataset. The lesson says "at most two moves", which matches the verified table.
+- **Lesson 13:** "you may recognise it as the T permutation" is the one algorithm name stated in prose (D-024 records the swap as the T perm). The alg itself is from the dataset.
+- **Lesson 14:** the "why parity happens" explanation (a quarter turn is a four-cycle, which takes three swaps) is correct, but compressed. It's the paragraph most likely to lose people.
+- **Lesson 15:** the walkthrough scramble has parity on purpose so the step is seen. A first solve with parity may feel harder than it needs to; an easier no-parity scramble could come first.

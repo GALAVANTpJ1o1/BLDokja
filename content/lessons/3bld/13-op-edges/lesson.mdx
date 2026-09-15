@@ -1,0 +1,59 @@
+---
+id: op-edges
+title: Old Pochmann edges
+track: 3bld
+order: 13
+prerequisites:
+  - op-corners
+estimatedMinutes: 8
+objectives:
+  - Perform the edge swap from the buffer to the swap spot
+  - Find a setup for any edge target using D, L, Dw and Lw
+  - Explain which moves are forbidden for edges, and why
+checkpoints:
+  - id: edge-setups
+    title: Edge setups
+recap:
+  - A corner target is shot with a setup of D, R or F turns, the corner swap, and the undo. U, L and B are forbidden because they move the buffer or the side-effect edges.
+---
+
+Edges work the same way as corners: one swap, and setups that bring each target to the swap spot. Only the pieces, the swap and the allowed moves change.
+
+## The swap
+
+The edge swap exchanges the buffer, <Buffer method="op" pieces="edges" />, with the swap spot, the top-left edge's top sticker: UL, <Letter sticker="UL" /> in Speffz. Its side effect swaps two top-layer corners, UBR and UFR.
+
+<SwapAlg pieces="edges" />
+
+It's 14 moves, and if you've learnt last-layer algorithms before, you may recognise it as the T permutation. A target already on the swap spot needs no setup:
+
+<OpShot pieces="edges" target="UL" />
+
+## Setups
+
+Setups for edges may use **D, L, Dw and Lw**: the bottom face, the left face, and the wide versions of both. Dw turns the bottom face with the E layer; Lw turns the left face with the M layer. That's what lets an edge from the middle layer or the far side of the cube reach the swap spot without touching the top-right.
+
+Most edge targets take two or three moves; a few take one, and one takes four. Some examples:
+
+<OpShot pieces="edges" target="DL" />
+
+<OpShot pieces="edges" target="FL" />
+
+<OpShot pieces="edges" target="UF" />
+
+The usual pattern: get the target into the left face with D or Dw moves, then turn the left face (L or Lw) so the target lands in the top-left on the top sticker.
+
+## What's forbidden, and why
+
+The swap needs the buffer UR and the corners UBR and UFR left where they are. So:
+
+- **U and R** (and their wide versions) move the buffer and both corners.
+- **F** moves UFR; **B** moves UBR.
+
+Here's what goes wrong with a U setup:
+
+<IllegalSetup pieces="edges" family="U" />
+
+<Note>If a setup you worked out doesn't match the one shown, it may still be fine. The checkpoint below accepts any setup that brings the sticker to UL without disturbing the buffer or the two corners, and tells you if it doesn't.</Note>
+
+<Checkpoint id="edge-setups" kind="setup" count="6" pieces="edges" />
