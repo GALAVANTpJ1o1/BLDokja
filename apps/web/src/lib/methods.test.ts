@@ -1,7 +1,7 @@
 import { loadPuzzle, symmetryImageDataset } from "@bld/cube-engine";
 import { describe, expect, it } from "vitest";
 import { algDatasets } from "@/content/algs";
-import { threeStyleData } from "./methods";
+import { threeStyleData } from "./method-data";
 import { GATE_B_BUFFERS } from "./reader";
 
 describe("3-style data for your buffers", () => {

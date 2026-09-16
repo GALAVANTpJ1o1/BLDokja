@@ -32,6 +32,10 @@ Thumbs.db
 .next/
 out/
 next-env.d.ts
+.artifacts/
+apps/web/public/workers/
+apps/web/public/vendor/cubing/
+apps/web/public/fonts/recursive-*.woff2
 
 # Exported personal data (legacy import output, backups) — never commit
 *.export*.json

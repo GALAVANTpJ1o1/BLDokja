@@ -1,16 +1,19 @@
 "use client";
 
-import { stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
+import { expandNodes, faceletsOf, formatMoves, parseAlg, stickerName, stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
 import type { TwistyPlayer } from "cubing/twisty";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
 import { describeCube, netCells, patternFor } from "./cube-state";
 import { installPlayerPalette } from "./player-palette";
 import { StickerNet } from "./sticker-net";
 import { usePuzzle } from "./use-puzzle";
 
 export interface CubeProps {
+  /** Only the home hero eagerly loads 3D; teaching cubes offer a precise net first. */
+  readonly eager?: boolean;
   /** Which cube. 4x4x4 draws the same way, with a 4×4 net as its fallback. */
   readonly puzzleId?: PuzzleId;
   /** The state shown before `alg`, as moves from solved (a scramble or a case setup). */
@@ -79,18 +82,38 @@ function prefersReducedMotion(): boolean {
  * engine, sticker colours from the palette tokens, and a text description for screen readers. If the
  * 3D player can't load, the same state is shown as a flat net.
  */
-export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim = "strong", controls = false, autoplay = false, label, tempo = 1, className }: CubeProps) {
+export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim = "strong", controls = false, autoplay = false, eager = false, label, tempo = 1, className }: CubeProps) {
   const puzzle = usePuzzle(puzzleId);
-  const { settings } = useSettings();
+  const { settings, threeDRequested, request3D } = useSettings();
+  const sceneRequested = eager || threeDRequested || autoplay;
   const host = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const player = useRef<TwistyPlayer | null>(null);
   const near = useNearViewport(stage);
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [loadedKey, setLoadedKey] = useState<string>();
+  const playerKey = JSON.stringify([puzzleId, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
+  const [replay, setReplay] = useState({ key: `${setup}|${alg}`, index: 0 });
+  const moves = useMemo(() => {
+    const parsed = parseAlg(puzzleId, alg);
+    return parsed.ok ? expandNodes(parsed.value.nodes) : [];
+  }, [puzzleId, alg]);
+  const replayKey = `${setup}|${alg}`;
+  const replayIndex = controls ? (replay.key === replayKey ? Math.min(replay.index, moves.length) : 0) : moves.length;
+  const replayPattern = useMemo(() => puzzle === undefined ? undefined : patternFor(puzzle, `${setup} ${formatMoves(moves.slice(0, replayIndex))}`), [puzzle, setup, moves, replayIndex]);
+  const moveTo = (index: number) => { setReplay({ key: replayKey, index }); };
   const highlightKey = highlight?.join(",") ?? "";
 
   const setupPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, setup)), [puzzle, setup]);
+  const netHighlight = useMemo(() => {
+    if (puzzle === undefined || setupPattern === undefined || replayPattern === undefined || highlightKey === "") return undefined;
+    const names = new Set(highlightKey.split(","));
+    const initial = faceletsOf(puzzle, setupPattern);
+    const selected = new Set(puzzle.geometry.stickers.filter((sticker) => names.has(stickerName(puzzle.geometry, sticker.index))).map((sticker) => initial[sticker.index]));
+    const current = faceletsOf(puzzle, replayPattern);
+    return new Set(puzzle.geometry.stickers.filter((sticker) => selected.has(current[sticker.index])).map((sticker) => sticker.index));
+  }, [puzzle, setupPattern, replayPattern, highlightKey]);
   const finalPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, `${setup} ${alg}`)), [puzzle, setup, alg]);
   const description = useMemo(() => (puzzle === undefined || setupPattern === undefined ? [] : describeCube(netCells(puzzle, setupPattern))), [puzzle, setupPattern]);
   // With no highlight, every facelet is regular: setting this mask clears an earlier highlight on a live player.
@@ -107,14 +130,15 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
 
   useEffect(() => {
     const container = host.current;
-    if (container === null || !near || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
+    if (container === null || !near || !sceneRequested || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
     const life = { disposed: false };
+    const active = () => !life.disposed;
     let created: TwistyPlayer | null = null;
     void (async () => {
       try {
         await installPlayerPalette(puzzleId);
         const { TwistyPlayer: Player } = await import("cubing/twisty");
-        if (life.disposed) return;
+        if (!active()) return;
         const initialMask = maskRef.current;
         created = new Player({
           puzzle: puzzleId,
@@ -133,9 +157,12 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
         player.current = created;
         if (autoplay && alg !== "" && !prefersReducedMotion()) created.play();
         else if (alg !== "" && prefersReducedMotion()) created.jumpToEnd();
+        const vantages = await created.experimentalCurrentVantages();
+        await Promise.all(Array.from(vantages, (vantage) => vantage.render()));
+        if (active()) setLoadedKey(playerKey);
       } catch (error) {
         console.error("cube: the 3D player failed to load", error);
-        if (!life.disposed) setFailed(true);
+        if (active()) setFailed(true);
       }
     })();
     return () => {
@@ -145,7 +172,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [near, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
+  }, [near, sceneRequested, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView, playerKey]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
@@ -153,8 +180,16 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
 
   const ready = puzzle !== undefined && finalPattern !== undefined;
   // "text" writes the state out instead of drawing it; "net" skips the 3D player, which also loads nothing.
-  const showNet = ready && (failed || settings.cubeView === "net");
+  const showNet = ready && (failed || settings.cubeView === "net" || !sceneRequested);
   const showText = settings.cubeView === "text";
+  const fallbackControls = controls && moves.length > 0 ? <div className="flex flex-col gap-2">
+    <p className="t-meta text-quiet" role="status">{polish.cube.position(replayIndex, moves.length)}{replayIndex > 0 ? ` · ${formatMoves(moves.slice(replayIndex - 1, replayIndex))}` : ""}</p>
+    <div className="control-row" role="group" aria-label={label}>
+      <button type="button" className="btn" disabled={replayIndex === 0} onClick={() => { moveTo(0); }}>{en.cube.restart}</button>
+      <button type="button" className="btn" disabled={replayIndex === 0} onClick={() => { moveTo(replayIndex - 1); }}>{en.cube.stepBack}</button>
+      <button type="button" className="btn btn-strong" disabled={replayIndex === moves.length} onClick={() => { moveTo(replayIndex + 1); }}>{en.cube.stepForward}</button>
+    </div>
+  </div> : null;
   if (showText) {
     return (
       <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
@@ -165,10 +200,11 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
           </p>
         )}
         <div className="flex flex-col gap-1 t-body">
-          {(ready ? describeCube(netCells(puzzle, finalPattern)) : [en.cube.loading]).map((line) => (
+          {(ready && replayPattern !== undefined ? describeCube(netCells(puzzle, replayPattern)) : [en.cube.loading]).map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>
+        {fallbackControls}
       </figure>
     );
   }
@@ -176,9 +212,9 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
     <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
       <div ref={stage} className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
         {showNet ? (
-          <StickerNet cells={netCells(puzzle, finalPattern)} size={puzzle.size} label={label} className="h-full w-full p-3" />
+          <StickerNet cells={netCells(puzzle, replayPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} label={label} className="h-full w-full p-3" />
         ) : (
-          <div ref={host} className="h-full w-full" />
+          <><div ref={host} className="h-full w-full" />{ready && loadedKey !== playerKey ? <div className="absolute inset-0 pointer-events-none"><StickerNet cells={netCells(puzzle, setupPattern ?? finalPattern)} size={puzzle.size} label={label} className="h-full w-full p-3" /></div> : null}</>
         )}
         {puzzle === undefined ? <p className="absolute inset-0 grid place-items-center t-meta text-quiet">{en.cube.loading}</p> : null}
       </div>
@@ -186,6 +222,8 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
         {label}. {description.join(" ")}
       </figcaption>
       {failed ? <p className="t-meta text-quiet">{en.cube.failed}</p> : null}
+      {settings.cubeView === "3d" && !sceneRequested && !failed ? <button type="button" className="btn self-center" onClick={request3D}>{polish.cube3D}</button> : null}
+      {showNet ? fallbackControls : null}
       {/* Only the 3D player animates, so the step controls belong to it. */}
       {controls && alg !== "" && !showNet ? (
         <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={label}>

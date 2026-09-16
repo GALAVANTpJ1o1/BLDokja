@@ -8,10 +8,13 @@ import { LetterNotch } from "@/components/letters/letters";
 import { SessionReport } from "@/components/trainer/session-report";
 import { TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { ScrambleControls, useScramble } from "@/lib/use-scramble";
+import { shortcutIgnored } from "@/lib/keyboard";
 import { stickersOfPieces, type FourBldPieces } from "@/lib/reader-4x4";
 import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
-import { centreSession, FOUR_BLD_TRAINER, fourBldScramble, traceOf, type FourBldMode } from "@/trainers/four-bld";
+import { centreSession, FOUR_BLD_TRAINER, traceOf, type FourBldMode } from "@/trainers/four-bld";
 import { lessonFor, type DrillProps } from "./four-bld-trainer";
 
 interface Prompt {
@@ -33,12 +36,19 @@ const upper = (text: string) => text.trim().toLocaleUpperCase("en-GB");
  * are walked by `centreSession`, which accepts any slot of the right colour and follows the one you chose.
  * The first try at each target is what's graded and logged; a wrong one is shown and retyped.
  */
-export function TraceDrill({ reader, events, append, settings, mode, pieces, help }: DrillProps & { mode: FourBldMode; pieces: FourBldPieces; help: boolean }) {
+type TraceProps = DrillProps & { mode: FourBldMode; pieces: FourBldPieces; help: boolean };
+export function TraceDrill(props: TraceProps) {
+  const [seed] = useState(newId);
+  const [index, setIndex] = useState(0);
+  const random = useScramble(props.reader.puzzle, seed, index);
+  const controls = <ScrambleControls state={random} puzzle={props.reader.puzzle} />;
+  if (random.scramble === undefined) return <TrainerShell title={en.fourBld.title} intro={en.fourBld.intro} settings={<>{controls}{props.settings}</>} shortcuts={[]}>{controls}<p role="status" className="t-meta">{polish.scramble.loading}</p></TrainerShell>;
+  return <TraceRun key={random.scramble} {...props} settings={<>{controls}{props.settings}</>} seed={seed} index={index} scramble={random.scramble} onNext={() => { setIndex((value) => value + 1); }} />;
+}
+
+function TraceRun({ reader, events, append, settings, mode, pieces, help, seed, index, scramble, onNext }: TraceProps & { seed: string; index: number; scramble: string; onNext: () => void }) {
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [seed] = useState(() => newId().replace(/-/g, "").slice(0, 10));
-  const [index, setIndex] = useState(0);
-  const scramble = useMemo(() => fourBldScramble(seed, index), [seed, index]);
   const [answered, setAnswered] = useState<readonly Answered[]>([]);
   const [firstTries, setFirstTries] = useState<readonly boolean[]>([]);
   const [typed, setTyped] = useState("");
@@ -66,18 +76,18 @@ export function TraceDrill({ reader, events, append, settings, mode, pieces, hel
   }, [position, scramble]);
 
   const next = useCallback(() => {
-    setIndex((i) => i + 1);
+    onNext();
     setAnswered([]);
     setFirstTries([]);
     setTyped("");
     setRetyping(false);
     setFeedback(undefined);
     input.current?.focus();
-  }, []);
+  }, [onNext]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (!done || event.target instanceof HTMLInputElement) return;
+      if (!done || shortcutIgnored(event)) return;
       if (event.key === "n" || event.key === "N" || event.key === "Enter") {
         event.preventDefault();
         next();
@@ -97,6 +107,7 @@ export function TraceDrill({ reader, events, append, settings, mode, pieces, hel
 
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
+    input.current?.focus();
     if (prompt === undefined) return;
     const answer = upper(typed);
     const at = prompt.letters.findIndex((l) => upper(l) === answer);

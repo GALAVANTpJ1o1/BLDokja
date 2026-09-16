@@ -7,7 +7,7 @@ import { LetterNotch } from "@/components/letters/letters";
 import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { useReader, type Reader } from "@/lib/reader";
-import { piecesOf } from "./op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 
 export function opSolution(reader: Reader, scramble: string): MethodSolution | undefined {
   const { opCorners, opEdges, opParity } = algDatasets();

@@ -5,13 +5,14 @@ import { dueCases, reviewsByCase, scheduleAll, statsFor, type CaseSchedule } fro
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { LetterTile } from "@/components/letters/letters";
-import { piecesOf } from "@/components/lesson/op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { SessionReport } from "@/components/trainer/session-report";
 import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
+import { shortcutIgnored } from "@/lib/keyboard";
 import { m2opData, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { announcement } from "@/lib/speech";
@@ -184,7 +185,7 @@ export function M2OpTrainer() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || !isShotMode(mode) && mode !== "illegal") return;
+      if (shortcutIgnored(event) || !isShotMode(mode) && mode !== "illegal") return;
       if (mode === "illegal") {
         if (event.key === "Enter" || event.key === "ArrowRight") setIllegalIndex((i) => (i + 1) % examples.length);
         return;

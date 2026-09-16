@@ -477,8 +477,8 @@ export interface SentenceMemo {
 }
 
 /** A memo to turn into a sentence: a seeded scramble traced with your buffers, split into pairs. */
-export function sentenceMemo(puzzle: Puzzle, scheme: Scheme, seed: string, index: number, buffers: { readonly corners: string; readonly edges: string }): SentenceMemo {
-  const scramble = sessionScramble(seed, index);
+export function sentenceMemo(puzzle: Puzzle, scheme: Scheme, seed: string, index: number, buffers: { readonly corners: string; readonly edges: string }, providedScramble?: string): SentenceMemo {
+  const scramble = providedScramble ?? sessionScramble(seed, index);
   const traces = scrambleTraces(puzzle, scheme, scramble, "both", { corners: buffers.corners, edges: buffers.edges });
   return { scramble, pieces: traces.map((t) => ({ pieceType: t.pieceType, pairs: memoPairIds(t.steps.map((s) => s.letter), "selfPair") })) };
 }

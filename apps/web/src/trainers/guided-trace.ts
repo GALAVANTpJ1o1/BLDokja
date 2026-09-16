@@ -100,7 +100,7 @@ export function startRamp(level: Level = 1): RampState {
 }
 
 export function afterScramble(state: RampState, errors: number): RampState & { readonly changed: "up" | "down" | undefined } {
-  const streak = [...state.streak, errors];
+  const streak = [...state.streak, errors].slice(-Math.max(UP_AFTER_CLEAN, DOWN_AFTER_BAD));
   if (!state.auto) return { ...state, streak, changed: undefined };
   const lastClean = streak.slice(-UP_AFTER_CLEAN);
   if (lastClean.length === UP_AFTER_CLEAN && lastClean.every((e) => e === 0) && state.level < 4) {

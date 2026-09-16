@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { ScrambleControls, useScramble } from "@/lib/use-scramble";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, writePreference } from "@/lib/use-events";
 import { addImage, applyMatches, csvRows, didYouMean, emptyPair, findImages, libraryToCsv, mainImage, mergeCsvRows, renameOrMerge, sentenceMemo, withDetails, type CsvProblem, type LibraryHealth } from "@/trainers/pairs";
@@ -205,10 +207,13 @@ export function PairSentence({ ctx }: { ctx: LibraryContext }) {
   const [seed] = useState(() => newId());
   const [index, setIndex] = useState(0);
   const [sentence, setSentence] = useState("");
-  const memo = useMemo(() => sentenceMemo(ctx.reader.puzzle, ctx.reader.scheme, seed, index, ctx.reader.buffers.op), [ctx.reader, seed, index]);
+  const random = useScramble(ctx.reader.puzzle, seed, index);
+  const memo = useMemo(() => random.scramble === undefined ? undefined : sentenceMemo(ctx.reader.puzzle, ctx.reader.scheme, seed, index, ctx.reader.buffers.op, random.scramble), [ctx.reader, seed, index, random.scramble]);
+  if (memo === undefined) return <div className="flex flex-col gap-3"><ScrambleControls state={random} puzzle={ctx.reader.puzzle} /><p role="status" className="t-meta">{polish.scramble.loading}</p></div>;
 
   return (
     <div className="flex flex-col gap-4">
+      <ScrambleControls state={random} puzzle={ctx.reader.puzzle} />
       <p className="t-meta text-quiet">
         {en.pairs.sentenceScramble}: <span className="t-notation">{memo.scramble}</span>
       </p>

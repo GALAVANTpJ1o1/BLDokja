@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Cube } from "@/components/cube/cube";
 import { netCells } from "@/components/cube/cube-state";
 import { StickerNet } from "@/components/cube/sticker-net";
-import { piecesOf } from "@/components/lesson/op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TrainerShell } from "@/components/trainer/trainer-shell";
 import { algDatasets } from "@/content/algs";

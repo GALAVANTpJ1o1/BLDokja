@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: en.practice.title };
 
@@ -14,22 +16,29 @@ const TRAINERS = [
   { href: "/practice/weak/", name: en.weak.title, blurb: en.weak.intro },
   { href: "/practice/difficulty/", name: en.difficulty.link, blurb: en.difficulty.blurb },
 ] as const;
+const TOOLS = [
+  { href: "/practice/first-solve/", name: polish.home.first, blurb: polish.home.firstIntro, icon: BookOpenIcon },
+  { href: "/practice/levels/", name: polish.practice.levels, blurb: polish.practice.levelsIntro, icon: StepsIcon },
+  { href: "/practice/debug/", name: polish.practice.debugger, blurb: polish.practice.debuggerIntro, icon: WrenchIcon },
+  { href: "/practice/algorithms/", name: polish.practice.library, blurb: polish.practice.libraryIntro, icon: TableIcon },
+  { href: "/practice/memory/", name: polish.practice.memory, blurb: polish.practice.memoryIntro, icon: BrainIcon },
+  { href: "/practice/reference/", name: polish.practice.reference, blurb: polish.practice.referenceIntro, icon: FilePdfIcon },
+  { href: "/practice/big-cubes/", name: polish.practice.big, blurb: polish.practice.bigIntro, icon: CubeIcon },
+];
 
 export default function PracticePage() {
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
-      <h1 className="t-title">{en.practice.title}</h1>
-      <p className="t-body prose-measure">{en.practice.intro}</p>
-      <ul className="flex flex-col">
+    <div className="workspace flex flex-col gap-10">
+      <header className="page-heading"><h1 className="t-title">{polish.practice.title}</h1><p className="t-body">{polish.practice.intro}</p></header>
+      <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.drills}</h2>
+      <ul className="tool-grid">
         {TRAINERS.map((t) => (
-          <li key={t.href} className="flex flex-col gap-1 border-t border-rule py-4">
-            <TransitionLink href={t.href} className="t-subheading">
-              {t.name}
-            </TransitionLink>
-            <span className="t-body text-quiet">{t.blurb}</span>
+          <li key={t.href}><TransitionLink href={t.href} className="tool-link"><TargetIcon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}</h3><p>{t.blurb}</p></TransitionLink>
           </li>
         ))}
       </ul>
+      </section>
+      <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.tools}</h2><div className="tool-grid">{TOOLS.map((t) => <TransitionLink href={t.href} key={t.href} className="tool-link"><t.icon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}</h3><p>{t.blurb}</p></TransitionLink>)}</div></section>
     </div>
   );
 }

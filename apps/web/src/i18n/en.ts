@@ -89,8 +89,8 @@ export const en = {
     cubeViewHint: "The flat net and the written form work without 3D graphics. Every cube has a written description for screen readers whichever you pick.",
     readAloud: "Read drills aloud",
     readAlouds: { on: "On", off: "Off" },
-    readAloudHint: "Trainers speak each prompt with the browser's own voice, so a drill can be done without looking. Nothing is sent anywhere.",
-    readAloudUnsupported: "This browser has no speech voices, so reading aloud does nothing here.",
+    readAloudHint: "Trainers use an installed English voice on your device. Prompts are not sent to a speech server.",
+    readAloudUnsupported: "No installed English voice is available. Written prompts and screen-reader announcements remain available.",
     data: "Your data",
     dataIntro: "Everything stays in this browser. Nothing is sent anywhere.",
     persistent: {

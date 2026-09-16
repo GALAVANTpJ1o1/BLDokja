@@ -11,10 +11,19 @@ export function speechAvailable(): boolean {
   return typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
 }
 
-export function speak(text: string): void {
+export function localVoice(): SpeechSynthesisVoice | undefined {
+  if (!speechAvailable()) return undefined;
+  return window.speechSynthesis.getVoices().find((voice) => voice.localService && /^en(?:-|$)/i.test(voice.lang));
+}
+
+export function speak(text: string, onError?: () => void): void {
   if (!speechAvailable() || text.trim() === "") return;
+  const voice = localVoice();
+  if (voice === undefined) { onError?.(); return; }
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-GB";
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.onerror = (event) => { if (event.error !== "canceled" && event.error !== "interrupted") onError?.(); };
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
@@ -34,10 +43,12 @@ export function announcement(parts: readonly (string | undefined)[]): string {
 /** Whether this browser can speak, as React state. Server rendering assumes it can't, so nothing claims it before hydration. */
 export function useSpeechAvailable(): boolean {
   return useSyncExternalStore(
-    () => () => {
-      // Voices can load late, but whether speech exists at all doesn't change.
+    (listener) => {
+      if (!speechAvailable()) return () => undefined;
+      window.speechSynthesis.addEventListener("voiceschanged", listener);
+      return () => { window.speechSynthesis.removeEventListener("voiceschanged", listener); };
     },
-    speechAvailable,
+    () => localVoice() !== undefined,
     () => false,
   );
 }

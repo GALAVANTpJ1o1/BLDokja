@@ -44,10 +44,17 @@ export interface RejectedOverride {
 export const caseId = (pieceType: "corners" | "edges", buffer: string, recordId: string): string => `${pieceType}@${buffer}:${recordId}`;
 
 function withInverse(alg: string, moves: string, etm: number, source: CaseAlg["source"]): CaseAlg | undefined {
-  const parsed = parseAlg("3x3x3", alg);
-  if (!parsed.ok) return undefined;
-  const inverse = invertNodes(parsed.value.nodes);
-  return { alg, moves, etm, inverse: formatAlg({ puzzle: "3x3x3", nodes: inverse }), inverseMoves: formatMoves(cancelMoves("3x3x3", expandNodes(inverse))), source };
+  // Only the visible case needs its inverse. Building hundreds during initial render stalls mobile CPUs.
+  let inverted: { notation: string; moves: string } | undefined;
+  const inverse = () => {
+    if (inverted !== undefined) return inverted;
+    const parsed = parseAlg("3x3x3", alg);
+    if (!parsed.ok) return { notation: "", moves: "" };
+    const nodes = invertNodes(parsed.value.nodes);
+    inverted = { notation: formatAlg({ puzzle: "3x3x3", nodes }), moves: formatMoves(cancelMoves("3x3x3", expandNodes(nodes))) };
+    return inverted;
+  };
+  return { alg, moves, etm, source, get inverse() { return inverse().notation; }, get inverseMoves() { return inverse().moves; } };
 }
 
 /** An alg you typed, checked against a case: canonical notation and counts if it solves it. */

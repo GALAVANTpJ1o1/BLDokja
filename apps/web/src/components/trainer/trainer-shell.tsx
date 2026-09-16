@@ -2,7 +2,9 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
-import { speak, stopSpeaking } from "@/lib/speech";
+import { speak, stopSpeaking, useSpeechAvailable } from "@/lib/speech";
+import { shortcutIgnored } from "@/lib/keyboard";
+import { polish } from "@/i18n/polish";
 import { TrainerHeader } from "@/components/trainer/trainer-header";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
@@ -20,16 +22,19 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
   const [helpOpen, setHelpOpen] = useState(false);
   const { settings: appearance, update } = useSettings();
   const readAloud = appearance.readAloud;
+  const voiceAvailable = useSpeechAvailable();
+  const [failedPrompt, setFailedPrompt] = useState<string>();
+  const speechFailed = announce !== undefined && failedPrompt === announce;
 
   // The drill's current prompt, spoken whenever it changes: the non-visual path through a trainer (BRIEF §10).
   useEffect(() => {
-    if (readAloud && announce !== undefined) speak(announce);
-  }, [announce, readAloud]);
+    if (readAloud && announce !== undefined && voiceAvailable) speak(announce, () => { setFailedPrompt(announce); });
+  }, [announce, readAloud, voiceAvailable]);
   useEffect(() => stopSpeaking, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "?" || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.key !== "?" || shortcutIgnored(event)) return;
       event.preventDefault();
       setHelpOpen(true);
     };
@@ -40,7 +45,7 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
   }, []);
 
   return (
-    <div className="flex max-w-5xl flex-col gap-6">
+    <div className="workspace flex flex-col gap-8">
       <TrainerHeader
         title={title}
         intro={intro}
@@ -54,14 +59,15 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
           },
         }}
       />
+      {readAloud && (!voiceAvailable || speechFailed) ? <p role="status" className="status-line t-meta">{speechFailed ? polish.speech.failed : polish.speech.missing}</p> : null}
       {settings !== undefined ? (
-        <details className="panel">
+        <details className="panel trainer-settings">
           <summary className="cursor-pointer px-4 py-3 t-ui">{en.trainer.settings}</summary>
           <div className="flex flex-col gap-4 border-t border-rule px-4 py-4">{settings}</div>
         </details>
       ) : null}
       {/* The drill keeps its space while the trainer loads, so the page doesn't jump when it arrives. */}
-      <section aria-label={en.trainer.drill} className="min-h-[24rem]">{children}</section>
+      <section aria-label={en.trainer.drill} className="trainer-stage min-h-[24rem]">{children}</section>
       {summary !== undefined ? <section aria-label={en.trainer.summary} className="border-t border-rule pt-4">{summary}</section> : null}
       <TransmissionWindow open={helpOpen} title={en.trainer.keysTitle} onClose={() => { setHelpOpen(false); }}>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">

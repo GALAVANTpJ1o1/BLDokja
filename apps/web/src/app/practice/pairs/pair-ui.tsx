@@ -4,6 +4,7 @@ import type { AppEvent, LetterPair } from "@bld/storage";
 import type { CaseSchedule } from "@bld/srs";
 import { graphemes } from "@bld/storage";
 import type { Reader } from "@/lib/reader";
+import { shortcutIgnored } from "@/lib/keyboard";
 
 /** Everything the library's views share. */
 export interface LibraryContext {
@@ -42,6 +43,5 @@ export function BigPair({ id }: { id: string }) {
 
 /** Keys typed into a field, or pressed while a dialog is open, don't drive a drill. */
 export function ignoreKey(event: KeyboardEvent): boolean {
-  const target = event.target;
-  return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || document.querySelector("dialog[open]") !== null || event.metaKey || event.ctrlKey || event.altKey;
+  return shortcutIgnored(event);
 }

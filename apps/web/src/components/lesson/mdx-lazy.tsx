@@ -26,7 +26,7 @@ function deferred<P extends object>(load: () => Promise<ComponentType<P>>): (pro
 export const Buffer = deferred(() => import("./inline").then((m) => m.Buffer));
 export const Checkpoint = deferred(() => import("./checkpoint").then((m) => m.Checkpoint));
 export const CommCase = deferred(() => import("./extra-demos").then((m) => m.CommCase));
-export const CommParts = deferred(() => import("./extra-demos").then((m) => m.CommParts));
+export const CommParts = deferred(() => import("./comm-parts").then((m) => m.CommParts));
 export const Cube = deferred(() => import("./lesson-cube").then((m) => m.LessonCube));
 export const FourExplorer = deferred(() => import("./four-bld-demos").then((m) => m.FourExplorer));
 export const FourLetter = deferred(() => import("./four-bld-demos").then((m) => m.FourLetter));

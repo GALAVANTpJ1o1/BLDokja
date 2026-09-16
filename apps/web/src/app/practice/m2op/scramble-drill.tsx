@@ -4,12 +4,14 @@ import type { AppEvent, Difficulty } from "@bld/storage";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { LetterNotch } from "@/components/letters/letters";
-import { piecesOf } from "@/components/lesson/op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { ScrambleControls, useScramble } from "@/lib/use-scramble";
+import { shortcutIgnored } from "@/lib/keyboard";
 import type { Reader } from "@/lib/reader";
 import { newId, nowIso } from "@/lib/storage-client";
 import { constrainedScramble, traceConstraints, type ConstrainedScramble } from "@/trainers/difficulty";
-import { sessionScramble } from "@/trainers/guided-trace";
 import { scrambleDrill, type MethodDatasets, type ScrambleDrill, type ScrambleMethod } from "@/trainers/m2op-cases";
 
 interface RunProps {
@@ -54,7 +56,7 @@ function ScrambleRun({ reader, drill, sighted, onGraded, onNext }: RunProps) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || document.querySelector("dialog[open]") !== null) return;
+      if (shortcutIgnored(event)) return;
       if (done) {
         if (event.key === "Enter" || event.key === "n" || event.key === "N") onNext();
         return;
@@ -185,7 +187,8 @@ export function ScrambleDrillView({ reader, datasets, method, sighted, seed, dif
       cancelled = true;
     };
   }, [reader, buffers, constraints, seed, method, index, key]);
-  const scramble = constraints === undefined ? sessionScramble(`${seed}:${method}`, index) : constrained?.key === key && constrained.result.ok ? constrained.result.scramble : undefined;
+  const random = useScramble(reader.puzzle, `${seed}:${method}`, index, constraints === undefined);
+  const scramble = constraints === undefined ? random.scramble : constrained?.key === key && constrained.result.ok ? constrained.result.scramble : undefined;
   const noMatch = constraints !== undefined && constrained?.key === key && !constrained.result.ok;
   const drill = useMemo(() => (scramble === undefined ? undefined : scrambleDrill(reader.puzzle, reader.scheme, method, scramble, datasets)), [reader, datasets, method, scramble]);
 
@@ -199,6 +202,8 @@ export function ScrambleDrillView({ reader, datasets, method, sighted, seed, dif
   );
 
   if (noMatch) return <p className="t-body" role="alert">{en.difficulty.noMatch}</p>;
-  if (drill === undefined) return <p className="t-meta text-quiet">{constraints === undefined ? en.trainer.loading : en.difficulty.finding}</p>;
-  return <ScrambleRun key={`${method}-${String(index)}`} reader={reader} drill={drill} sighted={sighted} onGraded={onGraded} onNext={() => { setIndex((i) => i + 1); }} />;
+  return <div className="flex flex-col gap-4">
+    {constraints === undefined ? <ScrambleControls state={random} puzzle={reader.puzzle} /> : null}
+    {drill === undefined ? <p role="status" className="t-meta text-quiet">{constraints === undefined ? polish.scramble.loading : en.difficulty.finding}</p> : <ScrambleRun key={`${method}-${String(index)}-${scramble}`} reader={reader} drill={drill} sighted={sighted} onGraded={onGraded} onNext={() => { setIndex((i) => i + 1); }} />}
+  </div>;
 }

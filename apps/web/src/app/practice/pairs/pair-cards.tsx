@@ -7,6 +7,8 @@ import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { Segmented } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { speak as readText, useSpeechAvailable } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, writePreference } from "@/lib/use-events";
 import { drillWeights, isPlaceholder, mainImage, PAIRS_TRAINER, pairsForWord, pickWeighted, samePair } from "@/trainers/pairs";
@@ -23,13 +25,8 @@ function logAttempt(ctx: LibraryContext, caseId: string, correct: boolean, respo
   void ctx.append([{ id: newId(), type: "drill.attempt", at: nowIso(), trainer: PAIRS_TRAINER, caseId, strategy, ...(seed === undefined ? {} : { seed }), correct, responseMs: Math.round(responseMs), detail }]);
 }
 
-function speak(id: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  const utterance = new SpeechSynthesisUtterance(lettersOf(id).join(" "));
-  utterance.lang = "en-GB";
-  utterance.rate = 0.9;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+function speak(id: string, onError?: () => void) {
+  readText(lettersOf(id).join(" "), onError);
 }
 
 /**
@@ -38,6 +35,8 @@ function speak(id: string) {
  * instead of shown.
  */
 function RecallCard({ ctx, id, limitSeconds, audio, onGraded }: { ctx: LibraryContext; id: string; limitSeconds?: number; audio?: boolean; onGraded: (correct: boolean, responseMs: number) => void }) {
+  const voiceAvailable = useSpeechAvailable();
+  const [audioFailed, setAudioFailed] = useState(false);
   const pair = ctx.byId.get(id);
   const main = mainImage(pair);
   const alternates = (pair?.images ?? []).filter((i) => i !== main && !isPlaceholder(i)).map((i) => i.text);
@@ -49,7 +48,7 @@ function RecallCard({ ctx, id, limitSeconds, audio, onGraded }: { ctx: LibraryCo
 
   useEffect(() => {
     shownAt.current = performance.now();
-    if (audio === true) speak(id);
+    if (audio === true && voiceAvailable) speak(id, () => { setAudioFailed(true); });
     if (limitSeconds === undefined) return;
     const timer = window.setInterval(() => {
       const remaining = limitSeconds - (performance.now() - shownAt.current) / 1000;
@@ -65,7 +64,7 @@ function RecallCard({ ctx, id, limitSeconds, audio, onGraded }: { ctx: LibraryCo
     return () => {
       window.clearInterval(timer);
     };
-  }, [id, audio, limitSeconds]);
+  }, [id, audio, limitSeconds, voiceAvailable]);
 
   const reveal = useCallback(() => {
     if (revealed) return;
@@ -100,11 +99,12 @@ function RecallCard({ ctx, id, limitSeconds, audio, onGraded }: { ctx: LibraryCo
 
   return (
     <div className="flex flex-col items-start gap-4">
-      {audio === true ? (
-        <button type="button" className="btn" onClick={() => { speak(id); }}>{en.pairs.listen}</button>
+      {audio === true && voiceAvailable && !audioFailed ? (
+        <button type="button" className="btn" onClick={() => { speak(id, () => { setAudioFailed(true); }); }}>{en.pairs.listen}</button>
       ) : (
         <BigPair id={id} />
       )}
+      {audio === true && (!voiceAvailable || audioFailed) ? <p role="status" className="t-meta text-quiet">{audioFailed ? polish.speech.failed : polish.speech.missing}</p> : null}
       {limitSeconds !== undefined && !revealed ? (
         <p className="t-meta" aria-live="off">{en.pairs.rapidLeft(left)}</p>
       ) : null}

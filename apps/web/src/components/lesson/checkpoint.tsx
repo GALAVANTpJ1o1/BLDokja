@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useId, useMemo, useState, type SyntheticEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent, type ReactNode } from "react";
 import { Cube } from "@/components/cube/cube";
 import { netCells } from "@/components/cube/cube-state";
 import { StickerNet } from "@/components/cube/sticker-net";
 import { LetterStar } from "@/components/letters/letters";
-import { algDatasets } from "@/content/algs";
+import { workspaces } from "@/i18n/workspaces";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { useReader, type Reader } from "@/lib/reader";
@@ -28,6 +28,7 @@ const isExtraKind = (kind: string): kind is ExtraKind => EXTRA_KINDS.includes(ki
 type FourKind = "four-letters" | "four-trace" | "four-parity" | "four-setup";
 type Kind = ThreeKind | FourKind | ExtraKind | "quiz";
 type Item = CheckpointItem | FourCheckpointItem | LessonItem;
+type DatasetReader = typeof import("@/content/algs").algDatasets;
 const isFourKind = (kind: Kind): kind is FourKind => kind.startsWith("four-");
 
 interface QuizRegistry {
@@ -36,7 +37,7 @@ interface QuizRegistry {
 }
 const QuizContext = createContext<QuizRegistry | undefined>(undefined);
 
-function generateFour(reader: Reader4x4, kind: FourKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: FourBldPieces[]; count: number; maxTargets: number; method: "r2" | "u2" }): FourCheckpointItem[] {
+function generateFour(reader: Reader4x4, kind: FourKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: FourBldPieces[]; count: number; maxTargets: number; method: "r2" | "u2" }, algDatasets: DatasetReader): FourCheckpointItem[] {
   const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
   if (kind === "four-letters") return fourLetterItems(reader, rng, options.pieces, options.count);
   if (kind === "four-trace") return fourTraceItems(reader, rng, options.pieces, options.count, options.maxTargets);
@@ -68,23 +69,23 @@ function fourQuestionFor(item: FourCheckpointItem): string {
   }
 }
 
-function generateExtra(reader: Reader, kind: ExtraKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number }): LessonItem[] {
+function generateExtra(reader: Reader, kind: ExtraKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number }, algDatasets: DatasetReader): LessonItem[] {
   const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
-  const { m2Edges, threeStyleCorners, threeStyleEdges, opCorners, opEdges, opParity } = algDatasets();
-  const comms = options.pieces[0] === "edges" ? threeStyleEdges : threeStyleCorners;
+  const datasets = algDatasets();
+  const comms = () => options.pieces[0] === "edges" ? datasets.threeStyleEdges : datasets.threeStyleCorners;
   switch (kind) {
     case "m2-setup":
-      return m2SetupItems(reader.scheme, rng, m2Edges, options.count);
+      return m2SetupItems(reader.scheme, rng, datasets.m2Edges, options.count);
     case "m2-special":
-      return m2SpecialItems(reader.scheme, rng, m2Edges, options.count);
+      return m2SpecialItems(reader.scheme, rng, datasets.m2Edges, options.count);
     case "comm-expand":
-      return commExpandItems(rng, comms, options.count);
+      return commExpandItems(rng, comms(), options.count);
     case "comm-case":
-      return commCaseItems(reader.puzzle, reader.scheme, rng, comms, options.count);
+      return commCaseItems(reader.puzzle, reader.scheme, rng, comms(), options.count);
     case "comm-build":
-      return commBuildItems(reader.scheme, rng, comms, options.count);
+      return commBuildItems(reader.scheme, rng, comms(), options.count);
     case "mistake":
-      return mistakeItems(reader.puzzle, reader.scheme, rng, { corners: opCorners, edges: opEdges, parity: opParity }, options.count);
+      return mistakeItems(reader.puzzle, reader.scheme, rng, { corners: datasets.opCorners, edges: datasets.opEdges, parity: datasets.opParity }, options.count);
   }
 }
 
@@ -119,7 +120,7 @@ function ExtraItemPrompt({ item }: { item: LessonItem }) {
   }
 }
 
-function generate(reader: Reader, kind: ThreeKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number; requires: TraceRequirement; maxTargets: number }): CheckpointItem[] {
+function generate(reader: Reader, kind: ThreeKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number; requires: TraceRequirement; maxTargets: number }, algDatasets: DatasetReader): CheckpointItem[] {
   const ctx = { puzzle: reader.puzzle, scheme: reader.scheme, buffers: reader.buffers.op };
   const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
   if (kind === "letters") return letterItems(ctx, rng, options.pieces, options.count);
@@ -181,17 +182,34 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const [quiz, setQuiz] = useState<Record<string, boolean>>({});
   const [quizRevealed, setQuizRevealed] = useState(false);
   const [recorded, setRecorded] = useState(false);
+  const section = useRef<HTMLElement>(null);
+  const [algDatasets, setDatasetReader] = useState<DatasetReader>();
+  const [loadFailed, setLoadFailed] = useState(false);
+  useEffect(() => {
+    if (kind === "quiz") return;
+    let disposed = false;
+    const load = () => {
+      void import("@/content/algs").then((module) => { if (!disposed) setDatasetReader(() => module.algDatasets); }).catch(() => { if (!disposed) setLoadFailed(true); });
+    };
+    if (typeof IntersectionObserver === "undefined" || section.current === null) { load(); return () => { disposed = true; }; }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) { observer.disconnect(); load(); }
+    }, { rootMargin: "300px" });
+    observer.observe(section.current);
+    return () => { disposed = true; observer.disconnect(); };
+  }, [kind]);
 
   const options = useMemo(() => ({ pieces: pieces.split(/\s+/).filter((p): p is PieceKind => p === "corners" || p === "edges"), count: Number(count), requires: requires as TraceRequirement, maxTargets: Number(maxTargets) }), [pieces, count, requires, maxTargets]);
   const fourOptions = useMemo(() => ({ pieces: pieces.split(/\s+/).filter((p): p is FourBldPieces => (FOUR_BLD_PIECES as readonly string[]).includes(p)), count: Number(count), maxTargets: Number(maxTargets), method: method === "u2" ? ("u2" as const) : ("r2" as const) }), [pieces, count, maxTargets, method]);
   const items = useMemo((): Item[] => {
     const seed = { lesson: lessonId, checkpoint: id, attempt };
     if (kind === "quiz") return [];
-    if (isFourKind(kind)) return reader4 === undefined ? [] : generateFour(reader4, kind, seed, fourOptions);
-    if (isExtraKind(kind)) return reader === undefined ? [] : generateExtra(reader, kind, seed, options);
-    return reader === undefined ? [] : generate(reader, kind, seed, options);
-  }, [reader, reader4, kind, lessonId, id, attempt, options, fourOptions]);
-  const ready = four ? reader4 !== undefined : reader !== undefined;
+    if (algDatasets === undefined) return [];
+    if (isFourKind(kind)) return reader4 === undefined ? [] : generateFour(reader4, kind, seed, fourOptions, algDatasets);
+    if (isExtraKind(kind)) return reader === undefined ? [] : generateExtra(reader, kind, seed, options, algDatasets);
+    return reader === undefined ? [] : generate(reader, kind, seed, options, algDatasets);
+  }, [reader, reader4, kind, lessonId, id, attempt, options, fourOptions, algDatasets]);
+  const ready = (kind === "quiz" || algDatasets !== undefined) && (four ? reader4 !== undefined : reader !== undefined);
 
   const total = kind === "quiz" ? Object.keys(quiz).length : items.length;
   const correct = kind === "quiz" ? Object.values(quiz).filter(Boolean).length : results.filter(Boolean).length;
@@ -226,7 +244,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const item = items[position];
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (item === undefined) return;
+    if (item === undefined || algDatasets === undefined) return;
     let ok: boolean;
     let answer: string;
     if (item.kind === "four-letter") [ok, answer] = [gradeLetters(item.answer, typed), item.answer];
@@ -266,11 +284,11 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const neededText = `${Math.ceil(pass * total)} / ${total}`;
 
   return (
-    <section className="my-8 flex flex-col gap-4 border-t-2 border-text pt-5" aria-labelledby={`${inputId}-title`}>
+    <section ref={section} className="my-8 flex flex-col gap-4 border-t-2 border-text pt-5" aria-labelledby={`${inputId}-title`}>
       <h2 id={`${inputId}-title`} className="t-heading">
         {en.lesson.checkpoint}: {title}
       </h2>
-      {!ready ? <p className="t-meta text-quiet">{en.cube.loading}</p> : null}
+      {loadFailed ? <p role="alert" className="t-meta">{workspaces.common.error}</p> : !ready ? <p className="t-meta text-quiet">{en.cube.loading}</p> : null}
 
       {kind === "quiz" ? (
         <QuizContext.Provider value={{ report, revealed: quizRevealed }}>

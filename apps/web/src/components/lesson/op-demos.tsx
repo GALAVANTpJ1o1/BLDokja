@@ -7,20 +7,14 @@ import { LetterNotch } from "@/components/letters/letters";
 import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { useReader } from "@/lib/reader";
+import { piecesOf } from "@/lib/cube-highlights";
 
 function datasetFor(pieces: "corners" | "edges"): OpSetupsDataset {
   const { opCorners, opEdges } = algDatasets();
   return pieces === "corners" ? opCorners : opEdges;
 }
 
-export function piecesOf(reader: NonNullable<ReturnType<typeof useReader>>, names: readonly string[]): string[] {
-  return reader.puzzle.geometry.stickers.map((s) => reader.nameOf(s.index)).filter((name) => names.some((piece) => sameCubie(name, piece)));
-}
-
-/** A sticker belongs to a piece if it has the same faces, in any order ("FUR" is on piece "UFR"). */
-function sameCubie(sticker: string, piece: string): boolean {
-  return sticker.length === piece.length && Array.from(sticker).sort().join("") === Array.from(piece).sort().join("");
-}
+export { piecesOf } from "@/lib/cube-highlights";
 
 /** The swap alg a method uses, straight from the verified dataset. */
 export function SwapAlg({ pieces }: { pieces: "corners" | "edges" }) {

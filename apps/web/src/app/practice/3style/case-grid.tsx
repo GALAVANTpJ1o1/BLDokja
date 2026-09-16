@@ -73,7 +73,7 @@ export function CaseGrid({ reader, cases, stickers, schedules, now, current, onP
                       <button
                         type="button"
                         data-cell={`${String(r)}-${String(col)}`}
-                        tabIndex={current === c.id || (current === undefined && r === 0 && col === 1) ? 0 : -1}
+                        tabIndex={current === c.id || (current === undefined && c.id === cases[0]?.id) ? 0 : -1}
                         onClick={() => { onPick(c); }}
                         aria-label={en.threeStyle.cellLabel(c.letters, `${c.targets[0]} ${c.targets[1]}`, en.trainer.mastery[status])}
                         aria-pressed={current === c.id}

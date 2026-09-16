@@ -1,7 +1,7 @@
 "use client";
 
 import type { CubeView, Palette, Settings, Theme, Voice } from "@bld/storage";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 /**
  * Storage (Dexie and the Zod schemas) loads after the page has painted: the provider sits in the root
@@ -24,6 +24,9 @@ export interface ResolvedSettings {
 }
 
 interface SettingsContextValue {
+  /** Session-only consent to load 3D on teaching/practice pages. */
+  readonly threeDRequested: boolean;
+  readonly request3D: () => void;
   readonly settings: ResolvedSettings;
   /** Everything stored, for the settings that have no default here (scheme, buffers, algs, difficulty). */
   readonly stored: Settings | undefined;
@@ -63,6 +66,10 @@ function resolve(stored: Settings | undefined): ResolvedSettings {
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [stored, setStored] = useState<Settings | undefined>(undefined);
   const [ready, setReady] = useState(false);
+  const [threeDRequested, setThreeDRequested] = useState(false);
+  const request3D = useCallback(() => { setThreeDRequested(true); }, []);
+  const writes = useRef<Promise<void>>(Promise.resolve());
+  const persistentRequested = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +94,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (ready) applyAppearance(settings);
   }, [ready, settings]);
 
-  const update = useCallback(async (patch: Partial<Settings>) => {
+  const update = useCallback((patch: Partial<Settings>): Promise<void> => {
+    const save = async () => {
     const { getStorage, requestPersistentStorage } = await storageClient();
     const storage = getStorage();
     const next = await storage.transaction(async (tx) => {
@@ -97,15 +105,30 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     });
     setStored(next);
     // Ask for persistent storage the first time anything is saved (your 2026-09-15 answer).
-    if (next.persistentStorage === undefined) {
-      const persistentStorage = await requestPersistentStorage();
-      const withStatus: Settings = { ...next, persistentStorage };
-      await storage.putSettings(withStatus);
-      setStored(withStatus);
+    if (next.persistentStorage === undefined && !persistentRequested.current) {
+      persistentRequested.current = true;
+      // Firefox can keep its permission request pending. Saving never waits for that prompt.
+      void requestPersistentStorage().then((persistentStorage) => {
+        const saveStatus = async () => {
+          const withStatus = await storage.transaction(async (tx) => {
+            const latest: Settings = { ...(await tx.settings()), persistentStorage };
+            await tx.putSettings(latest);
+            return latest;
+          });
+          setStored(withStatus);
+        };
+        const savedStatus = writes.current.catch(() => undefined).then(saveStatus);
+        writes.current = savedStatus;
+        return savedStatus;
+      }).catch(() => undefined);
     }
+    };
+    const saved = writes.current.catch(() => undefined).then(save);
+    writes.current = saved;
+    return saved;
   }, []);
 
-  const value = useMemo(() => ({ settings, stored, ready, update }), [settings, stored, ready, update]);
+  const value = useMemo(() => ({ settings, stored, ready, update, threeDRequested, request3D }), [settings, stored, ready, update, threeDRequested, request3D]);
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
 

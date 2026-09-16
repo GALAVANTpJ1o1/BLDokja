@@ -197,3 +197,14 @@ Pages without a cube (the letter-pair library, progress) use the same rail and a
 - The starfield and page transitions are `aria-hidden` and decorative; screen-reader users lose nothing without them.
 - Text over the starfield keeps WCAG AA against the brightest star colour possible, checked in `starfield.test.ts`.
 - Reduced motion collapses every moving part to still (principle 4), checked in `motion.test.ts` and `starfield.test.ts`.
+
+## September 16 polish: a quieter shell, a larger cube
+
+The redesign retains Recursive, both existing themes, the constellation layer and face-only colour semantics. It uses the redesign-existing-projects, design-taste-frontend and high-end-visual-design skills for hierarchy, spacing and restrained surfaces, not to replace the established identity.
+
+- Desktop navigation moves to a compact top bar; phones use a bottom navigation pill. The cube occupies the largest useful area on the home page and stays alongside the active drill on wider screens.
+- Secondary trainer settings and algorithm explanations become disclosures. Lessons use section rules, readable prose widths, a desktop table of contents and a saved-position resume link instead of repeated enclosing panels.
+- Panels use 14px corners; cube stages and the home hero have distinct larger radii. Reference and algorithm tables remain dense, scrollable, explicit data structures rather than decorative cards.
+- Button press and verified-result feedback respond to actions only. Both OS and site reduced-motion settings disable the added motion.
+- Lessons and trainers initially show an exact highlighted net. Inspect in 3D enables WebGL for the current session; the home hero remains 3D. Text view supports explicit move-by-move replay. This keeps the cube present without requiring a graphics engine before reading or practising.
+- On 5x5 centres, precise identity highlights use the net, not a misleading shared-colour 3D mask.

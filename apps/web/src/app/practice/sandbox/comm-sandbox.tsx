@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { netCells } from "@/components/cube/cube-state";
 import { Cube } from "@/components/cube/cube";
-import { piecesOf } from "@/components/lesson/op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 import { useSettings } from "@/components/settings/settings-provider";
 import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { loadLessons } from "@/content/lessons/source";
 import { en } from "@/i18n/en";
+import { workspaces } from "@/i18n/workspaces";
+import { Cube } from "@/components/cube/cube";
 import { LearningPath } from "./learning-path";
 
 export const metadata: Metadata = { title: en.learn.title };
@@ -17,10 +19,13 @@ export default function LearnPage() {
     objective: l.frontmatter.objectives[0] ?? "",
   }));
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
-      <h1 className="t-title">{en.learn.title}</h1>
-      <p className="t-body prose-measure">{en.learn.intro}</p>
+    <div className="workspace flex flex-col gap-8">
+      <header className="grid gap-6 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center">
+        <div className="flex flex-col gap-4"><h1 className="t-title">{en.learn.title}</h1><p className="t-body prose-measure">{en.learn.intro}</p><a className="text-link self-start" href="/practice/first-solve/">{workspaces.first.title}</a></div>
+        <div className="max-w-sm w-full justify-self-center"><Cube setup="R U R'" label={en.learn.title} /></div>
+      </header>
       {lessons.length === 0 ? <p className="t-body text-quiet">{en.learn.empty}</p> : <LearningPath lessons={lessons} />}
+      <a className="tool-link" href="/practice/big-cubes/"><span className="t-heading">{workspaces.big.title}</span><span className="t-body text-quiet">{workspaces.big.intro}</span></a>
     </div>
   );
 }

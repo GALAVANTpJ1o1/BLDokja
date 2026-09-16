@@ -7,6 +7,8 @@ import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { OfflinePack } from "@/components/pwa/offline-pack";
 import { useSpeechAvailable } from "@/lib/speech";
 // Storage, and the export and import code with its schemas, load after the page has painted.
 import { nowIso } from "@/lib/ids";
@@ -51,7 +53,7 @@ function importErrorText(error: ImportDataError): string {
 }
 
 export function SettingsView() {
-  const { settings, update, ready } = useSettings();
+  const { settings, update, ready, request3D } = useSettings();
   // Checked in the browser: the server doesn't know whether this device has a voice.
   const speech = useSpeechAvailable();
   const [status, setStatus] = useState<string | undefined>(undefined);
@@ -139,7 +141,7 @@ export function SettingsView() {
       <Section title={en.settings.appearance}>
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
-        <Choice<CubeView> legend={en.settings.cubeView} hint={en.settings.cubeViewHint} options={CUBE_VIEWS} labels={en.settings.cubeViews} value={ready ? settings.cubeView : undefined} onChange={(cubeView) => void update({ cubeView })} />
+        <Choice<CubeView> legend={en.settings.cubeView} hint={`${en.settings.cubeViewHint} ${polish.cube3DHint}`} options={CUBE_VIEWS} labels={en.settings.cubeViews} value={ready ? settings.cubeView : undefined} onChange={(cubeView) => { if (cubeView === "3d") request3D(); void update({ cubeView }); }} />
         <Choice<Voice> legend={en.settings.voice} hint={en.settings.voiceHint} options={VOICES} labels={en.settings.voices} value={settings.voice} onChange={(voice) => void update({ voice })} />
         <Choice<"on" | "off">
           legend={en.settings.readAloud}
@@ -150,6 +152,8 @@ export function SettingsView() {
           onChange={(v) => void update({ readAloud: v === "on" })}
         />
       </Section>
+
+      <Section title={polish.offline.title}><OfflinePack /></Section>
 
       <Section title={en.scheme.lettering}>
         <p className="flex flex-col gap-1">

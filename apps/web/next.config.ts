@@ -7,6 +7,7 @@ const config: NextConfig = {
   images: { unoptimized: true },
   transpilePackages: ["@bld/cube-engine", "@bld/storage"],
   reactStrictMode: true,
+  agentRules: false,
 };
 
 export default config;

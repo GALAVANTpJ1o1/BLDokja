@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en-GB" suppressHydrationWarning>
       <head>
+        <link rel="preload" href="/fonts/recursive-5.3.0-latin-casl.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         {/*
           Applies the saved theme and palette before first paint (public/appearance-boot.js, tested as a file).
           Written inline, not loaded: a request here blocked the first paint on slow connections. The build's

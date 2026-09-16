@@ -60,5 +60,5 @@ export function TransitionLink({ href, onClick, ...rest }: ComponentProps<typeof
     event.preventDefault();
     navigate(href);
   };
-  return <Link href={href} onClick={handle} {...rest} />;
+  return <Link href={href} onClick={handle} prefetch={false} {...rest} />;
 }

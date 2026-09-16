@@ -2,13 +2,14 @@
 
 import type { Voice } from "@bld/storage";
 import { VOICES } from "@bld/storage/options";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
+import { polish } from "@/i18n/polish";
 import { GATE_B_BUFFERS, ReaderOverridesContext, type ReaderOverrides } from "@/lib/reader-context";
 import { newId, nowIso } from "@/lib/ids";
 import { loadStorage } from "@/lib/storage-lazy";
@@ -42,9 +43,40 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
   const [pickerDismissed, setPickerDismissed] = useState(false);
   const available = VOICES.filter((v) => variants[v] !== undefined);
   const chosen = settings.voice !== undefined && variants[settings.voice] !== undefined ? settings.voice : "plain";
+  const body = useRef<HTMLDivElement>(null);
+  const [contents, setContents] = useState<{ id: string; title: string }[]>([]);
+  const positions = useRef(stored?.lessonPositions ?? {});
+  useEffect(() => { positions.current = stored?.lessonPositions ?? {}; }, [stored?.lessonPositions]);
+  useEffect(() => {
+    const headings = Array.from(body.current?.querySelectorAll("h2,h3") ?? []);
+    const items = headings.map((heading, index) => {
+      heading.id ||= `section-${index + 1}`;
+      return { id: heading.id, title: heading.textContent };
+    });
+    setContents(items);
+    if (!ready || typeof IntersectionObserver === "undefined") return;
+    let navigated = false;
+    const onScroll = () => { navigated = true; };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries.find((e) => e.isIntersecting);
+      if (entry === undefined) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        // Loading the top of an old lesson must not erase its saved resume point.
+        if (!navigated && positions.current[frontmatter.id] !== undefined) return;
+        const next = { ...positions.current, [frontmatter.id]: entry.target.id };
+        positions.current = next;
+        void update({ lessonPositions: next }).catch(() => undefined);
+      }, 800);
+    }, { rootMargin: "-5% 0px -70% 0px" });
+    headings.forEach((heading) => { observer.observe(heading); });
+    return () => { observer.disconnect(); clearTimeout(timer); window.removeEventListener("scroll", onScroll); };
+  }, [chosen, frontmatter.id, update, ready]);
 
   useEffect(() => {
-    void loadStorage().then((storage) => storage.appendEvents([{ id: newId(), type: "lesson.opened", at: nowIso(), lessonId: frontmatter.id }]));
+    void loadStorage().then((storage) => storage.appendEvents([{ id: newId(), type: "lesson.opened", at: nowIso(), lessonId: frontmatter.id }])).catch(() => undefined);
   }, [frontmatter.id]);
 
   const byId = new Map(lessons.map((l) => [l.id, l]));
@@ -59,12 +91,13 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
     <ReaderOverridesContext.Provider value={overrides}>
     <LessonMetaContext.Provider value={{ lessonId: frontmatter.id, checkpoints: frontmatter.checkpoints }}>
       <LessonVoiceContext.Provider value={chosen}>
-        <article className="flex max-w-3xl flex-col gap-6">
+        <article className="lesson-article flex flex-col gap-8">
           <header className="flex flex-col gap-3">
             <p className="t-meta text-quiet">
               <TransitionLink href="/learn/">{en.lesson.backToPath}</TransitionLink> · {frontmatter.order}. · {en.lesson.minutes(frontmatter.estimatedMinutes)}
             </p>
             <h1 className="t-title">{frontmatter.title}</h1>
+            {stored?.lessonPositions?.[frontmatter.id] !== undefined ? <a className="text-link self-start t-meta" href={`#${stored.lessonPositions[frontmatter.id]}`}>{polish.lesson.resume}</a> : null}
             {available.length > 1 ? (
               <div className="flex flex-wrap items-center gap-2" role="group" aria-label={en.lesson.voice}>
                 <span className="t-meta text-quiet">{en.lesson.voice}</span>
@@ -75,14 +108,14 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
                 ))}
               </div>
             ) : null}
-            <div>
-              <h2 className="t-subheading">{en.lesson.objectives}</h2>
+            <details className="quiet-disclosure">
+              <summary>{polish.lesson.overview}</summary>
               <ul className="ml-5 list-disc t-body">
                 {frontmatter.objectives.map((o) => (
                   <li key={o}>{o}</li>
                 ))}
               </ul>
-            </div>
+            </details>
           </header>
 
           {frontmatter.prerequisites.length > 0 ? (
@@ -106,25 +139,29 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
           ) : null}
 
           {frontmatter.recap.length > 0 ? (
-            <section className="border-y border-rule py-4" aria-label={en.lesson.recap}>
-              <h2 className="t-subheading">{en.lesson.recap}</h2>
+            <details className="quiet-disclosure" aria-label={en.lesson.recap}>
+              <summary>{en.lesson.recap}</summary>
               <ul className="ml-5 list-disc t-body">
                 {frontmatter.recap.map((r) => (
                   <li key={r}>{r}</li>
                 ))}
               </ul>
-            </section>
+            </details>
           ) : null}
 
           {buffersDiffer || (frontmatter.lettering === "speffz" && stored?.scheme !== undefined) ? (
-            <p className="t-meta border-l-2 border-rule pl-3 text-quiet">
-              {buffersDiffer ? en.lesson.standardBuffers : null}
+            <div className="status-line t-ui">
+              <p className="font-[650]">{polish.lesson.convention}</p>
+              {buffersDiffer ? <><p>{polish.lesson.custom}</p><p className="t-notation">{Object.entries(GATE_B_BUFFERS).map(([method, b]) => `${method}: ${b.corners}/${b.edges}`).join("; ")}</p><TransitionLink href="/settings/lettering/">{polish.lesson.settings}</TransitionLink></> : null}
               {buffersDiffer && frontmatter.lettering === "speffz" && stored?.scheme !== undefined ? " " : null}
               {frontmatter.lettering === "speffz" && stored?.scheme !== undefined ? en.lesson.speffzHere : null}
-            </p>
+            </div>
           ) : null}
 
-          <div className="lesson-body prose-measure flex flex-col gap-4 t-body">{variants[chosen] ?? variants.plain}</div>
+          <div className="lesson-with-toc">
+            <div ref={body} className="lesson-body flex flex-col gap-5 t-body">{variants[chosen] ?? variants.plain}</div>
+            <nav className="lesson-toc hidden xl:flex" aria-label={polish.lesson.contents}><h2 className="t-ui font-[650]">{polish.lesson.contents}</h2>{stored?.lessonPositions?.[frontmatter.id] !== undefined ? <a href={`#${stored.lessonPositions[frontmatter.id]}`}>{polish.lesson.resume}</a> : null}{contents.map((item) => <a key={item.id} href={`#${item.id}`}>{item.title}</a>)}</nav>
+          </div>
 
           {next !== undefined ? (
             <p className="border-t border-rule pt-4 t-body">

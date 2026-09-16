@@ -4,16 +4,19 @@ import { createSelector, drillScramble, type Selector, type SelectionStrategy } 
 import { reviewsByCase, scheduleAll, statsFor } from "@bld/srs";
 import type { AlgOverrides } from "@bld/storage";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { shortcutIgnored } from "@/lib/keyboard";
 import { Cube } from "@/components/cube/cube";
-import { piecesOf } from "@/components/lesson/op-demos";
+import { piecesOf } from "@/lib/cube-highlights";
 import { useSettings } from "@/components/settings/settings-provider";
 import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { SessionReport } from "@/components/trainer/session-report";
 import { caseStatus } from "@/components/trainer/mastery";
 import { useHardCutoff } from "@/components/trainer/use-time-limit";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
-import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
+import { workspaces as workspaceCopy } from "@/i18n/workspaces";
+import { download } from "@/lib/download";
 import { threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
 import { announcement } from "@/lib/speech";
@@ -21,7 +24,8 @@ import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { subsetOf, timeVerdict } from "@/trainers/difficulty";
 import { checkUserAlg, commCases, gridStickers, importOverrides, overridesFile, THREE_STYLE_TRAINER, withoutUserAlg, withUserAlg, type CommCase } from "@/trainers/three-style";
-import { CaseGrid } from "./case-grid";
+const CaseGrid = dynamic(() => import("./case-grid").then((m) => m.CaseGrid), { ssr: false });
+const WhyAlg = dynamic(() => import("@/components/workspaces/why-alg").then((m) => m.WhyAlg), { ssr: false });
 
 type Pieces = "corners" | "edges";
 type Mode = "learn" | "recall";
@@ -58,6 +62,8 @@ export function ThreeStyleTrainer() {
   const [sessionCount, setSessionCount] = useState(0);
   const [typed, setTyped] = useState("");
   const [message, setMessage] = useState<string | undefined>(undefined);
+  const [gridOpen, setGridOpen] = useState(false);
+  const [whyKey, setWhyKey] = useState<string>();
   const selector = useRef<Selector | undefined>(undefined);
   const shownAt = useRef(0);
   const revealMs = useRef(0);
@@ -136,7 +142,7 @@ export function ThreeStyleTrainer() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || document.querySelector("dialog[open]") !== null) return;
+      if (shortcutIgnored(event)) return;
       if (event.key === " " && mode === "recall") {
         event.preventDefault();
         reveal();
@@ -187,15 +193,11 @@ export function ThreeStyleTrainer() {
 
   const exportAlgs = () => {
     const blob = new Blob([overridesFile(stored?.algOverrides ?? {})], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bldokja-3style-algs-${nowIso().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    download(blob, `bldokja-3style-algs-${nowIso().slice(0, 10)}.json`);
   };
 
   const importAlgs = async (file: File) => {
+    const { algDatasets } = await import("@/content/algs");
     const { threeStyleCorners, threeStyleEdges } = algDatasets();
     const result = importOverrides(reader.puzzle, await file.text(), { corners: threeStyleCorners, edges: threeStyleEdges });
     if (!result.ok) {
@@ -212,7 +214,7 @@ export function ThreeStyleTrainer() {
     shown === undefined ? (
       <p className="t-body">{nothingDue ? en.threeStyle.nothingDue : en.threeStyle.building}</p>
     ) : (
-      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="trainer-surface">
         {setup?.ok === true && main !== undefined ? (
           showAlg ? (
             <Cube key={`${shown.id}-${main.alg}-${String(replay)}`} setup={setup.value.scramble} alg={main.moves} highlight={lit} controls autoplay label={en.threeStyle.caseTitle(shown.letters, shown.targets[0], shown.targets[1])} />
@@ -248,6 +250,11 @@ export function ThreeStyleTrainer() {
                   {main.inverse} <span className="t-meta text-quiet">· {main.inverseMoves}</span>
                 </dd>
               </dl>
+              <details key={shown.id} className="quiet-disclosure" onToggle={(event) => { setWhyKey(event.currentTarget.open ? shown.id : undefined); }}>
+                <summary>{workspaceCopy.algs.why}</summary>
+                {whyKey === shown.id ? <WhyAlg key={main.alg} reader={reader} alg={main.alg} setup={setup?.ok === true ? setup.value.scramble : ""} /> : null}
+              </details>
+              <a className="text-link self-start t-meta" href="/practice/algorithms/">{workspaceCopy.algs.title}</a>
               {mode === "recall" && timedOut ? (
                 <>
                   <p className="t-body font-[600]" role="status">{en.difficulty.timedOut}</p>
@@ -300,7 +307,7 @@ export function ThreeStyleTrainer() {
                   void saveOverrides(withUserAlg(stored?.algOverrides, dataset.id, shown.recordId, checked.alg.alg)).then(() => {
                     setTyped("");
                     setMessage(en.threeStyle.added);
-                  });
+                  }).catch(() => { setMessage(workspaceCopy.common.error); });
                 }}
               >
                 <label className="flex min-w-0 flex-1 flex-col gap-1">
@@ -324,7 +331,7 @@ export function ThreeStyleTrainer() {
       </p>
       {rejected.length > 0 ? <p className="t-meta" role="alert">{en.threeStyle.rejectedStored(rejected.length)}</p> : null}
       {drilled.applied ? <p className="t-meta">{en.difficulty.subsetOn}</p> : null}
-      <CaseGrid reader={reader} cases={cases} stickers={stickers} schedules={schedules} now={now} current={shown?.id} onPick={show} />
+      <details className="quiet-disclosure" onToggle={(e) => { setGridOpen(e.currentTarget.open); }}><summary>{en.threeStyle.gridLabel(en.threeStyle.pieceTypes[pieces])}</summary>{gridOpen ? <CaseGrid reader={reader} cases={cases} stickers={stickers} schedules={schedules} now={now} current={shown?.id} onPick={show} /> : null}</details>
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" className="btn" onClick={exportAlgs}>{en.threeStyle.export}</button>
         <label className="flex flex-col gap-1">

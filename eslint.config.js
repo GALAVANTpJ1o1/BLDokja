@@ -22,14 +22,15 @@ const browserGlobals = [
 export default defineConfig([
   globalIgnores(["**/node_modules/", "**/dist/", "legacy/", "**/coverage/", "**/.next/", "**/out/", "**/next-env.d.ts",
     // Plain same-origin scripts served as written (ES5, no modules); covered by their own tests.
-    "apps/web/public/"]),
+    "apps/web/public/", ".artifacts/"]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: ["eslint.config.js"],
+          defaultProject: "tsconfig.tools.json",
+          allowDefaultProject: ["eslint.config.js", "playwright.config.ts", "e2e/*.ts"],
         },
         tsconfigRootDir: import.meta.dirname,
       },

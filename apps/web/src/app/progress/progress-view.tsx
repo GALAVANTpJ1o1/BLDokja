@@ -6,6 +6,8 @@ import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/char
 import { Segmented } from "@/components/trainer/trainer-shell";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { workspaces } from "@/i18n/workspaces";
 import { itemLabel } from "@/lib/item-labels";
 import { threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
@@ -50,6 +52,8 @@ export function ProgressView() {
 
   return (
     <div className="flex flex-col gap-10">
+      <p className="t-meta text-quiet">{polish.scramble.provisional}</p>
+      <TransitionLink className="text-link self-start" href="/practice/levels/">{workspaces.levels.stats}</TransitionLink>
       <div className="flex flex-col gap-4">
         <Segmented<Range> label={en.analytics.range} options={["30", "90", "all"]} labels={en.analytics.ranges} value={range} onChange={setRange} />
         <p className="t-body">

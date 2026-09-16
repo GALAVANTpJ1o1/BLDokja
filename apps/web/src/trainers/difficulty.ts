@@ -1,5 +1,6 @@
-import { generateConstrained, seededMoveProvider, validateConstraints, type Puzzle, type Scheme, type TraceConstraints } from "@bld/cube-engine";
+import { cubingProvider, generateConstrained, seededStateProvider3x3, validateConstraints, type Puzzle, type Scheme, type TraceConstraints } from "@bld/cube-engine";
 import { DifficultyPresetSchema, DifficultySchema, type Difficulty, type DifficultyPreset } from "@bld/storage";
+import { browserEventScramble, solveBrowserState } from "@/lib/browser-scramble";
 
 /**
  * The difficulty customiser (BRIEF §7.7): one settings object every trainer reads, applying the fields
@@ -26,7 +27,7 @@ export function traceConstraints(difficulty: Difficulty | undefined): TraceConst
 export type ConstrainedScramble = { readonly ok: true; readonly scramble: string; readonly attempts: number } | { readonly ok: false; readonly reason: "invalid" | "budget-exhausted" | "error" };
 
 /**
- * The scramble for one index of a seeded session that meets the constraints: seeded random-move
+ * The scramble for one index of a seeded session that meets the constraints: random-state
  * candidates, traced with your buffers under the trainer's orientation policy, within a fixed budget.
  */
 export async function constrainedScramble(
@@ -42,7 +43,9 @@ export async function constrainedScramble(
   const valid = validateConstraints(constraints, names);
   if (!valid.ok) return { ok: false, reason: "invalid" };
   const traceConfigs = Object.fromEntries(names.map((name) => [name, { pieceType: name as "corners" | "edges", buffer: buffers[name as "corners" | "edges"], scheme, policy: { orientedInPlace } }]));
-  const result = await generateConstrained(puzzle, { provider: seededMoveProvider(puzzle, { seed: `${seed}#${String(index)}` }), traceConfigs, accept: valid.value, maxAttempts: 3000 });
+  const browser = typeof window !== "undefined" && typeof Worker !== "undefined";
+  const provider = puzzle.id === "3x3x3" ? seededStateProvider3x3(puzzle, { seed: `${seed}#${String(index)}`, orientation: "none", ...(browser ? { solve: solveBrowserState } : {}) }) : cubingProvider(puzzle, "444bf", browser ? browserEventScramble : undefined);
+  const result = await generateConstrained(puzzle, { provider, traceConfigs, accept: valid.value, maxAttempts: 3000 });
   if (result.ok) return { ok: true, scramble: result.scramble, attempts: result.attempts };
   return { ok: false, reason: result.reason === "budget-exhausted" ? "budget-exhausted" : "error" };
 }

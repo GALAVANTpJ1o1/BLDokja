@@ -9,6 +9,7 @@ import { SessionReport } from "@/components/trainer/session-report";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
+import { shortcutIgnored } from "@/lib/keyboard";
 import { stickersOfPieces } from "@/lib/reader-4x4";
 import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
@@ -82,7 +83,7 @@ export function ShotDrill({ reader, events, append, settings, mode }: DrillProps
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.target instanceof HTMLInputElement) return;
+      if (shortcutIgnored(event)) return;
       if (event.key === " ") {
         event.preventDefault();
         reveal();

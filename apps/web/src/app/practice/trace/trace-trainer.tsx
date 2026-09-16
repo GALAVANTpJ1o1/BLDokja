@@ -9,13 +9,16 @@ import { DifficultySummary } from "@/components/trainer/difficulty-summary";
 import { SessionReport } from "@/components/trainer/session-report";
 import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
+import { polish } from "@/i18n/polish";
+import { shortcutIgnored } from "@/lib/keyboard";
 import { voiced } from "@/i18n/voiced";
 import { useReader } from "@/lib/reader";
 import { announcement } from "@/lib/speech";
+import { ScrambleControls, useScramble } from "@/lib/use-scramble";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { constrainedScramble, timeVerdict, traceConstraints, type ConstrainedScramble } from "@/trainers/difficulty";
-import { afterScramble, chooseLevel, explanationWanted, lookupKind, resumeAuto, scrambleTraces, sessionScramble, startRamp, summarise, type Level, type LookupKind, type RampState, type TargetResult, type TracePieces } from "@/trainers/guided-trace";
+import { afterScramble, chooseLevel, explanationWanted, lookupKind, resumeAuto, scrambleTraces, startRamp, summarise, type Level, type LookupKind, type RampState, type TargetResult, type TracePieces } from "@/trainers/guided-trace";
 
 const RAMP_KEY = "bld.trace.ramp";
 const PIECES_KEY = "bld.trace.pieces";
@@ -93,10 +96,8 @@ export function TraceTrainer() {
       cancelled = true;
     };
   }, [reader, seed, index, constraints, constraintKey]);
-  const scramble = useMemo(() => {
-    if (constraints === undefined) return sessionScramble(seed, index);
-    return constrained?.key === constraintKey && constrained.result.ok ? constrained.result.scramble : undefined;
-  }, [seed, index, constraints, constrained, constraintKey]);
+  const random = useScramble(reader?.puzzle, seed, index, constraints === undefined);
+  const scramble = constraints === undefined ? random.scramble : constrained?.key === constraintKey && constrained.result.ok ? constrained.result.scramble : undefined;
   const noMatch = constraints !== undefined && constrained?.key === constraintKey && !constrained.result.ok;
   const traces = useMemo(() => (reader === undefined || scramble === undefined ? [] : scrambleTraces(reader.puzzle, reader.scheme, scramble, pieces, reader.buffers.op)), [reader, scramble, pieces]);
   const flat = useMemo(() => traces.flatMap((t) => t.steps.map((step) => ({ pieceType: t.pieceType, buffer: t.buffer, step }))), [traces]);
@@ -158,6 +159,7 @@ export function TraceTrainer() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (shortcutIgnored(event)) return;
       const inField = event.target instanceof HTMLInputElement;
       if (done && (event.key === "n" || event.key === "N" || (event.key === "Enter" && !inField))) {
         event.preventDefault();
@@ -177,6 +179,7 @@ export function TraceTrainer() {
 
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
+    input.current?.focus();
     if (current === undefined || scramble === undefined) return;
     if (done && typed === "") return;
     const answer = typed.trim().toLocaleUpperCase("en-GB");
@@ -227,6 +230,8 @@ export function TraceTrainer() {
 
   const settings = (
     <>
+      {constraints === undefined ? <ScrambleControls state={random} onChange={() => { setPosition(0); setResults([]); setLooked(undefined); setTyped(""); setMustRetype(undefined); setFeedback(undefined); counted.current = false; }} {...(reader === undefined ? {} : { puzzle: reader.puzzle })} /> : null}
+      <p className="t-meta text-quiet">{polish.scramble.provisional}</p>
       <Segmented<TracePieces> label={en.trace.pieces} options={["both", "edges", "corners"]} labels={en.trace.pieceOptions} value={pieces} onChange={(v) => { setPieces(v); writePreference(PIECES_KEY, v); setPosition(0); setResults([]); setLooked(undefined); }} />
       <Segmented<"1" | "2" | "3" | "4"> label={en.trace.level} options={["1", "2", "3", "4"]} labels={en.trace.levels} value={String(ramp.level) as "1" | "2" | "3" | "4"} onChange={(v) => { const next = chooseLevel(Number(v) as Level); setRamp(next); writePreference(RAMP_KEY, next); setLooked(undefined); }} />
       <label className="flex items-center gap-2 t-ui">
@@ -256,7 +261,7 @@ export function TraceTrainer() {
   if (reader === undefined || scramble === undefined) {
     return (
       <TrainerShell title={en.trace.title} intro={en.trace.intro} lesson={{ href: "/learn/tracing-a-cycle/", title: en.trace.lessonTitle }} settings={settings} shortcuts={shortcuts}>
-        <p className="t-meta text-quiet" role={noMatch ? "alert" : undefined}>{noMatch ? en.difficulty.noMatch : constraints !== undefined ? en.difficulty.finding : en.trainer.loading}</p>
+        {random.failed ? <ScrambleControls state={random} {...(reader === undefined ? {} : { puzzle: reader.puzzle })} /> : <p className="t-meta text-quiet" role={noMatch ? "alert" : "status"}>{noMatch ? en.difficulty.noMatch : constraints !== undefined ? en.difficulty.finding : polish.scramble.loading}</p>}
       </TrainerShell>
     );
   }
