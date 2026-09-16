@@ -696,3 +696,18 @@ Measured with Lighthouse against the built site on a local static server.
 - **Finding:** §12 asks for a guide so lessons can be contributed without touching app code. There wasn't one.
 - **Written:** `docs/CONTENT.md` — the folder layout, every frontmatter field, every component a lesson may
   use with its props, the checkpoint kinds, and the list of rules the lesson test enforces.
+
+### Lighthouse: 100 on desktop, 72–95 on the mobile preset
+
+- **Result** (medians of three runs, `docs/reports/a11y-audit.md`):
+  - **Accessibility and best practices: 100 on every route**, in both presets.
+  - **Performance: 98–100 on desktop**; 72–95 on the mobile preset, with the lesson page and the 3-style
+    trainer lowest.
+- **Why the mobile preset is lower:** it simulates slow 4G and a 4× slower CPU, and charges the whole
+  first-load JavaScript against the largest paint. On this machine the text actually paints at about 1 s.
+- **Picked:** I fixed what was fixable without changing how the site is built (the list above), and stopped
+  there. Getting the mobile preset to 95 everywhere means shipping less JavaScript on first load — fewer
+  client components on content pages, or a different rendering approach for lessons.
+- **Why not now:** that's a product decision with real trade-offs for the trainers, not a polish item, and
+  BRIEF §10's target doesn't say which preset it means.
+- **Reversal:** n/a. It's a documented gap, listed in the Phase 8 checkpoint.
