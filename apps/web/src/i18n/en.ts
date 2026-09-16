@@ -6,6 +6,7 @@
  */
 import type { Voice } from "@bld/storage";
 import { analyticsCopy } from "./analytics";
+import { fourBldCopy } from "./four-bld";
 import { toolsCopy } from "./tools";
 import { trainerCopy } from "./trainers";
 
@@ -63,6 +64,8 @@ export const en = {
     threeStyleBlurb: "Every comm for your buffer, with the moves and the inverse; learn a case, then recall it.",
     pairs: "Letter pairs",
     pairsBlurb: "Your 24 × 24 library of images, with spaced review.",
+    fourBld: "4BLD",
+    fourBldBlurb: "Trace a 4x4, and drill r2 wings and U2 centres with their special cases.",
   },
   progress: {
     title: "Progress",
@@ -203,6 +206,7 @@ export const en = {
     intro: "Every token, type style and component in one place, for design review. Hidden in production builds.",
   },
   ...trainerCopy,
+  ...fourBldCopy,
   ...toolsCopy,
   ...analyticsCopy,
   common: {

@@ -66,3 +66,13 @@ function nameOfSticker(puzzle: Puzzle, index: number): string {
   }
   return "";
 }
+
+/**
+ * Every sticker of the pieces named, for lighting on the cube: a wing's two stickers and a corner's three
+ * share their letters ("UBl" and "BUl"), and case keeps pieces apart ("UBl" is a wing, "Ubl" an x-centre).
+ */
+export function stickersOfPieces(reader: Reader4x4, names: readonly string[]): string[] {
+  const key = (name: string) => Array.from(name).sort().join("");
+  const wanted = new Set(names.map(key));
+  return reader.puzzle.geometry.stickers.map((s) => reader.nameOf(s.index)).filter((name) => name !== "" && wanted.has(key(name)));
+}

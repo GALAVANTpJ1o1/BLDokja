@@ -2,7 +2,7 @@ import { loadPuzzle } from "@bld/cube-engine";
 import { describe, expect, it } from "vitest";
 import { algDatasets } from "@/content/algs";
 import { readerFor4x4 } from "@/lib/reader-4x4";
-import { centreSession, shotCases, shotSetup, traceOf } from "./four-bld";
+import { centreSession, fourBldScramble, shotCases, shotSetup, specialShots, traceOf } from "./four-bld";
 
 /**
  * The 4BLD trainers only ever show verified algs, and their tracing has to accept every right answer:
@@ -46,6 +46,46 @@ describe("shot cases", () => {
         expect(solved.applyAlg(setup ?? "").applyAlg(shot.moves).isIdentical(solved), `${shot.id}: ${shot.moves}`).toBe(true);
       }
     }
+  });
+});
+
+describe("special cases in both positions", () => {
+  it("an even step uses the target's own alg, an odd step its partner's, as the dataset's rule says", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const reader = readerFor4x4(puzzle);
+    const { r2Wings, u2Centres } = algDatasets();
+    for (const [dataset, pieces] of [
+      [r2Wings, "wings"],
+      [u2Centres, "xcenters"],
+    ] as const) {
+      const specials = specialShots(dataset, reader, pieces);
+      expect(specials).toHaveLength(dataset.specialTargets.length * 2);
+      expect(new Set(specials.map((c) => c.id)).size).toBe(specials.length);
+      for (const rule of dataset.oddStepRule) {
+        const even = specials.find((c) => c.target === rule.target && c.position === "even");
+        const odd = specials.find((c) => c.target === rule.target && c.position === "odd");
+        expect(even?.id).toBe(`${dataset.method}:${rule.target}:even`);
+        expect(even?.shootAs).toBeUndefined();
+        expect(even?.moves).toBe(dataset.records.find((r) => r.target === rule.target)?.algs[0]?.moves);
+        expect(odd?.shootAs).toBe(rule.shootAs);
+        expect(odd?.moves).toBe(dataset.records.find((r) => r.target === rule.shootAs)?.algs[0]?.moves);
+        // Both still show the target the learner memorised, not the partner.
+        expect(odd?.letter).toBe(even?.letter);
+      }
+    }
+  });
+});
+
+describe("4BLD scrambles", () => {
+  it("are seeded, 40 moves of outer and wide turns, and scramble the x-centres", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const reader = readerFor4x4(puzzle);
+    expect(fourBldScramble("abc", 0)).toBe(fourBldScramble("abc", 0));
+    expect(fourBldScramble("abc", 0)).not.toBe(fourBldScramble("abc", 1));
+    const moves = fourBldScramble("abc", 0).split(" ");
+    expect(moves).toHaveLength(40);
+    expect(moves.every((m) => /^[UDRLFB]w?['2]?$/.test(m))).toBe(true);
+    expect(centreSession(reader, fourBldScramble("abc", 0))?.done).toBe(false);
   });
 });
 

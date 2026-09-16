@@ -8,6 +8,7 @@ const TRAINERS = [
   { href: "/practice/trace/", name: en.practice.trace, blurb: en.practice.traceBlurb },
   { href: "/practice/m2op/", name: en.practice.m2op, blurb: en.practice.m2opBlurb },
   { href: "/practice/3style/", name: en.practice.threeStyle, blurb: en.practice.threeStyleBlurb },
+  { href: "/practice/4bld/", name: en.practice.fourBld, blurb: en.practice.fourBldBlurb },
   { href: "/practice/pairs/", name: en.practice.pairs, blurb: en.practice.pairsBlurb },
   { href: "/practice/sandbox/", name: en.sandbox.link, blurb: en.sandbox.blurb },
   { href: "/practice/weak/", name: en.weak.title, blurb: en.weak.intro },

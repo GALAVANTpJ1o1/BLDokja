@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  createRng,
   drillScramble,
   expandNodes,
   formatMoves,
@@ -8,7 +9,9 @@ import {
   invertMoves,
   parseAlg,
   pieceType,
+  randomMoveSequence,
   trace,
+  verifiedMoves,
   type Puzzle,
   type SwapDataset,
   type TraceResult,
@@ -27,6 +30,20 @@ import type { FourBldPieces, Reader4x4 } from "@/lib/reader-4x4";
 
 export const FOUR_BLD_TRAINER = "4bld";
 
+/** What the trainer can drill: the three traces, the two methods' targets, and their special cases. */
+export type FourBldMode = "trace-xcenters" | "trace-wings" | "trace-corners" | "r2" | "r2-special" | "u2" | "u2-special";
+export const FOUR_BLD_MODES: readonly FourBldMode[] = ["trace-xcenters", "trace-wings", "trace-corners", "r2", "r2-special", "u2", "u2-special"];
+export const isFourBldMode = (value: unknown): value is FourBldMode => typeof value === "string" && (FOUR_BLD_MODES as readonly string[]).includes(value);
+export type ShotMode = Extract<FourBldMode, "r2" | "r2-special" | "u2" | "u2-special">;
+export const isShotMode = (mode: FourBldMode): mode is ShotMode => !mode.startsWith("trace-");
+
+/** A seeded 4x4 scramble: outer and wide turns, no family twice running, as a 4BLD scramble is written. */
+export function fourBldScramble(seed: string, index: number): string {
+  const rng = createRng(`4bld/${seed}#${String(index)}`);
+  const moves = verifiedMoves("4x4x4").filter((m) => /^(?:[UDRLFB]|[UDRLFB]w)['2]?$/.test(m));
+  return randomMoveSequence(rng, moves, 40).join(" ");
+}
+
 export interface Shot {
   /** Stable id for history: `r2:UBl`, `u2:Lub`. */
   readonly id: string;
@@ -39,32 +56,48 @@ export interface Shot {
   readonly moves: string;
   /** The record to use instead when this target is the second of a pair (the odd/even rule). */
   readonly shootAs?: string;
+  /** For a special case drilled in both positions. */
+  readonly position?: "even" | "odd";
   /** Pieces to light on the cube: the buffer and the target. */
   readonly lit: readonly string[];
   readonly special: boolean;
 }
 
-/** One drill case per record in a swap dataset, in the dataset's order. */
-export function shotCases(dataset: SwapDataset, reader: Reader4x4, pieces: FourBldPieces): Shot[] {
-  const odd = new Map(dataset.oddStepRule.map((r) => [r.target, r.shootAs]));
+/**
+ * One case, from the dataset's record for this target. On an odd step a special target is shot with
+ * another target's alg, which the dataset's odd-step rule names; `position` asks for that case.
+ */
+function shotFor(dataset: SwapDataset, reader: Reader4x4, pieces: FourBldPieces, target: string, position?: "even" | "odd"): Shot | undefined {
   // Letters are looked up within the piece type: a wing and an x-centre can share a sticker name's letters.
   const letters = reader.scheme.letters[pieces] ?? {};
-  return dataset.records.map((record) => {
-    const main = record.algs[0];
-    const setup = record.kind === "target" ? record.setup : "";
-    const shootAs = odd.get(record.target);
-    return {
-      id: `${dataset.method}:${record.target}`,
-      target: record.target,
-      letter: letters[record.target] ?? "?",
-      setup,
-      notation: main?.alg ?? "",
-      moves: main?.moves ?? "",
-      ...(shootAs === undefined ? {} : { shootAs }),
-      lit: [dataset.buffer, record.target],
-      special: record.kind === "special",
-    };
-  });
+  const partner = dataset.oddStepRule.find((r) => r.target === target)?.shootAs;
+  // An odd step uses the partner's alg; an even step, and the case list itself, use the target's own.
+  const shootAs = position === "even" ? undefined : partner;
+  const record = dataset.records.find((r) => r.target === (position === "odd" ? (partner ?? target) : target));
+  const main = record?.algs[0];
+  if (record === undefined || main === undefined) return undefined;
+  return {
+    id: `${dataset.method}:${target}${position === undefined ? "" : `:${position}`}`,
+    target,
+    letter: letters[target] ?? "?",
+    setup: record.kind === "target" ? record.setup : "",
+    notation: main.alg,
+    moves: main.moves,
+    ...(shootAs === undefined ? {} : { shootAs }),
+    ...(position === undefined ? {} : { position }),
+    lit: [dataset.buffer, target, dataset.swap.swapSticker],
+    special: record.kind === "special",
+  };
+}
+
+/** One drill case per record in a swap dataset, in the dataset's order. */
+export function shotCases(dataset: SwapDataset, reader: Reader4x4, pieces: FourBldPieces): Shot[] {
+  return dataset.records.flatMap((record) => shotFor(dataset, reader, pieces, record.target) ?? []);
+}
+
+/** The special targets in both positions: on an even step its own alg, on an odd step its partner's. */
+export function specialShots(dataset: SwapDataset, reader: Reader4x4, pieces: FourBldPieces): Shot[] {
+  return dataset.specialTargets.flatMap((target) => [shotFor(dataset, reader, pieces, target, "even") ?? [], shotFor(dataset, reader, pieces, target, "odd") ?? []].flat());
 }
 
 /** The state a shot is shown from: the case, set up so that performing the alg solves it. */

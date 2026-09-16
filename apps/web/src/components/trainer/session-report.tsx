@@ -4,15 +4,14 @@ import { attemptsOf, sessionSummary, type Suggestion } from "@bld/analytics";
 import type { AppEvent } from "@bld/storage";
 import { useMemo, useState } from "react";
 import { en } from "@/i18n/en";
-import { itemLabel } from "@/lib/item-labels";
-import type { Reader } from "@/lib/reader";
+import { itemLabel, type LetterSource } from "@/lib/item-labels";
 
 /**
  * The session summary every trainer shows (BRIEF §8): what improved against each case's history, what
  * slipped, and what to do next, recomputed after every answer. Concrete lines only; nothing when there's
  * nothing to say.
  */
-export function SessionReport({ reader, trainer, events }: { reader: Reader; trainer: string; events: readonly AppEvent[] | undefined }) {
+export function SessionReport({ reader, trainer, events }: { reader: LetterSource; trainer: string; events: readonly AppEvent[] | undefined }) {
   // The session starts when the trainer opens, rounded down to the second: logged times are whole
   // seconds, so an answer in the opening second would otherwise look older than the session.
   const [since] = useState(() => Math.floor(new Date().getTime() / 1000) * 1000);
