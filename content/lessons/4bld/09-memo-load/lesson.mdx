@@ -1,0 +1,52 @@
+---
+id: 4x4-memo-load
+title: What a 4BLD memo actually looks like
+track: 4bld
+order: 9
+prerequisites:
+  - 4x4-parity
+estimatedMinutes: 6
+objectives:
+  - Know roughly how many targets each piece type has
+  - Split a 4BLD memo into pieces you can hold
+  - Trace x-centres fluently, choosing slots as you go
+checkpoints:
+  - id: centre-trace
+    title: Trace x-centres
+recap:
+  - Each piece type is its own memo with its own parity check.
+  - For x-centres, any slot of the right colour is a right answer.
+---
+
+A 3x3 memo is about 20 letters. A 4BLD memo is well over twice that, and it's the part of 4BLD that takes the most practice.
+
+## The numbers
+
+On a typical scramble, holding the cube as scrambled:
+
+- **x-centres:** about 19 targets;
+- **wings:** about 24 targets;
+- **corners:** about 8 targets.
+
+That's around 51 letters, or about 26 pairs. With U2, r2 and Old Pochmann, executing them takes about 530 moves, so a first 4BLD solve is long. That's fine: nothing about it is fast yet, and none of it needs to be.
+
+Here's a real scramble's memo. You don't need to step through it; look at the size of each list.
+
+<FourSolve scramble="Bw B' R' Uw' Dw' F R' U2 Dw2 Uw2 F' Fw2 B' L B' F' Lw' U' D F2 D Fw Rw' R2 Lw2 L' Rw2 Fw2 Bw' D2 R' F' Fw' B' Dw2 D' Fw2 B2 L' Lw2" />
+
+## Holding it
+
+The letter pairs and images you built for 3BLD carry straight over; the only new thing is volume. Some habits that help:
+
+- **Keep the lists apart.** Three separate stories, one per piece type, are easier to recall in order than one long one.
+- **Use your palace.** A 4BLD memo needs more locations than a 3BLD one. Extend your route before you need it, not during a solve.
+- **Review before the blindfold.** Run through all three lists once, in the order you'll execute them.
+- **Note parity as you go.** When a list ends, say to yourself whether its count was odd.
+
+## X-centres take the most thought
+
+Wings and corners trace like 3x3 pieces: one right letter at each step. X-centres give you a choice, and a trace that makes good choices is shorter. When the buffer holds a colour, prefer a slot that doesn't already hold the buffer's own colour: that keeps the buffer's colour from coming back to it early, which saves cycle breaks.
+
+<FourTrace scramble="2B2 2R2 2B2" pieces="xcenters" label="Tracing x-centres, choosing a slot at each step" />
+
+<Checkpoint id="centre-trace" kind="four-trace" pieces="xcenters" count="3" maxTargets="8" />

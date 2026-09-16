@@ -1,0 +1,61 @@
+---
+id: 4x4-u2-centres
+title: "Centres: the U2 method"
+track: 4bld
+order: 5
+prerequisites:
+  - 4x4-solve-order
+estimatedMinutes: 8
+objectives:
+  - Shoot any x-centre target with a setup, U2 and the undo
+  - Handle the two special targets and their odd/even rule
+  - Finish the centres when the count is odd
+checkpoints:
+  - id: u2-setups
+    title: U2 setups
+recap:
+  - The x-centre buffer is Ubr, and x-centres of one colour are identical.
+  - Centres are solved first, before wings and corners.
+---
+
+U2 is to x-centres what Old Pochmann is to corners: one swap, used for every target, with a setup to bring the target to the right place and an undo afterwards.
+
+## The swap
+
+The swap is a plain **U2**. It exchanges the buffer, Ubr, with the x-centre diagonally across the U face, **Ufl**. That's the swap slot: a target sitting on Ufl needs no setup at all.
+
+<FourShot method="u2" target="Ufl" />
+
+U2 does more than that, of course. It also swaps the other two U-face x-centres, Ubl and Ufr, and turns the U layer's corners and wings. Like Old Pochmann's side effects, those cancel when the swaps come in pairs.
+
+## Setups
+
+A setup brings the target to Ufl without disturbing the buffer or anything else the swap relies on. That rules out turning U at all. Setups use the inner slices, and the outer faces other than U.
+
+<FourShot method="u2" target="Lub" />
+
+Watch the setup here: three slice turns move the L-face x-centre into Ufl, and none of them turns U. Then U2, then exactly the reverse of the setup, which puts everything else back.
+
+## Choosing which slot
+
+Because x-centres of one colour are identical, the buffer's piece can go to **any** slot of its colour that still needs one. When you trace, you choose. Any of those slots is right; pick one you can set up comfortably and move on.
+
+## The special targets
+
+Ubl and Ufr are the two slots U2 itself moves besides the buffer and the swap slot, so they can't be set up to Ufl. Each has its own alg instead:
+
+<FourShot method="u2" target="Ubl" />
+
+And there's a rule, like M2's special cases: when Ubl or Ufr is the **second target of a pair**, the swap before it has already exchanged those two slots, so you shoot it with the other one's alg. Ubl as the second letter of a pair: do Ufr's alg. Ufr as the second letter: do Ubl's.
+
+## An odd count
+
+Each target does one U2. After an even number they cancel. After an odd number, the U layer is left turned by U2, with its corners and wings out of place. Finish the centres with one more **U2**. The U-face x-centres are all white by then, so turning them changes nothing you can see.
+
+<FourParity pieces="xcenters" />
+
+## Then: commutators
+
+U2 spends a whole swap on every single target. Once you're fluent, you can solve two x-centre targets at once with a 3-cycle commutator, the same idea 3-style uses for corners and edges. Start with U2; it's what makes a first 4BLD solve realistic.
+
+<Checkpoint id="u2-setups" kind="four-setup" method="u2" count="6" />

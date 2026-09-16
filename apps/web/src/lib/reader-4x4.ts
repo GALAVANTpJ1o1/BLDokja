@@ -32,8 +32,9 @@ export interface Reader4x4 {
   nameOf(index: number): string;
 }
 
-export function useReader4x4(): Reader4x4 | undefined {
-  const puzzle = usePuzzle("4x4x4");
+/** The 4x4 reader; with `enabled` false nothing is loaded (a 3BLD checkpoint doesn't need the 4x4). */
+export function useReader4x4(enabled = true): Reader4x4 | undefined {
+  const puzzle = usePuzzle(enabled ? "4x4x4" : null);
   return useMemo(() => (puzzle === undefined ? undefined : readerFor4x4(puzzle)), [puzzle]);
 }
 

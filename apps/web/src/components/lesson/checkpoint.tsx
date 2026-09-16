@@ -9,13 +9,20 @@ import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { useReader, type Reader } from "@/lib/reader";
+import { FOUR_BLD_PIECES, useReader4x4, type FourBldPieces, type Reader4x4 } from "@/lib/reader-4x4";
 import { newId, nowIso } from "@/lib/ids";
 import { loadStorage } from "@/lib/storage-lazy";
 import { checkpointRng, gradeLetters, gradeSetup, letterItems, parityItems, setupItems, traceItems, type CheckpointItem, type PieceKind, type TraceRequirement } from "@/trainers/checkpoint-items";
+import { fourLetterItems, fourParityItems, fourSetupItems, fourTraceItems, gradeFourMemo, gradeFourSetup, type FourCheckpointItem } from "@/trainers/four-bld-checkpoints";
 import { LessonMetaContext } from "./lesson-meta";
 import { useVoice } from "./use-voice";
 
-type Kind = "letters" | "trace" | "parity" | "setup" | "quiz";
+type ThreeKind = "letters" | "trace" | "parity" | "setup";
+/** The 4BLD kinds (four-bld-checkpoints.ts): letters, traces, parity and r2/U2 setups on a 4x4. */
+type FourKind = "four-letters" | "four-trace" | "four-parity" | "four-setup";
+type Kind = ThreeKind | FourKind | "quiz";
+type Item = CheckpointItem | FourCheckpointItem;
+const isFourKind = (kind: Kind): kind is FourKind => kind.startsWith("four-");
 
 interface QuizRegistry {
   readonly report: (id: string, correct: boolean) => void;
@@ -23,7 +30,39 @@ interface QuizRegistry {
 }
 const QuizContext = createContext<QuizRegistry | undefined>(undefined);
 
-function generate(reader: Reader, kind: Exclude<Kind, "quiz">, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number; requires: TraceRequirement; maxTargets: number }): CheckpointItem[] {
+function generateFour(reader: Reader4x4, kind: FourKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: FourBldPieces[]; count: number; maxTargets: number; method: "r2" | "u2" }): FourCheckpointItem[] {
+  const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
+  if (kind === "four-letters") return fourLetterItems(reader, rng, options.pieces, options.count);
+  if (kind === "four-trace") return fourTraceItems(reader, rng, options.pieces, options.count, options.maxTargets);
+  if (kind === "four-parity") return fourParityItems(reader, rng, options.pieces.filter((p): p is "wings" | "corners" => p !== "xcenters"), options.count);
+  const { r2Wings, u2Centres } = algDatasets();
+  return fourSetupItems(reader, rng, options.method === "r2" ? r2Wings : u2Centres, options.count);
+}
+
+function FourItemPrompt({ item, reader }: { item: FourCheckpointItem; reader: Reader4x4 }) {
+  if (item.kind === "four-letter") {
+    const cells = netCells(reader.puzzle, reader.puzzle.kpuzzle.defaultPattern());
+    const index = reader.puzzle.geometry.stickers.findIndex((s) => reader.nameOf(s.index) === item.sticker);
+    return <StickerNet cells={cells} size={4} highlight={new Set([index])} label={en.fourLesson.letterNet} className="w-full max-w-[22rem]" />;
+  }
+  if (item.kind === "four-setup") return <p className="t-body">{en.fourLesson.setupQuestion(en.fourLesson.methods[item.method], item.target, item.letter)}</p>;
+  return <Cube puzzleId="4x4x4" setup={item.scramble} label={`${en.fourLesson.scramble}: ${item.scramble}`} className="max-w-[20rem]" />;
+}
+
+function fourQuestionFor(item: FourCheckpointItem): string {
+  switch (item.kind) {
+    case "four-letter":
+      return en.fourLesson.letterQuestion;
+    case "four-trace":
+      return `${en.fourLesson.traceQuestion(en.fourBld.pieces[item.pieces], item.buffer)}${item.pieces === "xcenters" ? ` ${en.fourLesson.traceChoiceHint}` : ""}`;
+    case "four-parity":
+      return en.fourLesson.parityQuestion(en.fourBld.pieces[item.pieces]);
+    case "four-setup":
+      return en.fourLesson.setupInput;
+  }
+}
+
+function generate(reader: Reader, kind: ThreeKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number; requires: TraceRequirement; maxTargets: number }): CheckpointItem[] {
   const ctx = { puzzle: reader.puzzle, scheme: reader.scheme, buffers: reader.buffers.op };
   const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
   if (kind === "letters") return letterItems(ctx, rng, options.pieces, options.count);
@@ -67,8 +106,10 @@ function questionFor(item: CheckpointItem): string {
  * engine-checked items for every attempt; `kind="quiz"` wraps <Question> blocks written in the lesson.
  * Passing records `lesson.checkpointPassed`, which marks the lesson done on the path.
  */
-export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", requires = "any", maxTargets = "8", children }: { id: string; kind: Kind; count?: string; pieces?: string; requires?: string; maxTargets?: string; children?: ReactNode }) {
+export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", requires = "any", maxTargets = "8", method = "r2", children }: { id: string; kind: Kind; count?: string; pieces?: string; requires?: string; maxTargets?: string; method?: string; children?: ReactNode }) {
+  const four = isFourKind(kind);
   const reader = useReader();
+  const reader4 = useReader4x4(four);
   const voice = useVoice();
   const meta = useContext(LessonMetaContext);
   const lessonId = meta?.lessonId ?? "unknown";
@@ -85,7 +126,14 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const [recorded, setRecorded] = useState(false);
 
   const options = useMemo(() => ({ pieces: pieces.split(/\s+/).filter((p): p is PieceKind => p === "corners" || p === "edges"), count: Number(count), requires: requires as TraceRequirement, maxTargets: Number(maxTargets) }), [pieces, count, requires, maxTargets]);
-  const items = useMemo(() => (reader === undefined || kind === "quiz" ? [] : generate(reader, kind, { lesson: lessonId, checkpoint: id, attempt }, options)), [reader, kind, lessonId, id, attempt, options]);
+  const fourOptions = useMemo(() => ({ pieces: pieces.split(/\s+/).filter((p): p is FourBldPieces => (FOUR_BLD_PIECES as readonly string[]).includes(p)), count: Number(count), maxTargets: Number(maxTargets), method: method === "u2" ? ("u2" as const) : ("r2" as const) }), [pieces, count, maxTargets, method]);
+  const items = useMemo((): Item[] => {
+    const seed = { lesson: lessonId, checkpoint: id, attempt };
+    if (kind === "quiz") return [];
+    if (isFourKind(kind)) return reader4 === undefined ? [] : generateFour(reader4, kind, seed, fourOptions);
+    return reader === undefined ? [] : generate(reader, kind, seed, options);
+  }, [reader, reader4, kind, lessonId, id, attempt, options, fourOptions]);
+  const ready = four ? reader4 !== undefined : reader !== undefined;
 
   const total = kind === "quiz" ? Object.keys(quiz).length : items.length;
   const correct = kind === "quiz" ? Object.values(quiz).filter(Boolean).length : results.filter(Boolean).length;
@@ -120,10 +168,20 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const item = items[position];
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
-    if (reader === undefined || item === undefined) return;
+    if (item === undefined) return;
     let ok: boolean;
     let answer: string;
-    if (item.kind === "letter") [ok, answer] = [gradeLetters(item.answer, typed), item.answer];
+    if (item.kind === "four-letter") [ok, answer] = [gradeLetters(item.answer, typed), item.answer];
+    else if (item.kind === "four-trace") {
+      if (reader4 === undefined) return;
+      [ok, answer] = [gradeFourMemo(reader4, item, typed), item.answer.join(" ")];
+    } else if (item.kind === "four-parity") [ok, answer] = [(typed === "yes") === item.answer, item.answer ? en.lesson.yes : en.lesson.no];
+    else if (item.kind === "four-setup") {
+      if (reader4 === undefined) return;
+      const { r2Wings, u2Centres } = algDatasets();
+      [ok, answer] = [gradeFourSetup(reader4.puzzle, item.method === "r2" ? r2Wings : u2Centres, item.target, typed).correct, item.answer];
+    } else if (reader === undefined) return;
+    else if (item.kind === "letter") [ok, answer] = [gradeLetters(item.answer, typed), item.answer];
     else if (item.kind === "trace") [ok, answer] = [gradeLetters(item.answer, typed), item.answer.join(" ")];
     else if (item.kind === "parity") [ok, answer] = [(typed === "yes") === item.answer, item.answer ? en.lesson.yes : en.lesson.no];
     else {
@@ -146,7 +204,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       <h2 id={`${inputId}-title`} className="t-heading">
         {en.lesson.checkpoint}: {title}
       </h2>
-      {reader === undefined ? <p className="t-meta text-quiet">{en.cube.loading}</p> : null}
+      {!ready ? <p className="t-meta text-quiet">{en.cube.loading}</p> : null}
 
       {kind === "quiz" ? (
         <QuizContext.Provider value={{ report, revealed: quizRevealed }}>
@@ -157,13 +215,22 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
             </div>
           ) : null}
         </QuizContext.Provider>
-      ) : reader !== undefined && item !== undefined && !finished ? (
+      ) : ready && item !== undefined && !finished ? (
         <div className="flex flex-col gap-3">
           <p className="t-meta text-quiet">{en.lesson.itemOf(position + 1, items.length)}</p>
-          <p className="t-body">{questionFor(item)}</p>
-          <ItemPrompt item={item} reader={reader} />
+          {isFourItem(item) ? (
+            <>
+              <p className="t-body">{fourQuestionFor(item)}</p>
+              {reader4 !== undefined ? <FourItemPrompt item={item} reader={reader4} /> : null}
+            </>
+          ) : (
+            <>
+              <p className="t-body">{questionFor(item)}</p>
+              {reader !== undefined ? <ItemPrompt item={item} reader={reader} /> : null}
+            </>
+          )}
           <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
-            {item.kind === "parity" ? (
+            {item.kind === "parity" || item.kind === "four-parity" ? (
               <fieldset className="flex gap-2">
                 <legend className="sr-only">{en.lesson.parityQuestion}</legend>
                 {(["yes", "no"] as const).map((v) => (
@@ -175,8 +242,8 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
               </fieldset>
             ) : (
               <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
-                {item.kind === "setup" ? en.lesson.setupInput : en.lesson.lettersInput}
-                <input id={inputId} className={`field ${item.kind === "letter" ? "w-24 text-center casual t-subheading" : "w-64 mono"}`} value={typed} autoComplete="off" onChange={(e) => { setTyped(e.target.value); }} />
+                {item.kind === "setup" || item.kind === "four-setup" ? en.lesson.setupInput : en.lesson.lettersInput}
+                <input id={inputId} className={`field ${item.kind === "letter" || item.kind === "four-letter" ? "w-24 text-center casual t-subheading" : "w-64 mono"}`} value={typed} autoComplete="off" onChange={(e) => { setTyped(e.target.value); }} />
               </label>
             )}
             <button type="submit" className="btn btn-strong" disabled={typed.trim() === ""}>{en.lesson.check}</button>
@@ -200,6 +267,10 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       ) : null}
     </section>
   );
+}
+
+function isFourItem(item: Item): item is FourCheckpointItem {
+  return item.kind.startsWith("four-");
 }
 
 /** One multiple-choice question inside `<Checkpoint kind="quiz">`. */

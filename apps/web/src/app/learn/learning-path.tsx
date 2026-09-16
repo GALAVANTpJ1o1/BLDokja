@@ -15,14 +15,37 @@ export interface PathLesson {
   readonly objective: string;
 }
 
+const TRACKS: readonly { readonly id: string; readonly title: string; readonly intro?: string }[] = [
+  { id: "3bld", title: en.learn.track3bld },
+  { id: "4bld", title: en.learn.track4bld, intro: en.learn.track4bldIntro },
+];
+
 /**
- * The learning path, generated from lesson frontmatter (BRIEF §6: never hardcoded in a component).
- * Every lesson is open; the first one not yet done is marked as next.
+ * The learning path, generated from lesson frontmatter (BRIEF §6: never hardcoded in a component), one
+ * section per track. Every lesson is open; the first one not yet done is marked as next.
  */
 export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
   const progress = useLessonProgress();
   const done = new Set(lessons.filter((l) => lessonDone(progress, l.id, l.checkpoints)).map((l) => l.id));
   const next = lessons.find((l) => !done.has(l.id));
+  return (
+    <div className="flex flex-col gap-8">
+      {TRACKS.map((track) => {
+        const inTrack = lessons.filter((l) => l.track === track.id);
+        if (inTrack.length === 0) return null;
+        return (
+          <section key={track.id} className="flex flex-col gap-2" aria-labelledby={`track-${track.id}`}>
+            <h2 id={`track-${track.id}`} className="t-heading">{track.title}</h2>
+            {track.intro !== undefined ? <p className="t-body text-quiet prose-measure">{track.intro}</p> : null}
+            <TrackLessons lessons={inTrack} done={done} next={next} />
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function TrackLessons({ lessons, done, next }: { lessons: readonly PathLesson[]; done: ReadonlySet<string>; next: PathLesson | undefined }) {
   return (
     <ol className="flex flex-col">
       {lessons.map((lesson) => {

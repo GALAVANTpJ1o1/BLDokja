@@ -45,6 +45,8 @@ export const en = {
     title: "Learning path",
     intro: "Lessons are in the order they build on each other. Every lesson is open; the path marks what comes next.",
     track3bld: "3BLD",
+    track4bld: "4BLD",
+    track4bldIntro: "For when 3BLD is solid. These lessons teach only what's new on a 4x4: wings, x-centres, and how the pieces you already know behave there.",
     minutes: (n: number) => `${n} min`,
     done: "Done",
     next: "Next",

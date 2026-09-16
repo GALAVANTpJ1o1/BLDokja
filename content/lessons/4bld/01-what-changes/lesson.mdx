@@ -1,0 +1,68 @@
+---
+id: 4x4-what-changes
+title: What changes on a 4x4
+track: 4bld
+order: 1
+prerequisites:
+  - first-full-solve
+estimatedMinutes: 6
+objectives:
+  - Name the three piece types on a 4x4 and how many of each there are
+  - Explain why a 4x4 has no fixed centres
+  - Read inner-slice and wide moves in this site's notation
+checkpoints:
+  - id: four-pieces
+    title: The pieces of a 4x4
+recap:
+  - A blindfolded solve is memo then execution, one piece type at a time, from a buffer.
+  - Old Pochmann shoots each target with a setup, a swap and the undo, and fixes parity when the count is odd.
+---
+
+Everything you learned for 3BLD still holds on a 4x4: memo from a buffer, shoot targets one at a time, count for parity. What changes is the pieces. This track only teaches the differences.
+
+## Three piece types
+
+A 4x4 has **8 corners**, exactly like a 3x3. They behave the same way too, and you'll solve them with the Old Pochmann you already know.
+
+Where a 3x3 has one edge between two faces, a 4x4 has two pieces side by side. Each of these is a **wing**, and there are **24** of them. The two wings on an edge look like a pair, but they're different pieces: each one is the mirror image of the other, so a wing can only ever sit in its slot one way round. A wing can't be flipped.
+
+Each face has four centre stickers, and each of those is its own piece, an **x-centre**. There are **24**. The four x-centres of one colour are identical, so it never matters which white x-centre ends up in which white slot.
+
+<Cube puzzle="4x4x4" highlight="UFr FUr UFl FUl Ubl Ubr Ufl Ufr" label="A solved 4x4 with the two wings of the UF edge and the U face's x-centres lit" />
+
+The lit stickers above are the two wings between the white and green faces, and the four white x-centres.
+
+## No fixed centres
+
+On a 3x3 the centres never move relative to each other, so the white centre tells you where white goes. On a 4x4 every centre piece moves. Turn an inner slice and x-centres travel from face to face; nothing stays put to say which face is which. So before you memorise, you have to decide how you're holding the cube. That's the next lesson.
+
+## Inner slices and wide turns
+
+A 4x4 has two layers between opposite faces. This site writes the inner layer next to R as **2R**: the slice one step in from R, turned the way R turns. Many tutorials write the same move as a lower-case **r**. A **wide** turn, **Rw**, turns R and 2R together.
+
+<Cube puzzle="4x4x4" alg="2R" controls="true" label="The inner slice 2R on a solved 4x4" />
+
+Play it and watch what moves: four wings go round the slice, and so do eight x-centres. No corner moves. That's the whole reason 4BLD has a wing method based on inner-slice turns.
+
+<Note>When a tutorial you read elsewhere uses r, u or d for an inner slice, read it as 2R, 2U or 2D here. If it means a wide turn, it's Rw here.</Note>
+
+<Checkpoint id="four-pieces" kind="quiz">
+<Question id="wings" prompt="How many wings does a 4x4 have?" answer="b">
+<Option id="a">12</Option>
+<Option id="b">24</Option>
+<Option id="c">48</Option>
+</Question>
+<Question id="flip" prompt="Can a wing sit in its own slot flipped?" answer="no">
+<Option id="yes">Yes, like a 3x3 edge</Option>
+<Option id="no">No, a wing only fits one way round</Option>
+</Question>
+<Question id="centres" prompt="Two white x-centres swap places. What changes?" answer="nothing">
+<Option id="nothing">Nothing you can see: they're identical</Option>
+<Option id="two">Two targets appear in the memo</Option>
+</Question>
+<Question id="slice" prompt="Which move turns only the inner layer next to R?" answer="2r">
+<Option id="rw">Rw</Option>
+<Option id="2r">2R</Option>
+<Option id="r2">R2</Option>
+</Question>
+</Checkpoint>

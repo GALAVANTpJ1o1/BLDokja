@@ -1,0 +1,57 @@
+---
+id: 4x4-r2-wings
+title: "Wings: r2, and how it differs from M2"
+track: 4bld
+order: 6
+prerequisites:
+  - 4x4-u2-centres
+estimatedMinutes: 8
+objectives:
+  - Shoot any wing target with a setup, 2R2 and the undo
+  - Handle r2's two special targets and the odd/even rule
+  - Say how r2 differs from M2 on a 3x3
+checkpoints:
+  - id: r2-setups
+    title: r2 setups
+recap:
+  - The wing buffer is the DFr wing, lettered by its sticker FDr.
+  - A wing can't be flipped, and 2R turns only the inner slice next to R.
+---
+
+r2 solves wings with one swap, **2R2**: a half turn of the inner slice next to R. Many tutorials call it r2, which is where the name comes from.
+
+## The swap
+
+2R2 exchanges the buffer, FDr, with the wing directly opposite it in the slice, **BUr**. That's the swap slot, so BUr needs no setup:
+
+<FourShot method="r2" target="BUr" />
+
+It also swaps the slice's other two wings, UFr and DBr, and eight x-centres. Those cancel in pairs, the way every swap method's side effects do. The x-centres are why centres come first: an odd number of r2 targets leaves them out of place, and the parity step puts them back.
+
+## Setups
+
+A setup brings the target to BUr without moving the buffer or the slice's other wings. Setups use the outer faces and the opposite inner slice, **2L**; never 2R, which is the swap itself.
+
+<FourShot method="r2" target="URb" />
+
+Many wings are three moves from BUr. A few need a 2L turn first to get into reach, like this one:
+
+<FourShot method="r2" target="FUl" />
+
+## The special targets
+
+UFr and DBr are the wings 2R2 itself swaps, so no setup can bring them to BUr without disturbing the slice. Each has its own alg:
+
+<FourShot method="r2" target="UFr" />
+
+On the **second target of a pair**, the previous 2R2 has swapped those two slots, so shoot UFr with DBr's alg, and DBr with UFr's.
+
+## How r2 differs from M2
+
+If you've met M2 for 3x3 edges, r2 will feel familiar: one slice half turn as the swap, setups that bring a target to the slot opposite the buffer, and special cases for the pieces the slice carries. The differences all come from wings being single, unflippable pieces:
+
+- **Only two special targets.** M2 has four, because each of the two edges it carries can be shot from either sticker. A wing has one lettered sticker, so r2 has just UFr and DBr.
+- **No flipped wings.** A wing that's in its slot is solved. There's nothing like a flipped-edge case.
+- **Centres come along.** 2R2 carries eight x-centres you've already solved. They cancel in pairs like everything else, and when the count is odd the wing parity step puts them back with the wings.
+
+<Checkpoint id="r2-setups" kind="four-setup" method="r2" count="6" />

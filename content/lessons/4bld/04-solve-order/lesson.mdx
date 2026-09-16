@@ -1,0 +1,63 @@
+---
+id: 4x4-solve-order
+title: Solve order, and why centres go first
+track: 4bld
+order: 4
+prerequisites:
+  - 4x4-lettering
+estimatedMinutes: 6
+objectives:
+  - Give the 4BLD execution order and when each parity step happens
+  - Explain why centres must be solved before wings and corners
+  - Watch a centre phase from start to finish
+checkpoints:
+  - id: order
+    title: The order of a solve
+recap:
+  - A 4x4 has corners, wings and x-centres, each with its own buffer.
+  - Each piece type is memorised as its own list of letters.
+---
+
+A 4BLD solve has three phases, one per piece type, and each ends with its own parity step when that piece type's target count is odd:
+
+1. **x-centres**, then centre parity if the count is odd;
+2. **wings**, then wing parity if the count is odd;
+3. **corners**, then corner parity if the count is odd.
+
+The next lessons teach each phase and lesson 8 teaches all three parity steps. This lesson is about the order.
+
+## Centres first
+
+Every phase puts back everything that isn't its own piece type. Setups are undone, and the swap's side effects cancel in pairs. The parity steps are where the order starts to matter.
+
+The wing and corner parity algs undo their leftover, but along the way they're allowed to swap x-centres **of the same colour** with each other. On a cube whose centres are solved that's invisible: a white x-centre swapped with another white x-centre is still white in a white slot. On a cube whose centres aren't solved yet, the same swap moves colours around, and the centre memo you made no longer matches the cube.
+
+So centres come first. After that, wings and corners don't disturb each other, and this site does wings before corners.
+
+## One phase, start to finish
+
+Here's the centre phase on its own. The scramble only turns inner slices, so only x-centres and wings are mixed up, and the walkthrough stops when the centres are done.
+
+<FourSolve scramble="2B2 2R2 2B2" upto="xcenters" />
+
+Five targets: an odd count, so the phase ends with one more U2, which lesson 5 explains. Every other piece type still has its targets waiting, untouched by the centre phase.
+
+## What about memo?
+
+The order you execute in doesn't force an order to memorise in. Whatever order you choose, keep it the same every solve, so recall never has to guess which list comes next. This site's trainers trace x-centres, then wings, then corners, the same as the solve.
+
+<Checkpoint id="order" kind="quiz">
+<Question id="first" prompt="Which piece type do you solve first?" answer="centres">
+<Option id="centres">x-centres</Option>
+<Option id="wings">wings</Option>
+<Option id="corners">corners</Option>
+</Question>
+<Question id="parity-when" prompt="When is the wing parity step done?" answer="after-wings">
+<Option id="end">At the very end of the solve</Option>
+<Option id="after-wings">Straight after the wings, when their count is odd</Option>
+</Question>
+<Question id="why" prompt="Why must centres be solved before the wing and corner parity algs run?" answer="same-colour">
+<Option id="same-colour">Those algs may swap x-centres of one colour, which is only harmless once the centres are solved</Option>
+<Option id="longer">Solving centres later makes the parity algs longer</Option>
+</Question>
+</Checkpoint>

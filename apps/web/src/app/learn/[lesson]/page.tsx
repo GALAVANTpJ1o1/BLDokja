@@ -32,8 +32,7 @@ export default async function LessonPage({ params }: { params: Promise<{ lesson:
     const { content } = await compileMDX({ source: body, components: MDX_COMPONENTS, options: { blockJS: true } });
     variants[voice] = content;
   }
-  const lessons = loadLessons()
-    .filter((l) => l.frontmatter.track === source.frontmatter.track)
-    .map((l) => ({ id: l.frontmatter.id, title: l.frontmatter.title, checkpoints: l.frontmatter.checkpoints.map((c) => c.id) }));
+  // Every lesson, so a 4BLD lesson can point back to the 3BLD lessons it builds on; "next" stays within the track.
+  const lessons = loadLessons().map((l) => ({ id: l.frontmatter.id, title: l.frontmatter.title, track: l.frontmatter.track, checkpoints: l.frontmatter.checkpoints.map((c) => c.id) }));
   return <LessonView frontmatter={source.frontmatter} variants={variants} lessons={lessons} />;
 }

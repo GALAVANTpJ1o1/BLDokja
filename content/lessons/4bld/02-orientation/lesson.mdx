@@ -1,0 +1,60 @@
+---
+id: 4x4-orientation
+title: Holding the cube and choosing your reference
+track: 4bld
+order: 2
+prerequisites:
+  - 4x4-what-changes
+estimatedMinutes: 5
+objectives:
+  - Say why you must decide how to hold a 4x4 before memorising
+  - Hold the cube as it was scrambled and trace against that
+  - See how a wide turn moves corners and wings as well as centres
+checkpoints:
+  - id: holding
+    title: Holding the cube
+recap:
+  - A 4x4 has 8 corners, 24 wings and 24 x-centres, and no fixed centres.
+  - 2R is the inner slice next to R; Rw turns R and 2R together.
+---
+
+On a 3x3 the centres define the colour of each face. A 4x4 has nothing like that, so every piece's home depends on how you hold the cube while you memorise, and you have to hold it exactly that way while you solve.
+
+## Hold it as it was scrambled
+
+Scrambles are applied with **white on top and green in front**. The simplest reference is to keep holding it that way: don't turn the whole cube, before or during the solve. Then every piece has one home, the place it has on a solved cube held white-top, green-front, and you trace against that.
+
+This is the reference this site's lessons and trainers use. It costs you nothing to set up, and you can never memorise from one orientation and solve in another.
+
+## What a wide turn does
+
+A 4x4 scramble uses wide turns, and those look like they turn the whole cube a bit. They don't. A wide turn is an outer turn plus an inner slice, and both move pieces out of their homes.
+
+<Cube puzzle="4x4x4" alg="Rw" controls="true" label="The wide turn Rw on a solved 4x4" />
+
+Here's what that one turn does to the corners, traced from the corner buffer:
+
+<FourTrace scramble="Rw" pieces="corners" mode="show" label="Tracing the corners after Rw" />
+
+Five corner targets from a single turn, because the four corners of the R face all left home. The wings and the x-centres of the slice moved too. Holding the cube as scrambled, all of them are targets.
+
+## Other references
+
+Some solvers first turn the whole cube so that one chosen corner sits in its home, then memorise from there. It's a valid choice and the site's engine supports it, but it's one more thing to get right with the blindfold coming. Start with holding the cube as scrambled; you can change later without relearning anything else.
+
+<Note>Whichever reference you use, the rule is the same: the cube in your hands during the solve must be held exactly as it was during memo.</Note>
+
+<Checkpoint id="holding" kind="quiz">
+<Question id="why" prompt="Why do you need a reference on a 4x4 and not on a 3x3?" answer="centres">
+<Option id="centres">A 4x4's centre pieces move, so they can't say which face is which</Option>
+<Option id="corners">A 4x4's corners are lettered differently</Option>
+</Question>
+<Question id="during" prompt="You memorised holding white on top, green in front. How do you hold it for the solve?" answer="same">
+<Option id="same">The same way, white on top and green in front</Option>
+<Option id="any">Any way, as long as the white face is somewhere on top</Option>
+</Question>
+<Question id="wide" prompt="After a single Rw, which piece types have targets?" answer="all">
+<Option id="centres">Only x-centres</Option>
+<Option id="all">Corners, wings and x-centres</Option>
+</Question>
+</Checkpoint>

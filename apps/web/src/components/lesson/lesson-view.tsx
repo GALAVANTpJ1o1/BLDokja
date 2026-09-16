@@ -18,6 +18,7 @@ import { LessonVoiceContext } from "./use-voice";
 export interface LessonSummary {
   readonly id: string;
   readonly title: string;
+  readonly track: string;
   readonly checkpoints: readonly string[];
 }
 
@@ -50,8 +51,8 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
     const lesson = byId.get(p);
     return lesson !== undefined && progress !== undefined && !lessonDone(progress, p, lesson.checkpoints);
   });
-  const position = lessons.findIndex((l) => l.id === frontmatter.id);
-  const next = lessons[position + 1];
+  const track = lessons.filter((l) => l.track === frontmatter.track);
+  const next = track[track.findIndex((l) => l.id === frontmatter.id) + 1];
 
   return (
     <ReaderOverridesContext.Provider value={overrides}>

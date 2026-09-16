@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import { Checkpoint, Option, Question } from "./checkpoint";
+import { FourExplorer, FourLetter, FourParity, FourShot, FourSolve, FourTrace } from "./four-bld-demos";
 import { Buffer, Letter, Moves, Note } from "./inline";
 import { LessonCube } from "./lesson-cube";
 import type { MdxComponentName } from "./mdx-component-names";
@@ -14,6 +15,12 @@ export const MDX_COMPONENTS = {
   Buffer,
   Checkpoint,
   Cube: LessonCube,
+  FourExplorer,
+  FourLetter,
+  FourParity,
+  FourShot,
+  FourSolve,
+  FourTrace,
   IllegalSetup,
   Letter,
   Moves,

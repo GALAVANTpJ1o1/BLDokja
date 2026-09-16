@@ -3,6 +3,12 @@ export const MDX_COMPONENT_NAMES = [
   "Buffer",
   "Checkpoint",
   "Cube",
+  "FourExplorer",
+  "FourLetter",
+  "FourParity",
+  "FourShot",
+  "FourSolve",
+  "FourTrace",
   "IllegalSetup",
   "Letter",
   "Moves",
@@ -21,4 +27,4 @@ export const MDX_COMPONENT_NAMES = [
 export type MdxComponentName = (typeof MDX_COMPONENT_NAMES)[number];
 
 /** Components that put something the reader can turn, press or answer on the page (BRIEF §6: every lesson needs one). */
-export const INTERACTIVE_COMPONENTS: readonly MdxComponentName[] = ["Cube", "MoveExplorer", "SpeffzExplorer", "TraceWalk", "OpShot", "IllegalSetup", "ParityAlg", "SolveWalkthrough", "Checkpoint"];
+export const INTERACTIVE_COMPONENTS: readonly MdxComponentName[] = ["Cube", "MoveExplorer", "SpeffzExplorer", "TraceWalk", "OpShot", "IllegalSetup", "ParityAlg", "SolveWalkthrough", "Checkpoint", "FourExplorer", "FourTrace", "FourShot", "FourParity", "FourSolve"];

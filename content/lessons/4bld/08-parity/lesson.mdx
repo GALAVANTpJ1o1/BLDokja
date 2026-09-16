@@ -1,0 +1,61 @@
+---
+id: 4x4-parity
+title: 4BLD parity, all of it
+track: 4bld
+order: 8
+prerequisites:
+  - 4x4-corners
+estimatedMinutes: 8
+objectives:
+  - Tell from each memo whether its parity step is needed
+  - Do the right parity alg at the right moment for centres, wings and corners
+  - Explain why wing and corner parity are independent
+checkpoints:
+  - id: four-parity
+    title: Spot 4BLD parity
+recap:
+  - Every swap method leaves its side effect behind after an odd number of targets.
+  - The solve order is centres, wings, corners, and each parity step follows its own phase.
+---
+
+On a 3x3, corners and edges are always odd together, and one parity step handles both. A 4x4 has three piece types, and each one gets its own check and its own fix.
+
+## Three separate counts
+
+Count each memo as you make it. For each piece type, an odd count means that phase ends with its parity step; an even count means it doesn't. The three counts don't have to agree.
+
+Why don't wings and corners go together, the way edges and corners do on a 3x3? Because different turns change them. An outer quarter turn like R moves four corners round a loop, which takes an odd number of swaps to undo, but it moves the wings in two loops, which is even. An inner quarter turn like 2R does the opposite: an odd loop of wings and no corners at all. A scramble mixes both kinds of turn, so each count comes out odd or even on its own.
+
+<FourTrace scramble="2R" pieces="wings" mode="show" label="Tracing the wings after a single 2R" />
+
+One inner slice turn: three wing targets, an odd count, and not a single corner target.
+
+## Centres: one more U2
+
+After an odd number of U2 targets, the U layer is still turned by U2. Finish the centre phase with a U2:
+
+<FourParity pieces="xcenters" />
+
+X-centres don't have a parity of their own. Four of each colour are identical, so the count depends on which slots you choose while tracing. What the step fixes is the U layer the swaps left behind.
+
+## Wings: the r2 parity alg
+
+After an odd number of r2 targets, the slice's side effect is left over: two wings swapped and x-centres out of place. This alg puts all of it back:
+
+<FourParity pieces="wings" />
+
+It's written with 2R for the inner slice and a whole-cube rotation, x, in the middle. Do it straight after the last wing target.
+
+## Corners: swap the wing pairs back
+
+After an odd number of Old Pochmann corner targets, the corners are solved but the wing pairs on UB and UL are swapped. This alg swaps them back and touches nothing else you can see:
+
+<FourParity pieces="corners" />
+
+It's a U2 setup around a well-known 4x4 alg that swaps two neighbouring pairs of wings; the U2 moves those pairs onto UB and UL, and the final U2 undoes it. Do it after the last corner target.
+
+## Putting it together
+
+For each piece type, in solve order: shoot every target, then check the count you memorised. Odd means its parity step, right there, before the next phase starts.
+
+<Checkpoint id="four-parity" kind="four-parity" pieces="wings corners" count="8" />

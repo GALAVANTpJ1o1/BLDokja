@@ -1,0 +1,43 @@
+---
+id: 4x4-corners
+title: Corners on a 4x4
+track: 4bld
+order: 7
+prerequisites:
+  - 4x4-r2-wings
+estimatedMinutes: 5
+objectives:
+  - Solve 4x4 corners with the Old Pochmann you already know
+  - Say what the corner swap does to wings on a 4x4
+  - Trace 4x4 corners from the UBL buffer
+checkpoints:
+  - id: corner-trace
+    title: Trace 4x4 corners
+recap:
+  - Old Pochmann corners use the buffer UBL, and every setup, swap and undo turns outer faces only.
+  - On a 3x3 the corner swap also swaps the UB and UL edges, which cancels in pairs.
+---
+
+Good news: you already know how to solve these. A 4x4's corners are exactly a 3x3's corners, and Old Pochmann turns only outer faces, so every setup, the swap and every undo work unchanged.
+
+## Same buffer, same setups
+
+The buffer is UBL and the swap slot is RDF, as before. Here's a target with a setup, on a 4x4:
+
+<FourShot method="op" target="UFR" />
+
+## What the swap does to wings
+
+On a 3x3, the corner swap also swaps the UB and UL edges. A 4x4 has no single UB edge: it has two wings there, and two on UL. So on a 4x4 the corner swap swaps **the pair of wings on UB with the pair on UL**. Watch the lit wings on the U face in the shot above.
+
+Like on a 3x3, that cancels when the corner targets come in pairs. After an odd number, the corners are solved and those two pairs of wings are left swapped. Lesson 8 fixes that.
+
+The swap also moves some x-centres, but only between slots of the same face. Your centres are solved by the time you do corners, so nothing you can see changes.
+
+## Trace them
+
+Corners are traced exactly as on a 3x3, from the cube held the way it was scrambled. Twisted corners are traced as targets, as Old Pochmann always does.
+
+<FourTrace scramble="R' D2 R' L" pieces="corners" label="Tracing 4x4 corners" />
+
+<Checkpoint id="corner-trace" kind="four-trace" pieces="corners" count="4" maxTargets="8" />

@@ -1,4 +1,4 @@
-import { loadPuzzle, OpSetupsDatasetSchema, parseAlg, pieceType, speffzScheme, trace, verifiedMoves } from "@bld/cube-engine";
+import { ContentDatasetSchema, createRng, faceletsOf, formatMoves, loadPuzzle, OpSetupsDatasetSchema, parseAlg, pieceType, randomMoveSequence, solveFourBld, solveOpOp, speffzScheme, trace, verifiedMoves, type FourBldConfig, type OpParityDataset, type Puzzle, type PuzzleId } from "@bld/cube-engine";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -10,8 +10,10 @@ import { loadLessons, type LessonSource } from "./source";
  * Everything cube-related a lesson says through a component is checked against the engine here.
  */
 const lessons = loadLessons();
-const algsDir = join(import.meta.dirname, "..", "..", "..", "..", "..", "content", "algs", "3x3");
+const algsRoot = join(import.meta.dirname, "..", "..", "..", "..", "..", "content", "algs");
+const algsDir = join(algsRoot, "3x3");
 const opDataset = (name: string) => OpSetupsDatasetSchema.parse(JSON.parse(readFileSync(join(algsDir, name), "utf8")));
+const anyDataset = (path: string) => ContentDatasetSchema.parse(JSON.parse(readFileSync(join(algsRoot, path), "utf8")));
 
 interface Usage {
   readonly name: string;
@@ -41,13 +43,20 @@ describe("the 3BLD path", () => {
   });
 
   it("prerequisites exist and come earlier on the path, so the graph has no cycles", () => {
-    const order = new Map(lessons.map((l) => [l.frontmatter.id, l.frontmatter.order]));
-    each((l) => {
+    // Path position: the 3BLD track, then the 4BLD track, each in order (loadLessons sorts them that way).
+    const position = new Map(lessons.map((l, i) => [l.frontmatter.id, i]));
+    lessons.forEach((l, i) => {
       for (const p of l.frontmatter.prerequisites) {
-        expect(order.has(p), `${l.frontmatter.id} needs unknown ${p}`).toBe(true);
-        expect(order.get(p) ?? Infinity, `${l.frontmatter.id} needs later ${p}`).toBeLessThan(l.frontmatter.order);
+        expect(position.has(p), `${l.frontmatter.id} needs unknown ${p}`).toBe(true);
+        expect(position.get(p) ?? Infinity, `${l.frontmatter.id} needs later ${p}`).toBeLessThan(i);
       }
     });
+  });
+
+  it("the 4BLD track has lessons 1–10 in order, and starts from the end of 3BLD", () => {
+    const track = lessons.filter((l) => l.frontmatter.track === "4bld");
+    expect(track.map((l) => l.frontmatter.order)).toEqual(Array.from({ length: 10 }, (_, i) => i + 1));
+    expect(track[0]?.frontmatter.prerequisites).toEqual(["first-full-solve"]);
   });
 
   it("every lesson is 5–8 minutes and opens with a recap if it builds on anything", () => {
@@ -59,7 +68,7 @@ describe("the 3BLD path", () => {
   });
 
   it("lessons 1–3 are written in all four voices", () => {
-    for (const l of lessons.filter((x) => x.frontmatter.order <= 3)) {
+    for (const l of lessons.filter((x) => x.frontmatter.track === "3bld" && x.frontmatter.order <= 3)) {
       expect(Object.keys(l.bodies).sort(), l.frontmatter.id).toEqual(["casual", "plain", "roast", "tsundere"]);
     }
   });
@@ -117,11 +126,15 @@ describe("lesson files", () => {
 
 describe("what lessons show on the cube is checked by the engine", () => {
   let puzzle: Awaited<ReturnType<typeof loadPuzzle>>;
+  let puzzle4: Awaited<ReturnType<typeof loadPuzzle>>;
   beforeAll(async () => {
     puzzle = await loadPuzzle("3x3x3");
+    puzzle4 = await loadPuzzle("4x4x4");
   });
 
   const allUsages = () => lessons.flatMap((l) => usages(l.bodies.plain ?? "").map((u) => ({ lesson: l.frontmatter.id, ...u })));
+  /** The puzzle a component shows: 4x4 for the Four* components and a Cube with puzzle="4x4x4". */
+  const puzzleOf = (u: Usage): PuzzleId => (u.name.startsWith("Four") || u.attributes.puzzle === "4x4x4" ? "4x4x4" : "3x3x3");
 
   it("every alg, setup, scramble and move parses with verified moves only", () => {
     const verifiedFamilies = new Set(verifiedMoves("3x3x3").map((m) => m.replace(/['2]$/, "")));
@@ -129,7 +142,7 @@ describe("what lessons show on the cube is checked by the engine", () => {
       for (const key of ["setup", "alg", "scramble"] as const) {
         const value = u.attributes[key];
         if (value === undefined) continue;
-        expect(parseAlg("3x3x3", value).ok, `${u.lesson}: ${u.name} ${key}="${value}"`).toBe(true);
+        expect(parseAlg(puzzleOf(u), value).ok, `${u.lesson}: ${u.name} ${key}="${value}"`).toBe(true);
       }
       if (u.name === "MoveExplorer") {
         for (const move of (u.attributes.moves ?? "").split(/\s+/).filter(Boolean)) {
@@ -142,11 +155,13 @@ describe("what lessons show on the cube is checked by the engine", () => {
 
   it("every sticker named in a lesson exists, and every OP target and forbidden move is in the verified dataset", () => {
     const names = new Set([...pieceType(puzzle, "corners").stickers, ...pieceType(puzzle, "edges").stickers].map((s) => s.name));
+    const names4 = new Set((["corners", "wings", "xcenters"] as const).flatMap((t) => pieceType(puzzle4, t).stickers.map((s) => s.name)));
     const corners = opDataset("op-corners.UBL.json");
     const edges = opDataset("op-edges.UR.json");
     for (const u of allUsages()) {
       for (const sticker of [...(u.attributes.highlight ?? "").split(/\s+/).filter(Boolean), ...(u.attributes.sticker === undefined ? [] : [u.attributes.sticker])]) {
-        expect(names.has(sticker) || /^[UDFBLR]$/.test(sticker), `${u.lesson}: sticker ${sticker}`).toBe(true);
+        const known = puzzleOf(u) === "4x4x4" ? names4.has(sticker) : names.has(sticker) || /^[UDFBLR]$/.test(sticker);
+        expect(known, `${u.lesson}: sticker ${sticker}`).toBe(true);
       }
       if (u.name === "OpShot") {
         const dataset = u.attributes.pieces === "edges" ? edges : corners;
@@ -173,4 +188,168 @@ describe("what lessons show on the cube is checked by the engine", () => {
       expect(traced.value.targetCount, `${u.lesson}: ${u.attributes.scramble} is too long for a lesson`).toBeLessThanOrEqual(10);
     }
   });
+
+  it("every 4BLD component names a real piece type, method, verified target or solvable scramble", () => {
+    const config = fourBldConfig(puzzle4);
+    const pieceTypes = ["xcenters", "wings", "corners"];
+    for (const u of allUsages()) {
+      const where = `${u.lesson}: ${u.raw}`;
+      if (u.name === "FourShot") {
+        const method = u.attributes.method ?? "";
+        const records = method === "r2" ? config.wings.records : method === "u2" ? config.centres.records : method === "op" ? config.corners.records : undefined;
+        expect(records?.some((r) => r.target === u.attributes.target), where).toBe(true);
+      }
+      if (u.name === "FourTrace" || u.name === "FourParity" || u.name === "FourExplorer") expect(pieceTypes, where).toContain(u.attributes.pieces ?? "wings");
+      if (u.name === "FourTrace") {
+        const pieces = (u.attributes.pieces ?? "wings") as "xcenters" | "wings" | "corners";
+        const solved = solveFourBld(puzzle4, { alg: u.attributes.scramble ?? "" }, config);
+        if (!solved.ok) throw new Error(`${where}: ${JSON.stringify(solved.error)}`);
+        const count = solved.value.traces[pieces].targetStickers.length;
+        expect(count, `${where} has nothing to trace`).toBeGreaterThan(0);
+        expect(count, `${where} is too long for a lesson`).toBeLessThanOrEqual(10);
+      }
+      if (u.name === "FourSolve") {
+        const scramble = u.attributes.scramble ?? "";
+        const solved = solveFourBld(puzzle4, { alg: scramble }, config);
+        if (!solved.ok) throw new Error(`${where}: ${JSON.stringify(solved.error)}`);
+        expect(looksSolved(puzzle4, `${scramble} ${formatMoves(solved.value.moves)}`), where).toBe(true);
+        expect(pieceTypes, where).toContain(u.attributes.upto ?? "corners");
+      }
+      if (u.name === "Checkpoint" && (u.attributes.kind ?? "").startsWith("four-")) {
+        expect(["four-letters", "four-trace", "four-parity", "four-setup"], where).toContain(u.attributes.kind);
+        if (u.attributes.kind === "four-setup") expect(["r2", "u2"], where).toContain(u.attributes.method);
+        else for (const p of (u.attributes.pieces ?? "").split(/\s+/).filter(Boolean)) expect(u.attributes.kind === "four-parity" ? ["wings", "corners"] : pieceTypes, where).toContain(p);
+      }
+    }
+  });
+});
+
+function fourBldConfig(puzzle4: Puzzle): FourBldConfig {
+  return {
+    scheme: speffzScheme(puzzle4),
+    centres: anyDataset("4x4/u2-xcenters.Ubr.json"),
+    centreParity: anyDataset("4x4/u2-parity.Ubr.json"),
+    wings: anyDataset("4x4/r2-wings.FDr.json"),
+    wingParity: anyDataset("4x4/r2-parity.FDr.json"),
+    corners: anyDataset("3x3/op-corners.UBL.json"),
+    cornerParity: anyDataset("4x4/op-corner-parity.UBL.json"),
+  } as FourBldConfig;
+}
+
+function looksSolved(p: Puzzle, alg: string): boolean {
+  return Array.from(faceletsOf(p, p.kpuzzle.defaultPattern().applyAlg(alg))).every((home, slot) => p.geometry.sticker(home).face === p.geometry.sticker(slot).face);
+}
+
+/**
+ * Facts the 4BLD lessons state in prose, each checked here so a lesson can't drift from the engine.
+ * Lesson numbers name where each claim is made.
+ */
+describe("what the 4BLD lessons say is true", () => {
+  let p4: Puzzle;
+  beforeAll(async () => {
+    p4 = await loadPuzzle("4x4x4");
+  });
+
+  /** Pieces of a type that a move sequence takes out of their slots, from solved. */
+  const moved = (alg: string, type: "corners" | "wings" | "xcenters") => {
+    const facelets = faceletsOf(p4, p4.kpuzzle.defaultPattern().applyAlg(alg));
+    const t = pieceType(p4, type);
+    return t.pieces.filter((piece) => piece.stickers.some((st) => facelets[st.index] !== st.index && !(type === "xcenters" && p4.geometry.sticker(facelets[st.index] ?? -1).face === p4.geometry.sticker(st.index).face))).length;
+  };
+
+  it("lesson 1: 8 corners, 24 wings, 24 x-centres; wings and x-centres have no orientation; 2R moves four wings, eight x-centres and no corner", () => {
+    expect(["corners", "wings", "xcenters"].map((t) => pieceType(p4, t as "wings").pieces.length)).toEqual([8, 24, 24]);
+    expect(pieceType(p4, "wings").orientationOrder).toBe(1);
+    expect(pieceType(p4, "xcenters").orientationOrder).toBe(1);
+    // x-centres moved between faces show a different colour; 2R moves them across U, F, D and B.
+    const facelets = faceletsOf(p4, p4.kpuzzle.defaultPattern().applyAlg("2R"));
+    const centreSlotsChanged = pieceType(p4, "xcenters").stickers.filter((st) => p4.geometry.sticker(facelets[st.index] ?? -1).face !== p4.geometry.sticker(st.index).face).length;
+    expect([moved("2R", "wings"), centreSlotsChanged, moved("2R", "corners")]).toEqual([4, 8, 0]);
+  });
+
+  it("lesson 3: wing letters follow the edges, x-centre letters follow the corners, and the buffers' letters", () => {
+    const four = speffzScheme(p4);
+    for (const [wing, letter] of Object.entries(four.letters.wings ?? {})) {
+      // UBl sits on the UB edge: it takes the UB edge's letter.
+      expect(letter, wing).toBe(threeScheme.letters.edges?.[wing.slice(0, 2)]);
+    }
+    for (const [centre, letter] of Object.entries(four.letters.xcenters ?? {})) expect(letter, centre).toBe(threeScheme.letters.corners?.[centre.toUpperCase()]);
+    expect([four.letters.wings?.UBl, four.letters.xcenters?.Ubl, four.letters.xcenters?.Ubr, four.letters.wings?.FDr, four.letters.corners?.UBL]).toEqual(["A", "A", "B", "K", "A"]);
+  });
+
+  it("lessons 5 and 6: U2 setups never turn U; r2 setups use outer faces and 2L, never 2R", () => {
+    const { centres, wings } = fourBldConfig(p4);
+    expect(centres.setupFamilies.some((f) => f === "U")).toBe(false);
+    expect([...wings.setupFamilies].sort()).toEqual(["2L", "B", "D", "F", "L", "R", "U"]);
+    const setups = wings.records.flatMap((r) => (r.kind === "target" && r.setup !== "" ? [r.setup.split(" ").length] : []));
+    // "Many wings are three moves from BUr", and some setups start with 2L.
+    expect(setups.filter((n) => n === 3).length).toBeGreaterThan(setups.length / 2);
+    expect(wings.records.some((r) => r.kind === "target" && r.setup.startsWith("2L"))).toBe(true);
+    expect(wings.swap.sideEffectPieces.filter((piece) => /^[UDRLFB][a-z]{2}$/.test(piece))).toHaveLength(8);
+  });
+
+  it("lesson 8: an outer quarter turn makes corners odd and wings even; an inner one the reverse", () => {
+    const config = fourBldConfig(p4);
+    const counts = (alg: string) => {
+      const solved = solveFourBld(p4, { alg }, config);
+      if (!solved.ok) throw new Error(JSON.stringify(solved.error));
+      return [solved.value.traces.corners.targetStickers.length % 2, solved.value.traces.wings.targetStickers.length % 2];
+    };
+    expect(counts("R")).toEqual([1, 0]);
+    expect(counts("2R")).toEqual([0, 1]);
+  });
+
+  it("lesson 9: about 19 x-centre, 24 wing and 8 corner targets, about 530 moves; a 3x3 memo is about 20 letters", async () => {
+    const config = fourBldConfig(p4);
+    const moves = verifiedMoves("4x4x4").filter((m) => /^(?:[UDRLFB]|[UDRLFB]w)['2]?$/.test(m));
+    const totals = { xcenters: 0, wings: 0, corners: 0, moves: 0 };
+    const n = 200;
+    for (let i = 0; i < n; i++) {
+      const solved = solveFourBld(p4, { alg: randomMoveSequence(createRng(`memo load#${String(i)}`), moves, 60).join(" ") }, config);
+      if (!solved.ok) throw new Error(JSON.stringify(solved.error));
+      for (const t of ["xcenters", "wings", "corners"] as const) totals[t] += solved.value.traces[t].targetStickers.length;
+      totals.moves += solved.value.moves.length;
+    }
+    expect(Math.abs(totals.xcenters / n - 19)).toBeLessThan(1);
+    expect(Math.abs(totals.wings / n - 24)).toBeLessThan(1);
+    expect(Math.abs(totals.corners / n - 8)).toBeLessThan(1);
+    expect(Math.abs(totals.moves / n - 530)).toBeLessThan(30);
+
+    const p3 = await loadPuzzle("3x3x3");
+    const op = { corners: opDataset("op-corners.UBL.json"), edges: opDataset("op-edges.UR.json"), parity: anyDataset("3x3/op-parity.UBL-UR.json") as OpParityDataset };
+    const faces = verifiedMoves("3x3x3").filter((m) => /^[UDRLFB]['2]?$/.test(m));
+    let letters = 0;
+    for (let i = 0; i < n; i++) {
+      const solved = solveOpOp(p3, { alg: randomMoveSequence(createRng(`3x3 memo#${String(i)}`), faces, 25).join(" ") }, { scheme: speffzScheme(p3), ...op });
+      if (!solved.ok) throw new Error(JSON.stringify(solved.error));
+      letters += solved.value.traces.corners.targetCount + solved.value.traces.edges.targetCount;
+    }
+    expect(Math.abs(letters / n - 20)).toBeLessThan(2.5);
+  });
+
+  it("lessons 4 and 10: the demo scrambles have the counts the lessons describe", () => {
+    const config = fourBldConfig(p4);
+    const counts = (alg: string) => {
+      const solved = solveFourBld(p4, { alg }, config);
+      if (!solved.ok) throw new Error(JSON.stringify(solved.error));
+      return (["xcenters", "wings", "corners"] as const).map((t) => solved.value.traces[t].targetStickers.length);
+    };
+    // Lesson 4: five centre targets in the solver's trace, an odd count, and no corners (only inner slices).
+    expect(counts("2B2 2R2 2B2")[0]).toBe(5);
+    expect(counts("2B2 2R2 2B2")[2]).toBe(0);
+    // Lesson 10: an odd count in all three.
+    expect(counts("2U D 2U 2B' 2U2").map((c) => c % 2)).toEqual([1, 1, 1]);
+    // Lesson 2: one Rw gives five corner targets and moves every piece type.
+    const [centres, wingCount, corners] = counts("Rw");
+    expect(corners).toBe(5);
+    expect(centres).toBeGreaterThan(0);
+    expect(wingCount).toBeGreaterThan(0);
+    // Lesson 8: one 2R gives three wing targets.
+    expect(counts("2R")[1]).toBe(3);
+  });
+});
+
+let threeScheme: ReturnType<typeof speffzScheme>;
+beforeAll(async () => {
+  threeScheme = speffzScheme(await loadPuzzle("3x3x3"));
 });

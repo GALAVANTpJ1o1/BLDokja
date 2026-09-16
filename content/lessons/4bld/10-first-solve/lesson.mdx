@@ -1,0 +1,49 @@
+---
+id: 4x4-first-solve
+title: Your first 4BLD solve
+track: 4bld
+order: 10
+prerequisites:
+  - 4x4-memo-load
+estimatedMinutes: 8
+objectives:
+  - Take a 4x4 scramble from memo to solved, step by step
+  - Follow the order centres, wings, corners, with each parity step in its place
+  - Know how to find what went wrong
+checkpoints:
+  - id: first-parity
+    title: Parity in a whole solve
+recap:
+  - Centres with U2, wings with r2, corners with Old Pochmann, in that order.
+  - Each phase ends with its parity step when its count is odd.
+---
+
+This is a whole 4BLD solve, slowly, with nothing hidden. The scramble is short, so every phase has only a few targets, and it happens to have an odd count in all three, so you'll see every parity step once.
+
+## 1. Memo
+
+Hold the cube as it was scrambled. Trace the x-centres, then the wings, then the corners, and note for each whether the count is odd. The walkthrough shows the memo first; cover it and trace the scramble yourself before you look.
+
+## 2. Execute
+
+Press Start. Every step is animated from exactly where the last one left the cube:
+
+- each **x-centre** target, then **U2** because the count is odd;
+- each **wing** target, then the **r2 parity alg**;
+- each **corner** target, then the **corner parity alg**.
+
+<FourSolve scramble="2U D 2U 2B' 2U2" />
+
+## 3. Then do it blind
+
+Once the walkthrough makes sense, do the same scramble on a real 4x4: memorise it, blindfold on, solve. Then practise tracing full scrambles in the 4BLD trainer before you try one blind, and expect that first full solve to take a while.
+
+If a solve doesn't come out, look at the cube before you start again. Its state says a lot:
+
+1. **Centres wrong.** Something went wrong in the first phase, and everything after it was done on a cube that didn't match the memo.
+2. **The U layer's corners and wings a half turn out.** A missed or extra centre parity U2.
+3. **Two wings swapped, with x-centres out of place.** A missed wing parity step.
+4. **The UB and UL wing pairs swapped.** A missed corner parity step.
+5. **A few pieces of one type cycled.** A memo mistake, or an undo that didn't exactly reverse its setup.
+
+<Checkpoint id="first-parity" kind="four-parity" pieces="wings corners" count="6" />
