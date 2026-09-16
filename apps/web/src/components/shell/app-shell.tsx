@@ -5,6 +5,7 @@ import { BookOpenIcon, CubeIcon, SlidersHorizontalIcon, ChartLineIcon, TargetIco
 import type { ReactNode } from "react";
 import { TransitionLink as Link } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { explore } from "@/i18n/explore";
 
 const SECTIONS = [
   { href: "/learn/", label: en.nav.learn, match: "/learn", icon: BookOpenIcon },
@@ -39,6 +40,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main id="content" className="page-content shell-main">
+        {pathname !== "/" ? <div className="mb-4"><Link className="btn" href={pathname.startsWith("/practice/") && pathname !== "/practice/" ? "/practice/" : pathname.startsWith("/learn/") && pathname !== "/learn/" ? "/learn/" : "/"}>{pathname.startsWith("/practice/") && pathname !== "/practice/" ? explore.backPractice : pathname.startsWith("/learn/") && pathname !== "/learn/" ? explore.backLearn : explore.backHome}</Link></div> : null}
         {children}
       </main>
 

@@ -10,6 +10,7 @@ export interface StickerNetProps {
   readonly size?: number;
   /** Slot indices drawn at full strength; the rest are dimmed. Omit to show every sticker normally. */
   readonly highlight?: ReadonlySet<number>;
+  readonly hideUnrevealed?: boolean;
   /** Letters to print on slots, by slot index. */
   readonly letters?: ReadonlyMap<number, string>;
   readonly label: string;
@@ -20,7 +21,7 @@ export interface StickerNetProps {
  * A flat sticker net in SVG, coloured from the palette tokens. Used where a 3D cube isn't needed or
  * can't load, and as the always-available fallback. The description is on the element as its label.
  */
-export function StickerNet({ cells, size = 3, highlight, letters, label, className }: StickerNetProps) {
+export function StickerNet({ cells, size = 3, highlight, hideUnrevealed = false, letters, label, className }: StickerNetProps) {
   const cell = 10;
   const gap = 1;
   const facePx = size * cell;
@@ -37,7 +38,7 @@ export function StickerNet({ cells, size = 3, highlight, letters, label, classNa
         return (
           <g key={c.index}>
             <rect x={x} y={y} width={cell} height={cell} fill="var(--cube-body)" />
-            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={`var(--face-${c.colour.toLowerCase()})`} opacity={dim ? 0.28 : 1} />
+            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={dim && hideUnrevealed ? "var(--rule)" : `var(--face-${c.colour.toLowerCase()})`} opacity={dim ? 0.28 : 1} />
             {letter !== undefined ? (
               <text x={x + cell / 2} y={y + cell / 2 + 2.2} textAnchor="middle" fontSize={6} fontWeight={700} fill="var(--cube-body)" style={{ fontVariationSettings: '"CASL" 1' }}>
                 {letter}

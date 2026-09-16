@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Cube } from "@/components/cube/cube";
+import { PieceColours } from "@/components/cube/piece-colours";
+import { piecesOf } from "@/lib/cube-highlights";
+import { explore } from "@/i18n/explore";
 import { LetterNotch } from "@/components/letters/letters";
 import { useVoice } from "@/components/lesson/use-voice";
 import { useSettings } from "@/components/settings/settings-provider";
@@ -59,6 +62,7 @@ export function TraceTrainer() {
   const pieces: TracePieces = piecesChoice ?? difficulty?.pieces ?? piecesPreference;
   const [ramp, setRamp] = useState<RampState>(() => readPreference(RAMP_KEY, startRamp(), isRamp));
   const [position, setPosition] = useState(0);
+  const [review, setReview] = useState<{ key: string; position: number }>();
   const [typed, setTyped] = useState("");
   const [mustRetype, setMustRetype] = useState<string | undefined>(undefined);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | undefined>(undefined);
@@ -102,6 +106,8 @@ export function TraceTrainer() {
   const traces = useMemo(() => (reader === undefined || scramble === undefined ? [] : scrambleTraces(reader.puzzle, reader.scheme, scramble, pieces, reader.buffers.op)), [reader, scramble, pieces]);
   const flat = useMemo(() => traces.flatMap((t) => t.steps.map((step) => ({ pieceType: t.pieceType, buffer: t.buffer, step }))), [traces]);
   const current = flat[position];
+  const reviewKey = JSON.stringify([seed, index, pieces, scramble]);
+  const reviewPosition = review?.key === reviewKey ? review.position : undefined;
   const done = scramble !== undefined && flat.length > 0 && current === undefined;
   const lookPhase = ramp.level === 4 && looked === undefined && !done;
 
@@ -118,6 +124,7 @@ export function TraceTrainer() {
   useEffect(() => {
     promptStart.current = performance.now();
   }, [position, index, looked]);
+
 
   useEffect(() => {
     scrambleStart.current = performance.now();
@@ -139,6 +146,7 @@ export function TraceTrainer() {
   }, [summary]);
 
   const nextScramble = useCallback(() => {
+    setReview(undefined);
     setIndex((i) => i + 1);
     setPosition(0);
     setResults([]);
@@ -160,6 +168,7 @@ export function TraceTrainer() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (shortcutIgnored(event)) return;
+      if (reviewPosition !== undefined) return;
       const inField = event.target instanceof HTMLInputElement;
       if (done && (event.key === "n" || event.key === "N" || (event.key === "Enter" && !inField))) {
         event.preventDefault();
@@ -175,7 +184,7 @@ export function TraceTrainer() {
     return () => {
       window.removeEventListener("keydown", onKey);
     };
-  }, [done, lookPhase, nextScramble, hideCube]);
+  }, [done, lookPhase, nextScramble, hideCube, reviewPosition]);
 
   const submit = (event: SyntheticEvent) => {
     event.preventDefault();
@@ -223,7 +232,9 @@ export function TraceTrainer() {
     }
   };
 
-  const highlight = current === undefined || ramp.level >= 3 ? undefined : ramp.level === 1 ? [...new Set([current.buffer, current.step.look])] : [current.buffer];
+  const reviewing = reviewPosition !== undefined;
+  const shown = reviewPosition === undefined ? current : flat[reviewPosition];
+  const highlight = reader === undefined || shown === undefined || (!reviewing && ramp.level >= 3) ? undefined : piecesOf(reader, [reviewing || ramp.level === 1 ? shown.step.look : shown.buffer]);
   const kind = current === undefined ? undefined : lookupKind(current.step);
   const explanation = current !== undefined && kind !== undefined && explanationWanted(kind, correctSoFar, forceExplain) ? (current.step.chosen ? (kind === "twist" ? voiced.traceTwist[voice]() : voiced.traceBreak[voice]()) : voiced.traceLook[voice]()) : undefined;
   const memoSoFar = flat.slice(0, done ? flat.length : position);
@@ -314,14 +325,18 @@ export function TraceTrainer() {
           {cubeHidden ? (
             <div className="grid aspect-square w-full max-w-[28rem] place-items-center self-center rounded-[4px] bg-stage t-meta text-quiet">{en.trace.lookFirst}</div>
           ) : (
-            <Cube setup={scramble} {...(highlight === undefined ? {} : { highlight })} label={`${en.trace.scramble}: ${scramble}`} />
+            <Cube setup={scramble} {...(highlight === undefined ? {} : { highlight, revealOnly: true })} label={`${en.trace.scramble}: ${scramble}`} />
           )}
           <p className="t-meta text-quiet">
             {en.trace.scramble}: <span className="t-notation">{scramble}</span>
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          {lookPhase ? (
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="btn" disabled={(reviewPosition ?? position) <= 0 || lookPhase} onClick={() => { setReview({ key: reviewKey, position: Math.max(0, (reviewPosition ?? position) - 1) }); }}>{explore.previous}</button>
+            {reviewing ? <button type="button" className="btn btn-strong" onClick={() => { setReview(undefined); input.current?.focus(); }}>{explore.returnCurrent}</button> : null}
+          </div>
+          {reviewing && shown !== undefined ? <><p className="t-meta text-quiet">{explore.review}</p><PieceColours reader={reader} scramble={scramble} slot={shown.step.look} /><p className="t-body">{explore.reviewLetter(shown.step.letter)}</p></> : lookPhase ? (
             <>
               <p className="t-body">{en.trace.lookFirst}</p>
               <div>
@@ -334,12 +349,13 @@ export function TraceTrainer() {
                 {en.lesson.pieces[current.pieceType]} · {en.lesson.buffer} <span className="t-notation">{current.buffer}</span> · {en.trace.target(position + 1, flat.length)}
               </p>
               {explanation !== undefined ? <p className="t-body" aria-live="polite">{explanation}</p> : null}
+              {ramp.level === 1 ? <PieceColours reader={reader} scramble={scramble} slot={current.step.look} /> : null}
               {cubeHidden && difficulty?.relook !== false ? (
                 <div>
                   <button type="button" className="btn" onClick={() => { setLooked(undefined); setRelooks((n) => n + 1); }}>{en.difficulty.lookAgain}</button>
                 </div>
               ) : null}
-              <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+              <form noValidate onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {mustRetype === undefined ? en.trace.target(position + 1, flat.length) : en.trace.retype(mustRetype)}
                   <input ref={input} id={inputId} autoFocus className="field w-24 text-center t-subheading casual" value={typed} maxLength={2} autoComplete="off" autoCapitalize="characters" onChange={(e) => { setTyped(e.target.value); }} />
