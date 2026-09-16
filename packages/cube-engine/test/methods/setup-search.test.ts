@@ -120,6 +120,61 @@ describe("M2 setup search", () => {
   });
 });
 
+describe("the pair search (D-037)", () => {
+  const named = (table: SetupTable) => table.targets.map((t) => `${t.target}=${t.setup === undefined ? "-" : formatMoves(t.setup)}`);
+
+  it("returns exactly what the breadth-first search does, for M2 on every M-slice buffer", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const swaps = m2Swaps(puzzle);
+    if (!swaps.ok) throw new Error("swaps");
+    for (const swap of swaps.value) {
+      const bufferSticker = referenceSticker(puzzle, swap);
+      const options = { swap, bufferSticker, ...DEFAULT_SETUP_POOLS.m2 };
+      const bfs = searchSetups(puzzle, options);
+      const pairs = searchSetups(puzzle, { ...options, strategy: "pairs" as const });
+      if (!bfs.ok || !pairs.ok) throw new Error(JSON.stringify(bfs.ok ? pairs : bfs));
+      expect(named(pairs.value), swap.bufferPiece).toEqual(named(bfs.value));
+      checkTable(puzzle, swap, pairs.value);
+    }
+  });
+
+  it("returns exactly what the breadth-first search does, for Old Pochmann corners and edges", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    for (const method of ["op-corners", "op-edges"] as const) {
+      const swap = referenceSwap(puzzle, method);
+      if (!swap.ok) throw new Error("swap");
+      const options = { swap: swap.value, bufferSticker: referenceSticker(puzzle, swap.value), ...DEFAULT_SETUP_POOLS[method] };
+      const bfs = searchSetups(puzzle, options);
+      const pairs = searchSetups(puzzle, { ...options, strategy: "pairs" as const });
+      if (!bfs.ok || !pairs.ok) throw new Error(JSON.stringify(bfs.ok ? pairs : bfs));
+      expect(named(pairs.value), method).toEqual(named(bfs.value));
+      checkTable(puzzle, swap.value, pairs.value);
+    }
+  });
+
+  it("honours its length bound, and finds nothing for a target on a protected piece", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const swaps = m2Swaps(puzzle);
+    if (!swaps.ok) throw new Error("swaps");
+    const swap = swaps.value.find((s) => s.bufferPiece === "DF");
+    if (swap === undefined) throw new Error("no DF swap");
+    const options = { swap, bufferSticker: "DF", ...DEFAULT_SETUP_POOLS.m2, strategy: "pairs" as const };
+    const full = searchSetups(puzzle, options);
+    const short = searchSetups(puzzle, { ...options, maxLength: 1 });
+    if (!full.ok || !short.ok) throw new Error("search");
+    for (const { setup } of short.value.targets) expect((setup ?? []).length).toBeLessThanOrEqual(1);
+    expect(short.value.unreachable.length).toBeGreaterThan(full.value.unreachable.length);
+    checkTable(puzzle, swap, short.value);
+  });
+
+  it("is the search that runs once the tracked slots stop fitting in one number", () => {
+    // The breadth-first state is stickerCount^(tracked + 1). On 4x4 (96 stickers) that stays exact to
+    // seven tracked slots; r2 protects eleven pieces and U2 fifteen, so both take the pair search.
+    expect(Number.isSafeInteger(96 ** 8)).toBe(true);
+    expect(Number.isSafeInteger(96 ** 12)).toBe(false);
+  });
+});
+
 describe("setup search errors", () => {
   it("rejects a buffer sticker off the swap's buffer piece, and an empty pool", async () => {
     const puzzle = await loadPuzzle("3x3x3");

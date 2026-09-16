@@ -1,5 +1,5 @@
 import { at } from "../core/arrays.js";
-import { moveTable, type TableMove } from "../core/move-table.js";
+import { composePerms, identityPerm, invertPerm, moveTable, type StickerPerm, type TableMove } from "../core/move-table.js";
 import type { Puzzle } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { moveCounts } from "../commutator/metrics.js";
@@ -25,6 +25,12 @@ import { REFERENCE_SWAPS, type SwapAlg } from "./swap-algs.js";
  * One backward breadth-first search gives the exact setup length for every target. Among the
  * shortest canonical setups, the one with the fewest quarter turns wins, then the earliest in pool
  * order (clockwise, prime, half).
+ *
+ * That search packs the tracked slots into one number, which only works while the number stays exact. M2
+ * protects three edges; on 4x4, r2 protects eleven pieces and U2 fifteen, so their states don't fit. Those
+ * use `meetInMiddle` instead: every canonical half-sequence is listed once, and a setup is a pair of halves
+ * that agree on every protected sticker. Both searches return the same setups wherever both can run, which
+ * `test/methods/setup-search.test.ts` checks case by case.
  */
 
 export type SetupRegime = "every-move" | "net";
@@ -36,7 +42,18 @@ export interface SetupSearchOptions {
   /** Move families setups may use, in preference order. */
   readonly pool: readonly string[];
   readonly regime: SetupRegime;
+  /** Longest setup the pair search looks for; it has no other bound. Default `DEFAULT_MAX_SETUP_LENGTH`. */
+  readonly maxLength?: number;
+  /**
+   * Which search runs. `auto` (the default) uses the breadth-first search while its state is an exact
+   * number and the pair search otherwise; `pairs` always uses the pair search, which is how the two are
+   * compared case by case in the tests.
+   */
+  readonly strategy?: "auto" | "pairs";
 }
+
+/** Long enough for every r2 and U2 target. A longer bound costs time and finds nothing more. */
+export const DEFAULT_MAX_SETUP_LENGTH = 6;
 
 export interface ForbiddenFamily {
   readonly family: string;
@@ -93,12 +110,106 @@ export function searchSetups(puzzle: Puzzle, options: SetupSearchOptions): Resul
     byPuzzle = new Map();
     tableCache.set(puzzle, byPuzzle);
   }
-  const key = `${options.swap.perm.join(",")}|${options.swap.bufferPiece}|${options.swap.sideEffectPieces.join(",")}|${options.swap.method}|${options.bufferSticker}|${options.pool.join(",")}|${options.regime}`;
+  const key = `${options.swap.perm.join(",")}|${options.swap.bufferPiece}|${options.swap.sideEffectPieces.join(",")}|${options.swap.method}|${options.bufferSticker}|${options.pool.join(",")}|${options.regime}|${String(options.maxLength ?? DEFAULT_MAX_SETUP_LENGTH)}|${options.strategy ?? "auto"}`;
   const cached = byPuzzle.get(key);
   if (cached !== undefined) return cached;
   const result = runSetupSearch(puzzle, options);
   byPuzzle.set(key, result);
   return result;
+}
+
+/** Whether one number can still hold every tracked slot exactly (the breadth-first search's state). */
+function statesFitInANumber(stickerCount: number, tracked: number): boolean {
+  return Number.isSafeInteger(stickerCount ** (tracked + 1));
+}
+
+/** A canonical run of moves, with where it sends every sticker and where each sticker came from. */
+interface Half {
+  readonly moves: readonly TableMove[];
+  readonly perm: StickerPerm;
+  readonly inverse: StickerPerm;
+}
+
+/** May `next` follow `previous` in a canonical sequence? Never the same family, and one axis in pool order. */
+function mayFollow(previous: TableMove | undefined, next: TableMove, familyIndex: ReadonlyMap<string, number>): boolean {
+  if (previous === undefined) return true;
+  if (previous.family === next.family) return false;
+  return previous.axis !== next.axis || (familyIndex.get(previous.family) ?? 0) <= (familyIndex.get(next.family) ?? 0);
+}
+
+/** Every canonical sequence of up to `maxLength` moves, grouped by length. */
+function canonicalHalves(moves: readonly TableMove[], familyIndex: ReadonlyMap<string, number>, stickerCount: number, maxLength: number): Half[][] {
+  const byLength: Half[][] = [[{ moves: [], perm: identityPerm(stickerCount), inverse: identityPerm(stickerCount) }]];
+  for (let length = 1; length <= maxLength; length++) {
+    const grown: Half[] = [];
+    for (const half of at(byLength, length - 1)) {
+      const previous = half.moves[half.moves.length - 1];
+      for (const move of moves) {
+        if (!mayFollow(previous, move, familyIndex)) continue;
+        const perm = composePerms(half.perm, move.perm);
+        grown.push({ moves: [...half.moves, move], perm, inverse: invertPerm(perm) });
+      }
+    }
+    byLength.push(grown);
+  }
+  return byLength;
+}
+
+/**
+ * Setups found as two halves, for the swaps whose protected pieces are too many to pack into a number.
+ *
+ * A setup S = A then B leaves a protected sticker p where it was exactly when A sends p to the slot B
+ * brings it back from, so halves are matched on that vector over every protected sticker. The target of a
+ * matched pair is then the sticker A sends to the slot B takes the swap sticker from.
+ *
+ * Splitting each length one way (the first half as long as allowed) still finds every canonical setup,
+ * because both halves of a canonical sequence are canonical and the junction is checked.
+ */
+function meetInMiddle(
+  moves: readonly TableMove[],
+  familyIndex: ReadonlyMap<string, number>,
+  puzzleId: Puzzle["id"],
+  stickerCount: number,
+  tracked: readonly number[],
+  swapSticker: number,
+  maxLength: number,
+): Map<number, readonly TableMove[]> {
+  const half = Math.ceil(maxLength / 2);
+  const halves = canonicalHalves(moves, familyIndex, stickerCount, half);
+  const keyOf = (values: readonly number[]) => values.join(",");
+  const best = new Map<number, { moves: readonly TableMove[]; length: number; qtm: number }>();
+  const quarterTurns = (sequence: readonly TableMove[]) => moveCounts(puzzleId, sequence.map((m) => ({ type: "move" as const, family: m.family, amount: m.amount }))).qtm;
+
+  for (let length = 0; length <= maxLength; length++) {
+    const firstLength = Math.min(half, length);
+    const secondLength = length - firstLength;
+    if (secondLength > half) continue;
+    const buckets = new Map<string, { half: Half; fromSwap: number }[]>();
+    for (const second of at(halves, secondLength)) {
+      const key = keyOf(tracked.map((p) => at(second.inverse, p)));
+      const bucket = buckets.get(key) ?? [];
+      bucket.push({ half: second, fromSwap: at(second.inverse, swapSticker) });
+      buckets.set(key, bucket);
+    }
+    for (const first of at(halves, firstLength)) {
+      const bucket = buckets.get(keyOf(tracked.map((p) => at(first.perm, p))));
+      if (bucket === undefined) continue;
+      const last = first.moves[first.moves.length - 1];
+      for (const { half: second, fromSwap } of bucket) {
+        const next = second.moves[0];
+        if (next !== undefined && !mayFollow(last, next, familyIndex)) continue;
+        const target = at(first.inverse, fromSwap);
+        const found = best.get(target);
+        if (found !== undefined && found.length < length) continue;
+        const sequence = [...first.moves, ...second.moves];
+        const qtm = quarterTurns(sequence);
+        if (found === undefined || qtm < found.qtm || (qtm === found.qtm && firstDifference(sequence, found.moves) < 0)) {
+          best.set(target, { moves: sequence, length, qtm });
+        }
+      }
+    }
+  }
+  return new Map([...best].map(([target, found]) => [target, found.moves]));
 }
 
 function runSetupSearch(puzzle: Puzzle, options: SetupSearchOptions): Result<SetupTable, SetupSearchError> {
@@ -148,10 +259,12 @@ function runSetupSearch(puzzle: Puzzle, options: SetupSearchOptions): Result<Set
   };
   const step = (slots: readonly number[], perm: Uint8Array) => slots.map((slot) => at(perm, slot));
 
-  // Backward BFS from the goal: target at the swap sticker, protected stickers home.
+  // Backward BFS from the goal: target at the swap sticker, protected stickers home. Skipped when that
+  // state wouldn't be an exact number; `meetInMiddle` answers those instead.
+  const runBfs = (options.strategy ?? "auto") === "auto" && statesFitInANumber(n, trackedCount);
   const goal = encode([swapSticker, ...tracked.slice(0, trackedCount)]);
   const distance = new Map<number, number>([[goal, 0]]);
-  let frontier = [goal];
+  let frontier = runBfs ? [goal] : [];
   for (let depth = 1; frontier.length > 0; depth++) {
     const next: number[] = [];
     for (const code of frontier) {
@@ -199,10 +312,11 @@ function runSetupSearch(puzzle: Puzzle, options: SetupSearchOptions): Result<Set
   };
 
   const type = pieceType(puzzle, REFERENCE_SWAPS[swap.method].pieceType);
+  const pairs = runBfs ? undefined : meetInMiddle(moves, familyIndex, puzzle.id, n, tracked.slice(0, trackedCount), swapSticker, options.maxLength ?? DEFAULT_MAX_SETUP_LENGTH);
   const targets: TargetSetup[] = [];
   for (const sticker of type.stickers) {
     if (pieceOf(sticker.index) === swap.bufferPiece) continue;
-    const setup = shortestSetup(sticker.index);
+    const setup = pairs === undefined ? shortestSetup(sticker.index) : pairs.get(sticker.index);
     targets.push({ target: sticker.name, setup: setup?.map((m): AlgMove => ({ type: "move", family: m.family, amount: m.amount })) });
   }
 
