@@ -64,4 +64,3 @@ export function CommParts({ comm }: { comm: string }) {
     </div>
   );
 }
-

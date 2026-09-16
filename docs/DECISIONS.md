@@ -1261,3 +1261,28 @@ Short records of choices that would be expensive to reverse, or where sources di
   - fallback fonts carry Recursive's measured metrics;
   - the prerequisites line has a fixed size.
 - **Reversal:** easy per piece. The rule itself is the thing to keep.
+
+## D-043 · Browser workers and an explicit offline pack
+
+**Status:** implemented 2026-09-16, following the requested polishing and feature pass.
+
+- OP/M2 and 3-style datasets are built in disposable module workers, including standard-buffer dataset parsing. Results cross a Zod-validated boundary. Custom systems never fall back to blocking the UI thread; unavailable workers and timeouts produce visible failures.
+- Next/Turbopack did not reliably emit the TypeScript method worker or cubing.js nested solver workers: generated files contained TypeScript or build-time file URLs. A pre-dev/pre-build esbuild script now produces the method worker and self-hosts the reachable pinned cubing.js module graph, bundling its bare dependencies while preserving relative worker URLs. Generated files are ignored in Git and included in the offline pack.
+- 3x3 browser scrambles use proper random-state providers by default. Larger cubes use the pinned cubing.js event generators, without asserting uniform random-state sampling. Quick random moves are explicitly labelled, opt-in alternatives, never silent fallbacks. Engine provider ports keep browser loading and timeout policy outside the pure engine.
+- A new visitor prepares the full offline pack after interaction or through Settings, rather than downloading the entire course during the first paint. Returning installations check updates immediately. A waiting version is offered visibly; only an explicit update request activates it and reloads.
+- Lessons/trainers initially render exact nets, with session-level 3D opt-in. The home hero remains 3D. Recursive's versioned self-hosted Latin font is preloaded with the same URL used by CSS.
+- Below-fold lesson checkpoints load their datasets only within 300px of the viewport, and read only the datasets their kind needs. Default route-link prefetching is disabled to avoid speculative course downloads on mobile; navigation and the explicit offline pack still fetch normally.
+- Non-obvious dependencies: esbuild for worker emission; Playwright and Lighthouse for verification; Phosphor for consistent lightweight navigation; pdf-lib/fontkit and static Recursive subsets for local PDFs. Variable font subsetting failed at runtime, so PDFs deliberately use static fonts and validate glyph coverage. Unsupported lettering offers browser Print / Save as PDF instead of missing-glyph output.
+- Reversal: moderate for the worker/module pipeline; easy for net-first display and offline registration timing. Keep worker emission and offline solver tests when changing bundlers or cubing.js.
+
+## D-044 · Evidence, personal state and staged big-cube teaching
+
+**Status:** implemented 2026-09-16, within the user's latest requested scope.
+
+- First successful solve stores its scramble, scheme, standard teaching buffers and verified cursor. Scheme/buffer edits elsewhere do not silently change an in-progress lesson. Each memo letter or execution effect must verify before advancing; physical success remains the learner's confirmation.
+- DNF diagnoses distinguish direct evidence from hypotheses. A different valid cycle break is not proof of tracing failure; missing recall/execution reports cannot be reconstructed by guessing. Algorithm regrips and finger tricks are personal annotations, not inferred physical measurements.
+- Recognition, setup, full-algorithm, blind-execution reconstruction and complete-solve practice have separate event identifiers. Provisional scoring/ramp heuristics are labelled; levels remain manually selectable. Alternating timed trials record the learner's own success judgement.
+- Optional schema fields preserve existing version-1 backups and add personal algorithms, preferences, images, palaces, stories, lesson positions and spot-check confirmations through StorageAdapter. Raster image imports validate type, signature and size; no remote image URLs or uploads are needed.
+- The latest user request explicitly supersedes the earlier no-5BLD scope for family introductions. The engine adds independently tested 5x5 corners, midges, wings, X-centres and T-centres. The UI reuses recognition/trace shells and introduces one family at a time; it does not claim a completed 5BLD execution method or provide unverified algorithms.
+- Algorithm expansion now has length, depth and expanded-move limits to prevent malicious or accidentally explosive notation from freezing a trainer.
+- Reversal: additive storage fields must remain readable; teaching views can change independently of verified engine state and saved personal data.

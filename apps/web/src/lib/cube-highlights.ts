@@ -8,4 +8,3 @@ export function piecesOf(reader: Reader, names: readonly string[]): string[] {
 function sameCubie(sticker: string, piece: string): boolean {
   return sticker.length === piece.length && Array.from(sticker).sort().join("") === Array.from(piece).sort().join("");
 }
-

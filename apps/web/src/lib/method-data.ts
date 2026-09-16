@@ -91,5 +91,3 @@ export function m2opData(puzzle: Puzzle, buffers: Reader["buffers"]): Built<{ op
   if (!m2.ok) return m2;
   return { ok: true, value: { op: op.value, m2: m2.value } };
 }
-
-
