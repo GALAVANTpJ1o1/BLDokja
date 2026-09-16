@@ -10,11 +10,11 @@ import type { FaceName } from "@/design/palette";
  * sticker per piece, and that is what the datasets and the trainers use. Custom 4x4 schemes aren't offered
  * yet (the scheme editor is 3x3 only), so this reader is deliberately small.
  *
- * Buffers are the ones the committed datasets are for (D-038): x-centres Ubr, wings the DFr wing — named
- * by its lettered sticker FDr, because only one of a wing's two stickers can stand for the piece — and
- * corners UFR, the 3-style buffer, whose comms move nothing but corners on a 4x4 as well.
+ * Buffers are the ones the committed datasets are for (D-038, D-041): x-centres Ubr, wings the DFr wing —
+ * named by its lettered sticker FDr, because only one of a wing's two stickers can stand for the piece — and
+ * corners UBL, Old Pochmann's buffer, since the 4BLD track solves corners the way the 3BLD path teaches.
  */
-export const FOUR_BLD_BUFFERS = { xcenters: "Ubr", wings: "FDr", corners: "UFR" } as const;
+export const FOUR_BLD_BUFFERS = { xcenters: "Ubr", wings: "FDr", corners: "UBL" } as const;
 
 export type FourBldPieces = keyof typeof FOUR_BLD_BUFFERS;
 export const FOUR_BLD_PIECES: readonly FourBldPieces[] = ["xcenters", "wings", "corners"];

@@ -10,12 +10,15 @@ import {
   parseAlg,
   pieceType,
   randomMoveSequence,
+  solveFourBld,
   trace,
   verifiedMoves,
+  type FourBldSolution,
   type Puzzle,
   type SwapDataset,
   type TraceResult,
 } from "@bld/cube-engine";
+import { algDatasets } from "@/content/algs";
 import type { FourBldPieces, Reader4x4 } from "@/lib/reader-4x4";
 
 /**
@@ -183,8 +186,15 @@ export function centreSession(reader: Reader4x4, scramble: string): CentreSessio
   };
 }
 
-/** Wings and corners trace as they do on a 3x3: one right answer per step. */
+/** Wings and corners trace as they do on a 3x3: one right answer per step, twisted corners traced as targets (as OP does). */
 export function traceOf(reader: Reader4x4, scramble: string, pieces: Exclude<FourBldPieces, "xcenters">): TraceResult | undefined {
-  const result = trace(reader.puzzle, { alg: scramble }, { pieceType: pieces, buffer: reader.buffers[pieces], scheme: reader.scheme, frame: reader.frame });
+  const result = trace(reader.puzzle, { alg: scramble }, { pieceType: pieces, buffer: reader.buffers[pieces], scheme: reader.scheme, frame: reader.frame, policy: { orientedInPlace: "asTargets" } });
   return result.ok ? result.value : undefined;
+}
+
+/** The whole solve for a scramble, from the verified datasets (D-041): what a first 4BLD walkthrough steps through. */
+export function fourBldSolution(reader: Reader4x4, scramble: string): FourBldSolution | undefined {
+  const { u2Centres, u2Parity, r2Wings, r2Parity, opCorners, cornerParity4x4 } = algDatasets();
+  const solved = solveFourBld(reader.puzzle, { alg: scramble }, { scheme: reader.scheme, centres: u2Centres, centreParity: u2Parity, wings: r2Wings, wingParity: r2Parity, corners: opCorners, cornerParity: cornerParity4x4 });
+  return solved.ok ? solved.value : undefined;
 }

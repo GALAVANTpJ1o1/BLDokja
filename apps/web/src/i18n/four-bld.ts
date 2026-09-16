@@ -33,7 +33,7 @@ export const fourBldCopy = {
     done: (right: number, total: number) => `Done: ${right} of ${total} right first time.`,
     solvedAlready: "Nothing to trace: this piece type is solved in this scramble.",
     parityOdd: "An odd number of wing targets: this solve needs the r2 parity alg.",
-    parityOddCorners: "An odd number of corner targets.",
+    parityOddCorners: "An odd number of corner targets: this solve needs the 4x4 corner parity alg.",
     parityEven: "An even number of targets.",
     next: "Next scramble",
     loading: "Loading the 4x4…",

@@ -1,8 +1,8 @@
-import { loadPuzzle } from "@bld/cube-engine";
 import { describe, expect, it } from "vitest";
 import { algDatasets } from "@/content/algs";
 import { readerFor4x4 } from "@/lib/reader-4x4";
-import { centreSession, fourBldScramble, shotCases, shotSetup, specialShots, traceOf } from "./four-bld";
+import { faceletsOf, formatMoves, loadPuzzle } from "@bld/cube-engine";
+import { centreSession, fourBldScramble, fourBldSolution, shotCases, shotSetup, specialShots, traceOf } from "./four-bld";
 
 /**
  * The 4BLD trainers only ever show verified algs, and their tracing has to accept every right answer:
@@ -142,6 +142,20 @@ describe("tracing wings and corners", () => {
       // Every target is a letter of the scheme, and the buffer is the one the datasets use.
       expect(result?.targets.every((letter) => /^[A-X]$/.test(letter)), pieces).toBe(true);
       expect(result?.buffer.sticker, pieces).toBe(reader.buffers[pieces]);
+    }
+  });
+});
+
+describe("a whole 4BLD solve", () => {
+  it("comes from the verified datasets and solves the trainer's own scrambles", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const reader = readerFor4x4(puzzle);
+    for (let i = 0; i < 10; i++) {
+      const scramble = fourBldScramble("walkthrough", i);
+      const solution = fourBldSolution(reader, scramble);
+      if (solution === undefined) throw new Error(scramble);
+      const facelets = faceletsOf(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(`${scramble} ${formatMoves(solution.moves)}`));
+      expect(Array.from(facelets).every((home, slot) => puzzle.geometry.sticker(home).face === puzzle.geometry.sticker(slot).face), scramble).toBe(true);
     }
   });
 });
