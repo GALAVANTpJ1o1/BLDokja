@@ -10,14 +10,17 @@ import { StickerNet } from "@/components/cube/sticker-net";
 import { piecesOf } from "@/components/lesson/op-demos";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TrainerShell } from "@/components/trainer/trainer-shell";
+import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { itemLabel, parseCase } from "@/lib/item-labels";
 import { m2opData, threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader, type Reader } from "@/lib/reader";
+import { useReader4x4, type Reader4x4 } from "@/lib/reader-4x4";
 import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { useEvents } from "@/lib/use-events";
 import { weakDeck } from "@/lib/weak";
+import { shotCases as fourBldShots, specialShots } from "@/trainers/four-bld";
 import { shotCases } from "@/trainers/m2op-cases";
 import { mainImage } from "@/trainers/pairs";
 import { commCases } from "@/trainers/three-style";
@@ -43,6 +46,7 @@ interface Prompt {
  */
 export function WeakDrill() {
   const reader = useReader();
+  const reader4x4 = useReader4x4();
   const { stored } = useSettings();
   const { events, append } = useEvents();
   const { pairs } = useLibrary();
@@ -70,8 +74,10 @@ export function WeakDrill() {
 
   const prompt = useMemo((): Prompt | "unavailable" | undefined => {
     if (item === undefined || reader === undefined) return undefined;
-    return promptFor(reader, item, { pairs, m2op: m2op?.ok === true ? m2op.value : undefined, threeStyle: threeStyle?.ok === true ? threeStyle.value : undefined, algOverrides: stored?.algOverrides });
-  }, [item, reader, pairs, m2op, threeStyle, stored?.algOverrides]);
+    return promptFor(reader, item, { pairs, m2op: m2op?.ok === true ? m2op.value : undefined, threeStyle: threeStyle?.ok === true ? threeStyle.value : undefined, algOverrides: stored?.algOverrides, fourBld: reader4x4 });
+  }, [item, reader, pairs, m2op, threeStyle, stored?.algOverrides, reader4x4]);
+  // 4BLD cases are lettered by the 4x4 reader; everything else by yours.
+  const labelReader = item?.trainer === "4bld" && reader4x4 !== undefined ? reader4x4 : reader;
 
   const log = (correct: boolean) => {
     if (item === undefined) return;
@@ -110,7 +116,7 @@ export function WeakDrill() {
   return shell(
     <div className="flex flex-col gap-4">
       <p className="t-meta text-quiet">
-        {en.weak.progress(index + 1, deck.length)} · {en.analytics.trainers[item.trainer as TrainerKey]} · {itemLabel(reader, item.trainer, item.caseId)}
+        {en.weak.progress(index + 1, deck.length)} · {en.analytics.trainers[item.trainer as TrainerKey]} · {itemLabel(labelReader ?? reader, item.trainer, item.caseId)}
       </p>
       {prompt === "unavailable" ? (
         <>
@@ -159,7 +165,7 @@ export function WeakDrill() {
     </div>,
     // Spoken when reading aloud is on: which item this is, the question, and the answer once revealed.
     announcement([
-      `${en.weak.progress(index + 1, deck.length)}. ${itemLabel(reader, item.trainer, item.caseId)}`,
+      `${en.weak.progress(index + 1, deck.length)}. ${itemLabel(labelReader ?? reader, item.trainer, item.caseId)}`,
       prompt === "unavailable" ? en.weak.unavailable : prompt.spoken,
       prompt !== "unavailable" && revealed ? prompt.spokenAnswer : undefined,
       result === undefined ? undefined : result ? en.weak.correct : en.weak.notQuite(prompt === "unavailable" ? "" : (prompt.typed ?? "")),
@@ -170,7 +176,7 @@ export function WeakDrill() {
 function promptFor(
   reader: Reader,
   item: WeakItem,
-  sources: { pairs: ReturnType<typeof useLibrary>["pairs"]; m2op: Parameters<typeof shotCases>[1] | undefined; threeStyle: { corners: Parameters<typeof commCases>[1]; edges: Parameters<typeof commCases>[1] } | undefined; algOverrides: Parameters<typeof commCases>[3] },
+  sources: { pairs: ReturnType<typeof useLibrary>["pairs"]; m2op: Parameters<typeof shotCases>[1] | undefined; threeStyle: { corners: Parameters<typeof commCases>[1]; edges: Parameters<typeof commCases>[1] } | undefined; algOverrides: Parameters<typeof commCases>[3]; fourBld: Reader4x4 | undefined },
 ): Prompt | "unavailable" | undefined {
   const parsed = parseCase(item.trainer, item.caseId);
   if (parsed === undefined) return "unavailable";
@@ -252,6 +258,50 @@ function promptFor(
         ),
         spoken: `${en.m2op.target} ${found.letter}, ${found.target}. ${en.weak.recallSetup}`,
         spokenAnswer: found.setup === "" ? found.notation : `${en.m2op.setup}: ${found.setup}`,
+      };
+    }
+    case "4bld": {
+      const four = sources.fourBld;
+      if (four === undefined) return undefined;
+      if (parsed.kind === "trace") {
+        const letter = four.letterOf(parsed.sticker);
+        const at = four.puzzle.geometry.stickers.find((s) => four.nameOf(s.index) === parsed.sticker)?.index;
+        if (letter === undefined || at === undefined) return "unavailable";
+        return {
+          question: (
+            <>
+              <p className="t-body">{en.weak.typeLetter(parsed.sticker)}</p>
+              <StickerNet cells={netCells(four.puzzle, four.puzzle.kpuzzle.defaultPattern())} size={4} highlight={new Set([at])} label={en.weak.typeLetter(parsed.sticker)} className="w-full max-w-[22rem]" />
+            </>
+          ),
+          typed: letter,
+          answer: null,
+          spoken: en.weak.typeLetter(parsed.sticker),
+        };
+      }
+      const { r2Wings, u2Centres } = algDatasets();
+      const dataset = parsed.method === "r2" ? r2Wings : u2Centres;
+      const pieces = parsed.method === "r2" ? "wings" : "xcenters";
+      const found = [...fourBldShots(dataset, four, pieces), ...specialShots(dataset, four, pieces)].find((c) => c.id === item.caseId);
+      if (found === undefined) return "unavailable";
+      const position = found.position === undefined ? "" : ` · ${found.position === "odd" ? en.fourBld.oddPosition : en.fourBld.evenPosition}`;
+      const answer = found.setup === "" ? found.notation : `${en.fourBld.setup}: ${found.setup}`;
+      const recall = found.setup === "" && found.notation !== dataset.swap.alg ? en.fourBld.recallSpecial : en.weak.recallSetup;
+      return {
+        question: (
+          <>
+            <p className="t-subheading">{en.m2op.target} <span className="casual">{found.letter}</span> · <span className="t-notation">{found.target}</span>{position}</p>
+            <p className="t-body">{recall}</p>
+          </>
+        ),
+        answer: (
+          <p className="t-notation">
+            {answer}
+            {found.shootAs === undefined ? "" : ` · ${en.fourBld.shootAs(found.shootAs)}`}
+          </p>
+        ),
+        spoken: `${en.m2op.target} ${found.letter}, ${found.target}. ${recall}`,
+        spokenAnswer: answer,
       };
     }
   }
