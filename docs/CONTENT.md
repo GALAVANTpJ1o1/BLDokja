@@ -43,16 +43,27 @@ is taught.
 
 | Component | Props | What it does |
 |---|---|---|
-| `<Cube>` | `setup`, `alg`, `highlight`, `controls`, `dim`, `label` | the cube, with the reader's chosen display (3D, net or written out) |
+| `<Cube>` | `puzzle`, `setup`, `alg`, `highlight`, `controls`, `dim`, `label` | the cube, with the reader's chosen display (3D, net or written out); `puzzle="4x4x4"` for the 4BLD track |
 | `<MoveExplorer>` | `moves`, `label` | click a move, see it |
 | `<TraceWalk>` | `scramble`, `pieces`, `method`, `mode`, `label`, `shows` | a worked or guided trace |
 | `<SpeffzExplorer>` | `pieces` | the clickable lettered net |
 | `<OpShot>` | `pieces`, `target` | one Old Pochmann shot, animated |
 | `<SwapAlg>` | `pieces` | the method's swap alg |
 | `<IllegalSetup>` | `pieces`, `family` | what a forbidden setup move damages |
-| `<ParityAlg>` | — | the parity alg for the standard buffers |
+| `<ParityAlg>` | `method` | the parity alg for the standard buffers: `op` (default) or `m2` for M2/OP |
+| `<M2Shot>` | `target` | one M2 target: setup, M2 and undo, or a special case's alg |
+| `<M2Tempting>` | `target` | a shorter M2 setup that breaks the rule, with the damage lit |
+| `<CommParts>` | `comm` | a commutator (or a conjugate of one) done part by part |
+| `<CommCase>` | `pieces`, `case` | a 3-style case (`UBR-UBL`) set up and solved by its verified comm |
+| `<SolveMistake>` | `scramble`, `mistake` | an Old Pochmann solve with one mistake (`parity`, `letters`, `undo`), misplaced pieces lit |
 | `<SolveWalkthrough>` | `scramble` | a whole solve, step by step |
-| `<Checkpoint>` | `id`, `kind`, `count`, `pieces`, `requires`, `maxTargets` | the end-of-lesson drill |
+| `<FourExplorer>` | `pieces` | the clickable lettered 4x4 net: `wings`, `xcenters` or `corners` |
+| `<FourTrace>` | `scramble`, `pieces`, `mode`, `label` | a worked or guided 4x4 trace; x-centres accept any right slot |
+| `<FourShot>` | `method`, `target` | one 4x4 shot: `r2` (wings), `u2` (x-centres) or `op` (corners) |
+| `<FourParity>` | `pieces` | the 4BLD parity alg for `wings`, `corners` or `xcenters`, from the leftover it undoes |
+| `<FourSolve>` | `scramble`, `upto` | a whole 4BLD solve step by step, or its first phases (`upto="xcenters"`) |
+| `<FourLetter>` | `sticker` | a 4x4 sticker's Speffz letter, inline |
+| `<Checkpoint>` | `id`, `kind`, `count`, `pieces`, `requires`, `maxTargets`, `method` | the end-of-lesson drill |
 | `<Question>`, `<Option>` | `id`, `prompt`, `answer` | a quiz item inside a checkpoint |
 | `<Letter>`, `<Buffer>`, `<Moves>`, `<Note>` | see below | inline pieces of text |
 
@@ -61,8 +72,18 @@ is taught.
 - `<Moves>R U R'</Moves>` sets notation in the notation face.
 - `<Note>` is an aside.
 
-**Checkpoint kinds:** `letters`, `trace`, `parity` and `setup` generate fresh items every attempt, all
-checked by the engine; `quiz` wraps `<Question>` blocks you write.
+**Checkpoint kinds** generate fresh items every attempt, all checked by the engine, and grade an answer by
+what it does wherever more than one answer is right:
+
+- **3BLD:** `letters`, `trace`, `parity`, `setup` (Old Pochmann); `m2-setup`, `m2-special`; `comm-expand`
+  (write a comm out), `comm-case` (trace a 3-style case), `comm-build` (write any comm that solves a case);
+  `mistake` (which mistake left this cube).
+- **4BLD:** `four-letters`, `four-trace` (x-centre memos accept any valid choice of slots), `four-parity`,
+  `four-setup` with `method="r2"` or `"u2"`.
+- `quiz` wraps `<Question>` blocks you write.
+
+Interactive components load their code only when a lesson renders them (`mdx-lazy.tsx`), so adding one to
+the list above means adding it there too.
 
 ## The rules a test enforces
 
@@ -75,10 +96,14 @@ checked by the engine; `quiz` wraps `<Question>` blocks you write.
 - has a voice whose components or props differ from the plain voice;
 - declares a checkpoint that isn't in the text, or one that isn't declared;
 - uses American spelling;
-- names a sticker, alg, scramble or move the engine doesn't recognise, or an OP target or forbidden move
-  that isn't in the verified dataset;
+- names a sticker, alg, scramble or move the engine doesn't recognise (for the puzzle the component shows),
+  or a target, case, forbidden move or tempting setup that isn't in the verified dataset;
+- gives a 4BLD trace or walkthrough a scramble that doesn't solve, or that's too long for a lesson;
 - gives a `<TraceWalk>` a scramble that doesn't show what the lesson says it shows (`shows="break"` and so
   on is traced and checked).
+
+Facts a lesson states in prose (piece counts, move counts, what a mistake looks like, average memo sizes) are
+checked by their own tests in the same file, named after the lesson. Add one when you add a claim.
 
 So: write the lesson, run `pnpm test`, and the checks tell you what's wrong.
 

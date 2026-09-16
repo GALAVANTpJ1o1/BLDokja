@@ -514,6 +514,7 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **What these choices mean, from the report:**
   - **3-style UFR:** all 378 cases have a comm. Best-comm ETM: 198 cases at 8, 110 at 9, 38 at 10, 26 at 11, 6 at 13 (mean 8.78).
     - **Superseded by D-031:** after the search fix, 198 at 8, 126 at 9, 30 at 10, 18 at 11, 6 at 13 (mean 8.71), the same for every corner buffer.
+    - **What that means for this choice (settled 2026-09-16):** comm length can't favour any 3-style buffer, since every corner buffer has the same distribution and so does every edge buffer. The lower means for U-layer buffers in the Gate B report were an artifact of the bug D-031 fixed. UFR and UF stay: they're the buffers most 3-style material uses and the site's lessons teach, and nothing in the corrected report argues for another. The letter-pair cost below (UFR and UF share Speffz C) is still real, and is the one trade-off of this choice.
   - **3-style UF:** all 440 cases have a comm. Best-comm ETM: 6 at 4, 12 at 5, 108 at 7, 240 at 8, 66 at 9, 8 at 10 (mean 7.80).
   - **OP UBL corners:** setups are at most 2 moves (mean 1.48). OP UR edges: at most 4 (mean 2.23).
   - **M2 DF:** 16 targets have 3-move setups and BU has 5. UF, FU, DB and BD are the special cases (milestone 10).
@@ -1235,3 +1236,28 @@ Short records of choices that would be expensive to reverse, or where sources di
   exactly its corners plus the UB/UL wing pairs.
 - **Reversal:** moderate. Another corner method needs its own leftover and parity alg; the solver's phases
   are separate functions.
+
+## D-042 · What a page loads before it paints
+
+**Status:** accepted 2026-09-16, closing the mobile Lighthouse gap left open in Phase 8.
+
+- **The rule.** A page's first-load scripts are the framework and what renders its visible text. The cube engine,
+  Zod, the datasets, spaced repetition and analytics load after first paint, on every content page.
+- **How each page keeps to it:**
+  - **Lessons:** every interactive component is a `React.lazy` wrapper (`components/lesson/mdx-lazy.tsx`). The
+    server renders them in full, so the HTML doesn't change; the browser fetches their code during hydration
+    and keeps the server's HTML until it arrives. A new lesson component must be added there, or it goes back
+    into every lesson's first load (`docs/CONTENT.md` says so).
+  - **Light modules for what content pages read:** the reader's context and standard buffers
+    (`lib/reader-context.ts`), and the settings' option lists (`@bld/storage/options`), so the lesson view
+    doesn't pull in the engine or Zod.
+  - **Home** computes "Today" in its own chunk (`app/home-data.ts`) once storage has answered.
+  - **Trainers** already loaded as client-only chunks (Phase 8).
+- **Also part of it:**
+  - datasets parse on first read, one at a time;
+  - a 3D cube is built only near the viewport;
+  - the theme boot script is inline, allowed by hash, with line endings normalised because browsers hash LF
+    text;
+  - fallback fonts carry Recursive's measured metrics;
+  - the prerequisites line has a fixed size.
+- **Reversal:** easy per piece. The rule itself is the thing to keep.

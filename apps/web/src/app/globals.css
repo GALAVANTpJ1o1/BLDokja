@@ -17,8 +17,8 @@
   --color-face-r: var(--face-r);
   --color-face-b: var(--face-b);
   --color-face-d: var(--face-d);
-  --font-sans: "Recursive Casual", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Recursive Mono", ui-monospace, monospace;
+  --font-sans: "Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Recursive Mono", "Recursive Mono Fallback", ui-monospace, monospace;
   --radius-tile: 4px;
   --radius-mark: 2px;
 }

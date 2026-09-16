@@ -2,23 +2,18 @@
 
 import { compileLettering, m2BufferPairs, opBufferPairs, parseScheme, pieceType, speffzScheme, stickerName, type BufferPair, type Lettering, type Puzzle, type Scheme, type SchemeIssue } from "@bld/cube-engine";
 import type { Buffers, StoredScheme } from "@bld/storage";
-import { createContext, useContext, useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { usePuzzle } from "@/components/cube/use-puzzle";
 import { useSettings } from "@/components/settings/settings-provider";
 import type { FaceName } from "@/design/palette";
+import { GATE_B_BUFFERS, ReaderOverridesContext, type Method, type ReaderOverrides } from "./reader-context";
 
 /**
  * The reader's lettering scheme and buffers, which every trainer and lesson example reads from
  * (BRIEF §7.6). Both come from settings; anything that doesn't verify falls back to Speffz and the
  * Gate B buffers (D-022), and says so in `issues`, so a half-edited scheme never breaks a trainer.
  */
-export const GATE_B_BUFFERS = {
-  op: { corners: "UBL", edges: "UR" },
-  m2: { corners: "UBL", edges: "DF" },
-  threeStyle: { corners: "UFR", edges: "UF" },
-} as const satisfies Record<Method, BufferPair>;
-
-export type Method = "op" | "m2" | "threeStyle";
+export { GATE_B_BUFFERS, ReaderOverridesContext, type Method, type ReaderOverrides } from "./reader-context";
 export type ReaderBuffers = Readonly<Record<Method, BufferPair>>;
 
 export type ReaderIssue =
@@ -119,16 +114,6 @@ function unwrap<T>(result: { ok: true; value: T } | { ok: false; error: unknown 
   return result.value;
 }
 
-/**
- * What a part of the page reads instead of your settings. Lessons use it: their prose teaches the
- * standard buffers' swap spots and setup rules, and the Speffz lesson teaches Speffz (docs/OVERNIGHT.md).
- */
-export interface ReaderOverrides {
-  readonly lettering?: "speffz";
-  readonly buffers?: "standard";
-}
-
-export const ReaderOverridesContext = createContext<ReaderOverrides>({});
 
 export function useReader(): Reader | undefined {
   const puzzle = usePuzzle();

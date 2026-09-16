@@ -1,6 +1,6 @@
 "use client";
 
-import { attemptsOf, heatCells, LOOKUP_KINDS, MIN_SAMPLES, traceDiagnostics, trend, type Attempt } from "@bld/analytics";
+import { attemptsOf, heatCells, legacyMemoSummary, LOOKUP_KINDS, MIN_SAMPLES, traceDiagnostics, trend, type Attempt, type LegacyMemoLike } from "@bld/analytics";
 import { useMemo, useState } from "react";
 import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/charts/charts";
 import { Segmented } from "@/components/trainer/trainer-shell";
@@ -15,8 +15,8 @@ import { gridStickers } from "@/trainers/three-style";
 import { libraryLetters } from "@/trainers/pairs";
 
 type Range = "30" | "90" | "all";
-type TrainerKey = "trace" | "pairs" | "m2op" | "3style";
-const TRAINERS: readonly TrainerKey[] = ["trace", "pairs", "m2op", "3style"];
+type TrainerKey = "trace" | "pairs" | "m2op" | "3style" | "4bld";
+const TRAINERS: readonly TrainerKey[] = ["trace", "pairs", "m2op", "3style", "4bld"];
 const localDay = (time: number) => new Date(time).toLocaleDateString("en-CA");
 
 /**
@@ -116,6 +116,8 @@ export function ProgressView() {
       </section>
 
       <WeakList events={events} />
+
+      <LegacyMemos events={events} />
 
       <section className="flex flex-col gap-2 border-t border-rule pt-6">
         <h2 className="t-heading">{en.analytics.dataTitle}</h2>
@@ -221,6 +223,46 @@ function WeakList({ events }: { events: Parameters<typeof weakDeck>[0] }) {
           </ol>
         </>
       )}
+    </section>
+  );
+}
+
+/**
+ * The old app's memo attempts, shown as what they are: whole memos scored letter by letter. They have no
+ * per-pair timing or result, so they stay out of every view above (docs/OVERNIGHT.md, "Legacy memo attempts").
+ */
+function LegacyMemos({ events }: { events: readonly LegacyMemoLike[] }) {
+  const summary = useMemo(() => legacyMemoSummary(events), [events]);
+  if (summary === undefined) return null;
+  const date = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return (
+    <section className="flex flex-col gap-3 border-t border-rule pt-6">
+      <h2 className="t-heading">{en.analytics.legacyTitle}</h2>
+      <p className="t-body">{en.analytics.legacySummary(summary.attempts, date(summary.first), date(summary.last), summary.correctLetters, summary.totalLetters)}</p>
+      <p className="t-meta text-quiet">{en.analytics.legacyCaption}</p>
+      <details>
+        <summary className="cursor-pointer t-ui">{en.analytics.legacyShow(summary.attempts)}</summary>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full t-meta">
+            <thead>
+              <tr className="text-left text-quiet">
+                {en.analytics.legacyHead.map((h) => (
+                  <th key={h} scope="col" className="py-1 pr-4 font-[500]">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {summary.rows.map((row, i) => (
+                <tr key={`${row.at}-${String(i)}`} className="border-t border-rule">
+                  <td className="py-1 pr-4">{date(row.at)}</td>
+                  <td className="py-1 pr-4">{row.difficulty}</td>
+                  <td className="py-1 pr-4 mono">{en.analytics.legacyLetters(row.correctLetters, row.totalLetters)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </section>
   );
 }

@@ -1,15 +1,11 @@
 "use client";
 
-import type { WeakItem } from "@bld/analytics";
-import { dueCases, reviewsByCase, scheduleAll } from "@bld/srs";
 import { useEffect, useState } from "react";
+import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
-import { itemLabel } from "@/lib/item-labels";
-import { useReader } from "@/lib/reader";
 import { loadStorage } from "@/lib/storage-lazy";
-import { weakDeck } from "@/lib/weak";
-import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
+import type { Today } from "./home-data";
 
 /**
  * Home adapts (your 2026-09-15 answer): a new visitor sees the way into the learning path; once any
@@ -17,23 +13,31 @@ import { mainImage, PAIRS_TRAINER } from "@/trainers/pairs";
  */
 export function HomeView() {
   const [started, setStarted] = useState<boolean | undefined>(undefined);
-  const [pairsDue, setPairsDue] = useState(0);
-  const [weak, setWeak] = useState<readonly WeakItem[]>([]);
-  const reader = useReader();
+  const [today, setToday] = useState<Today | undefined>(undefined);
+  const { stored } = useSettings();
 
   useEffect(() => {
-    void loadStorage()
-      .then((storage) => Promise.all([storage.events(), storage.letterPairs()]))
-      .then(([events, pairs]) => {
+    const life = { cancelled: false };
+    // Read through a function: the cleanup can flip it while this effect awaits.
+    const alive = () => !life.cancelled;
+    void (async () => {
+      try {
+        const [storage, data] = await Promise.all([loadStorage(), import("./home-data")]);
+        const [events, pairs] = await Promise.all([storage.events(), storage.letterPairs()]);
+        if (!alive()) return;
         setStarted(events.some((e) => e.type !== "legacy.memoAttempt"));
-        // The same queue as the library's Review view: due cards for pairs that have an image.
-        const ids = pairs.filter((p) => mainImage(p) !== undefined).map((p) => p.id);
-        const now = new Date();
-        setPairsDue(dueCases(scheduleAll(ids, reviewsByCase(events, PAIRS_TRAINER), now), now).length);
-        setWeak(weakDeck(events, now));
-      })
-      .catch(() => { setStarted(false); });
-  }, []);
+        const computed = await data.today(events, pairs, stored);
+        if (alive()) setToday(computed);
+      } catch {
+        if (alive()) setStarted(false);
+      }
+    })();
+    return () => {
+      life.cancelled = true;
+    };
+  }, [stored]);
+
+  const pairsDue = today?.pairsDue ?? 0;
 
   // Until storage answers, the page shows what it is. A plain "Loading" line would leave the largest text
   // on the page waiting for IndexedDB, and this keeps the same shape as both states below.
@@ -80,16 +84,16 @@ export function HomeView() {
       </section>
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.weakTitle}</h2>
-        {weak.length === 0 || reader === undefined ? (
+        {today === undefined || today.weakCount === 0 ? (
           <p className="t-body text-quiet">{en.home.weakEmpty}</p>
         ) : (
           <>
             <ul className="ml-5 list-disc t-body">
-              {weak.slice(0, 3).map((w) => (
-                <li key={`${w.trainer}|${w.caseId}`}>{itemLabel(reader, w.trainer, w.caseId)}</li>
+              {today.weak.map((w) => (
+                <li key={w.key}>{w.label}</li>
               ))}
             </ul>
-            <TransitionLink href="/practice/weak/" className="t-body">{en.home.weakDrill(weak.length)}</TransitionLink>
+            <TransitionLink href="/practice/weak/" className="t-body">{en.home.weakDrill(today.weakCount)}</TransitionLink>
           </>
         )}
         <TransitionLink href="/practice/" className="t-body">{en.home.practiceLink}</TransitionLink>

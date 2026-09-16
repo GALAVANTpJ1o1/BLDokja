@@ -9,6 +9,31 @@
  * urls pointed at the package's files. The font is SIL Open Font License 1.1 (see the package LICENSE).
  */
 
+/*
+ * Fallback faces sized like Recursive, so text doesn't re-wrap when the real font arrives (font-display: swap
+ * paints the fallback first). Measured in Chrome on 2026-09-16 against the text of a lesson: Recursive Casual
+ * at weight 420 averages 1.1257× Arial's width, with ascent 0.95 and descent 0.25 of the font size; Recursive
+ * Mono at 520 averages 0.780× Courier New's width. Overrides are divided by size-adjust, as the spec applies
+ * them after it. Where the local font is missing, the stack falls through to the system font as before.
+ */
+@font-face {
+  font-family: "Recursive Casual Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 112.57%;
+  ascent-override: 84.39%;
+  descent-override: 22.21%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Recursive Mono Fallback";
+  src: local("Courier New"), local("CourierNewPSMT");
+  size-adjust: 78.02%;
+  ascent-override: 121.76%;
+  descent-override: 32.04%;
+  line-gap-override: 0%;
+}
+
 /* recursive-cyrillic-ext-casl-normal */
 @font-face {
   font-family: "Recursive Casual";

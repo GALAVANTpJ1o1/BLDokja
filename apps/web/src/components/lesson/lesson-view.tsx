@@ -1,6 +1,7 @@
 "use client";
 
-import { VOICES, type Voice } from "@bld/storage";
+import type { Voice } from "@bld/storage";
+import { VOICES } from "@bld/storage/options";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
@@ -8,7 +9,7 @@ import { TransmissionWindow } from "@/components/ui/transmission-window";
 import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
-import { GATE_B_BUFFERS, ReaderOverridesContext, type ReaderOverrides } from "@/lib/reader";
+import { GATE_B_BUFFERS, ReaderOverridesContext, type ReaderOverrides } from "@/lib/reader-context";
 import { newId, nowIso } from "@/lib/ids";
 import { loadStorage } from "@/lib/storage-lazy";
 import { LessonMetaContext } from "./lesson-meta";
@@ -84,15 +85,23 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
             </div>
           </header>
 
-          {missing.length > 0 ? (
-            <p className="t-body border-l-2 border-text pl-3">
-              {en.lesson.prerequisitesMissing}{" "}
-              {missing.map((id, i) => (
-                <span key={id}>
-                  {i > 0 ? ", " : ""}
-                  <TransitionLink href={`/learn/${id}/`}>{byId.get(id)?.title ?? id}</TransitionLink>
-                </span>
-              ))}
+          {frontmatter.prerequisites.length > 0 ? (
+            // Always rendered, at the same size, so it can't push the lesson down when your progress loads:
+            // only the marks beside each lesson change.
+            <p className={`t-body border-l-2 pl-3 ${missing.length > 0 ? "border-text" : "border-rule"}`}>
+              {en.learn.prerequisites}:{" "}
+              {frontmatter.prerequisites.map((id, i) => {
+                const done = progress !== undefined && !missing.includes(id);
+                return (
+                  <span key={id}>
+                    {i > 0 ? ", " : ""}
+                    <TransitionLink href={`/learn/${id}/`}>{byId.get(id)?.title ?? id}</TransitionLink>
+                    <span className="ml-1 inline-block w-[1.1em] text-center" aria-label={progress === undefined ? undefined : done ? en.lesson.prerequisiteDone : en.lesson.prerequisiteNotDone}>
+                      {progress === undefined ? "" : done ? "✓" : "·"}
+                    </span>
+                  </span>
+                );
+              })}
             </p>
           ) : null}
 

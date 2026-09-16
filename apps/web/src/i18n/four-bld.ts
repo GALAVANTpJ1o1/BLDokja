@@ -27,7 +27,7 @@ export const fourBldCopy = {
     anyOf: (letters: string) => `Any of ${letters} is right: those slots all need this colour.`,
     right: (letter: string) => `${letter}: right.`,
     wrong: (next: string) => `Not that one. ${next}`,
-    choiceNote: "X-centres of one colour are the same piece, so the colour in the buffer can go to any slot of that colour that still needs it. Every one of those letters counts.",
+    choiceNote: "Any slot of the buffer's colour that still needs it is right.",
     breakNote: "The buffer holds its own colour: start a new cycle by picking any slot that isn't solved yet.",
     memo: "Memo",
     done: (right: number, total: number) => `Done: ${right} of ${total} right first time.`,

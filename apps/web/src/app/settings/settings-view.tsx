@@ -1,13 +1,17 @@
 "use client";
 
-import { CUBE_VIEWS, exportData, importData, PALETTES, parseExport, THEMES, VOICES, type CubeView, type ExportV1, type ImportDataError, type Palette, type Theme, type Voice } from "@bld/storage";
+import type { CubeView, ExportV1, ImportDataError, Palette, Theme, Voice } from "@bld/storage";
+import { CUBE_VIEWS, PALETTES, THEMES, VOICES } from "@bld/storage/options";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 import { useSpeechAvailable } from "@/lib/speech";
-import { getStorage, nowIso, storageIsPersistent } from "@/lib/storage-client";
+// Storage, and the export and import code with its schemas, load after the page has painted.
+import { nowIso } from "@/lib/ids";
+const storageClient = () => import("@/lib/storage-client");
+const storageLibrary = () => import("@bld/storage");
 
 const BACKUP_INTERVAL_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -60,13 +64,12 @@ export function SettingsView() {
   const [persistentBackend, setPersistentBackend] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
-    void getStorage()
-      .quarantine()
-      .then((q) => {
-        setQuarantined(q.length);
-        setNow(Date.now());
-        setPersistentBackend(storageIsPersistent());
-      });
+    void storageClient().then(async ({ getStorage, storageIsPersistent }) => {
+      const q = await getStorage().quarantine();
+      setQuarantined(q.length);
+      setNow(Date.now());
+      setPersistentBackend(storageIsPersistent());
+    });
   }, []);
 
   const backupDue = now !== undefined && (settings.lastBackupAt === undefined || now - Date.parse(settings.lastBackupAt) > BACKUP_INTERVAL_MS);
@@ -76,6 +79,7 @@ export function SettingsView() {
     setBusy(true);
     try {
       const at = nowIso();
+      const [{ getStorage }, { exportData }] = await Promise.all([storageClient(), storageLibrary()]);
       const envelope = await exportData(getStorage(), at);
       const blob = new Blob([`${JSON.stringify(envelope, null, 2)}\n`], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -92,6 +96,7 @@ export function SettingsView() {
 
   async function pickFile(file: File) {
     setStatus(undefined);
+    const { parseExport } = await storageLibrary();
     const parsed = parseExport(await file.text());
     if (!parsed.ok) {
       setStatus(importErrorText(parsed.error));
@@ -104,6 +109,7 @@ export function SettingsView() {
     if (pending === undefined) return;
     setBusy(true);
     try {
+      const [{ getStorage }, { importData }] = await Promise.all([storageClient(), storageLibrary()]);
       const result = await importData(getStorage(), pending);
       if (!result.ok) {
         setStatus(importErrorText(result.error));
@@ -119,6 +125,7 @@ export function SettingsView() {
 
   async function deleteAll() {
     if (confirmText !== en.settings.deleteWord) return;
+    const { getStorage } = await storageClient();
     await getStorage().clearAll();
     setConfirmText("");
     setStatus(en.settings.deleted);

@@ -182,7 +182,7 @@ export function TraceDrill({ reader, events, append, settings, mode, pieces, hel
           </p>
           {prompt !== undefined ? (
             <>
-              {prompt.isBreak ? <p className="t-body">{en.fourBld.breakNote}</p> : pieces === "xcenters" && prompt.accepted.length > 1 && position === 0 ? <p className="t-body">{en.fourBld.choiceNote}</p> : null}
+              {prompt.isBreak ? <p className="t-body">{en.fourBld.breakNote}</p> : pieces === "xcenters" && prompt.accepted.length > 1 && position === 0 ? <p className="t-meta text-quiet">{en.fourBld.choiceNote}</p> : null}
               <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {retyping ? en.fourBld.retype(prompt.letters.join(" / ")) : en.fourBld.target(position + 1)}

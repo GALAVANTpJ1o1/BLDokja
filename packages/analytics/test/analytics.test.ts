@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { accuracyBand, attemptsOf, heatCells, median, MIN_SAMPLES, sessionSummary, summariseCases, traceDiagnostics, trend, weakItems, type AttemptLike } from "../src/index.js";
+import { accuracyBand, attemptsOf, heatCells, legacyMemoSummary, median, MIN_SAMPLES, sessionSummary, summariseCases, traceDiagnostics, trend, weakItems, type AttemptLike } from "../src/index.js";
 
 const DAY = 86_400_000;
 const T0 = Date.parse("2026-09-01T09:00:00Z");
@@ -128,5 +128,17 @@ describe("session summary", () => {
     const s = sessionSummary(attemptsOf(events), "trace", T0);
     expect(s.next).toEqual([{ kind: "slow-lookup", lookup: "break", medianMs: 2600, normalMs: 1000 }]);
     expect(sessionSummary(attemptsOf([attempt("pairs", "AB", true, 900, T0)]), "pairs", T0).next).toEqual([{ kind: "keep-going" }]);
+  });
+});
+
+describe("legacy memo attempts", () => {
+  it("are summarised apart, oldest first, and never counted as drill attempts", () => {
+    const legacy = (at: string, correct: number, total: number) => ({ type: "legacy.memoAttempt", at, legacy: { difficulty: "easy" }, derived: { correctLetters: correct, totalLetters: total } });
+    const events = [legacy("2024-03-02T10:00:00.000Z", 18, 20), legacy("2024-01-05T10:00:00.000Z", 10, 20), { type: "drill.attempt", at: "2026-09-01T10:00:00.000Z" }];
+    const summary = legacyMemoSummary(events);
+    expect(summary).toMatchObject({ attempts: 2, first: "2024-01-05T10:00:00.000Z", last: "2024-03-02T10:00:00.000Z", correctLetters: 28, totalLetters: 40 });
+    expect(summary?.rows.map((r) => r.correctLetters)).toEqual([10, 18]);
+    expect(attemptsOf(events as AttemptLike[])).toHaveLength(0);
+    expect(legacyMemoSummary([{ type: "drill.attempt", at: "2026-09-01T10:00:00.000Z" }])).toBeUndefined();
   });
 });

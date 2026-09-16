@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { AppShell } from "@/components/shell/app-shell";
@@ -7,6 +9,10 @@ import { SettingsProvider } from "@/components/settings/settings-provider";
 import { Starfield } from "@/components/starfield/starfield";
 import { PageTransitions } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+
+/** The boot script's source, read at build time. It is static code, never anything a user typed. */
+// Line endings are normalised: a browser hashes the script with LF newlines, whatever the file on disk has.
+const APPEARANCE_BOOT = readFileSync(join(process.cwd(), "public", "appearance-boot.js"), "utf8").replace(/\r\n?/g, "\n");
 
 export const metadata: Metadata = {
   title: { default: en.site.name, template: `%s · ${en.site.name}` },
@@ -28,11 +34,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en-GB" suppressHydrationWarning>
       <head>
         {/*
-          Applies the saved theme and palette before first paint (public/appearance-boot.js). A blocking,
-          same-origin file: next/script's beforeInteractive injects its code inline after the runtime
-          loads, which is both too late and blocked by the build's CSP.
+          Applies the saved theme and palette before first paint (public/appearance-boot.js, tested as a file).
+          Written inline, not loaded: a request here blocked the first paint on slow connections. The build's
+          CSP step hashes every inline script as written, so this one is allowed by hash. next/script's
+          beforeInteractive can't be used: it injects its code after the runtime loads, too late and unhashed.
         */}
-        <script src="/appearance-boot.js" />
+        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_BOOT }} />
       </head>
       <body>
         <ServiceWorkerRegistration />

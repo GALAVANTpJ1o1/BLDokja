@@ -2,7 +2,7 @@
 
 import { stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
 import type { TwistyPlayer } from "cubing/twisty";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { en } from "@/i18n/en";
 import { describeCube, netCells, patternFor } from "./cube-state";
@@ -43,6 +43,32 @@ type PlayOptions = Parameters<TwistyPlayer["controller"]["animationController"][
 const STEP_FORWARD = { direction: 1, untilBoundary: "move" } as unknown as PlayOptions;
 const STEP_BACK = { direction: -1, untilBoundary: "move" } as unknown as PlayOptions;
 
+/**
+ * Whether an element is on screen or within 200px of it, and stays true once it has been. The 3D player is
+ * the most expensive thing on a page; a lesson with five cubes builds only the ones you scroll towards.
+ */
+function useNearViewport(ref: RefObject<HTMLElement | null>): boolean {
+  const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    const element = ref.current;
+    if (near || element === null) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setNear(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref, near]);
+  return near;
+}
+
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -57,7 +83,9 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
   const puzzle = usePuzzle(puzzleId);
   const { settings } = useSettings();
   const host = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
   const player = useRef<TwistyPlayer | null>(null);
+  const near = useNearViewport(stage);
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
   const highlightKey = highlight?.join(",") ?? "";
@@ -79,7 +107,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
 
   useEffect(() => {
     const container = host.current;
-    if (container === null || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
+    if (container === null || !near || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
     const life = { disposed: false };
     let created: TwistyPlayer | null = null;
     void (async () => {
@@ -117,7 +145,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
+  }, [near, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
@@ -146,7 +174,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim 
   }
   return (
     <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
-      <div className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
+      <div ref={stage} className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
         {showNet ? (
           <StickerNet cells={netCells(puzzle, finalPattern)} size={puzzle.size} label={label} className="h-full w-full p-3" />
         ) : (

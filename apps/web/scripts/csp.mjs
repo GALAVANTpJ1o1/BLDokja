@@ -36,7 +36,8 @@ for (const file of htmlFiles(outDir)) {
   if (html.includes("self.__next_s")) throw new Error(`${file} has a beforeInteractive script; load it as a same-origin file instead`);
   const hashes = new Set();
   for (const match of html.matchAll(INLINE_SCRIPT)) {
-    const body = match[2] ?? "";
+    // The HTML parser turns CRLF and lone CR into LF before a script's text is hashed, so hash it that way too.
+    const body = (match[2] ?? "").replace(/\r\n?/g, "\n");
     if (body.length === 0) continue;
     hashes.add(`'sha256-${createHash("sha256").update(body, "utf8").digest("base64")}'`);
     scripts++;

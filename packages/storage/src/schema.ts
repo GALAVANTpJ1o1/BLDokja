@@ -1,3 +1,4 @@
+import { CUBE_VIEWS, PALETTES, THEMES, VOICES } from "./options.js";
 import { z } from "./zod.js";
 
 /**
@@ -182,9 +183,7 @@ export const ProvenanceSchema = z
   })
   .strict();
 
-export const THEMES = ["system", "dark", "light"] as const;
-export const PALETTES = ["standard", "high-contrast", "deuteranopia"] as const;
-export const VOICES = ["plain", "tsundere", "casual", "roast"] as const;
+export { CUBE_VIEWS, PALETTES, THEMES, VOICES };
 
 /** A sticker or piece name as the engine generates it ("UFR", "FUR", "UFr"). The engine checks it exists. */
 const StickerNameSchema = z.string().regex(/^[UDRLFB]{1,3}[udrlfb]{0,2}$/, "not a sticker name");
@@ -256,7 +255,6 @@ export const DifficultySchema = z
 export const DifficultyPresetSchema = z.object({ id: z.string().min(1).max(64), name: z.string().min(1).max(60), difficulty: DifficultySchema }).strict();
 
 /** Preferences. Every field is optional so a new preference never needs a migration. */
-export const CUBE_VIEWS = ["3d", "net", "text"] as const;
 
 export const SettingsSchema = z
   .object({

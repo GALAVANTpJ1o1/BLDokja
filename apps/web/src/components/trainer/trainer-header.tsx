@@ -12,7 +12,7 @@ export interface TrainerHeading {
 /**
  * A trainer's header: where it sits, the lesson that teaches it, its title and intro, and the Keys button.
  * Trainers render in the browser only, so their loaders show this same header in the static HTML while the
- * trainer loads (without `onKeys`, the button is disabled). The text then paints with the page instead of
+ * trainer loads (without `onKeys` and `readAloud`, their buttons are disabled). The text then paints with the page instead of
  * seconds later, and nothing moves when the trainer arrives.
  */
 export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: TrainerHeading & { readonly onKeys?: () => void; readonly readAloud?: { readonly on: boolean; readonly toggle: () => void } }) {
@@ -32,11 +32,10 @@ export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: Train
         <p className="t-body prose-measure text-quiet">{intro}</p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {readAloud === undefined ? null : (
-          <button type="button" className="btn" aria-pressed={readAloud.on} onClick={readAloud.toggle}>
-            {en.trainer.readAloud}
-          </button>
-        )}
+        {/* Rendered disabled while loading too, so the header wraps the same way before and after. */}
+        <button type="button" className="btn" aria-pressed={readAloud?.on ?? false} onClick={readAloud?.toggle} disabled={readAloud === undefined}>
+          {en.trainer.readAloud}
+        </button>
         <button type="button" className="btn" onClick={onKeys} disabled={onKeys === undefined} aria-keyshortcuts="?">
           {en.trainer.keys}
         </button>

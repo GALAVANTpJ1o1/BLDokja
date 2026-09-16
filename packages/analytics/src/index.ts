@@ -313,3 +313,50 @@ export function sessionSummary(attempts: readonly Attempt[], trainer: string, se
     next,
   };
 }
+
+/** An imported memo attempt from the old app (`legacy.memoAttempt`), as far as the summary needs it. */
+export interface LegacyMemoLike {
+  readonly type: string;
+  readonly at: string;
+  readonly legacy?: { readonly difficulty?: string };
+  readonly derived?: { readonly correctLetters: number; readonly totalLetters: number };
+}
+
+export interface LegacyMemoRow {
+  readonly at: string;
+  readonly difficulty: string;
+  readonly correctLetters: number;
+  readonly totalLetters: number;
+}
+
+export interface LegacyMemoSummary {
+  readonly attempts: number;
+  readonly first: string;
+  readonly last: string;
+  readonly correctLetters: number;
+  readonly totalLetters: number;
+  /** Oldest first. */
+  readonly rows: readonly LegacyMemoRow[];
+}
+
+/**
+ * The old app's memo attempts, summarised as what they are: whole memos scored letter by letter in order
+ * (the import's LCS scorer). They carry no per-pair timing and no per-pair result, so they never feed the
+ * attempt-based views; this only reports them. Undefined when there are none.
+ */
+export function legacyMemoSummary(events: readonly LegacyMemoLike[]): LegacyMemoSummary | undefined {
+  const rows = events
+    .flatMap((e): LegacyMemoRow[] => (e.type === "legacy.memoAttempt" && e.derived !== undefined && !Number.isNaN(Date.parse(e.at)) ? [{ at: e.at, difficulty: e.legacy?.difficulty ?? "", correctLetters: e.derived.correctLetters, totalLetters: e.derived.totalLetters }] : []))
+    .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const first = rows[0];
+  const last = rows[rows.length - 1];
+  if (first === undefined || last === undefined) return undefined;
+  return {
+    attempts: rows.length,
+    first: first.at,
+    last: last.at,
+    correctLetters: rows.reduce((sum, r) => sum + r.correctLetters, 0),
+    totalLetters: rows.reduce((sum, r) => sum + r.totalLetters, 0),
+    rows,
+  };
+}
