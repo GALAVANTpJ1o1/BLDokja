@@ -59,7 +59,7 @@ describe.each(backends)("storage on the %s backend", (_name, make) => {
     await s.putSettings(settings);
     expect(await s.settings()).toEqual(settings);
     await s.putSettings({ cubeView: "net" });
-    expect((await s.settings()).cubeView).toBe("net");
+    expect(await s.settings()).toEqual({ cubeView: "net" });
     await expect(s.putSettings({ cubeView: "ascii" } as never)).rejects.toBeInstanceOf(StorageValidationError);
     await expect(s.putSettings({ readAloud: "yes" } as never)).rejects.toBeInstanceOf(StorageValidationError);
   });
