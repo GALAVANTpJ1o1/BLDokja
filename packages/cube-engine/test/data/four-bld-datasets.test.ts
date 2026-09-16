@@ -1,9 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadPuzzle } from "../../src/core/puzzle.js";
+import { loadPuzzle, VERIFIED_MOVE_FAMILIES, type Puzzle } from "../../src/core/puzzle.js";
+import { composePerms, identityPerm, moveTable, type StickerPerm } from "../../src/core/move-table.js";
+import { expandNodes } from "../../src/commutator/expand.js";
+import { parseAlg } from "../../src/commutator/parse.js";
+import { sameVisibleEffect } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema } from "../../src/data/content-dataset.js";
-import { verifySwapDataset, type SwapDataset } from "../../src/data/swap-dataset.js";
+import { swapParityEffect, verifySwapDataset, verifySwapParityDataset, type SwapDataset, type SwapParityDataset } from "../../src/data/swap-dataset.js";
 import { speffzScheme } from "../../src/lettering/speffz.js";
 import { pieceType } from "../../src/pieces/piece-types.js";
 
@@ -15,6 +19,20 @@ import { pieceType } from "../../src/pieces/piece-types.js";
  */
 
 const dir = join(import.meta.dirname, "..", "..", "..", "..", "content", "algs", "4x4");
+
+function parityDataset(name: string): SwapParityDataset {
+  const parsed = ContentDatasetSchema.parse(JSON.parse(readFileSync(join(dir, `${name}.json`), "utf8")));
+  if (parsed.kind !== "swap-parity") throw new Error(`${name} is not a swap-parity dataset`);
+  return parsed;
+}
+
+/** The sticker permutation of a written alg, straight from the move table. */
+function permOf(puzzle: Puzzle, moves: string): StickerPerm {
+  const table = moveTable(puzzle, VERIFIED_MOVE_FAMILIES[puzzle.id]);
+  const parsed = parseAlg(puzzle.id, moves);
+  if (!parsed.ok) throw new Error(`${moves}: ${JSON.stringify(parsed.error)}`);
+  return expandNodes(parsed.value.nodes).reduce((perm, m) => composePerms(perm, table.move(m.family, m.amount).perm), identityPerm(table.stickerCount));
+}
 
 function swapDataset(name: string): SwapDataset {
   const parsed = ContentDatasetSchema.parse(JSON.parse(readFileSync(join(dir, `${name}.json`), "utf8")));
@@ -97,5 +115,56 @@ describe("U2 x-centres", () => {
     }
     // The verifier is what proves they work: it recomputes each case's effect from the case alone.
     expect(verifySwapDataset(puzzle, dataset)).toEqual([]);
+  });
+});
+
+describe("r2 parity", () => {
+  it("undoes what an odd number of wing targets leaves behind, as far as the cube shows", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const wings = swapDataset("r2-wings.FDr");
+    const parity = parityDataset("r2-parity.FDr");
+    expect([parity.method, parity.buffer, parity.swap]).toEqual(["r2", wings.buffer, wings.swap.alg]);
+    expect(verifySwapParityDataset(puzzle, parity, wings)).toEqual([]);
+
+    // The leftover is the swap's own side effect: the other pair of r-slice wings, and eight x-centres.
+    const effect = swapParityEffect(puzzle, wings);
+    if (!effect.ok) throw new Error(JSON.stringify(effect.error));
+    const entry = parity.records[0].algs[0];
+    if (entry === undefined) throw new Error("no parity alg");
+    expect(entry.source).toBe("reference");
+    expect(entry.citation).toContain("4bld.pdf");
+
+    const perm = permOf(puzzle, entry.moves);
+    // It matches by colour, which is what a solver sees, but not sticker for sticker: it leaves some
+    // x-centres of a face swapped with each other, and those pieces are identical.
+    expect(sameVisibleEffect(puzzle, perm, effect.value)).toBe(true);
+    expect(perm.every((to, from) => to === effect.value[from])).toBe(false);
+  });
+
+  it("counts two x-centres of a face as the same piece, and nothing else", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const type = pieceType(puzzle, "xcenters");
+    const slot = (name: string) => type.pieceByName(name)?.stickers[0]?.index ?? -1;
+    const solved = permOf(puzzle, "");
+
+    // Two x-centres of the U face exchanged: the cube looks exactly the same.
+    const sameColour = Uint8Array.from(solved);
+    sameColour[slot("Ubl")] = slot("Ubr");
+    sameColour[slot("Ubr")] = slot("Ubl");
+    expect(sameVisibleEffect(puzzle, sameColour, solved)).toBe(true);
+
+    // Two x-centres of different faces: now the cube shows it.
+    const crossColour = Uint8Array.from(solved);
+    crossColour[slot("Ubl")] = slot("Fur");
+    crossColour[slot("Fur")] = slot("Ubl");
+    expect(sameVisibleEffect(puzzle, crossColour, solved)).toBe(false);
+
+    // Wings are not interchangeable, so swapping two of them always shows.
+    const wings = pieceType(puzzle, "wings");
+    const wingSwap = Uint8Array.from(solved);
+    const [a, b] = [wings.stickerByName("UBl")?.index ?? -1, wings.stickerByName("UFr")?.index ?? -1];
+    wingSwap[a] = b;
+    wingSwap[b] = a;
+    expect(sameVisibleEffect(puzzle, wingSwap, solved)).toBe(false);
   });
 });

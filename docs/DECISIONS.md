@@ -1158,3 +1158,23 @@ Short records of choices that would be expensive to reverse, or where sources di
     alg from a source is judged by its effect and carries its citation.
 - **Reversal:** the datasets regenerate from the script; changing a buffer means regenerating and updating
   the pinned test.
+
+## D-039 · 4BLD parity, and judging a 4x4 alg by what the cube shows
+
+**Status:** accepted 2026-09-16, Phase 7.
+
+- **The leftover.** Every r2 step repeats the swap's side effect: the other pair of r-slice wings, and
+  eight x-centres. After an odd number of wing targets the cube still carries it, so the parity alg's job
+  is exactly that permutation — derived from the swap, never written in (`swapParityEffect`).
+- **The alg** comes from the 4BLD tutorial PDF (Xin Shi's method), cited in the dataset.
+- **Judged by colour.** That alg does *not* equal the leftover sticker for sticker: it leaves some
+  x-centres of a face swapped with each other. Four x-centres of a colour are the same piece to a solver,
+  so `sameVisibleEffect` compares interchangeable slots by colour and everything else sticker by sticker.
+  A parity record is checked that way; every other record is still checked exactly.
+  - **Teeth:** two x-centres of one face count as the same; two from different faces don't; two wings never
+    do; and the parity alg with one extra turn fails.
+- **What isn't built yet:** corner parity on 4x4 (an odd number of corner targets), which needs the
+  leftover to be absorbed into the wing memo the way 3-style parity is absorbed on 3x3 (D-026), and a
+  4BLD solver that runs the three phases end to end. Both are listed in the Phase 7 checkpoint.
+- **Reversal:** easy. The dataset regenerates; a different published alg can replace it as long as it
+  verifies.

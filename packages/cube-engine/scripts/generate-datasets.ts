@@ -41,7 +41,7 @@ import {
 import { SPECIAL_BOUNDS } from "../src/methods/m2-search.js";
 import { m2OpSystem } from "../src/methods/m2.js";
 import { referenceSwap } from "../src/methods/swap-algs.js";
-import { buildSwapDataset, verifySwapDataset, type SpecialAlgs } from "../src/data/swap-dataset.js";
+import { buildSwapDataset, buildSwapParityDataset, verifySwapDataset, verifySwapParityDataset, type SpecialAlgs, type SwapParityDataset } from "../src/data/swap-dataset.js";
 import { cubeSymmetries } from "../src/core/symmetry.js";
 import { opSystem } from "../src/methods/op.js";
 import { ENGINE_VERSION } from "../src/version.js";
@@ -181,13 +181,21 @@ const U2_SPECIALS = new Map([
 ]);
 const U2_CITATION = "Speedsolving forums, 4x4 Blindfolded, U2 Centers Method Tutorial (retrieved 2026-09-16)";
 
-function fourByFour(puzzle: Puzzle): SwapDataset[] {
+/**
+ * The r2 parity alg (D-039), for an odd number of wing targets. The source writes it with `r` for the
+ * inner slice and a rotation in the middle; it leaves every slot showing the right colour, which is all a
+ * parity alg can be asked for when four x-centres of a face are the same piece.
+ */
+const R2_PARITY = ["2R' U2 2R U2 2R' U2 x 2R U2 2R U2 2R U2 2R2 U2 x' 2R' U2"];
+const R2_PARITY_CITATION = "4x4 Blindfolded tutorial (zodzhao.github.io/res/4bld.pdf), based on Xin Shi's method: r2 parity (retrieved 2026-09-16)";
+
+function fourByFour(puzzle: Puzzle): (SwapDataset | SwapParityDataset)[] {
   const identity = cubeSymmetries(puzzle).findIndex((g) => g.sticker.every((to, from) => to === from));
   const specs = [
     { id: "r2-wings.FDr", method: "r2" as const, bufferSticker: "FDr", pieceType: "wings" as const },
     { id: "u2-xcenters.Ubr", method: "u2" as const, bufferSticker: "Ubr", pieceType: "xcenters" as const },
   ];
-  return specs.map(({ id, method, bufferSticker, pieceType: pieceTypeId }) => {
+  const datasets = specs.map(({ id, method, bufferSticker, pieceType: pieceTypeId }) => {
     const swap = referenceSwap(puzzle, method);
     if (!swap.ok) throw new Error(`${id}: ${JSON.stringify(swap.error)}`);
     const specials: SpecialAlgs =
@@ -201,6 +209,14 @@ function fourByFour(puzzle: Puzzle): SwapDataset[] {
     if (problems.length > 0) throw new Error(`${id} failed verification: ${JSON.stringify(problems.slice(0, 5))}`);
     return dataset;
   });
+
+  const wings = datasets.find((d) => d.method === "r2");
+  if (wings === undefined) throw new Error("r2 dataset missing");
+  const parity = buildSwapParityDataset(puzzle, { id: `r2-parity.${wings.buffer}`, dataset: wings, algs: R2_PARITY, citation: R2_PARITY_CITATION });
+  if (!parity.ok) throw new Error(`r2 parity: ${JSON.stringify(parity.error)}`);
+  const parityProblems = verifySwapParityDataset(puzzle, parity.value, wings);
+  if (parityProblems.length > 0) throw new Error(`r2 parity failed verification: ${JSON.stringify(parityProblems.slice(0, 5))}`);
+  return [...datasets, parity.value];
 }
 
 /** The wiki's own r2 special algs, kept beside the searched ones (and verified with them). */

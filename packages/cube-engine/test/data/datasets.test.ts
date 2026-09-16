@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { loadPuzzle } from "../../src/core/puzzle.js";
 import { verifyDataset, type AlgDataset } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema, type ContentDataset } from "../../src/data/content-dataset.js";
-import { verifySwapDataset, verifyM2OpParityDataset, type SwapDataset } from "../../src/data/swap-dataset.js";
+import { verifySwapDataset, verifySwapParityDataset, verifyM2OpParityDataset, type SwapDataset } from "../../src/data/swap-dataset.js";
 import { verifyOpParityDataset, verifyOpSetupsDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
 import { verifyM2ThreeStyleParityDataset, verifyThreeStyleParityDataset } from "../../src/data/three-style-parity.js";
 import { m2OpSystem } from "../../src/methods/m2.js";
@@ -54,6 +54,7 @@ const REQUIRED: Readonly<Record<string, number>> = {
   // 4BLD (D-038): one record per wing and per x-centre other than the buffer.
   "r2-wings.FDr.json": 23,
   "u2-xcenters.Ubr.json": 23,
+  "r2-parity.FDr.json": 1,
 };
 
 function load(path: string): ContentDataset {
@@ -76,6 +77,8 @@ function expectedName(dataset: ContentDataset): string {
       return dataset.method === "op" ? `op-${dataset.pieceType}.${dataset.buffer}.json` : `${dataset.method}-${dataset.pieceType}.${dataset.buffer}.json`;
     case "parity":
       return `${PARITY_PREFIX[dataset.method]}.${dataset.buffers.corners}-${dataset.buffers.edges}.json`;
+    case "swap-parity":
+      return `${dataset.method}-parity.${dataset.buffer}.json`;
   }
 }
 
@@ -103,6 +106,13 @@ describe("committed alg datasets", () => {
       case "setups":
         expect((dataset.method === "op" ? verifyOpSetupsDataset(puzzle, dataset) : verifySwapDataset(puzzle, dataset)).slice(0, 5)).toEqual([]);
         break;
+      case "swap-parity": {
+        // The leftover of an odd number of targets, checked against the setups dataset it belongs with.
+        const setups = files.map(load).find((d): d is SwapDataset => d.kind === "setups" && d.method === dataset.method && d.buffer === dataset.buffer);
+        if (setups === undefined) throw new Error(`${name}: ${dataset.method}-${dataset.buffer} setups aren't committed`);
+        expect(verifySwapParityDataset(puzzle, dataset, setups).slice(0, 5)).toEqual([]);
+        break;
+      }
       case "parity": {
         // A parity dataset is checked against the committed datasets it belongs with.
         const all = files.map(load);

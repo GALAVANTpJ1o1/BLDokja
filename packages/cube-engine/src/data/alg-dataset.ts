@@ -221,7 +221,25 @@ export function verifyRecord(puzzle: Puzzle, dataset: Pick<AlgDataset, "buffer" 
  * permutation (centres included) equals `required`. Problems are appended; returns false only if the
  * notation doesn't parse.
  */
-export function checkAlgEntry(puzzle: Puzzle, record: string, entry: AlgEntry, required: ArrayLike<number>, problems: DatasetProblem[]): boolean {
+/**
+ * Whether two effects look the same on the cube. Identical pieces have no identity of their own: four
+ * x-centres share a colour, so an alg that leaves every slot showing the right colour has done its job,
+ * even if it put a different one of the four there. Everything else is compared sticker by sticker.
+ */
+export function sameVisibleEffect(puzzle: Puzzle, actual: ArrayLike<number>, required: ArrayLike<number>): boolean {
+  const { geometry, stickerMap } = puzzle;
+  if (actual.length !== required.length) return false;
+  for (let slot = 0; slot < actual.length; slot++) {
+    const a = at(actual, slot);
+    const b = at(required, slot);
+    if (a === b) continue;
+    const orbit = at(stickerMap.orbits, at(stickerMap.slotOfSticker, slot).orbitIndex);
+    if (!orbit.interchangeable || geometry.sticker(a).face !== geometry.sticker(b).face) return false;
+  }
+  return true;
+}
+
+export function checkAlgEntry(puzzle: Puzzle, record: string, entry: AlgEntry, required: ArrayLike<number>, problems: DatasetProblem[], compare: "stickers" | "colours" = "stickers"): boolean {
   const parsed = parseAlg(puzzle.id, entry.alg);
   if (!parsed.ok) {
     problems.push({ code: "invalid-alg", record, alg: entry.alg });
@@ -237,7 +255,8 @@ export function checkAlgEntry(puzzle: Puzzle, record: string, entry: AlgEntry, r
   }
   const table = moveTable(puzzle, VERIFIED_MOVE_FAMILIES[puzzle.id]);
   const perm = moves.reduce((p, m) => composePerms(p, table.move(m.family, m.amount).perm), identityPerm(table.stickerCount));
-  if (!perm.every((to, from) => to === required[from])) problems.push({ code: "wrong-effect", record, alg: entry.alg });
+  const right = compare === "colours" ? sameVisibleEffect(puzzle, perm, required) : perm.every((to, from) => to === required[from]);
+  if (!right) problems.push({ code: "wrong-effect", record, alg: entry.alg });
   return true;
 }
 

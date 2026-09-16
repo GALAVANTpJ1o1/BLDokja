@@ -90,6 +90,88 @@ export const M2OpParityDatasetSchema = z.object({
 });
 
 export type SwapDataset = z.infer<typeof SwapDatasetSchema>;
+
+/**
+ * The parity alg for one swap method, for an odd number of targets (D-039). Every step repeats the swap's
+ * side effect X; after an odd number of them the cube still carries it, and this alg takes it off.
+ *
+ * On 4x4 the alg only has to leave every slot showing the right colour: four x-centres of a face are the
+ * same piece as far as a solver is concerned, so an alg that swaps two of them has done nothing visible.
+ */
+export const SwapParityDatasetSchema = z.object({
+  ...envelope,
+  method: z.enum(["r2", "u2"]),
+  kind: z.literal("swap-parity"),
+  /** The buffer sticker of the setups dataset this belongs with, and its swap. */
+  buffer: StickerName,
+  swap: z.string().min(1),
+  records: z.tuple([z.object({ id: z.literal("parity"), kind: z.literal("parity"), intendedEffect: IntendedEffectSchema, algs: z.array(AlgEntrySchema).min(1).max(4) })]),
+});
+
+export type SwapParityDataset = z.infer<typeof SwapParityDatasetSchema>;
+
+export interface SwapParitySpec {
+  readonly id: string;
+  readonly dataset: SwapDataset;
+  /** Algs for the leftover, with the source they come from. */
+  readonly algs: readonly string[];
+  readonly citation: string;
+}
+
+/** What a swap method's parity alg has to undo: the swap's side effect, left over after an odd count. */
+export function swapParityEffect(puzzle: Puzzle, dataset: SwapDataset): Result<StickerPerm, SwapDatasetProblem> {
+  const swap = datasetSwapAlg(puzzle, dataset);
+  if (!swap.ok) return swap;
+  return ok(sideEffectPerm(puzzle, swap.value));
+}
+
+export function buildSwapParityDataset(puzzle: Puzzle, spec: SwapParitySpec): Result<SwapParityDataset, SwapDatasetProblem> {
+  const effect = swapParityEffect(puzzle, spec.dataset);
+  if (!effect.ok) return effect;
+  if (spec.dataset.method === "m2") return err({ code: "parity-mismatch", field: "method" });
+  return ok({
+    format: "bld-platform/alg-dataset",
+    version: 1,
+    id: spec.id,
+    puzzle: spec.dataset.puzzle,
+    method: spec.dataset.method,
+    kind: "swap-parity",
+    generatedBy: spec.dataset.generatedBy,
+    buffer: spec.dataset.buffer,
+    swap: spec.dataset.swap.alg,
+    records: [
+      {
+        id: "parity",
+        kind: "parity",
+        intendedEffect: { stickerCycles: stickerCycles(puzzle, effect.value), sideEffectPieces: [] },
+        algs: spec.algs.map((alg) => entryForAlg(puzzle, alg, "reference", spec.citation)),
+      },
+    ],
+  });
+}
+
+export function verifySwapParityDataset(puzzle: Puzzle, parity: SwapParityDataset, dataset: SwapDataset): SwapDatasetProblem[] {
+  const problems: SwapDatasetProblem[] = [];
+  if (parity.method !== dataset.method) problems.push({ code: "parity-mismatch", field: "method" });
+  if (parity.buffer !== dataset.buffer) problems.push({ code: "parity-mismatch", field: "buffer" });
+  if (parity.swap !== dataset.swap.alg) problems.push({ code: "parity-mismatch", field: "swap" });
+  const effect = swapParityEffect(puzzle, dataset);
+  if (!effect.ok) return [...problems, effect.error];
+
+  const [record] = parity.records;
+  if (JSON.stringify(record.intendedEffect.stickerCycles) !== JSON.stringify(stickerCycles(puzzle, effect.value))) problems.push({ code: "wrong-intended-effect", record: record.id });
+  if (record.intendedEffect.sideEffectPieces.length > 0) problems.push({ code: "side-effects-not-allowed", record: record.id });
+  const entryProblems: DatasetProblem[] = [];
+  const seen = new Set<string>();
+  for (const entry of record.algs) {
+    // By colour: a parity alg may leave the x-centres of a face rearranged among themselves.
+    checkAlgEntry(puzzle, record.id, entry, effect.value, entryProblems, "colours");
+    if (seen.has(entry.moves)) entryProblems.push({ code: "duplicate-alg", record: record.id, alg: entry.alg });
+    seen.add(entry.moves);
+  }
+  return [...problems, ...entryProblems];
+}
+
 export type SwapRecord = z.infer<typeof SwapRecordSchema>;
 export type M2OpParityDataset = z.infer<typeof M2OpParityDatasetSchema>;
 
