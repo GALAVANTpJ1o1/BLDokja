@@ -1178,3 +1178,25 @@ Short records of choices that would be expensive to reverse, or where sources di
   4BLD solver that runs the three phases end to end. Both are listed in the Phase 7 checkpoint.
 - **Reversal:** easy. The dataset regenerates; a different published alg can replace it as long as it
   verifies.
+
+## D-040 · Lighting x-centres on the 3D cube
+
+**Status:** accepted 2026-09-16, Phase 7.
+
+- **Finding.** cubing.js's 4x4 has no identity for centres: its pattern gives the four centres of a colour
+  one piece value (0, 4, 8 … 20), and the 3D player draws each of them with that value's stickering mask.
+  So a mask can light a colour of x-centres, never one x-centre. Found in the browser: with the trace
+  trainer's help on, every sticker went dark, because `stickeringMask` wrote each slot's mask onto the
+  colour's shared entry and whichever slot came last won.
+- **Engine.** For single-sticker pieces, `stickeringMask` now gives every piece of a colour the most visible
+  mask any of its slots asked for (regular over dim over ignored over invisible). Lighting one x-centre
+  lights its colour, predictably. Corners and wings on 4x4 are still lit slot by slot; a new test checks
+  both against the geometry model on random scrambles, and fails on the old code.
+- **Trainers.** Where one x-centre matters (tracing x-centres with help on), a flat net lights the exact
+  slots next to the 3D cube, which shows no centre highlight. The U2 drill keeps the 3D highlight with the
+  soft dim, so the rest of the cube stays readable.
+- **Also:** a U2 case whose target is on the U face swaps two white centres, which no picture can show from
+  solved. The drill still animates the verified alg; the lesson explains why the state looks untouched.
+- **Reversal:** easy. It's one function and two call sites. A player that tracked centre identity would
+  need its own 4x4 puzzle definition with 24 distinct centres, which would also have to go through the
+  engine's chain of trust.

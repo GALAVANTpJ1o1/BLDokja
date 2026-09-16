@@ -56,4 +56,38 @@ describe("player stickering masks", () => {
       expect(slotViews(puzzle, pattern).filter((v) => chosen.has(v.slot))).toHaveLength(chosen.size);
     }
   });
+
+  it("on a 4x4, wings and corners are lit slot by slot, and x-centres by colour (D-040)", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const rng = createRng("4x4 stickering masks");
+    const moves = verifiedMoves("4x4x4").filter((m) => /^(?:[UDRLFB]|2[UDRLFB]|[UDRLFB]w)['2]?$/.test(m));
+    const centres = puzzle.stickerMap.orbits.find((o) => o.stickersPerPiece === 1);
+    if (centres === undefined) throw new Error("no centre orbit");
+    for (let run = 0; run < 20; run++) {
+      const alg = randomMoveSequence(rng, moves, 30).join(" ");
+      const pattern = puzzle.kpuzzle.defaultPattern().applyAlg(alg);
+      const chosen = new Set(Array.from({ length: 4 }, () => stickerName(puzzle.geometry, rng.int(puzzle.geometry.stickerCount))));
+      const mask = stickeringMask(puzzle, pattern, (v) => (chosen.has(v.slot) ? "regular" : "dim"));
+      const perm = geometryAlgPermutation(puzzle.geometry, alg);
+      // Which centre colours (piece values) sit in a chosen slot.
+      const litValues = new Set<number>();
+      centres.slots.forEach((labels, position) => {
+        const home = labels[0] ?? -1;
+        if (chosen.has(stickerName(puzzle.geometry, perm[home] ?? -1))) litValues.add(centres.defaultPieces[position] ?? -1);
+      });
+      for (const orbit of puzzle.stickerMap.orbits) {
+        orbit.slots.forEach((labels, position) => {
+          labels.forEach((home, label) => {
+            const slot = stickerName(puzzle.geometry, perm[home] ?? -1);
+            if (orbit.stickersPerPiece === 1) {
+              const lit = litValues.has(orbit.defaultPieces[position] ?? -1);
+              for (const facelet of mask.orbits[orbit.orbit]?.pieces[position]?.facelets ?? []) expect(facelet, `${alg}: centre ${stickerName(puzzle.geometry, home)}`).toBe(lit ? "regular" : "dim");
+            } else {
+              expect(mask.orbits[orbit.orbit]?.pieces[position]?.facelets[label], `${alg}: ${stickerName(puzzle.geometry, home)} in ${slot}`).toBe(chosen.has(slot) ? "regular" : "dim");
+            }
+          });
+        });
+      }
+    }
+  });
 });
