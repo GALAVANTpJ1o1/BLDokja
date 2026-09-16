@@ -15,7 +15,7 @@ export type Colours = Face[];
 export type OracleKind = "normal" | "cycleBreak" | "cycleClose" | "orientationTarget";
 
 export interface OracleConfig {
-  readonly kind: "corners" | "edges" | "wings";
+  readonly kind: "corners" | "edges" | "wings" | "midges";
   readonly buffer: string;
   /** Sticker name → letter for this piece type. */
   readonly letters: Readonly<Record<string, string>>;
@@ -66,6 +66,7 @@ export class TraceOracle {
     const cubies: OCubie[] = [];
     for (const cubie of this.geometry.cubies) {
       if (cubie.stickers.length !== wanted) continue;
+      if (size === 5 && wanted === 2 && (kind === "midges" ? !cubie.center.includes(0) : cubie.center.includes(0))) continue;
       let slots = [...cubie.stickers];
       if (slots.length === 3) {
         const [a, b, c] = slots as [number, number, number];

@@ -86,7 +86,7 @@ describe("parseScheme (untrusted JSON)", () => {
   it.each([
     ["a missing format marker", { id: "x", name: "x", puzzle: "3x3x3", version: 1, letters: {} }],
     ["a malformed sticker key", { format: "bld-platform/scheme", version: 1, id: "x", name: "x", puzzle: "3x3x3", letters: { corners: { "<b>": "A" } } }],
-    ["an unknown piece type", { format: "bld-platform/scheme", version: 1, id: "x", name: "x", puzzle: "3x3x3", letters: { midges: {} } }],
+    ["an unknown piece type", { format: "bld-platform/scheme", version: 1, id: "x", name: "x", puzzle: "3x3x3", letters: { imaginaryPieces: {} } }],
     ["a non-object", "speffz"],
   ])("rejects %s with a Zod error", async (_label, input) => {
     const puzzle = await loadPuzzle("3x3x3");

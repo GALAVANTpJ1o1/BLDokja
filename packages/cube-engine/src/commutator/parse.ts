@@ -48,6 +48,7 @@ export interface ParsedAlg {
 
 /** Every error names the UTF-16 index where it was found. Codes, not messages, so the UI can translate them. */
 export type AlgParseError =
+  | { readonly code: "complexity-limit"; readonly index: number }
   | { readonly code: "unexpected-character"; readonly index: number; readonly character: string }
   | { readonly code: "parentheses-unsupported"; readonly index: number }
   | { readonly code: "unknown-move"; readonly index: number; readonly text: string }
@@ -164,6 +165,7 @@ class Parser {
 function build(operands: readonly (readonly AlgNode[])[], separators: readonly Separator[], i: number): AlgNode[] {
   const left = operands[i] ?? [];
   const separator = separators[i];
+  if (i > 32) throw new ParseFailure({ code: "complexity-limit", index: separator?.index ?? 0 });
   if (separator === undefined) return [...left];
   const right = i + 1 === separators.length ? [...(operands[i + 1] ?? [])] : build(operands, separators, i + 1);
   return [separator.kind === "," ? { type: "commutator", a: left, b: right } : { type: "conjugate", setup: left, body: right }];
@@ -171,7 +173,17 @@ function build(operands: readonly (readonly AlgNode[])[], separators: readonly S
 
 export function parseAlg(puzzle: PuzzleId, text: string): Result<ParsedAlg, AlgParseError> {
   try {
-    return ok({ puzzle, nodes: new Parser(text, new Set(VERIFIED_MOVE_FAMILIES[puzzle])).parseTop() });
+    if (text.length > 100_000) return err({ code: "complexity-limit", index: 100_000 });
+    let depth = 0;
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === "[") depth++;
+      else if (text[i] === "]") depth--;
+      if (depth > 32) return err({ code: "complexity-limit", index: i });
+    }
+    const nodes = new Parser(text, new Set(VERIFIED_MOVE_FAMILIES[puzzle])).parseTop();
+    const expansionCost = (nodes: readonly AlgNode[]): number => nodes.reduce((sum,node) => sum + (node.type === "move" ? 1 : node.type === "commutator" ? 2 * (expansionCost(node.a) + expansionCost(node.b)) : 2 * expansionCost(node.setup) + expansionCost(node.body)), 0);
+    if (expansionCost(nodes) > 10_000) return err({ code: "complexity-limit", index: 0 });
+    return ok({ puzzle, nodes });
   } catch (error) {
     if (error instanceof ParseFailure) return err(error.detail);
     throw error;

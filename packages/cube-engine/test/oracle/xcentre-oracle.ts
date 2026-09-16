@@ -29,12 +29,13 @@ export interface XCentreOracleResult {
 }
 
 export class XCentreOracle {
-  readonly geometry = new StickerGeometry(4);
+  readonly geometry: StickerGeometry;
   /** Sticker indices of the 24 x-centres. */
   readonly slots: readonly number[];
 
-  constructor() {
-    this.slots = this.geometry.cubies.filter((c) => c.stickers.length === 1).map((c) => c.stickers[0] ?? -1);
+  constructor(size = 4, family: "xcenters" | "tcenters" = "xcenters") {
+    this.geometry = new StickerGeometry(size);
+    this.slots = this.geometry.cubies.filter((c) => c.stickers.length === 1 && (size === 4 || c.center.filter((v) => v !== 0 && Math.abs(v) < size - 1).length === (family === "xcenters" ? 2 : 1))).map((c) => c.stickers[0] ?? -1);
     if (this.slots.length !== 24) throw new Error(`expected 24 x-centres, found ${this.slots.length}`);
   }
 

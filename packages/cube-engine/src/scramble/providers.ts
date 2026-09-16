@@ -67,6 +67,8 @@ export interface SeededProviderOptions {
   readonly seed: string;
   /** `wide` (default): a uniformly random orientation, written as a wide-move suffix. `none`: no suffix. */
   readonly orientation?: "wide" | "none";
+  /** Solver port for hosts serving cubing.js outside their application bundler. */
+  readonly solve?: (pattern: KPattern) => Promise<string>;
 }
 
 /**
@@ -87,7 +89,7 @@ export function seededStateProvider3x3(puzzle: Puzzle, options: SeededProviderOp
       if (state === undefined) throw new Error("a sampled state has no centre frame");
       let pending: Promise<string> | undefined;
       const scramble = () => {
-        pending ??= experimentalSolve3x3x3IgnoringCenters(prefixState).then((solution) => [canonical(puzzle.id, solution.toString(), true), suffix].filter((part) => part !== "").join(" "));
+        pending ??= (options.solve === undefined ? experimentalSolve3x3x3IgnoringCenters(prefixState).then((solution) => solution.toString()) : options.solve(prefixState)).then((solution) => [canonical(puzzle.id, solution, true), suffix].filter((part) => part !== "").join(" "));
         return pending;
       };
       return Promise.resolve({ state, scramble });
@@ -130,16 +132,16 @@ export function seededMoveProvider(puzzle: Puzzle, options: SeededMoveProviderOp
   };
 }
 
-export type CubingEvent = "333bf" | "444bf";
+export type CubingEvent = "333bf" | "444bf" | "555bf";
 
 /** cubing.js's `randomScrambleForEvent`: official-style random scrambles, not seeded. */
-export function cubingProvider(puzzle: Puzzle, event: CubingEvent): ScrambleProvider {
-  const expected: PuzzleId = event === "333bf" ? "3x3x3" : "4x4x4";
+export function cubingProvider(puzzle: Puzzle, event: CubingEvent, generate?: (event: CubingEvent) => Promise<string>): ScrambleProvider {
+  const expected: PuzzleId = event === "333bf" ? "3x3x3" : event === "444bf" ? "4x4x4" : "5x5x5";
   if (puzzle.id !== expected) throw new RangeError(`${event} scrambles need the ${expected} puzzle`);
   return {
     puzzle: puzzle.id,
     next: async () => {
-      const text = canonical(puzzle.id, (await randomScrambleForEvent(event)).toString(), false);
+      const text = canonical(puzzle.id, generate === undefined ? (await randomScrambleForEvent(event)).toString() : await generate(event), false);
       const applied = puzzle.kpuzzle.defaultPattern().applyAlg(text);
       const state = puzzle.id === "3x3x3" ? normaliseByCenters(puzzle, applied) : applied;
       if (state === undefined) throw new Error(`"${text}" has no centre frame`);

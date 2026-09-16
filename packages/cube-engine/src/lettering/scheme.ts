@@ -8,14 +8,14 @@ import { PIECE_TYPE_SPECS, pieceType, type PieceType, type PieceTypeId, type Sti
  * Speffz or the Latin alphabet; letters are opaque single graphemes.
  */
 
-export const PIECE_TYPE_IDS = ["corners", "edges", "wings", "xcenters"] as const satisfies readonly PieceTypeId[];
+export const PIECE_TYPE_IDS = ["corners", "edges", "wings", "xcenters", "midges", "tcenters"] as const satisfies readonly PieceTypeId[];
 
 export const SchemeSchema = z.object({
   format: z.literal("bld-platform/scheme"),
   version: z.literal(1),
   id: z.string().min(1).max(64),
   name: z.string().min(1).max(100),
-  puzzle: z.enum(["3x3x3", "4x4x4"]),
+  puzzle: z.enum(["3x3x3", "4x4x4", "5x5x5"]),
   letters: z.partialRecord(
     z.enum(PIECE_TYPE_IDS),
     z.record(z.string().regex(/^[UDRLFB]{1,3}[udrlfb]{0,2}$/, "not a sticker name"), z.string()),

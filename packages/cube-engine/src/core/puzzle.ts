@@ -4,11 +4,12 @@ import { StickerGeometry } from "./geometry.js";
 import { geometryMovePermutation } from "./geometry-moves.js";
 import { deriveStickerMap, patternToFacelets, transformationToStickerPermutation, type StickerMap } from "./sticker-map.js";
 
-export type PuzzleId = "3x3x3" | "4x4x4";
+export type PuzzleId = "3x3x3" | "4x4x4" | "5x5x5";
 
 export const PUZZLE_SIZES: Readonly<Record<PuzzleId, number>> = {
   "3x3x3": 3,
   "4x4x4": 4,
+  "5x5x5": 5,
 };
 
 /**
@@ -17,6 +18,15 @@ export const PUZZLE_SIZES: Readonly<Record<PuzzleId, number>> = {
  * Engine code only generates moves from these families.
  */
 export const VERIFIED_MOVE_FAMILIES: Readonly<Record<PuzzleId, readonly string[]>> = {
+  "5x5x5": [
+    "U", "D", "R", "L", "F", "B",
+    "2U", "2D", "2R", "2L", "2F", "2B",
+    "3U", "3D", "3R", "3L", "3F", "3B",
+    "Uw", "Dw", "Rw", "Lw", "Fw", "Bw",
+    "u", "d", "r", "l", "f", "b",
+    "3Uw", "3Dw", "3Rw", "3Lw", "3Fw", "3Bw",
+    "2-3Uw", "2-3Rw", "2-3Fw", "x", "y", "z",
+  ],
   "3x3x3": [
     "U", "D", "R", "L", "F", "B",
     "M", "E", "S",

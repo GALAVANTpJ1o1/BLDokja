@@ -56,7 +56,7 @@ function checkConstructed(puzzle: Puzzle, typeId: PieceTypeId, cycle: ThreeCycle
   }
 
   if (withOracle) {
-    if (typeId === "xcenters") throw new Error("x-centres are not traceable");
+    if (typeId === "xcenters" || typeId === "tcenters") throw new Error("interchangeable centres need their colour oracle");
     const oracle = new TraceOracle(puzzle.size, typeId);
     const colours = Array.from(facelets, (home) => puzzle.geometry.sticker(home).face);
     const read = oracle.trace(colours, { kind: typeId, buffer: b, letters: scheme.letters[typeId] ?? {}, orientedInPlace: "separate" });

@@ -128,8 +128,10 @@ const SHAPES: Readonly<Record<SwapMethod, { readonly own: number; readonly other
 const OWN_KIND: Readonly<Record<PieceTypeId, "corners" | "edges" | "centres">> = {
   corners: "corners",
   edges: "edges",
+  midges: "edges",
   wings: "edges",
   xcenters: "centres",
+  tcenters: "centres",
 };
 
 export interface SwapEffect {

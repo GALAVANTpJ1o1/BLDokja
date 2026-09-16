@@ -35,11 +35,19 @@ function clockwiseCells(pieceTypeId: PieceTypeId, n: number): readonly Cell[] {
     case "corners":
       return [[0, 0], [0, last], [last, last], [last, 0]];
     case "edges":
+    case "midges": {
+      const middle = Math.floor(n / 2);
+      return [[0, middle], [middle, last], [last, middle], [middle, 0]];
+    }
     case "wings":
       // The first edge-type sticker clockwise from each corner.
       return [[0, 1], [1, last], [last, last - 1], [last - 1, 0]];
     case "xcenters":
       return [[1, 1], [1, last - 1], [last - 1, last - 1], [last - 1, 1]];
+    case "tcenters": {
+      const middle = Math.floor(n / 2);
+      return [[1, middle], [middle, last - 1], [last - 1, middle], [middle, 1]];
+    }
   }
 }
 

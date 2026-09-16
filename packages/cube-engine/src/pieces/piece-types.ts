@@ -10,7 +10,7 @@ import { pieceName, stickerName } from "./names.js";
  * geometry can't state on its own are declared here, and each is backed by a test.
  */
 
-export type PieceTypeId = "corners" | "edges" | "wings" | "xcenters";
+export type PieceTypeId = "corners" | "edges" | "wings" | "xcenters" | "midges" | "tcenters";
 
 export interface PieceTypeSpec {
   readonly id: PieceTypeId;
@@ -24,6 +24,9 @@ export interface PieceTypeSpec {
    * orientation matters; wings and x-centres letter one sticker per piece.
    */
   readonly letteredStickersPerPiece: 1 | 2 | 3;
+  /** Select among multiple same-kind orbits by physical geometry, not cubing.js orbit labels. */
+  readonly pieceCount?: number;
+  readonly innerAxes?: 1 | 2;
 }
 
 /**
@@ -31,6 +34,13 @@ export interface PieceTypeSpec {
  * and +centres / t-centres would be interchangeable `center` kinds like x-centres.
  */
 export const PIECE_TYPE_SPECS: Readonly<Record<PuzzleId, readonly PieceTypeSpec[]>> = {
+  "5x5x5": [
+    { id: "corners", kind: "corner", orientationOrder: 3, interchangeable: false, letteredStickersPerPiece: 3 },
+    { id: "midges", kind: "edge", pieceCount: 12, orientationOrder: 2, interchangeable: false, letteredStickersPerPiece: 2 },
+    { id: "wings", kind: "edge", pieceCount: 24, orientationOrder: 1, interchangeable: false, letteredStickersPerPiece: 1 },
+    { id: "xcenters", kind: "center", pieceCount: 24, innerAxes: 2, orientationOrder: 1, interchangeable: true, letteredStickersPerPiece: 1 },
+    { id: "tcenters", kind: "center", pieceCount: 24, innerAxes: 1, orientationOrder: 1, interchangeable: true, letteredStickersPerPiece: 1 },
+  ],
   "3x3x3": [
     { id: "corners", kind: "corner", orientationOrder: 3, interchangeable: false, letteredStickersPerPiece: 3 },
     { id: "edges", kind: "edge", orientationOrder: 2, interchangeable: false, letteredStickersPerPiece: 2 },
@@ -100,7 +110,13 @@ function buildPieceType(puzzle: Puzzle, spec: PieceTypeSpec): PieceType {
   const cached = built.get(puzzle)?.get(spec.id);
   if (cached !== undefined) return cached;
 
-  const orbitIndex = puzzle.stickerMap.orbits.findIndex((o) => o.kind === spec.kind);
+  const orbitIndex = puzzle.stickerMap.orbits.findIndex((o) => {
+    if (o.kind !== spec.kind || spec.pieceCount !== undefined && o.numPieces !== spec.pieceCount) return false;
+    if (spec.innerAxes === undefined) return true;
+    const first = o.slots[0]?.[0];
+    if (first === undefined) return false;
+    return puzzle.geometry.sticker(first).cubie.filter((coordinate) => coordinate !== 0 && Math.abs(coordinate) < puzzle.size - 1).length === spec.innerAxes;
+  });
   const orbit = at(puzzle.stickerMap.orbits, orbitIndex);
   if (orbit.interchangeable !== spec.interchangeable) {
     throw new Error(`${puzzle.id} ${spec.id}: kpuzzle interchangeability disagrees with the piece type spec`);
