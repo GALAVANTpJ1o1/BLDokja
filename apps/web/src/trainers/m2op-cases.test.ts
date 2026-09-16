@@ -1,4 +1,4 @@
-import { drillScramble, loadPuzzle, m2OpSystem, opSystem, M2DatasetSchema, M2OpParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
+import { drillScramble, loadPuzzle, m2OpSystem, opSystem, SwapDatasetSchema, M2OpParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, parseAlg, speffzScheme } from "@bld/cube-engine";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,7 +9,7 @@ const read = (name: string) => JSON.parse(readFileSync(join(import.meta.dirname,
 const opCorners = OpSetupsDatasetSchema.parse(read("op-corners.UBL.json"));
 const datasets: MethodDatasets = {
   op: { corners: opCorners, edges: OpSetupsDatasetSchema.parse(read("op-edges.UR.json")), parity: OpParityDatasetSchema.parse(read("op-parity.UBL-UR.json")) },
-  m2: { corners: opCorners, edges: M2DatasetSchema.parse(read("m2-edges.DF.json")), parity: M2OpParityDatasetSchema.parse(read("m2op-parity.UBL-DF.json")) },
+  m2: { corners: opCorners, edges: SwapDatasetSchema.parse(read("m2-edges.DF.json")), parity: M2OpParityDatasetSchema.parse(read("m2op-parity.UBL-DF.json")) },
 };
 const methods = datasets;
 

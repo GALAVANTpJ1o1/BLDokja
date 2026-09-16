@@ -1,5 +1,6 @@
 "use client";
 
+import type { PuzzleId } from "@bld/cube-engine";
 import type { FaceName } from "@/design/palette";
 
 /**
@@ -12,7 +13,7 @@ import type { FaceName } from "@/design/palette";
  * If a future cubing.js changes this shape, the wrapper leaves the loader alone and the player keeps
  * its own colours (logged once), rather than breaking the cube.
  */
-let installed = false;
+const installed = new Set<PuzzleId>();
 
 function currentFaceColours(): Record<string, string> {
   const style = getComputedStyle(document.documentElement);
@@ -33,14 +34,14 @@ function looksLikeGeometry(value: unknown): value is GeometryLike {
   return typeof value === "object" && value !== null && typeof (value as { get3d?: unknown }).get3d === "function";
 }
 
-export async function installPlayerPalette(): Promise<void> {
-  if (installed) return;
-  installed = true;
+export async function installPlayerPalette(puzzleId: PuzzleId = "3x3x3"): Promise<void> {
+  if (installed.has(puzzleId)) return;
+  installed.add(puzzleId);
   const { puzzles } = await import("cubing/puzzles");
-  const loader = puzzles["3x3x3"] as unknown as { pg?: () => Promise<unknown> } | undefined;
+  const loader = puzzles[puzzleId] as unknown as { pg?: () => Promise<unknown> } | undefined;
   const original = loader?.pg;
   if (loader === undefined || original === undefined) {
-    console.warn("cube palette: cubing.js has no 3x3x3 geometry loader; using its default colours");
+    console.warn(`cube palette: cubing.js has no ${puzzleId} geometry loader; using its default colours`);
     return;
   }
   loader.pg = async () => {

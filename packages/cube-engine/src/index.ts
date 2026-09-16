@@ -233,8 +233,13 @@ export {
   type OpSetupsSpec,
   type OpTargetRecord,
 } from "./data/op-dataset.js";
+export { sameVisibleEffect } from "./data/alg-dataset.js";
 export {
   buildSwapDataset,
+  buildSwapParityDataset,
+  swapParityEffect,
+  SwapParityDatasetSchema,
+  verifySwapParityDataset,
   buildM2OpParityDataset,
   deriveOddStepRule,
   datasetSwapAlg,
@@ -247,6 +252,7 @@ export {
   type SwapBuildError,
   type SwapDataset,
   type SwapDatasetProblem,
+  type SwapParityDataset,
   type M2OpParityDataset,
   type M2OpParitySpec,
   type SwapRecord,

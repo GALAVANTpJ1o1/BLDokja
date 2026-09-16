@@ -1,4 +1,4 @@
-import { formatMoves, solveM2Op, solveOpOp, stepMoves, type AlgMove, type M2Dataset, type OpSetupsDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
+import { formatMoves, solveM2Op, solveOpOp, stepMoves, type AlgMove, type SwapDataset, type OpSetupsDataset, type Puzzle, type Scheme } from "@bld/cube-engine";
 import type { M2Data, OpData } from "@/lib/methods";
 
 /**
@@ -71,7 +71,7 @@ function opCases(dataset: OpSetupsDataset, scheme: Scheme, mode: "op-corners" | 
   });
 }
 
-function m2Case(dataset: M2Dataset, scheme: Scheme, target: string, mode: "m2-edges" | "m2-special", position?: "even" | "odd"): ShotCase {
+function m2Case(dataset: SwapDataset, scheme: Scheme, target: string, mode: "m2-edges" | "m2-special", position?: "even" | "odd"): ShotCase {
   const shootAs = position === "odd" ? dataset.oddStepRule.find((r) => r.target === target)?.shootAs : undefined;
   const record = dataset.records.find((r) => r.target === (shootAs ?? target));
   if (record === undefined) throw new Error(`m2 dataset has no record for ${shootAs ?? target}`);

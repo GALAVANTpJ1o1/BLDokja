@@ -1,6 +1,6 @@
 "use client";
 
-import { stickeringMask, type FaceletMask, type SlotView } from "@bld/cube-engine";
+import { stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
 import type { TwistyPlayer } from "cubing/twisty";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
@@ -11,6 +11,8 @@ import { StickerNet } from "./sticker-net";
 import { usePuzzle } from "./use-puzzle";
 
 export interface CubeProps {
+  /** Which cube. 4x4x4 draws the same way, with a 4×4 net as its fallback. */
+  readonly puzzleId?: PuzzleId;
   /** The state shown before `alg`, as moves from solved (a scramble or a case setup). */
   readonly setup?: string;
   /** The moves to animate. */
@@ -51,8 +53,8 @@ function prefersReducedMotion(): boolean {
  * engine, sticker colours from the palette tokens, and a text description for screen readers. If the
  * 3D player can't load, the same state is shown as a flat net.
  */
-export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls = false, autoplay = false, label, tempo = 1, className }: CubeProps) {
-  const puzzle = usePuzzle();
+export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, dim = "strong", controls = false, autoplay = false, label, tempo = 1, className }: CubeProps) {
+  const puzzle = usePuzzle(puzzleId);
   const { settings } = useSettings();
   const host = useRef<HTMLDivElement>(null);
   const player = useRef<TwistyPlayer | null>(null);
@@ -82,12 +84,12 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
     let created: TwistyPlayer | null = null;
     void (async () => {
       try {
-        await installPlayerPalette();
+        await installPlayerPalette(puzzleId);
         const { TwistyPlayer: Player } = await import("cubing/twisty");
         if (life.disposed) return;
         const initialMask = maskRef.current;
         created = new Player({
-          puzzle: "3x3x3",
+          puzzle: puzzleId,
           visualization: "PG3D",
           hintFacelets: "floating",
           background: "none",
@@ -115,7 +117,7 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [puzzle, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
+  }, [puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
@@ -146,7 +148,7 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
     <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
       <div className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
         {showNet ? (
-          <StickerNet cells={netCells(puzzle, finalPattern)} label={label} className="h-full w-full p-3" />
+          <StickerNet cells={netCells(puzzle, finalPattern)} size={puzzle.size} label={label} className="h-full w-full p-3" />
         ) : (
           <div ref={host} className="h-full w-full" />
         )}

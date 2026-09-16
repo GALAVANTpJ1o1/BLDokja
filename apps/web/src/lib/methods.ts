@@ -1,6 +1,6 @@
 "use client";
 
-import { m2OpSystem, opSystem, symmetryImageDataset, type AlgDataset, type BufferPair, type M2Dataset, type M2OpParityDataset, type OpParityDataset, type OpSetupsDataset, type Puzzle } from "@bld/cube-engine";
+import { m2OpSystem, opSystem, symmetryImageDataset, type AlgDataset, type BufferPair, type SwapDataset, type M2OpParityDataset, type OpParityDataset, type OpSetupsDataset, type Puzzle } from "@bld/cube-engine";
 import { useEffect, useState } from "react";
 import { algDatasets } from "@/content/algs";
 import { GATE_B_BUFFERS, type Reader } from "./reader";
@@ -23,7 +23,7 @@ export interface OpData {
 
 export interface M2Data {
   readonly corners: OpSetupsDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly parity: M2OpParityDataset;
 }
 
