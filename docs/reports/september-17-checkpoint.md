@@ -23,20 +23,20 @@ browser-act, design-taste-frontend, imagegen-frontend-web, motion-design fronten
 
 - Scope and two material questions confirmed; instruction/context loading under way.
 - Account usage checked at 94% of five-hour window; hourly attached follow-up requested.
-- Partial implementation: whole-piece trace highlight, fixed centres, neutral hidden net stickers, explicit colour swatch prompt with asked sticker outlined, Previous target review (does not duplicate attempts), and shared parent-route Back links.
-- Typecheck passed after initial changes. Added highlight/neutral-net unit tests; remaining unit/lint/build/browser verification pending.
+- Guided trace/Back milestone committed as d12f097: whole-piece highlight, fixed centres, neutral hidden net stickers including the 3D-loading fallback, explicit colour swatches with asked sticker outlined, Previous target review (does not duplicate attempts), and shared parent-route Back links.
+- Speffz recognition is implemented: all 12 edges/8 corners in seeded coverage rounds of 10/20/30/50 pieces, click each coloured sticker and enter its letter, correction before advancement, total/per-piece time and separate saved first-attempt recognition accuracy/median. Unsaved attempts retain an idempotent retry; round time explicitly includes pauses. Full round state is session-only; individual attempts persist.
+- Unit tests passed (engine 523, web 133); typecheck passed. Playwright Speffz checks passed 8/8 across Chromium, Firefox, WebKit and phone viewport, including all 10 corner pieces, reload persistence, masking and keyboard focus. Initial test incorrectly expected a navigation link to be a button; corrected. Lint submission-handler issue corrected; recheck pending. Production build pending.
 - uv 0.12.15 and BrowserAct 1.4.2 installed from PyPI; BrowserAct core 2.0.2 loaded. BrowserAct has no configured browser or API key, so further browser creation requires its advanced instructions/confirmation. Playwright remains available.
 - Attached automation resume-bldokja-improvements is ACTIVE hourly.
-- PRODUCT.md records confirmed scope. No git commit yet for this milestone.
+- PRODUCT.md records confirmed scope. Three separate theme-settings/Speffz/CFOP design references generated; these are direction references, not approved mathematical cube diagrams or shipped UI screenshots.
 
 ## Next actions
 
-1. Finish required relevant skill-reference reads, record short implementation/design plan.
-2. Install official uv and BrowserAct, load CLI core instructions. Use installed Playwright for local tests if BrowserAct cannot access localhost.
-3. Fix trace reveal: current Cube highlight handles individual sticker names, not whole pieces or centres. Use geometry-backed whole-piece expansion and neutral mask for unrevealed stickers; retain precise requested-sticker prompt.
-4. Add shared Back navigation and trace previous-target review without duplicating analytics.
-5. Add Speffz drill, then CFOP content/verified case corpus, tutorial, themes/ambient visuals and verified pattern navigator.
-6. Run unit/type/lint/build and new browser checks; update this file at every milestone and commit logically (pnpm test before each commit).
+1. Commit verified Speffz milestone after final unit/lint checks. Inspect text-only guided trace for hidden-state disclosure.
+2. Build extra interface colourways independently of cube-sticker palettes, optional galaxy/rain/snow/forest/ocean scenery, and compact density. Keep learning surfaces readable and no idle animation cost.
+3. Add replayable site tutorial, CFOP content/verified complete case corpus and recall drills, then verified navigation-pattern cube. CFOP, tutorial and new scenery are not implemented yet.
+4. BrowserAct is installed and its advanced instructions read. Its own confirmation gate requires a new end-of-turn approval before creating a blank local Chrome browser; installing uv/BrowserAct did not authorize browser creation. Continue local checks with installed Playwright meanwhile.
+5. Run unit/type/lint/build and new browser checks; update this file at every milestone and commit logically (pnpm test before each commit). Respect the existing active hourly follow-up; don't duplicate it.
 
 ## Verification / open risks
 

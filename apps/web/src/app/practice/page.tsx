@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
+import { speffz } from "@/i18n/speffz";
 import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: en.practice.title };
 
 const TRAINERS = [
+  { href: "/practice/speffz/", name: speffz.title, blurb: speffz.intro },
   { href: "/practice/trace/", name: en.practice.trace, blurb: en.practice.traceBlurb },
   { href: "/practice/m2op/", name: en.practice.m2op, blurb: en.practice.m2opBlurb },
   { href: "/practice/3style/", name: en.practice.threeStyle, blurb: en.practice.threeStyleBlurb },
