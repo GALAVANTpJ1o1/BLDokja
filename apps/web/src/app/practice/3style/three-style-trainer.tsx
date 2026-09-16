@@ -167,7 +167,7 @@ export function ThreeStyleTrainer() {
     </>
   );
   const shell = (children: React.ReactNode, summary?: React.ReactNode, announce?: string) => (
-    <TrainerShell title={en.threeStyle.title} intro={en.threeStyle.intro} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
+    <TrainerShell title={en.threeStyle.title} intro={en.threeStyle.intro} lesson={pieces === "corners" ? { href: "/learn/three-style-corners/", title: en.threeStyle.lessonTitle } : { href: "/learn/three-style-edges/", title: en.threeStyle.lessonTitleEdges }} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
       {children}
     </TrainerShell>
   );

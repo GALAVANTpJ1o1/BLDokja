@@ -96,11 +96,11 @@ export function IllegalSetup({ pieces, family }: { pieces: "corners" | "edges"; 
   );
 }
 
-/** The Old Pochmann parity alg from the verified dataset, animated from solved with its pieces lit. */
-export function ParityAlg() {
+/** The parity alg from the verified dataset, Old Pochmann's or M2/OP's, animated from solved with its pieces lit. */
+export function ParityAlg({ method = "op" }: { method?: "op" | "m2" }) {
   const reader = useReader();
-  const { opParity } = algDatasets();
-  const record = opParity.records[0];
+  const { opParity, m2opParity } = algDatasets();
+  const record = (method === "m2" ? m2opParity : opParity).records[0];
   const alg = record.algs[0];
   if (reader === undefined || alg === undefined) return <p className="t-meta text-quiet">{en.cube.loading}</p>;
   const stickers = record.intendedEffect.stickerCycles.flat();

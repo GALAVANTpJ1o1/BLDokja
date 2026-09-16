@@ -1,4 +1,4 @@
-import { faceletsOf, formatMoves, invertMoves, expandNodes, parseAlg, pieceType, randomMoveSequence, verifiedMoves, type Puzzle, type Rng, type SwapDataset } from "@bld/cube-engine";
+import { pieceType, randomMoveSequence, verifiedMoves, type Rng, type SwapDataset } from "@bld/cube-engine";
 import type { FourBldPieces, Reader4x4 } from "@/lib/reader-4x4";
 import { centreSession, traceOf } from "./four-bld";
 
@@ -103,33 +103,4 @@ export function gradeFourMemo(reader: Reader4x4, item: Extract<FourCheckpointIte
   if (session === undefined) return false;
   for (const letter of given) if (session.answer(letter) === undefined) return false;
   return session.done;
-}
-
-/** Whether two move sequences leave the cube looking the same from solved: exact, except x-centres by colour. */
-export function sameLook(puzzle: Puzzle, a: string, b: string): boolean {
-  const fa = faceletsOf(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(a));
-  const fb = faceletsOf(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(b));
-  for (let slot = 0; slot < fa.length; slot++) {
-    const x = fa[slot] ?? -1;
-    const y = fb[slot] ?? -1;
-    if (x === y) continue;
-    const orbit = puzzle.stickerMap.orbits[puzzle.stickerMap.slotOfSticker[slot]?.orbitIndex ?? -1];
-    if (orbit?.interchangeable !== true || puzzle.geometry.sticker(x).face !== puzzle.geometry.sticker(y).face) return false;
-  }
-  return true;
-}
-
-/**
- * A setup is right if it works, not only if it's the table's: setup, swap and undo must do what the
- * verified record does — the target exchanged with the buffer, the swap's side effect, nothing else.
- */
-export function gradeFourSetup(puzzle: Puzzle, dataset: SwapDataset, target: string, typed: string): { correct: boolean; reason: "legal" | "wrong-effect" | "unreadable" } {
-  const record = dataset.records.find((r) => r.target === target);
-  const expected = record?.algs[0]?.moves;
-  const parsed = parseAlg(puzzle.id, typed.trim());
-  if (!parsed.ok || typed.trim() === "") return { correct: false, reason: "unreadable" };
-  if (expected === undefined) return { correct: false, reason: "wrong-effect" };
-  const setup = expandNodes(parsed.value.nodes);
-  const shot = `${formatMoves(setup)} ${dataset.swap.alg} ${formatMoves(invertMoves(setup))}`;
-  return sameLook(puzzle, shot, expected) ? { correct: true, reason: "legal" } : { correct: false, reason: "wrong-effect" };
 }

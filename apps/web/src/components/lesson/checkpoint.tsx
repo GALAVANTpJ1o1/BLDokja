@@ -13,15 +13,21 @@ import { FOUR_BLD_PIECES, useReader4x4, type FourBldPieces, type Reader4x4 } fro
 import { newId, nowIso } from "@/lib/ids";
 import { loadStorage } from "@/lib/storage-lazy";
 import { checkpointRng, gradeLetters, gradeSetup, letterItems, parityItems, setupItems, traceItems, type CheckpointItem, type PieceKind, type TraceRequirement } from "@/trainers/checkpoint-items";
-import { fourLetterItems, fourParityItems, fourSetupItems, fourTraceItems, gradeFourMemo, gradeFourSetup, type FourCheckpointItem } from "@/trainers/four-bld-checkpoints";
+import { gradeSwapSetup } from "@/trainers/effects";
+import { commBuildItems, commCaseItems, commExpandItems, gradeCommBuild, gradeExpansion, m2SetupItems, m2SpecialItems, MISTAKES, mistakeItems, type LessonItem, type MistakeKind } from "@/trainers/lesson-items";
+import { fourLetterItems, fourParityItems, fourSetupItems, fourTraceItems, gradeFourMemo, type FourCheckpointItem } from "@/trainers/four-bld-checkpoints";
 import { LessonMetaContext } from "./lesson-meta";
 import { useVoice } from "./use-voice";
 
 type ThreeKind = "letters" | "trace" | "parity" | "setup";
+/** Lessons 16–23 (lesson-items.ts): M2 setups and special cases, commutators, and diagnosing a solve. */
+type ExtraKind = "m2-setup" | "m2-special" | "comm-expand" | "comm-case" | "comm-build" | "mistake";
+const EXTRA_KINDS: readonly string[] = ["m2-setup", "m2-special", "comm-expand", "comm-case", "comm-build", "mistake"];
+const isExtraKind = (kind: string): kind is ExtraKind => EXTRA_KINDS.includes(kind);
 /** The 4BLD kinds (four-bld-checkpoints.ts): letters, traces, parity and r2/U2 setups on a 4x4. */
 type FourKind = "four-letters" | "four-trace" | "four-parity" | "four-setup";
-type Kind = ThreeKind | FourKind | "quiz";
-type Item = CheckpointItem | FourCheckpointItem;
+type Kind = ThreeKind | FourKind | ExtraKind | "quiz";
+type Item = CheckpointItem | FourCheckpointItem | LessonItem;
 const isFourKind = (kind: Kind): kind is FourKind => kind.startsWith("four-");
 
 interface QuizRegistry {
@@ -59,6 +65,57 @@ function fourQuestionFor(item: FourCheckpointItem): string {
       return en.fourLesson.parityQuestion(en.fourBld.pieces[item.pieces]);
     case "four-setup":
       return en.fourLesson.setupInput;
+  }
+}
+
+function generateExtra(reader: Reader, kind: ExtraKind, seed: { lesson: string; checkpoint: string; attempt: number }, options: { pieces: PieceKind[]; count: number }): LessonItem[] {
+  const rng = checkpointRng(seed.lesson, seed.checkpoint, seed.attempt);
+  const { m2Edges, threeStyleCorners, threeStyleEdges, opCorners, opEdges, opParity } = algDatasets();
+  const comms = options.pieces[0] === "edges" ? threeStyleEdges : threeStyleCorners;
+  switch (kind) {
+    case "m2-setup":
+      return m2SetupItems(reader.scheme, rng, m2Edges, options.count);
+    case "m2-special":
+      return m2SpecialItems(reader.scheme, rng, m2Edges, options.count);
+    case "comm-expand":
+      return commExpandItems(rng, comms, options.count);
+    case "comm-case":
+      return commCaseItems(reader.puzzle, reader.scheme, rng, comms, options.count);
+    case "comm-build":
+      return commBuildItems(reader.scheme, rng, comms, options.count);
+    case "mistake":
+      return mistakeItems(reader.puzzle, reader.scheme, rng, { corners: opCorners, edges: opEdges, parity: opParity }, options.count);
+  }
+}
+
+function ExtraItemPrompt({ item }: { item: LessonItem }) {
+  const x = en.lessonExtra;
+  switch (item.kind) {
+    case "m2-setup":
+      return <p className="t-body">{x.m2SetupQuestion(item.target, item.letter)}</p>;
+    case "m2-special":
+      return <p className="t-body">{x.m2SpecialQuestion(item.target, item.letter, x.positions[item.position])}</p>;
+    case "comm-expand":
+      return <p className="t-body">{x.expandQuestion(item.comm)}</p>;
+    case "comm-case":
+      return (
+        <>
+          <p className="t-body">{x.caseQuestion(item.buffer)}</p>
+          <Cube setup={item.scramble} label={`${en.lesson.scramble}: ${item.scramble}`} className="max-w-[20rem]" />
+        </>
+      );
+    case "comm-build":
+      return <p className="t-body">{x.buildQuestion(item.buffer, item.targets[0], item.targets[1], item.letters)}</p>;
+    case "mistake":
+      return (
+        <>
+          <p className="t-body">{x.mistakeQuestion}</p>
+          <Cube setup={`${item.scramble} ${item.executed}`} label={x.mistakeQuestion} className="max-w-[20rem]" />
+          <p className="t-meta text-quiet">
+            {en.lesson.scramble}: <span className="t-notation">{item.scramble}</span>
+          </p>
+        </>
+      );
   }
 }
 
@@ -131,6 +188,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
     const seed = { lesson: lessonId, checkpoint: id, attempt };
     if (kind === "quiz") return [];
     if (isFourKind(kind)) return reader4 === undefined ? [] : generateFour(reader4, kind, seed, fourOptions);
+    if (isExtraKind(kind)) return reader === undefined ? [] : generateExtra(reader, kind, seed, options);
     return reader === undefined ? [] : generate(reader, kind, seed, options);
   }, [reader, reader4, kind, lessonId, id, attempt, options, fourOptions]);
   const ready = four ? reader4 !== undefined : reader !== undefined;
@@ -179,8 +237,16 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
     else if (item.kind === "four-setup") {
       if (reader4 === undefined) return;
       const { r2Wings, u2Centres } = algDatasets();
-      [ok, answer] = [gradeFourSetup(reader4.puzzle, item.method === "r2" ? r2Wings : u2Centres, item.target, typed).correct, item.answer];
+      [ok, answer] = [gradeSwapSetup(reader4.puzzle, item.method === "r2" ? r2Wings : u2Centres, item.target, typed).correct, item.answer];
     } else if (reader === undefined) return;
+    else if (item.kind === "m2-setup") [ok, answer] = [gradeSwapSetup(reader.puzzle, algDatasets().m2Edges, item.target, typed).correct, item.answer];
+    else if (item.kind === "m2-special") [ok, answer] = [typed.trim().toLocaleUpperCase("en-GB") === item.answer, item.answer];
+    else if (item.kind === "comm-expand") [ok, answer] = [gradeExpansion(reader.puzzle, item, typed), item.answer];
+    else if (item.kind === "comm-case") [ok, answer] = [gradeLetters(item.answer, typed), item.answer.join(" ")];
+    else if (item.kind === "comm-build") {
+      const { threeStyleCorners, threeStyleEdges } = algDatasets();
+      [ok, answer] = [gradeCommBuild(reader.puzzle, item.pieces === "corners" ? threeStyleCorners : threeStyleEdges, item, typed), item.answer];
+    } else if (item.kind === "mistake") [ok, answer] = [typed === item.answer, en.lessonExtra.mistakeNames[item.answer]];
     else if (item.kind === "letter") [ok, answer] = [gradeLetters(item.answer, typed), item.answer];
     else if (item.kind === "trace") [ok, answer] = [gradeLetters(item.answer, typed), item.answer.join(" ")];
     else if (item.kind === "parity") [ok, answer] = [(typed === "yes") === item.answer, item.answer ? en.lesson.yes : en.lesson.no];
@@ -223,6 +289,8 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
               <p className="t-body">{fourQuestionFor(item)}</p>
               {reader4 !== undefined ? <FourItemPrompt item={item} reader={reader4} /> : null}
             </>
+          ) : isExtraItem(item) ? (
+            <ExtraItemPrompt item={item} />
           ) : (
             <>
               <p className="t-body">{questionFor(item)}</p>
@@ -230,7 +298,17 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
             </>
           )}
           <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
-            {item.kind === "parity" || item.kind === "four-parity" ? (
+            {item.kind === "mistake" ? (
+              <fieldset className="flex flex-col gap-2">
+                <legend className="sr-only">{en.lessonExtra.mistakeQuestion}</legend>
+                {MISTAKES.map((v: MistakeKind) => (
+                  <label key={v} className={`flex min-h-11 items-center gap-3 rounded-[4px] border px-3 py-2 ${typed === v ? "border-text" : "border-rule"}`}>
+                    <input type="radio" name={inputId} value={v} checked={typed === v} onChange={() => { setTyped(v); }} />
+                    <span className="t-body">{en.lessonExtra.mistakeNames[v]}</span>
+                  </label>
+                ))}
+              </fieldset>
+            ) : item.kind === "parity" || item.kind === "four-parity" ? (
               <fieldset className="flex gap-2">
                 <legend className="sr-only">{en.lesson.parityQuestion}</legend>
                 {(["yes", "no"] as const).map((v) => (
@@ -242,8 +320,8 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
               </fieldset>
             ) : (
               <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
-                {item.kind === "setup" || item.kind === "four-setup" ? en.lesson.setupInput : en.lesson.lettersInput}
-                <input id={inputId} className={`field ${item.kind === "letter" || item.kind === "four-letter" ? "w-24 text-center casual t-subheading" : "w-64 mono"}`} value={typed} autoComplete="off" onChange={(e) => { setTyped(e.target.value); }} />
+                {item.kind === "setup" || item.kind === "four-setup" || item.kind === "m2-setup" ? en.lesson.setupInput : item.kind === "m2-special" ? en.lessonExtra.stickerInput : item.kind === "comm-expand" ? en.lessonExtra.movesInput : item.kind === "comm-build" ? en.lessonExtra.commInput : en.lesson.lettersInput}
+                <input id={inputId} className={`field ${item.kind === "letter" || item.kind === "four-letter" || item.kind === "m2-special" ? "w-24 text-center casual t-subheading" : "w-full max-w-[24rem] mono"}`} value={typed} autoComplete="off" onChange={(e) => { setTyped(e.target.value); }} />
               </label>
             )}
             <button type="submit" className="btn btn-strong" disabled={typed.trim() === ""}>{en.lesson.check}</button>
@@ -271,6 +349,10 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
 
 function isFourItem(item: Item): item is FourCheckpointItem {
   return item.kind.startsWith("four-");
+}
+
+function isExtraItem(item: Item): item is LessonItem {
+  return EXTRA_KINDS.includes(item.kind);
 }
 
 /** One multiple-choice question inside `<Checkpoint kind="quiz">`. */

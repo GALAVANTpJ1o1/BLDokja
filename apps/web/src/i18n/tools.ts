@@ -42,7 +42,8 @@ export const toolsCopy = {
   threeStyle: {
     title: "3-style",
     intro: "Every case for your buffer, with its comm, the moves, and the inverse. Learn a case with the alg in view, or recall it and check.",
-    lessonTitle: "Tracing a cycle",
+    lessonTitle: "3-style corners",
+    lessonTitleEdges: "3-style edges",
     pieces: "Pieces",
     pieceTypes: { corners: "Corners", edges: "Edges" },
     mode: "Mode",

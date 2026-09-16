@@ -30,6 +30,14 @@ const isShotMode = (m: Mode): m is ShotMode => m !== "illegal" && m !== "scrambl
 const STRATEGIES: readonly Strategy[] = ["coverage", "weakness", "uniform", "spaced"];
 const TRAINER = "m2op";
 
+/** The lesson each drill links back to: the M2 modes to the M2 lessons, the rest to Old Pochmann. */
+function lessonForMode(mode: Mode): { href: string; title: string } {
+  if (mode === "m2-special") return { href: "/learn/m2-special-cases/", title: en.m2op.lessons.m2Special };
+  if (mode === "m2-edges" || mode === "scramble-m2") return { href: "/learn/m2-edges/", title: en.m2op.lessons.m2 };
+  if (mode === "op-edges") return { href: "/learn/op-edges/", title: en.m2op.lessons.opEdges };
+  return { href: "/learn/op-corners/", title: en.m2op.lessonTitle };
+}
+
 const isMode = (v: unknown): v is Mode => typeof v === "string" && (MODES as readonly string[]).includes(v);
 const isStrategy = (v: unknown): v is Strategy => typeof v === "string" && (STRATEGIES as readonly string[]).includes(v);
 
@@ -219,7 +227,7 @@ export function M2OpTrainer() {
         ];
 
   const shell = (children: React.ReactNode, summary?: React.ReactNode, announce?: string) => (
-    <TrainerShell title={en.m2op.title} intro={en.m2op.intro} lesson={{ href: mode === "op-edges" ? "/learn/op-edges/" : "/learn/op-corners/", title: mode === "op-edges" ? "Old Pochmann edges" : en.m2op.lessonTitle }} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
+    <TrainerShell title={en.m2op.title} intro={en.m2op.intro} lesson={lessonForMode(mode)} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
       {children}
     </TrainerShell>
   );

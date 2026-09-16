@@ -1,0 +1,47 @@
+---
+id: three-style-edges
+title: 3-style edges
+track: 3bld
+order: 22
+prerequisites:
+  - three-style-corners
+estimatedMinutes: 7
+objectives:
+  - Solve a pair of edge targets with one commutator
+  - Use slice moves as insertions and interchanges
+  - Recognise a 3-style edge case from the buffer UF
+checkpoints:
+  - id: edge-cases
+    title: Recognise edge cases
+recap:
+  - A 3-style case is an ordered pair of targets, solved by one commutator.
+  - The interchange is a single turn; the insertion brings a piece into its slot and back out.
+---
+
+Edges work the same way as corners: every pair in the edge memo is one commutator that cycles the buffer and two targets. What's new is the moves the comms are built from.
+
+## The buffer
+
+This site's 3-style edges use the buffer **UF**. From UF there are **440** edge cases, each with a verified commutator.
+
+## Slices do a lot of the work
+
+Edge comms often use the middle slices, **M**, **S** and **E**, as the interchange or inside the insertion, because a slice turn moves edges between faces without touching any corner.
+
+<CommCase pieces="edges" case="UR-BU" />
+
+That comm's interchange is a slice turn. Many edge cases are like it: short, with a slice doing the swap.
+
+Cases on the same layer often need a setup first:
+
+<CommCase pieces="edges" case="UR-UB" />
+
+## Flipped edges
+
+An edge in its slot but flipped isn't a 3-cycle, so it isn't a commutator case. Like twisted corners, flipped edges have their own verified algs; learn them after the cycles.
+
+## Where to start
+
+The same route as corners works: pure comms first, then cases by setup, and each case together with its inverse. If you already use M2, cases on the M slice will look familiar.
+
+<Checkpoint id="edge-cases" kind="comm-case" pieces="edges" count="5" />

@@ -1,8 +1,10 @@
-import { ContentDatasetSchema, createRng, faceletsOf, formatMoves, loadPuzzle, OpSetupsDatasetSchema, parseAlg, pieceType, randomMoveSequence, solveFourBld, solveOpOp, speffzScheme, trace, verifiedMoves, type FourBldConfig, type OpParityDataset, type Puzzle, type PuzzleId } from "@bld/cube-engine";
+import { AlgDatasetSchema, ContentDatasetSchema, createRng, expandNodes, invertNodes, faceletsOf, formatMoves, loadPuzzle, OpSetupsDatasetSchema, parseAlg, pieceType, randomMoveSequence, solveFourBld, solveOpOp, speffzScheme, stickerName, trace, verifiedMoves, type FourBldConfig, type OpParityDataset, type Puzzle, type PuzzleId } from "@bld/cube-engine";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { INTERACTIVE_COMPONENTS, MDX_COMPONENT_NAMES } from "@/components/lesson/mdx-component-names";
+import { misplacedPieces, sameLook } from "@/trainers/effects";
+import { MISTAKES, mistakeFor, type MistakeKind } from "@/trainers/lesson-items";
 import { loadLessons, type LessonSource } from "./source";
 
 /**
@@ -36,9 +38,9 @@ const each = (fn: (lesson: LessonSource) => void) => {
 };
 
 describe("the 3BLD path", () => {
-  it("has lessons 1–15 in order, with unique ids", () => {
+  it("has lessons 1–23 in order, with unique ids", () => {
     const track = lessons.filter((l) => l.frontmatter.track === "3bld");
-    expect(track.map((l) => l.frontmatter.order)).toEqual(Array.from({ length: 15 }, (_, i) => i + 1));
+    expect(track.map((l) => l.frontmatter.order)).toEqual(Array.from({ length: 23 }, (_, i) => i + 1));
     expect(new Set(lessons.map((l) => l.frontmatter.id)).size).toBe(lessons.length);
   });
 
@@ -352,4 +354,129 @@ describe("what the 4BLD lessons say is true", () => {
 let threeScheme: ReturnType<typeof speffzScheme>;
 beforeAll(async () => {
   threeScheme = speffzScheme(await loadPuzzle("3x3x3"));
+});
+
+/**
+ * Lessons 16–23: every M2, commutator and mistake demo is checked against the engine, and so is what the
+ * prose says about them. Lesson numbers name where each claim is made.
+ */
+describe("lessons 16–23: components and claims", () => {
+  let p3: Puzzle;
+  beforeAll(async () => {
+    p3 = await loadPuzzle("3x3x3");
+  });
+  const m2 = () => anyDataset("3x3/m2-edges.DF.json");
+  const style = (pieces: string) => AlgDatasetSchema.parse(JSON.parse(readFileSync(join(algsDir, pieces === "edges" ? "3style-edges.UF.json" : "3style-corners.UFR.json"), "utf8")));
+  const plainUsages = () => lessons.flatMap((l) => usages(l.bodies.plain ?? "").map((u) => ({ lesson: l.frontmatter.id, ...u })));
+  const moves = (text: string) => {
+    const parsed = parseAlg("3x3x3", text);
+    if (!parsed.ok) throw new Error(text);
+    return formatMoves(expandNodes(parsed.value.nodes));
+  };
+  const cycled = (alg: string) => {
+    const moved = misplacedPieces(p3, alg);
+    return [...moved.corners, ...moved.edges];
+  };
+
+  it("every M2, commutator, parity and mistake component names something real", () => {
+    const m2Edges = m2();
+    if (m2Edges.kind !== "setups" || m2Edges.method !== "m2") throw new Error("m2 dataset");
+    const op = { corners: opDataset("op-corners.UBL.json"), edges: opDataset("op-edges.UR.json"), parity: anyDataset("3x3/op-parity.UBL-UR.json") as OpParityDataset };
+    for (const u of plainUsages()) {
+      const where = `${u.lesson}: ${u.raw}`;
+      if (u.name === "M2Shot") expect(m2Edges.records.some((r) => r.target === u.attributes.target), where).toBe(true);
+      if (u.name === "M2Tempting") expect(m2Edges.tempting.some((t) => t.target === u.attributes.target), where).toBe(true);
+      if (u.name === "ParityAlg") expect(["op", "m2"], where).toContain(u.attributes.method ?? "op");
+      if (u.name === "CommCase") expect(style(u.attributes.pieces ?? "").records.some((r) => r.id === u.attributes.case), where).toBe(true);
+      if (u.name === "CommParts") {
+        // One commutator, or a conjugate of one, that cycles exactly three pieces of one type.
+        const parsed = parseAlg("3x3x3", u.attributes.comm ?? "");
+        const [top] = parsed.ok ? parsed.value.nodes : [];
+        const inner = top?.type === "conjugate" ? top.body[0] : top;
+        expect(parsed.ok && parsed.value.nodes.length === 1 && inner?.type === "commutator", where).toBe(true);
+        const moved = misplacedPieces(p3, moves(u.attributes.comm ?? ""));
+        expect([moved.corners.length, moved.edges.length].sort(), where).toEqual([0, 3]);
+      }
+      if (u.name === "SolveMistake") {
+        expect(MISTAKES, where).toContain(u.attributes.mistake);
+        expect(mistakeFor(p3, speffzScheme(p3), op, u.attributes.scramble ?? "", u.attributes.mistake as MistakeKind), where).toBeDefined();
+      }
+      if (u.name === "Checkpoint" && ["m2-setup", "m2-special", "comm-expand", "comm-case", "comm-build", "mistake"].includes(u.attributes.kind ?? "")) {
+        for (const piece of (u.attributes.pieces ?? "").split(/\s+/).filter(Boolean)) expect(["corners", "edges"], where).toContain(piece);
+      }
+    }
+  });
+
+  it("lesson 16: M2 exchanges DF with UB and swaps UF with DB; legal setups leave DF, UF and DB home and put the target on UB", () => {
+    const m2Edges = m2();
+    if (m2Edges.kind !== "setups" || m2Edges.method !== "m2") throw new Error("m2 dataset");
+    expect([m2Edges.buffer, m2Edges.swap.swapSticker, m2Edges.swap.alg]).toEqual(["DF", "UB", "M2"]);
+    expect([...m2Edges.swap.sideEffectPieces].sort()).toEqual(["B", "D", "DB", "F", "U", "UF"]);
+    expect([...m2Edges.setupFamilies].sort()).toEqual(["B", "D", "F", "L", "R", "U"]);
+    const facelets = (alg: string) => faceletsOf(p3, p3.kpuzzle.defaultPattern().applyAlg(alg));
+    const slot = (name: string) => p3.geometry.stickers.findIndex((st) => stickerName(p3.geometry, st.index) === name);
+    const setups = m2Edges.records.flatMap((r) => (r.kind === "target" ? [r] : []));
+    for (const record of setups) {
+      const after = facelets(record.setup);
+      // DF, UF and DB show their own stickers, and UB shows the target's.
+      for (const home of ["DF", "UF", "DB"]) expect(after[slot(home)], `${record.target}: ${home}`).toBe(slot(home));
+      expect(after[slot("UB")], record.target).toBe(slot(record.target));
+    }
+    const lengths = setups.filter((r) => r.setup !== "").map((r) => r.setup.split(" ").length);
+    expect(lengths.filter((n) => n === 3).length / lengths.length).toBeGreaterThan(0.9);
+    // Old Pochmann's edge swap, for comparison: 14 moves.
+    expect(opDataset("op-edges.UR.json").swap.alg.split(" ")).toHaveLength(14);
+  });
+
+  it("lesson 17: the four special targets and their odd/even partners", () => {
+    const m2Edges = m2();
+    if (m2Edges.kind !== "setups" || m2Edges.method !== "m2") throw new Error("m2 dataset");
+    expect([...m2Edges.specialTargets].sort()).toEqual(["BD", "DB", "FU", "UF"]);
+    expect(m2Edges.oddStepRule.map((r) => `${r.target}>${r.shootAs}`).sort()).toEqual(["BD>FU", "DB>UF", "FU>BD", "UF>DB"]);
+  });
+
+  it("lesson 18: each mistake's signature, as the lesson describes it", () => {
+    const op = { corners: opDataset("op-corners.UBL.json"), edges: opDataset("op-edges.UR.json"), parity: anyDataset("3x3/op-parity.UBL-UR.json") as OpParityDataset };
+    const scramble = "R U F D' L2 B";
+    const shown = (kind: MistakeKind) => misplacedPieces(p3, `${scramble} ${mistakeFor(p3, speffzScheme(p3), op, scramble, kind) ?? ""}`);
+    const parity = shown("parity");
+    expect([parity.corners.length, parity.edges.length]).toEqual([2, 2]);
+    const letters = shown("letters");
+    expect([letters.corners.length, letters.edges.length].sort()).toEqual([0, 3]);
+    const undo = shown("undo");
+    expect(undo.corners.length).toBeGreaterThan(0);
+    expect(undo.edges.length).toBeGreaterThan(0);
+    expect(undo.corners.length + undo.edges.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("lesson 20: [R, U] is R U R' U'; swapping a comm's parts reverses it; each insertion touches one slot of its interchange layer", () => {
+    expect(moves("[R, U]")).toBe("R U R' U'");
+    for (const [interchange, insertion] of [["B", "L F' L'"], ["M", "B U B'"]] as const) {
+      const comm = `[${interchange}, ${insertion}]`;
+      const swapped = `[${insertion}, ${interchange}]`;
+      expect(sameLook(p3, `${moves(comm)} ${moves(swapped)}`, ""), comm).toBe(true);
+      expect(cycled(moves(swapped)).sort(), comm).toEqual(cycled(moves(comm)).sort());
+      // The interchange's layer holds two of the three pieces; the insertion touches one slot of that layer.
+      const layer = cycled(interchange);
+      expect(cycled(moves(comm)).filter((piece) => layer.includes(piece)), comm).toHaveLength(2);
+      expect(cycled(moves(insertion)).filter((piece) => layer.includes(piece)), comm).toHaveLength(1);
+    }
+    // Undoing a sequence: reverse order, each move inverted.
+    const parsed = parseAlg("3x3x3", "R U' F2");
+    if (!parsed.ok) throw new Error("parse");
+    expect(formatMoves(expandNodes(invertNodes(parsed.value.nodes)))).toBe("F2 U R'");
+  });
+
+  it("lessons 21 and 22: 378 corner cases from UFR and 440 edge cases from UF; the example comms are the shapes the lessons say", () => {
+    const corners = style("corners");
+    const edges = style("edges");
+    expect([corners.buffer, corners.records.filter((r) => r.kind === "cycle").length]).toEqual(["UFR", 378]);
+    expect([edges.buffer, edges.records.filter((r) => r.kind === "cycle").length]).toEqual(["UF", 440]);
+    const main = (dataset: typeof corners, id: string) => dataset.records.find((r) => r.id === id)?.algs[0]?.alg ?? "";
+    expect(main(corners, "UBR-UBL")).toMatch(/^\[[^,\]]+: /);
+    expect(main(corners, "UBR-LUB")).toMatch(/^\[[^:]+\]$/);
+    expect(main(edges, "UR-UB")).toMatch(/^\[[^,\]]+: /);
+    // UR-BU's comm has a single slice turn as one of its parts.
+    expect(main(edges, "UR-BU")).toMatch(/^\[[^:]+, [MSE]'?2?\]$|^\[[MSE]'?2?, [^:]+\]$/);
+  });
 });

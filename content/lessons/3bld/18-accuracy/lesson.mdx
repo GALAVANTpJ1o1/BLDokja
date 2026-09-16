@@ -1,0 +1,59 @@
+---
+id: accuracy
+title: "Accuracy: why solves fail, and how to find out"
+track: 3bld
+order: 18
+prerequisites:
+  - first-full-solve
+estimatedMinutes: 7
+objectives:
+  - Name the common causes of a failed blindfolded solve
+  - Read a failed cube to find which kind of mistake happened
+  - Build habits that catch mistakes before the blindfold
+checkpoints:
+  - id: diagnose
+    title: Diagnose a failed solve
+recap:
+  - A solve is memo, then execution, with the parity step in its place.
+  - Each target is a setup, a swap and the exact undo.
+---
+
+A blindfolded solve that doesn't come out is a DNF, and early on most solves are. The fastest way to fewer DNFs isn't more solves: it's finding out **why** each one failed.
+
+## Where mistakes come from
+
+Almost every failure is one of these:
+
+- **Tracing.** A sticker read wrong, a cycle break missed, a twisted corner forgotten.
+- **Memory.** A letter pair or image recalled wrong, or a whole pair skipped.
+- **Execution.** A setup not undone exactly, the wrong swap, a slip mid-alg.
+- **Parity.** The step left out, or done in the wrong place.
+
+## Look before you reset
+
+Don't scramble a failed cube straight away. Open your eyes, don't turn anything, and look at what's unsolved. Each kind of mistake leaves its own pattern. Here's the same scramble solved three times with Old Pochmann, each time with a single mistake.
+
+**The parity step left out.** Two corners and two edges end up swapped, and everything else is solved:
+
+<SolveMistake scramble="R U F D' L2 B" mistake="parity" />
+
+**Two targets done in the wrong order.** Three pieces of one type are cycled, and the other type is fine:
+
+<SolveMistake scramble="R U F D' L2 B" mistake="letters" />
+
+**A setup done again instead of undone.** A whole cluster of pieces, five or more, of both types:
+
+<SolveMistake scramble="R U F D' L2 B" mistake="undo" />
+
+Two swaps across corners and edges point at parity. Three pieces cycled point at the order of two targets, in your memo or your hands. A big mess points at a setup or an alg. That tells you what to practise.
+
+## Habits that catch mistakes early
+
+- **Trace twice before the blindfold** for your first solves. If the two memos disagree, you found a tracing mistake for free.
+- **Say the pair count out loud** when each piece type is done, and decide about parity then.
+- **Count setups as you undo them.** The undo is the setup's moves in reverse order, each one turned the other way.
+- **Write down what failed.** After ten DNFs, one cause usually stands out.
+
+This site's trainers log every target you trace and every case you drill. The Progress page shows where your mistakes and slow spots are, and Weak 20 drills them.
+
+<Checkpoint id="diagnose" kind="mistake" count="6" />

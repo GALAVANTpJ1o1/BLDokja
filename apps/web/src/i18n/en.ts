@@ -7,6 +7,7 @@
 import type { Voice } from "@bld/storage";
 import { analyticsCopy } from "./analytics";
 import { fourBldCopy } from "./four-bld";
+import { lessonExtraCopy } from "./lessons-extra";
 import { toolsCopy } from "./tools";
 import { trainerCopy } from "./trainers";
 
@@ -209,6 +210,7 @@ export const en = {
   },
   ...trainerCopy,
   ...fourBldCopy,
+  ...lessonExtraCopy,
   ...toolsCopy,
   ...analyticsCopy,
   common: {

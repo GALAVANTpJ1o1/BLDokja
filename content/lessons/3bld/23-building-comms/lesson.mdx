@@ -1,0 +1,57 @@
+---
+id: building-comms
+title: Building your own comms and choosing between them
+track: 3bld
+order: 23
+prerequisites:
+  - three-style-edges
+estimatedMinutes: 8
+objectives:
+  - Build a commutator for a case from an insertion and an interchange
+  - Fix a comm that cycles the wrong way
+  - Choose between two comms for the same case
+checkpoints:
+  - id: build
+    title: Build a comm
+    pass: 0.66
+recap:
+  - A commutator [A, B] cycles three pieces when A and B share exactly one slot.
+  - "A conjugate [S: [A, B]] sets pieces up for a commutator first."
+---
+
+The site gives you a verified comm for every case, but many solvers end up preferring their own. Building a comm is a short routine, and once you can do it no case is a mystery.
+
+## The routine
+
+For the buffer and two targets:
+
+1. **Find an interchange.** Look for a layer, a face or a slice, that holds two of the three pieces. A single turn of it is the interchange.
+2. **Find an insertion.** The third piece is outside that layer. Look for a short sequence, often three moves, that takes it into the layer and back out, touching only one of the layer's slots.
+3. **Put them together** as [insertion, interchange] or [interchange, insertion].
+4. **Check the direction.** If the pieces cycle the wrong way round, swap the two parts: [B, A] is the reverse of [A, B].
+5. **No interchange or insertion fits?** Add a setup that moves one piece so they do, and write the whole thing as [setup: [A, B]].
+
+Here's a comm built that way, part by part. The interchange is a slice turn:
+
+<CommParts comm="[M, B U B']" />
+
+And the same parts swapped, which cycles the same three edges the other way:
+
+<CommParts comm="[B U B', M]" />
+
+## Checking your work
+
+The commutator sandbox in Practice takes any comm you type, expands it, counts its moves and tells you exactly which pieces it moves. It only calls something a 3-cycle when the engine has checked it. Use it for every comm you build.
+
+## Choosing between comms
+
+When a case has more than one comm, prefer:
+
+- **fewer moves after cancellation,** since moves at the joins often cancel;
+- **no regrips,** so your hands stay in one position throughout;
+- **moves you're fast at,** even if the count is one higher;
+- **a shape you already know** from a neighbouring case, since it's easier to recall.
+
+In the 3-style trainer you can save your own comm for any case. It's checked before it's saved, and yours is shown first from then on.
+
+<Checkpoint id="build" kind="comm-build" pieces="corners" count="3" />

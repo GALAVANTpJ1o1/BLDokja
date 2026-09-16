@@ -1,0 +1,51 @@
+---
+id: memo-time
+title: Cutting memo time
+track: 3bld
+order: 19
+prerequisites:
+  - accuracy
+estimatedMinutes: 6
+objectives:
+  - Find which part of memo takes your time
+  - Practise tracing and recall separately
+  - Speed up without losing accuracy
+checkpoints:
+  - id: fast-trace
+    title: Trace cleanly
+recap:
+  - Memo is tracing targets, then turning pairs into images.
+  - Accuracy comes first; a fast DNF is still a DNF.
+---
+
+Once your solves are coming out, memo is usually most of your time. It has three parts, and they get faster in different ways.
+
+## Three parts of memo
+
+1. **Tracing:** finding each target on the cube.
+2. **Encoding:** turning each letter pair into its image and placing it.
+3. **Review:** going over the memo once before the blindfold goes on.
+
+A slow memo is almost always slow in one of them. Find out which before changing anything.
+
+## Measure it
+
+The guided trace trainer times every target. The Progress page splits those times by kind: the first target, normal targets, cycle breaks, and twists or flips. If breaks take twice as long as normal targets, that's your practice for the week, not memorising faster.
+
+For encoding, the letter-pair trainer's rapid-fire drill times each pair. A pair that takes seconds to recall its image slows every memo it appears in; replace or re-learn that image.
+
+## Practise the parts separately
+
+- **Tracing only.** Trace scrambles and type the letters, without memorising anything. Aim for no hesitation at breaks.
+- **Encoding only.** Drill pairs until an image comes before you've finished reading the letters.
+- **Put it together** only when both are quick. Speed you haven't built in the parts won't appear in a full solve.
+
+## Keep accuracy
+
+Speed that costs accuracy isn't worth it. A useful rule while you're cutting time: push speed until one solve in five fails, then hold that pace until it stops failing. And keep looking at every failed cube, the way the last lesson showed.
+
+Try this trace at a steady pace, no hesitation at the break:
+
+<TraceWalk scramble="R' B2 R U2 B2 U2 R" pieces="corners" mode="guided" shows="break" label="A trace to keep smooth" />
+
+<Checkpoint id="fast-trace" kind="trace" count="3" pieces="edges corners" requires="any" maxTargets="10" />

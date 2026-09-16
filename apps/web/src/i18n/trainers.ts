@@ -60,6 +60,7 @@ export const trainerCopy = {
     title: "M2 / OP trainer",
     intro: "Recall the setup for a target, reveal it, and mark yourself. The M2 special cases have their own drill.",
     lessonTitle: "Old Pochmann corners",
+    lessons: { opEdges: "Old Pochmann edges", m2: "M2 edges: the idea", m2Special: "M2 edges: every special case" },
     mode: "Drill",
     modes: { "op-corners": "OP corners", "op-edges": "OP edges", "m2-edges": "M2 edges", "m2-special": "M2 special cases", "scramble-op": "Full scramble: OP", "scramble-m2": "Full scramble: M2 edges, OP corners", illegal: "Why is this setup illegal?" },
     family: "Targets on",

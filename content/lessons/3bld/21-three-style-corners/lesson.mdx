@@ -1,0 +1,53 @@
+---
+id: three-style-corners
+title: 3-style corners
+track: 3bld
+order: 21
+prerequisites:
+  - commutators
+estimatedMinutes: 7
+objectives:
+  - Solve a pair of corner targets with one commutator
+  - Recognise a 3-style corner case from the buffer UFR
+  - Plan how to learn the cases
+checkpoints:
+  - id: corner-cases
+    title: Recognise corner cases
+recap:
+  - A commutator [A, B] cycles exactly three pieces and puts everything else back.
+  - "A conjugate [S: X] is S, then X, then S undone."
+---
+
+In 3-style, every letter pair in your corner memo is one commutator. The buffer, the first target and the second target are the three pieces it cycles: the buffer's piece goes to the first target, the first target's piece goes to the second, and the second's comes back to the buffer.
+
+## The buffer
+
+This site's 3-style corners use the buffer **UFR**. That's not Old Pochmann's UBL: 3-style solvers pick a buffer that gives comfortable comms, and UFR is a common choice.
+
+## A case is a pair
+
+A **case** is an ordered pair of targets: first target, then second. From UFR there are **378** corner cases, and each one has a verified commutator. Here's one that needs a setup:
+
+<CommCase pieces="corners" case="UBR-UBL" />
+
+and one that doesn't:
+
+<CommCase pieces="corners" case="UBR-LUB" />
+
+Tracing works exactly as before. The only change is what you do with each pair: one comm instead of two Old Pochmann swaps.
+
+## Learning 378 cases
+
+Nobody learns them in one go. A route that works:
+
+1. **Start with pure commutators**, the cases with no setup. They teach the insertion and interchange shapes you'll reuse everywhere.
+2. **Then one setup move**, grouped by the setup.
+3. **Learn a case and its inverse together.** The case with its two targets the other way round is solved by the same comm with its two parts swapped.
+
+The 3-style trainer shows every case with its comm, its moves and its inverse, and drills them with spaced review.
+
+## Odd counts and twists
+
+An odd number of corner targets leaves one target without a partner, and twisted corners need their own algs. Both have verified algs in this site's datasets; learn them after the cycles.
+
+<Checkpoint id="corner-cases" kind="comm-case" pieces="corners" count="5" />

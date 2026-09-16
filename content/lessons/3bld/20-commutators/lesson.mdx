@@ -1,0 +1,63 @@
+---
+id: commutators
+title: "Commutators: the [A, B] shape"
+track: 3bld
+order: 20
+prerequisites:
+  - first-full-solve
+estimatedMinutes: 8
+objectives:
+  - "Read and write out a commutator [A, B] and a conjugate [S: X]"
+  - Name the insertion and the interchange in a commutator
+  - Say why a commutator moves only three pieces
+checkpoints:
+  - id: expand
+    title: Write out commutators
+recap:
+  - Old Pochmann solves one target per alg; its swap moves extra pieces that cancel in pairs.
+  - Undoing a sequence means its moves in reverse order, each turned the other way.
+---
+
+Old Pochmann and M2 solve one target at a time. A **commutator** solves two at once: it moves three pieces round a cycle, the buffer and two targets, and leaves every other piece where it was. That's the whole of 3-style.
+
+## The notation
+
+A commutator is written **[A, B]**, where A and B are short move sequences. It means:
+
+1. do A;
+2. do B;
+3. undo A;
+4. undo B.
+
+So [R, U] is R U R' U'. Nothing more to it.
+
+A **conjugate** is written **[S: X]** and means S, then X, then undo S. It's how you set pieces up so that a commutator can reach them, exactly the way Old Pochmann's setups work.
+
+## Watch one, part by part
+
+Step through this commutator. The three pieces it cycles are lit the whole time; watch everything else come back.
+
+<CommParts comm="[B, L F' L']" />
+
+After A and B, the cube looks badly scrambled. Undoing A puts most of it back, and undoing B finishes the job, except for three pieces.
+
+## Insertion and interchange
+
+The two parts of a commutator like this have jobs:
+
+- The **interchange** is a single turn of a layer that holds two of the three pieces. Here it's B.
+- The **insertion** is a short sequence that takes the third piece into that layer and back out, touching only one slot of the layer. Here it's L F' L'.
+
+Which one goes first decides which way round the three pieces cycle. Swapping them, [L F' L', B], cycles the same three pieces the other way.
+
+## Why only three pieces move
+
+A and B each move plenty of pieces, and the undos put almost all of them back. Trouble can only happen where A and B overlap. When they share exactly one slot, as an insertion and an interchange do, what's left over is always a cycle of exactly three pieces.
+
+## With a setup
+
+Most useful comms need a setup first, written as a conjugate. Here the setup R' puts the pieces where an insertion and an interchange can reach them:
+
+<CommParts comm="[R': [R' B2 R, F]]" />
+
+<Checkpoint id="expand" kind="comm-expand" pieces="corners" count="5" />

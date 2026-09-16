@@ -1,0 +1,53 @@
+---
+id: m2-edges
+title: "M2 edges: the idea"
+track: 3bld
+order: 16
+prerequisites:
+  - first-full-solve
+estimatedMinutes: 8
+objectives:
+  - Shoot an edge target with a setup, M2 and the undo
+  - Say which pieces a setup must leave alone, and why
+  - Know where the M2/OP parity step goes
+checkpoints:
+  - id: m2-setups
+    title: M2 setups
+recap:
+  - Old Pochmann shoots each target with a setup, a swap alg and the undo.
+  - An odd number of targets means a parity step between edges and corners.
+---
+
+Old Pochmann's edge swap is a whole 14-move alg, done once for every target. M2 swaps with a single move: **M2**, a half turn of the middle slice between L and R. Everything else about the method is the same idea you already use: set the target up, swap, undo.
+
+## The buffer and the swap slot
+
+M2 uses the buffer **DF**. A half turn of M carries DF round to **UB**, and UB down to DF, so M2 exchanges the buffer with UB. UB is the swap slot: a target sitting there needs no setup.
+
+<M2Shot target="UB" />
+
+M2 moves a few other things too: it swaps UF with DB, and swaps the slice's centres in pairs, U with D and F with B. Like Old Pochmann's side effects, those cancel when the targets come in pairs.
+
+## Setups
+
+A setup brings the target to UB. The rule for what counts as legal: at the moment you do M2, **DF, UF and DB must hold their own pieces**, and only the target has moved into UB. Otherwise M2 would swap the wrong pieces, and the undo can't fix it.
+
+<M2Shot target="UR" />
+
+Watch UF here. The first turn does move it out of place, but the turn after that doesn't touch it, and it's back home when M2 runs. What matters is where things are at the swap.
+
+Setups use the six face turns, never M itself. Almost every target is three moves from UB, and a setup that looks shorter usually breaks the rule:
+
+<M2Tempting target="UR" />
+
+## Parity with Old Pochmann corners
+
+M2 solves the edges; corners stay Old Pochmann. After an odd number of M2 targets the slice is still a half turn out, so the parity step is different from Old Pochmann's. Do it after the edges and before the corners, as before:
+
+<ParityAlg method="m2" />
+
+## The special targets
+
+Four targets, UF, FU, DB and BD, sit on the pieces M2 itself moves, so no legal setup reaches them. They have their own algs and a rule of their own. That's the next lesson.
+
+<Checkpoint id="m2-setups" kind="m2-setup" count="6" />

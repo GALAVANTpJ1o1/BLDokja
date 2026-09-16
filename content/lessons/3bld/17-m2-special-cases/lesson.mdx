@@ -1,0 +1,54 @@
+---
+id: m2-special-cases
+title: "M2 edges: every special case"
+track: 3bld
+order: 17
+prerequisites:
+  - m2-edges
+estimatedMinutes: 7
+objectives:
+  - Shoot UF, FU, DB and BD with their own algs
+  - Apply the odd/even rule on the second letter of a pair
+  - Explain why that rule exists
+checkpoints:
+  - id: m2-specials
+    title: M2 special cases
+recap:
+  - M2 exchanges the buffer DF with UB, and also swaps UF with DB.
+  - A legal setup leaves DF, UF and DB home when M2 runs.
+---
+
+UF and DB are the two edges M2 swaps besides the buffer and UB. A setup can't bring either to UB and still leave them home for the swap, so each has its own alg, one per sticker: **UF, FU, DB and BD**.
+
+## The four algs
+
+Each one does what a setup, M2 and undo would do if that were possible: the buffer's piece goes to the target, and the slice ends in the same state as after a normal M2.
+
+<M2Shot target="UF" />
+
+<M2Shot target="FU" />
+
+<M2Shot target="DB" />
+
+<M2Shot target="BD" />
+
+Learn them in pairs: UF with DB, and FU with BD. Each pair belongs together because of the rule below.
+
+## The odd/even rule
+
+Every M2 turns the slice a half turn. After an odd number of them, the slice is still out: the piece that belongs at UF is sitting at DB, and the piece that belongs at DB is sitting at UF.
+
+So when one of these four targets is the **second letter of a pair**, an odd number of M2s has just been done, and you shoot it as its partner:
+
+- UF as the second letter: do **DB**'s alg;
+- DB as the second letter: do **UF**'s alg;
+- FU as the second letter: do **BD**'s alg;
+- BD as the second letter: do **FU**'s alg.
+
+As the first letter of a pair, each one is shot with its own alg.
+
+<Note>The rule only depends on the position in the memo, not on what came before. Count pairs as you memorise and it's automatic: first letter, own alg; second letter, partner's.</Note>
+
+The M2/OP trainer has a special-case drill that asks each of the eight cases, four targets in two positions, until they stick.
+
+<Checkpoint id="m2-specials" kind="m2-special" count="8" />
