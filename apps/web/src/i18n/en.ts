@@ -78,6 +78,13 @@ export const en = {
     voice: "Lesson voice",
     voices: { plain: "Plain and precise", tsundere: "Tsundere", casual: "Casual and chatty", roast: "Roasting helper" },
     voiceHint: "Changes lesson text, trainer hints and summaries. Buttons and warnings stay plain.",
+    cubeView: "Cube display",
+    cubeViews: { "3d": "3D cube", net: "Flat net", text: "Written out" },
+    cubeViewHint: "The flat net and the written form work without 3D graphics. Every cube has a written description for screen readers whichever you pick.",
+    readAloud: "Read drills aloud",
+    readAlouds: { on: "On", off: "Off" },
+    readAloudHint: "Trainers speak each prompt with the browser's own voice, so a drill can be done without looking. Nothing is sent anywhere.",
+    readAloudUnsupported: "This browser has no speech voices, so reading aloud does nothing here.",
     data: "Your data",
     dataIntro: "Everything stays in this browser. Nothing is sent anywhere.",
     persistent: {
@@ -120,6 +127,7 @@ export const en = {
     stepBack: "Step back",
     stepForward: "Step forward",
     restart: "Back to start",
+    moves: "Moves",
   },
   lesson: {
     minutes: (n: number) => `${n} min`,

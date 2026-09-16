@@ -11,6 +11,7 @@ import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { voiced } from "@/i18n/voiced";
 import { useReader } from "@/lib/reader";
+import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { constrainedScramble, timeVerdict, traceConstraints, type ConstrainedScramble } from "@/trainers/difficulty";
@@ -261,6 +262,13 @@ export function TraceTrainer() {
   }
 
   const cubeHidden = ramp.level === 4 && looked !== undefined && !done;
+  // What the trainer says out loud when reading aloud is on (BRIEF §10).
+  const announce = lookPhase
+    ? en.trace.lookFirst
+    : current === undefined
+      ? undefined
+      // The feedback line already says which letter to retype, so it isn't repeated here.
+      : announcement([en.trace.target(position + 1, flat.length), explanation, feedback?.text]);
 
   return (
     <TrainerShell
@@ -269,6 +277,7 @@ export function TraceTrainer() {
       lesson={{ href: "/learn/tracing-a-cycle/", title: en.trace.lessonTitle }}
       settings={settings}
       shortcuts={shortcuts}
+      {...(announce === undefined ? {} : { announce })}
       summary={
         summary !== undefined ? (
           <div className="flex flex-col gap-3" role="status">

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Palette, Settings, Theme, Voice } from "@bld/storage";
+import type { CubeView, Palette, Settings, Theme, Voice } from "@bld/storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 /**
@@ -16,6 +16,8 @@ export const APPEARANCE_KEY = "bld.appearance";
 export interface ResolvedSettings {
   readonly theme: Theme;
   readonly palette: Palette;
+  readonly cubeView: CubeView;
+  readonly readAloud: boolean;
   readonly voice: Voice | undefined;
   readonly lastBackupAt: string | undefined;
   readonly persistentStorage: Settings["persistentStorage"];
@@ -29,7 +31,7 @@ interface SettingsContextValue {
   readonly update: (patch: Partial<Settings>) => Promise<void>;
 }
 
-const DEFAULTS: ResolvedSettings = { theme: "system", palette: "standard", voice: undefined, lastBackupAt: undefined, persistentStorage: undefined };
+const DEFAULTS: ResolvedSettings = { theme: "system", palette: "standard", cubeView: "3d", readAloud: false, voice: undefined, lastBackupAt: undefined, persistentStorage: undefined };
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
 
@@ -50,6 +52,8 @@ function resolve(stored: Settings | undefined): ResolvedSettings {
   return {
     theme: stored?.theme ?? DEFAULTS.theme,
     palette: stored?.palette ?? DEFAULTS.palette,
+    cubeView: stored?.cubeView ?? DEFAULTS.cubeView,
+    readAloud: stored?.readAloud ?? DEFAULTS.readAloud,
     voice: stored?.voice,
     lastBackupAt: stored?.lastBackupAt,
     persistentStorage: stored?.persistentStorage,

@@ -16,6 +16,7 @@ import { algDatasets } from "@/content/algs";
 import { en } from "@/i18n/en";
 import { threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
+import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { subsetOf, timeVerdict } from "@/trainers/difficulty";
@@ -165,8 +166,8 @@ export function ThreeStyleTrainer() {
       <DifficultySummary subsets time seed />
     </>
   );
-  const shell = (children: React.ReactNode, summary?: React.ReactNode) => (
-    <TrainerShell title={en.threeStyle.title} intro={en.threeStyle.intro} settings={settings} shortcuts={shortcuts} summary={summary}>
+  const shell = (children: React.ReactNode, summary?: React.ReactNode, announce?: string) => (
+    <TrainerShell title={en.threeStyle.title} intro={en.threeStyle.intro} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
       {children}
     </TrainerShell>
   );
@@ -335,5 +336,10 @@ export function ThreeStyleTrainer() {
     </div>
   );
 
-  return shell(panel, summary);
+  // Spoken when reading aloud is on: the case, then either the comm or the prompt to say it.
+  return shell(
+    panel,
+    summary,
+    shown === undefined ? undefined : announcement([`${shown.letters}, ${shown.targets[0]} to ${shown.targets[1]}`, showAlg ? main?.alg : en.threeStyle.recallPrompt]),
+  );
 }

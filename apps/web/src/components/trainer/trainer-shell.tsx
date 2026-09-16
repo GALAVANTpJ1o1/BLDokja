@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useSettings } from "@/components/settings/settings-provider";
+import { speak, stopSpeaking } from "@/lib/speech";
 import { TrainerHeader } from "@/components/trainer/trainer-header";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
@@ -14,8 +16,16 @@ export interface Shortcut {
  * The shell every trainer shares (BRIEF §7): a settings panel, the drill surface, the session summary,
  * and a link back to the lesson that teaches it. `?` lists the trainer's keyboard shortcuts.
  */
-export function TrainerShell({ title, intro, lesson, settings, children, summary, shortcuts }: { title: string; intro: string; lesson?: { href: string; title: string }; settings?: ReactNode; children: ReactNode; summary?: ReactNode; shortcuts: readonly Shortcut[] }) {
+export function TrainerShell({ title, intro, lesson, settings, children, summary, shortcuts, announce }: { title: string; intro: string; lesson?: { href: string; title: string }; settings?: ReactNode; children: ReactNode; summary?: ReactNode; shortcuts: readonly Shortcut[]; announce?: string }) {
   const [helpOpen, setHelpOpen] = useState(false);
+  const { settings: appearance, update } = useSettings();
+  const readAloud = appearance.readAloud;
+
+  // The drill's current prompt, spoken whenever it changes: the non-visual path through a trainer (BRIEF §10).
+  useEffect(() => {
+    if (readAloud && announce !== undefined) speak(announce);
+  }, [announce, readAloud]);
+  useEffect(() => stopSpeaking, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -31,14 +41,27 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
 
   return (
     <div className="flex max-w-5xl flex-col gap-6">
-      <TrainerHeader title={title} intro={intro} {...(lesson === undefined ? {} : { lesson })} onKeys={() => { setHelpOpen(true); }} />
+      <TrainerHeader
+        title={title}
+        intro={intro}
+        {...(lesson === undefined ? {} : { lesson })}
+        onKeys={() => { setHelpOpen(true); }}
+        readAloud={{
+          on: readAloud,
+          toggle: () => {
+            if (readAloud) stopSpeaking();
+            void update({ readAloud: !readAloud });
+          },
+        }}
+      />
       {settings !== undefined ? (
         <details className="panel">
           <summary className="cursor-pointer px-4 py-3 t-ui">{en.trainer.settings}</summary>
           <div className="flex flex-col gap-4 border-t border-rule px-4 py-4">{settings}</div>
         </details>
       ) : null}
-      <section aria-label={en.trainer.drill}>{children}</section>
+      {/* The drill keeps its space while the trainer loads, so the page doesn't jump when it arrives. */}
+      <section aria-label={en.trainer.drill} className="min-h-[24rem]">{children}</section>
       {summary !== undefined ? <section aria-label={en.trainer.summary} className="border-t border-rule pt-4">{summary}</section> : null}
       <TransmissionWindow open={helpOpen} title={en.trainer.keysTitle} onClose={() => { setHelpOpen(false); }}>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">

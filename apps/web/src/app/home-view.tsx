@@ -35,7 +35,16 @@ export function HomeView() {
       .catch(() => { setStarted(false); });
   }, []);
 
-  if (started === undefined) return <p className="t-meta text-quiet">{en.common.loading}</p>;
+  // Until storage answers, the page shows what it is. A plain "Loading" line would leave the largest text
+  // on the page waiting for IndexedDB, and this keeps the same shape as both states below.
+  if (started === undefined) {
+    return (
+      <div className="flex max-w-3xl flex-col gap-6">
+        <h1 className="t-title">{en.site.name}</h1>
+        <p className="t-body prose-measure">{en.site.tagline}</p>
+      </div>
+    );
+  }
 
   if (!started) {
     return (

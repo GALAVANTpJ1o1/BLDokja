@@ -1,11 +1,12 @@
 "use client";
 
-import { exportData, importData, PALETTES, parseExport, THEMES, VOICES, type ExportV1, type ImportDataError, type Palette, type Theme, type Voice } from "@bld/storage";
+import { CUBE_VIEWS, exportData, importData, PALETTES, parseExport, THEMES, VOICES, type CubeView, type ExportV1, type ImportDataError, type Palette, type Theme, type Voice } from "@bld/storage";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
+import { useSpeechAvailable } from "@/lib/speech";
 import { getStorage, nowIso, storageIsPersistent } from "@/lib/storage-client";
 
 const BACKUP_INTERVAL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -16,7 +17,9 @@ function Choice<T extends string>({ legend, hint, options, labels, value, onChan
     <fieldset className="flex flex-col gap-2">
       <legend className="t-subheading">{legend}</legend>
       {hint !== undefined ? <p className="t-meta text-quiet">{hint}</p> : null}
-      <div className="flex flex-wrap gap-2">
+      {/* A grid, not a wrapping row: the selected option is heavier (DESIGN.md), and in a row that changes
+          where the options wrap when your saved choice arrives, which moves the page. */}
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2">
         {options.map((option) => (
           <label key={option} className={`btn ${value === option ? "btn-strong" : ""}`}>
             <input type="radio" name={name} value={option} checked={value === option} onChange={() => { onChange(option); }} className="sr-only" />
@@ -45,6 +48,8 @@ function importErrorText(error: ImportDataError): string {
 
 export function SettingsView() {
   const { settings, update, ready } = useSettings();
+  // Checked in the browser: the server doesn't know whether this device has a voice.
+  const speech = useSpeechAvailable();
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [pending, setPending] = useState<ExportV1 | undefined>(undefined);
   const [confirmText, setConfirmText] = useState("");
@@ -127,7 +132,16 @@ export function SettingsView() {
       <Section title={en.settings.appearance}>
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
+        <Choice<CubeView> legend={en.settings.cubeView} hint={en.settings.cubeViewHint} options={CUBE_VIEWS} labels={en.settings.cubeViews} value={ready ? settings.cubeView : undefined} onChange={(cubeView) => void update({ cubeView })} />
         <Choice<Voice> legend={en.settings.voice} hint={en.settings.voiceHint} options={VOICES} labels={en.settings.voices} value={settings.voice} onChange={(voice) => void update({ voice })} />
+        <Choice<"on" | "off">
+          legend={en.settings.readAloud}
+          hint={speech ? en.settings.readAloudHint : `${en.settings.readAloudHint} ${en.settings.readAloudUnsupported}`}
+          options={["on", "off"]}
+          labels={en.settings.readAlouds}
+          value={ready ? (settings.readAloud ? "on" : "off") : undefined}
+          onChange={(v) => void update({ readAloud: v === "on" })}
+        />
       </Section>
 
       <Section title={en.scheme.lettering}>
@@ -140,10 +154,13 @@ export function SettingsView() {
       <Section title={en.settings.data}>
         <p className="t-body">{en.settings.dataIntro}</p>
         <p className="t-meta text-quiet">{persistence}</p>
-        {quarantined > 0 ? <p className="t-body">{en.settings.quarantine(quarantined)}</p> : null}
         <div className="flex flex-col gap-2">
           <p className="t-meta">{settings.lastBackupAt === undefined ? en.settings.neverBackedUp : en.settings.lastBackup(new Date(settings.lastBackupAt).toLocaleDateString("en-GB", { dateStyle: "long" }))}</p>
-          {ready && backupDue ? <p className="t-body font-[600]">{en.settings.backupDue}</p> : null}
+          {/* Both notices depend on stored data, which arrives after the first paint: one line is kept for them so nothing moves. */}
+          <div className="min-h-[1.7rem]">
+            {quarantined > 0 ? <p className="t-body">{en.settings.quarantine(quarantined)}</p> : null}
+            {ready && backupDue ? <p className="t-body font-[600]">{en.settings.backupDue}</p> : null}
+          </div>
           <div>
             <button type="button" className="btn btn-strong" disabled={busy} onClick={() => void doExport()}>
               {busy ? en.settings.exporting : en.settings.export}

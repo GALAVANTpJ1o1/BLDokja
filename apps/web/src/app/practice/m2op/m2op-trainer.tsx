@@ -14,6 +14,7 @@ import { Segmented, TrainerShell } from "@/components/trainer/trainer-shell";
 import { en } from "@/i18n/en";
 import { m2opData, useMethodData } from "@/lib/methods";
 import { useReader } from "@/lib/reader";
+import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, useEvents, writePreference } from "@/lib/use-events";
 import { subsetOf, timeVerdict } from "@/trainers/difficulty";
@@ -217,8 +218,8 @@ export function M2OpTrainer() {
           ...(isShotMode(mode) ? [] : [{ keys: en.m2op.keyN, action: en.m2op.keyNAction }]),
         ];
 
-  const shell = (children: React.ReactNode, summary?: React.ReactNode) => (
-    <TrainerShell title={en.m2op.title} intro={en.m2op.intro} lesson={{ href: mode === "op-edges" ? "/learn/op-edges/" : "/learn/op-corners/", title: mode === "op-edges" ? "Old Pochmann edges" : en.m2op.lessonTitle }} settings={settings} shortcuts={shortcuts} summary={summary}>
+  const shell = (children: React.ReactNode, summary?: React.ReactNode, announce?: string) => (
+    <TrainerShell title={en.m2op.title} intro={en.m2op.intro} lesson={{ href: mode === "op-edges" ? "/learn/op-edges/" : "/learn/op-corners/", title: mode === "op-edges" ? "Old Pochmann edges" : en.m2op.lessonTitle }} settings={settings} shortcuts={shortcuts} summary={summary} {...(announce === undefined ? {} : { announce })}>
       {children}
     </TrainerShell>
   );
@@ -356,5 +357,11 @@ export function M2OpTrainer() {
       </div>
     </div>,
     masteryPanel,
+    // Spoken when reading aloud is on: which target, then either "say it" or what was revealed.
+    announcement([
+      `${en.m2op.target} ${current.letter}, ${current.target}`,
+      current.position === undefined ? undefined : current.position === "odd" ? en.m2op.oddPosition : en.m2op.evenPosition,
+      revealed ? (current.setup === "" ? current.notation : `${en.m2op.setup}: ${current.setup}`) : en.m2op.recall,
+    ]),
   );
 }

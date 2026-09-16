@@ -3,6 +3,9 @@ export const trainerCopy = {
   trainer: {
     learnIn: "Learn it in",
     keys: "Keys",
+    readAloud: "Read aloud",
+    readAloudOn: "Reading prompts aloud",
+    readAloudOff: "Not reading prompts aloud",
     keysTitle: "Keyboard shortcuts",
     showKeys: "Show these shortcuts",
     settings: "Settings",

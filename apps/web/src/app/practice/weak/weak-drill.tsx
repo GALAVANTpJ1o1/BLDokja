@@ -14,6 +14,7 @@ import { en } from "@/i18n/en";
 import { itemLabel, parseCase } from "@/lib/item-labels";
 import { m2opData, threeStyleForReader, useMethodData } from "@/lib/methods";
 import { useReader, type Reader } from "@/lib/reader";
+import { announcement } from "@/lib/speech";
 import { newId, nowIso } from "@/lib/storage-client";
 import { useEvents } from "@/lib/use-events";
 import { weakDeck } from "@/lib/weak";
@@ -30,6 +31,9 @@ interface Prompt {
   /** Typed answers are checked against this; recall items reveal and self-grade instead. */
   readonly typed?: string;
   readonly answer: ReactNode;
+  /** The same question in words, for reading aloud (BRIEF §10). */
+  readonly spoken: string;
+  readonly spokenAnswer?: string;
 }
 
 /**
@@ -82,8 +86,8 @@ export function WeakDrill() {
     setResult(undefined);
   };
 
-  const shell = (children: ReactNode) => (
-    <TrainerShell title={en.weak.title} intro={en.weak.intro} shortcuts={[]}>
+  const shell = (children: ReactNode, announce?: string) => (
+    <TrainerShell title={en.weak.title} intro={en.weak.intro} shortcuts={[]} {...(announce === undefined ? {} : { announce })}>
       {children}
     </TrainerShell>
   );
@@ -153,6 +157,13 @@ export function WeakDrill() {
         </>
       )}
     </div>,
+    // Spoken when reading aloud is on: which item this is, the question, and the answer once revealed.
+    announcement([
+      `${en.weak.progress(index + 1, deck.length)}. ${itemLabel(reader, item.trainer, item.caseId)}`,
+      prompt === "unavailable" ? en.weak.unavailable : prompt.spoken,
+      prompt !== "unavailable" && revealed ? prompt.spokenAnswer : undefined,
+      result === undefined ? undefined : result ? en.weak.correct : en.weak.notQuite(prompt === "unavailable" ? "" : (prompt.typed ?? "")),
+    ]),
   );
 }
 
@@ -177,6 +188,7 @@ function promptFor(
         ),
         typed: letter,
         answer: null,
+        spoken: en.weak.typeLetter(parsed.sticker),
       };
     }
     case "pairs": {
@@ -191,6 +203,8 @@ function promptFor(
           </>
         ),
         answer: <p className="t-heading">{image.text}</p>,
+        spoken: `${parsed.pair}. ${en.weak.recallImage}`,
+        spokenAnswer: image.text,
       };
     }
     case "3style": {
@@ -215,6 +229,8 @@ function promptFor(
             {alg.alg} <span className="t-meta text-quiet">· {alg.moves}</span>
           </p>
         ),
+        spoken: `${found.letters}, ${found.targets[0]} to ${found.targets[1]}. ${en.weak.recallComm}`,
+        spokenAnswer: alg.alg,
       };
     }
     case "m2op": {
@@ -234,6 +250,8 @@ function promptFor(
             {found.shootAs === undefined ? "" : ` · ${en.m2op.shootAs(found.shootAs)}`}
           </p>
         ),
+        spoken: `${en.m2op.target} ${found.letter}, ${found.target}. ${en.weak.recallSetup}`,
+        spokenAnswer: found.setup === "" ? found.notation : `${en.m2op.setup}: ${found.setup}`,
       };
     }
   }

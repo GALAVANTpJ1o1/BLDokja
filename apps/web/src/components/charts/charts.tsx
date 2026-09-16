@@ -233,7 +233,7 @@ const BORDER: Record<"high" | "mid" | "low", string> = { high: "0px", mid: "2px"
 export function HeatGrid({ title, caption, rows, cols, rowLabel, colLabel, data, tableHead, cellSize = 22 }: { title: string; caption?: string; rows: readonly { key: string; label: string }[]; cols: readonly { key: string; label: string }[]; rowLabel: string; colLabel: string; data: ReadonlyMap<string, HeatDatum>; tableHead: readonly string[]; cellSize?: number }) {
   const [active, setActive] = useState<HeatDatum | undefined>(undefined);
   const byCell = useMemo(() => new Map([...data.values()].map((d) => [`${d.row}|${d.col}`, d])), [data]);
-  const cellRefs = useRef(new Map<string, HTMLSpanElement>());
+  const cellRefs = useRef(new Map<string, HTMLElement>());
   const [focusKey, setFocusKey] = useState<string | undefined>(undefined);
   // Until you move, the tab stop is the first drilled cell in reading order, else the first cell.
   const firstKey = useMemo(() => {
@@ -296,34 +296,41 @@ export function HeatGrid({ title, caption, rows, cols, rowLabel, colLabel, data,
                   const key = `${r.key}|${c.key}`;
                   const d = byCell.get(key);
                   return (
-                    <td key={c.key} className="p-[1px]">
-                      {d === undefined ? (
+                    d === undefined ? (
+                      <td key={c.key} className="p-[1px]">
                         <span aria-hidden className="block" style={{ width: cellSize, height: cellSize }} />
-                      ) : (
+                      </td>
+                    ) : (
+                      // The cell itself takes focus and names its numbers (a cell may carry a label; a plain span may not).
+                      <td
+                        key={c.key}
+                        ref={(element) => {
+                          if (element === null) cellRefs.current.delete(key);
+                          else cellRefs.current.set(key, element);
+                        }}
+                        tabIndex={key === tabStop ? 0 : -1}
+                        aria-label={d.tooltip}
+                        onKeyDown={(e) => {
+                          const step = ARROWS[e.key];
+                          if (step === undefined) return;
+                          e.preventDefault();
+                          move(rowIndex, colIndex, step[0], step[1]);
+                        }}
+                        onPointerEnter={() => { setActive(d); }}
+                        onPointerLeave={() => { setActive(undefined); }}
+                        onFocus={() => { setActive(d); setFocusKey(key); }}
+                        onBlur={() => { setActive(undefined); }}
+                        className="p-[1px] outline-none"
+                      >
                         <span
-                          ref={(element) => {
-                            if (element === null) cellRefs.current.delete(key);
-                            else cellRefs.current.set(key, element);
-                          }}
-                          tabIndex={key === tabStop ? 0 : -1}
-                          aria-label={d.tooltip}
-                          onKeyDown={(e) => {
-                            const step = ARROWS[e.key];
-                            if (step === undefined) return;
-                            e.preventDefault();
-                            move(rowIndex, colIndex, step[0], step[1]);
-                          }}
-                          onPointerEnter={() => { setActive(d); }}
-                          onPointerLeave={() => { setActive(undefined); }}
-                          onFocus={() => { setActive(d); setFocusKey(key); }}
-                          onBlur={() => { setActive(undefined); }}
+                          aria-hidden
                           className={`relative block rounded-[3px] ${active?.id === d.id ? "outline-2 outline-offset-1 outline-[var(--focus)]" : ""}`}
                           style={{ width: cellSize, height: cellSize, boxShadow: d.band === undefined ? "inset 0 0 0 1px var(--rule)" : d.band === "high" ? "none" : `inset 0 0 0 ${BORDER[d.band]} var(--text)` }}
                         >
-                          {d.speedStep !== undefined ? <span aria-hidden className="absolute inset-[4px] rounded-[2px] bg-text" style={{ opacity: SPEED_OPACITY[d.speedStep] }} /> : null}
+                          {d.speedStep !== undefined ? <span className="absolute inset-[4px] rounded-[2px] bg-text" style={{ opacity: SPEED_OPACITY[d.speedStep] }} /> : null}
                         </span>
-                      )}
-                    </td>
+                      </td>
+                    )
                   );
                 })}
               </tr>

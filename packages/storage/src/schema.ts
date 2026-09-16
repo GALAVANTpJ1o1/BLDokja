@@ -256,10 +256,16 @@ export const DifficultySchema = z
 export const DifficultyPresetSchema = z.object({ id: z.string().min(1).max(64), name: z.string().min(1).max(60), difficulty: DifficultySchema }).strict();
 
 /** Preferences. Every field is optional so a new preference never needs a migration. */
+export const CUBE_VIEWS = ["3d", "net", "text"] as const;
+
 export const SettingsSchema = z
   .object({
     theme: z.enum(THEMES).optional(),
     palette: z.enum(PALETTES).optional(),
+    /** How cubes are shown: the 3D player, a flat sticker net, or the state written out (BRIEF §10). */
+    cubeView: z.enum(CUBE_VIEWS).optional(),
+    /** Whether trainers read each prompt aloud, the non-visual path through a drill (BRIEF §10). */
+    readAloud: z.boolean().optional(),
     /** Unset until the first-visit voice picker is answered. */
     voice: z.enum(VOICES).optional(),
     /** When the user last exported a backup (for the 30-day reminder). */
@@ -324,6 +330,7 @@ export type Settings = z.infer<typeof SettingsSchema>;
 export type ExportV1 = z.infer<typeof ExportV1Schema>;
 export type Theme = (typeof THEMES)[number];
 export type Palette = (typeof PALETTES)[number];
+export type CubeView = (typeof CUBE_VIEWS)[number];
 export type Voice = (typeof VOICES)[number];
 export type StoredScheme = z.infer<typeof StoredSchemeSchema>;
 export type Buffers = z.infer<typeof BuffersSchema>;

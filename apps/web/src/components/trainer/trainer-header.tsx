@@ -15,7 +15,7 @@ export interface TrainerHeading {
  * trainer loads (without `onKeys`, the button is disabled). The text then paints with the page instead of
  * seconds later, and nothing moves when the trainer arrives.
  */
-export function TrainerHeader({ title, intro, lesson, onKeys }: TrainerHeading & { readonly onKeys?: () => void }) {
+export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: TrainerHeading & { readonly onKeys?: () => void; readonly readAloud?: { readonly on: boolean; readonly toggle: () => void } }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div className="flex flex-col gap-1">
@@ -31,9 +31,16 @@ export function TrainerHeader({ title, intro, lesson, onKeys }: TrainerHeading &
         <h1 className="t-title">{title}</h1>
         <p className="t-body prose-measure text-quiet">{intro}</p>
       </div>
-      <button type="button" className="btn" onClick={onKeys} disabled={onKeys === undefined} aria-keyshortcuts="?">
-        {en.trainer.keys}
-      </button>
+      <div className="flex flex-wrap gap-2">
+        {readAloud === undefined ? null : (
+          <button type="button" className="btn" aria-pressed={readAloud.on} onClick={readAloud.toggle}>
+            {en.trainer.readAloud}
+          </button>
+        )}
+        <button type="button" className="btn" onClick={onKeys} disabled={onKeys === undefined} aria-keyshortcuts="?">
+          {en.trainer.keys}
+        </button>
+      </div>
     </header>
   );
 }
@@ -43,7 +50,7 @@ export function TrainerLoading({ message, ...heading }: TrainerHeading & { reado
   return (
     <div className="flex max-w-5xl flex-col gap-6">
       <TrainerHeader {...heading} />
-      <p className="t-meta text-quiet">{message}</p>
+      <p className="t-meta text-quiet min-h-[24rem]">{message}</p>
     </div>
   );
 }

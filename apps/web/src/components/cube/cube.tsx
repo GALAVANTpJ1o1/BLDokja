@@ -77,7 +77,7 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
 
   useEffect(() => {
     const container = host.current;
-    if (container === null || puzzle === undefined || setupPattern === undefined) return;
+    if (container === null || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
     const life = { disposed: false };
     let created: TwistyPlayer | null = null;
     void (async () => {
@@ -115,13 +115,33 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [puzzle, setupPattern, setup, alg, tempo, autoplay, settings.palette]);
+  }, [puzzle, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
   };
 
-  const showNet = failed && puzzle !== undefined && finalPattern !== undefined;
+  const ready = puzzle !== undefined && finalPattern !== undefined;
+  // "text" writes the state out instead of drawing it; "net" skips the 3D player, which also loads nothing.
+  const showNet = ready && (failed || settings.cubeView === "net");
+  const showText = settings.cubeView === "text";
+  if (showText) {
+    return (
+      <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
+        <p className="t-meta text-quiet">{label}</p>
+        {alg === "" ? null : (
+          <p className="t-notation">
+            {en.cube.moves}: {alg}
+          </p>
+        )}
+        <div className="flex flex-col gap-1 t-body">
+          {(ready ? describeCube(netCells(puzzle, finalPattern)) : [en.cube.loading]).map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
+      </figure>
+    );
+  }
   return (
     <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
       <div className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
@@ -136,7 +156,8 @@ export function Cube({ setup = "", alg = "", highlight, dim = "strong", controls
         {label}. {description.join(" ")}
       </figcaption>
       {failed ? <p className="t-meta text-quiet">{en.cube.failed}</p> : null}
-      {controls && alg !== "" ? (
+      {/* Only the 3D player animates, so the step controls belong to it. */}
+      {controls && alg !== "" && !showNet ? (
         <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={label}>
           <button type="button" className="btn" onClick={() => { act((p) => { p.jumpToStart(); }); setPlaying(false); }}>
             {en.cube.restart}

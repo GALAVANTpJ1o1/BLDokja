@@ -53,6 +53,17 @@ describe.each(backends)("storage on the %s backend", (_name, make) => {
     await expect(s.putSettings({ buffers: { op: { corners: "ufr", edges: "UF" } } })).rejects.toBeInstanceOf(StorageValidationError);
   });
 
+  it("keeps the accessibility settings: how cubes are shown, and whether drills are read aloud", async () => {
+    const s = createStorage(make());
+    const settings = { cubeView: "text" as const, readAloud: true };
+    await s.putSettings(settings);
+    expect(await s.settings()).toEqual(settings);
+    await s.putSettings({ cubeView: "net" });
+    expect((await s.settings()).cubeView).toBe("net");
+    await expect(s.putSettings({ cubeView: "ascii" } as never)).rejects.toBeInstanceOf(StorageValidationError);
+    await expect(s.putSettings({ readAloud: "yes" } as never)).rejects.toBeInstanceOf(StorageValidationError);
+  });
+
   it("refuses invalid writes", async () => {
     const s = createStorage(make());
     await expect(s.putLetterPair({ ...pair("AB"), id: "BA" })).rejects.toBeInstanceOf(StorageValidationError);

@@ -70,9 +70,11 @@ export function m2Data(puzzle: Puzzle, buffers: BufferPair): Built<M2Data> {
 export function threeStyleData(puzzle: Puzzle, buffers: BufferPair): Built<ThreeStyleData> {
   return cached(`3style:${buffers.corners}/${buffers.edges}`, () => {
     const { threeStyleCorners, threeStyleEdges } = algDatasets();
-    const corners = symmetryImageDataset(puzzle, threeStyleCorners, buffers.corners);
+    // A committed set for its own buffer is used as it is, like OP and M2 above; only other buffers need an image.
+    const imageFor = (dataset: AlgDataset, buffer: string) => (dataset.buffer === buffer ? { ok: true as const, value: dataset } : symmetryImageDataset(puzzle, dataset, buffer));
+    const corners = imageFor(threeStyleCorners, buffers.corners);
     if (!corners.ok) return { ok: false, reason: corners.error.code };
-    const edges = symmetryImageDataset(puzzle, threeStyleEdges, buffers.edges);
+    const edges = imageFor(threeStyleEdges, buffers.edges);
     if (!edges.ok) return { ok: false, reason: edges.error.code };
     return { ok: true, value: { corners: corners.value, edges: edges.value } };
   });
