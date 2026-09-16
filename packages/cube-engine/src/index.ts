@@ -280,6 +280,26 @@ export {
 export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
 export { drillScramble, type DrillScramble, type DrillScrambleError } from "./scramble/drill.js";
 export {
+  buildOpCornerParityDataset,
+  opCornerParityEffect,
+  OpCornerParityDatasetSchema,
+  verifyOpCornerParityDataset,
+  type OpCornerParityDataset,
+  type OpCornerParityProblem,
+} from "./data/four-bld-parity.js";
+export {
+  FOUR_BLD_ORDER,
+  fourBldStepMoves,
+  solveFourBld,
+  type FourBldConfig,
+  type FourBldParityStep,
+  type FourBldPieceType,
+  type FourBldSolution,
+  type FourBldSolveError,
+  type FourBldStep,
+  type FourBldTargetStep,
+} from "./methods/four-bld.js";
+export {
   cubingProvider,
   nextScramble,
   orientationSuffixes,

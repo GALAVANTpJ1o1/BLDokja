@@ -113,9 +113,12 @@ export type SwapParityDataset = z.infer<typeof SwapParityDatasetSchema>;
 export interface SwapParitySpec {
   readonly id: string;
   readonly dataset: SwapDataset;
-  /** Algs for the leftover, with the source they come from. */
+  /**
+   * Algs for the leftover. From a source they carry its citation; `engine-search` marks an alg the engine
+   * found by checking (U2's own swap undoes U2's leftover, D-041).
+   */
   readonly algs: readonly string[];
-  readonly citation: string;
+  readonly source: { readonly kind: "reference"; readonly citation: string } | { readonly kind: "engine-search" };
 }
 
 /** What a swap method's parity alg has to undo: the swap's side effect, left over after an odd count. */
@@ -144,7 +147,7 @@ export function buildSwapParityDataset(puzzle: Puzzle, spec: SwapParitySpec): Re
         id: "parity",
         kind: "parity",
         intendedEffect: { stickerCycles: stickerCycles(puzzle, effect.value), sideEffectPieces: [] },
-        algs: spec.algs.map((alg) => entryForAlg(puzzle, alg, "reference", spec.citation)),
+        algs: spec.algs.map((alg) => (spec.source.kind === "reference" ? entryForAlg(puzzle, alg, "reference", spec.source.citation) : entryForAlg(puzzle, alg, "engine-search"))),
       },
     ],
   });

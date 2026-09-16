@@ -1200,3 +1200,38 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Reversal:** easy. It's one function and two call sites. A player that tracked centre identity would
   need its own 4x4 puzzle definition with 24 distinct centres, which would also have to go through the
   engine's chain of trust.
+
+## D-041 · A full 4BLD solve: order, corners and every parity
+
+**Status:** accepted 2026-09-16, Phase 7. Solver in `methods/four-bld.ts`; datasets `u2-parity.Ubr` and
+`op-corner-parity.UBL`.
+
+- **Method.** U2 for x-centres (D-038), r2 for wings (D-038), Old Pochmann for corners with the committed
+  3x3 dataset `op-corners.UBL`. The 3BLD path teaches OP corners and the 4BLD track assumes 3BLD, so
+  corners stay OP; OP uses only outer turns, so its setups and swap work on a 4x4 as written. The 4BLD
+  trainer's corner buffer moves from UFR to UBL to match.
+- **Order.** Centres, wings, corners, each followed by its parity alg when its target count is odd.
+  - Centres must come first: the wing and corner parity algs are right only by colour (they may swap
+    x-centres within a face), which holds only once the centres are solved. A test runs centres last and
+    finds scrambles it breaks.
+  - Wings and corners could swap places: each phase with its parity step puts back every other piece. A
+    test runs corners first on 60 scrambles and solves them all. Wings first is kept as the usual order.
+- **Centre parity.** An odd number of U2 targets leaves U2's own side effect (the rest of the U layer). A
+  plain `U2` undoes it once the U-face x-centres are one colour. Found by checking, not from a source, so
+  its entry is marked `engine-search`.
+- **Wing parity.** The r2 parity alg (D-039).
+- **Corner parity.** On a 4x4 the OP corner swap also swaps the UB and UL *wing pairs* (the 3x3 swap's UB
+  and UL edges), so an odd corner count leaves those two pairs swapped, with the corners solved. The fix
+  is the Speedsolving wiki's adjacent-dedge PLL parity alg, `(R2 D' x) r2 U2 r2 Uw2 r2 u2 (x' D R2)` with
+  its lower-case letters as inner slices, conjugated by `U2`, the shortest setup the engine found that puts
+  its two pairs on UB and UL: `[U2: R2 D' x 2R2 U2 2R2 Uw2 2R2 2U2 x' D R2]`. Verified by colour against
+  the swap's non-corner effect, inverted; without the setup it fails.
+- **Parity is per piece type.** Wing and corner counts are odd exactly when their permutations are, and
+  they're independent: an inner slice quarter turn changes the wings' parity only, an outer turn the
+  corners' only, a wide turn both (tested). X-centres have no parity of their own (D-033); the U2 step is
+  about the swap's leftover, not the centres.
+- **Checked:** 120 random scrambles of outer, wide and inner turns all solve by colour, covering all eight
+  odd/even combinations; dropping any parity step breaks a solve; every OP corner record on 4x4 moves
+  exactly its corners plus the UB/UL wing pairs.
+- **Reversal:** moderate. Another corner method needs its own leftover and parity alg; the solver's phases
+  are separate functions.

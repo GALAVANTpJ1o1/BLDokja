@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadPuzzle } from "../../src/core/puzzle.js";
 import { verifyDataset, type AlgDataset } from "../../src/data/alg-dataset.js";
+import { verifyOpCornerParityDataset } from "../../src/data/four-bld-parity.js";
 import { ContentDatasetSchema, type ContentDataset } from "../../src/data/content-dataset.js";
 import { verifySwapDataset, verifySwapParityDataset, verifyM2OpParityDataset, type SwapDataset } from "../../src/data/swap-dataset.js";
 import { verifyOpParityDataset, verifyOpSetupsDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
@@ -55,6 +56,9 @@ const REQUIRED: Readonly<Record<string, number>> = {
   "r2-wings.FDr.json": 23,
   "u2-xcenters.Ubr.json": 23,
   "r2-parity.FDr.json": 1,
+  // 4BLD parity (D-041): U2's leftover, and OP corners' leftover on a 4x4.
+  "u2-parity.Ubr.json": 1,
+  "op-corner-parity.UBL.json": 1,
 };
 
 function load(path: string): ContentDataset {
@@ -79,6 +83,8 @@ function expectedName(dataset: ContentDataset): string {
       return `${PARITY_PREFIX[dataset.method]}.${dataset.buffers.corners}-${dataset.buffers.edges}.json`;
     case "swap-parity":
       return `${dataset.method}-parity.${dataset.buffer}.json`;
+    case "corner-parity":
+      return `op-corner-parity.${dataset.buffer}.json`;
   }
 }
 
@@ -111,6 +117,13 @@ describe("committed alg datasets", () => {
         const setups = files.map(load).find((d): d is SwapDataset => d.kind === "setups" && d.method === dataset.method && d.buffer === dataset.buffer);
         if (setups === undefined) throw new Error(`${name}: ${dataset.method}-${dataset.buffer} setups aren't committed`);
         expect(verifySwapParityDataset(puzzle, dataset, setups).slice(0, 5)).toEqual([]);
+        break;
+      }
+      case "corner-parity": {
+        // Checked against the OP corners dataset whose swap leaves it; that dataset is a 3x3 file, used on a 4x4.
+        const corners = files.map(load).find((d): d is OpSetupsDataset => d.kind === "setups" && d.method === "op" && d.pieceType === "corners" && d.buffer === dataset.buffer);
+        if (corners === undefined) throw new Error(`${name}: op-corners.${dataset.buffer} isn't committed`);
+        expect(verifyOpCornerParityDataset(puzzle, dataset, corners).slice(0, 5)).toEqual([]);
         break;
       }
       case "parity": {

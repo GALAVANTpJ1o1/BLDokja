@@ -1,0 +1,58 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "op-corner-parity.UBL",
+  "puzzle": "4x4x4",
+  "method": "op",
+  "kind": "corner-parity",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "buffer": "UBL",
+  "swap": "R U' R' U' R U R' F' R U R' U' R' F R",
+  "records": [
+    {
+      "id": "parity",
+      "kind": "parity",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBl",
+            "ULf"
+          ],
+          [
+            "UBr",
+            "ULb"
+          ],
+          [
+            "Ubl",
+            "Ubr",
+            "Ufr",
+            "Ufl"
+          ],
+          [
+            "LUb",
+            "BUr"
+          ],
+          [
+            "LUf",
+            "BUl"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "[U2: R2 D' x 2R2 U2 2R2 Uw2 2R2 2U2 x' D R2]",
+          "moves": "U2 R2 D' x 2R2 U2 2R2 Uw2 2R2 2U2 x' D R2 U2",
+          "etm": 14,
+          "qtm": 30,
+          "htm": 16,
+          "stm": 12,
+          "source": "reference",
+          "citation": "Speedsolving wiki, 4x4x4 parity algorithms: the adjacent-dedge PLL parity alg (R2 D' x) r2 U2 r2 Uw2 r2 u2 (x' D R2), lower-case letters inner slices; the U2 setup is the engine's (retrieved 2026-09-16)"
+        }
+      ]
+    }
+  ]
+}

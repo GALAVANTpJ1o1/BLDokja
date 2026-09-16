@@ -1,0 +1,113 @@
+{
+  "format": "bld-platform/alg-dataset",
+  "version": 1,
+  "id": "u2-parity.Ubr",
+  "puzzle": "4x4x4",
+  "method": "u2",
+  "kind": "swap-parity",
+  "generatedBy": {
+    "engine": "0.1.0",
+    "bounds": {
+      "generators": [
+        "U",
+        "D",
+        "R",
+        "L",
+        "F",
+        "B",
+        "2U",
+        "2D",
+        "2R",
+        "2L",
+        "2F",
+        "2B"
+      ],
+      "maxInsertion": 3,
+      "maxSetup": 3
+    }
+  },
+  "buffer": "Ubr",
+  "swap": "U2",
+  "records": [
+    {
+      "id": "parity",
+      "kind": "parity",
+      "intendedEffect": {
+        "stickerCycles": [
+          [
+            "UBL",
+            "UFR"
+          ],
+          [
+            "UBl",
+            "UFr"
+          ],
+          [
+            "UBr",
+            "UFl"
+          ],
+          [
+            "UBR",
+            "UFL"
+          ],
+          [
+            "ULb",
+            "URf"
+          ],
+          [
+            "Ubl",
+            "Ufr"
+          ],
+          [
+            "URb",
+            "ULf"
+          ],
+          [
+            "LUB",
+            "RUF"
+          ],
+          [
+            "LUb",
+            "RUf"
+          ],
+          [
+            "LUf",
+            "RUb"
+          ],
+          [
+            "LUF",
+            "RUB"
+          ],
+          [
+            "FUL",
+            "BUR"
+          ],
+          [
+            "FUl",
+            "BUr"
+          ],
+          [
+            "FUr",
+            "BUl"
+          ],
+          [
+            "FUR",
+            "BUL"
+          ]
+        ],
+        "sideEffectPieces": []
+      },
+      "algs": [
+        {
+          "alg": "U2",
+          "moves": "U2",
+          "etm": 1,
+          "qtm": 2,
+          "htm": 1,
+          "stm": 1,
+          "source": "engine-search"
+        }
+      ]
+    }
+  ]
+}

@@ -28,6 +28,7 @@ import { orientationPairPattern } from "../src/commutator/validate.js";
 import { loadPuzzle, type Puzzle } from "../src/core/puzzle.js";
 import { algEntry, AlgDatasetSchema, buildRecord, entryForAlg, verifyDataset, type AlgDataset, type AlgEntry } from "../src/data/alg-dataset.js";
 import { ContentDatasetSchema } from "../src/data/content-dataset.js";
+import { buildOpCornerParityDataset, verifyOpCornerParityDataset, type OpCornerParityDataset } from "../src/data/four-bld-parity.js";
 import type { SwapDataset, M2OpParityDataset } from "../src/data/swap-dataset.js";
 import type { OpParityDataset, OpSetupsDataset } from "../src/data/op-dataset.js";
 import {
@@ -189,7 +190,18 @@ const U2_CITATION = "Speedsolving forums, 4x4 Blindfolded, U2 Centers Method Tut
 const R2_PARITY = ["2R' U2 2R U2 2R' U2 x 2R U2 2R U2 2R U2 2R2 U2 x' 2R' U2"];
 const R2_PARITY_CITATION = "4x4 Blindfolded tutorial (zodzhao.github.io/res/4bld.pdf), based on Xin Shi's method: r2 parity (retrieved 2026-09-16)";
 
-function fourByFour(puzzle: Puzzle): (SwapDataset | SwapParityDataset)[] {
+/**
+ * 4BLD parity beyond r2 (D-041). An odd number of U2 targets leaves U2's own side effect, which a plain U2
+ * undoes once the U-face x-centres are all one colour. An odd number of OP corner targets on a 4x4 leaves
+ * the UB and UL wing pairs swapped; the wiki's adjacent-dedge PLL parity alg swaps two adjacent wing pairs,
+ * and a U2 setup (the shortest the engine found) puts them on UB and UL.
+ */
+const U2_PARITY = ["U2"];
+const OP_CORNER_PARITY = ["[U2: R2 D' x 2R2 U2 2R2 Uw2 2R2 2U2 x' D R2]"];
+const OP_CORNER_PARITY_CITATION =
+  "Speedsolving wiki, 4x4x4 parity algorithms: the adjacent-dedge PLL parity alg (R2 D' x) r2 U2 r2 Uw2 r2 u2 (x' D R2), lower-case letters inner slices; the U2 setup is the engine's (retrieved 2026-09-16)";
+
+function fourByFour(puzzle: Puzzle, opCorners: OpSetupsDataset): (SwapDataset | SwapParityDataset | OpCornerParityDataset)[] {
   const identity = cubeSymmetries(puzzle).findIndex((g) => g.sticker.every((to, from) => to === from));
   const specs = [
     { id: "r2-wings.FDr", method: "r2" as const, bufferSticker: "FDr", pieceType: "wings" as const },
@@ -212,11 +224,23 @@ function fourByFour(puzzle: Puzzle): (SwapDataset | SwapParityDataset)[] {
 
   const wings = datasets.find((d) => d.method === "r2");
   if (wings === undefined) throw new Error("r2 dataset missing");
-  const parity = buildSwapParityDataset(puzzle, { id: `r2-parity.${wings.buffer}`, dataset: wings, algs: R2_PARITY, citation: R2_PARITY_CITATION });
+  const parity = buildSwapParityDataset(puzzle, { id: `r2-parity.${wings.buffer}`, dataset: wings, algs: R2_PARITY, source: { kind: "reference", citation: R2_PARITY_CITATION } });
   if (!parity.ok) throw new Error(`r2 parity: ${JSON.stringify(parity.error)}`);
   const parityProblems = verifySwapParityDataset(puzzle, parity.value, wings);
   if (parityProblems.length > 0) throw new Error(`r2 parity failed verification: ${JSON.stringify(parityProblems.slice(0, 5))}`);
-  return [...datasets, parity.value];
+
+  const centres = datasets.find((d) => d.method === "u2");
+  if (centres === undefined) throw new Error("u2 dataset missing");
+  const centreParity = buildSwapParityDataset(puzzle, { id: `u2-parity.${centres.buffer}`, dataset: centres, algs: U2_PARITY, source: { kind: "engine-search" } });
+  if (!centreParity.ok) throw new Error(`u2 parity: ${JSON.stringify(centreParity.error)}`);
+  const centreProblems = verifySwapParityDataset(puzzle, centreParity.value, centres);
+  if (centreProblems.length > 0) throw new Error(`u2 parity failed verification: ${JSON.stringify(centreProblems.slice(0, 5))}`);
+
+  const cornerParity = buildOpCornerParityDataset(puzzle, { id: `op-corner-parity.${opCorners.buffer}`, corners: opCorners, algs: OP_CORNER_PARITY, citation: OP_CORNER_PARITY_CITATION });
+  if (!cornerParity.ok) throw new Error(`op corner parity: ${JSON.stringify(cornerParity.error)}`);
+  const cornerProblems = verifyOpCornerParityDataset(puzzle, cornerParity.value, opCorners);
+  if (cornerProblems.length > 0) throw new Error(`op corner parity failed verification: ${JSON.stringify(cornerProblems.slice(0, 5))}`);
+  return [...datasets, parity.value, centreParity.value, cornerParity.value];
 }
 
 /** The wiki's own r2 special algs, kept beside the searched ones (and verified with them). */
@@ -276,7 +300,9 @@ export async function generateDatasets(): Promise<Map<string, string>> {
   }
 
   const four = await loadPuzzle("4x4x4");
-  for (const dataset of fourByFour(four)) {
+  const opCorners = op.find((d): d is OpSetupsDataset => d.kind === "setups" && d.pieceType === "corners");
+  if (opCorners === undefined) throw new Error("op-corners dataset missing");
+  for (const dataset of fourByFour(four, opCorners)) {
     ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)));
     write("4x4", dataset.id, dataset);
     console.error(`${dataset.id}: ${dataset.records.length} records verified`);
