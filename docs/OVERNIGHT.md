@@ -644,3 +644,55 @@ Decisions made while you were asleep that you weren't asked about. Each entry sa
   - **No source** states an orientation reference.
 - **Picked:** the engine derives everything and cites only what a source actually says (D-032, D-033). Conventions no source states are yours to decide; they're listed in the Phase 7 checkpoint.
 - **Reversal:** n/a.
+
+## Phase 8: a11y audit, PWA, performance, deploy
+
+### Two things the audit found already broken in production builds
+
+- **Finding 1: the theme boot script had never run in a built site.** `next/script`'s `beforeInteractive`
+  injects its code inline at run time, and the build's CSP blocked it, so a saved theme or palette only
+  applied after hydration.
+  - **Fixed:** it's a same-origin file in `<head>` (`public/appearance-boot.js`), which also runs earlier
+    than the injected form would have.
+  - The CSP step now refuses any build that injects a `beforeInteractive` script, and a test runs the file
+    the way the browser does.
+- **Finding 2: prefetch payloads 404ed for every nested route.** The flattening step only handled one level,
+  so `/practice/trace/` and every lesson missed theirs and fell back to a full page load.
+  - **Fixed:** it flattens at any depth (29 payloads, up from 6).
+- **Neither was visible in development,** where there's no CSP and no static export.
+
+### Performance: what actually cost the most
+
+Measured with Lighthouse against the built site on a local static server.
+
+- **Every page loaded the whole engine and the storage layer.** The starfield imported `createRng` from the
+  engine's package root, which pulls in cubing.js; the settings provider imported Dexie and the schemas.
+  - **Fixed:** the engine exposes `@bld/cube-engine/prng`, and storage is imported after first paint
+    (`loadStorage`). Pages that use them import them as they always did.
+  - The Practice hub's first load went from about 1.2 MB of script to about 600 KB.
+- **The font was 305 KB.** Recursive's full file carries five axes; the design uses weight with either CASL
+  or MONO, never both at once.
+  - **Fixed:** two families from the same package (109 KB casual, 73 KB mono, and the mono one only on
+    pages that show notation).
+- **Trainers rendered nothing until their JavaScript arrived,** so the largest text on the page waited for it.
+  - **Fixed:** each loader renders the real header in the static HTML, and Progress's header moved to the page.
+- **Progress rebuilt the 3-style datasets** — a rotation image of the committed set, verified in full — even
+  for the buffers the committed sets are for. Now it uses the committed sets directly, as OP and M2 do, and
+  a test checks the two agree record for record. Blocking time fell from 2.4 s to about 0.4 s.
+- **Two layout shifts:** Settings' option rows re-wrapped when saved settings arrived (the selected option is
+  heavier, so the labels change width) — they're a grid now; and the trainer drill area now keeps its height
+  while the trainer loads.
+
+### The site is not deployed
+
+- **Choice:** Phase 8's deliverable includes "deploy", which puts the site in front of other people.
+- **Picked:** everything is ready and nothing was published. `docs/DEPLOY.md` has the steps, and the build
+  writes `out/_headers` with the headers a static host should send.
+- **Why:** deploying is outward-facing and yours to authorise.
+- **Reversal:** n/a.
+
+### The content authoring guide (BRIEF §12) was missing
+
+- **Finding:** §12 asks for a guide so lessons can be contributed without touching app code. There wasn't one.
+- **Written:** `docs/CONTENT.md` — the folder layout, every frontmatter field, every component a lesson may
+  use with its props, the checkpoint kinds, and the list of rules the lesson test enforces.

@@ -1078,3 +1078,22 @@ Short records of choices that would be expensive to reverse, or where sources di
   3. **offline:** guided trace loads and grades an answer, client-side navigation reaches a lesson and Progress, and a full page load of a lesson not yet opened shows its 4 cubes and checkpoint.
 - **Deploy note.** `sw.js` should be served with `Cache-Control: no-cache`, so a new deploy is seen (docs/DEPLOY.md).
 - **Reversal.** Easy. Drop the registration and ship a worker that unregisters itself.
+
+## D-036 · Non-visual paths: a cube written out, and drills read aloud
+
+**Status:** accepted 2026-09-16, Phase 8 (BRIEF §10: "screen reader support and a text-only mode", and "every trainer must have a non-visual path with TTS").
+
+- **What was missing.** Every cube already carried a screen-reader description, and the trainers were fully keyboard-operable, but there was no text-only mode and nothing spoke.
+- **Cube display** (`settings.cubeView`), a setting with three values:
+  - **`3d`** (default): cubing.js's player.
+  - **`net`:** the flat sticker net the 3D player already falls back to, with no 3D loaded at all. The step controls are hidden, because only the player animates.
+  - **`text`:** the state written out face by face, with the alg above it, and no picture.
+  - The screen-reader description stays in every mode.
+- **Read drills aloud** (`settings.readAloud`):
+  - The browser's own `speechSynthesis`, so nothing is sent anywhere and it works offline where the device has a voice.
+  - Each trainer passes its current prompt to `TrainerShell` as `announce`; the shell speaks it whenever it changes, and each announcement cancels the last so a fast drill can't queue up a backlog.
+  - The toggle sits in every trainer's header as well as in Settings, and Settings says so when the browser has no voices.
+- **Why the browser's voice and not a recording:** it's offline, free, in the user's chosen voice and speed, and it needs no audio files in the repo.
+- **Storage:** two optional fields on the existing settings record, so no migration and both are in every backup.
+- **Checked in the browser:** the written-out mode loads no 3D player, the net mode shows a labelled net, and the toggle speaks each prompt ("Target 1 of 20", then the correction after a wrong letter).
+- **Reversal:** easy. Both are settings with defaults that keep today's behaviour.

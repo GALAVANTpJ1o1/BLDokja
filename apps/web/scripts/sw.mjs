@@ -24,7 +24,7 @@ function files(dir) {
 
 const entries = files(outDir)
   .map((path) => ({ path, rel: relative(outDir, path).split(sep).join("/") }))
-  .filter(({ rel }) => rel !== "sw.js" && !rel.startsWith("lab/") && !rel.endsWith(".map"))
+  .filter(({ rel }) => rel !== "sw.js" && rel !== "_headers" && !rel.startsWith("lab/") && !rel.endsWith(".map"))
   .sort((a, b) => (a.rel < b.rel ? -1 : 1));
 
 const version = createHash("sha256");
