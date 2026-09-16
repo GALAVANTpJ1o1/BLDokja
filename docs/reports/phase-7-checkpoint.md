@@ -1,104 +1,148 @@
-# Phase 7 checkpoint: 4BLD (stopped early)
+# Phase 7 checkpoint: 4BLD
 
-Written 2026-09-16 on `phase-7/4bld`, stacked on `phase-6/analytics`. Nothing is merged to `master`.
+Written 2026-09-16 on `4bld/complete`, branched from `phase-8/launch`. Nothing is merged to `master` and nothing
+is deployed. The earlier, stopped-early version of this checkpoint is on `phase-7/4bld`.
 
-**Phase 7 is not finished.** You said to stop inside its engine work at a clean commit if it couldn't land today alongside Phases 5, 6 and 8 at Phase 1's verification standard. It couldn't, so I stopped after two of the four deferred engine pieces:
+**Phase 7 is finished:** the r2 and U2 datasets, 4x4 corners and every 4BLD parity step, a full 4BLD solver
+with a property test, the 4BLD trainer, and lessons 1–10 of the 4BLD track.
 
-- **Done:** 4x4 orientation references and x-centre tracing.
-- **Not built:** r2 wings and U2 x-centres. With them, none of the 4BLD lessons, trainers or parity work exists yet.
+## How to try it
 
-The reasons are below. I haven't cut any verification to get further.
+```
+pnpm build
+npx serve apps/web/out -l 3200     # then http://localhost:3200/
+```
 
-## What landed
+- **Lessons:** `/learn/` has a 4BLD section after 3BLD; start at "What changes on a 4x4".
+- **Trainer:** `/practice/4bld/`: trace x-centres, wings or corners, or drill r2 and U2 targets and special
+  cases.
 
-Engine only (a72a112); nothing on the site changed.
+## The engine
 
-### Orientation references (D-032)
+### r2 wings and U2 x-centres (D-037, D-038)
 
-A 4x4 has no fixed centres, so tracing needs to know how the cube is held. Two new frames, both one of the 24 whole-cube rotations, as D-014 committed to:
+- **Setup search as pairs of halves.** The old search packed every protected sticker's slot into one number;
+  r2 protects 11 pieces and U2 15, which overflowed. Meet-in-the-middle finds the same shortest setups (a test
+  compares it with the exhaustive search) and keeps every committed 3x3 dataset byte-identical.
+- **r2:** buffer DFr (lettered by its sticker FDr), swap `2R2`, swap slot BUr, 23 records, special cases UFr
+  and DBr with the odd/even rule UFr ↔ DBr. The Speedsolving wiki's own special-case algs match the engine's
+  cases and are kept beside the searched ones.
+- **U2:** buffer Ubr, swap `U2`, swap slot Ufl, 23 records, special cases Ubl and Ufr with the tutorial's
+  16-move algs. No comm in the engine's catalogue makes the same-face 3-cycle those cases need (0 of 144).
+- **Notation:** the sources' `r`, `u` and `d` are inner slices, written `2R`, `2U` and `2D` here. Read that
+  way every published alg matches its case; read as wide turns none does.
 
-- **`{ kind: "corner", piece }`:** the one rotation that brings that corner piece home and oriented.
-- **`{ kind: "rotation", alg }`:** a rotation you name, such as `x y`. Anything that isn't a rotation is refused.
+### Judging a 4x4 alg by what the cube shows (D-039)
 
-`applyFrame` returns the rotation and the rotated pattern, so a solver or trainer can show "hold it like this".
+Four x-centres of a colour are one piece. A parity alg may leave them rearranged within a face and still be
+right, so parity datasets are checked by colour; everything else is still checked sticker by sticker. Tests
+give this teeth: a swap between faces, or a wing swap, must fail.
 
-### X-centre tracing (D-033)
+### Corners and every parity step (D-041)
 
-X-centres are identical within a colour, so they're traced by colour:
+- **Corners are Old Pochmann from UBL,** the committed 3x3 dataset used unchanged: its setups and swap turn
+  only outer faces. On a 4x4 the swap also swaps the UB and UL wing pairs.
+- **Centres:** an odd number of U2 targets is finished with one more U2.
+- **Wings:** an odd number of r2 targets is finished with the r2 parity alg from the tutorial PDF.
+- **Corners:** an odd number of OP targets leaves the UB and UL wing pairs swapped. The fix is the wiki's
+  adjacent-dedge PLL parity alg with a `U2` setup the engine found: `[U2: R2 D' x 2R2 U2 2R2 Uw2 2R2 2U2 x' D R2]`.
+- **Order:** centres, wings, corners. Centres must come first, because the wing and corner parity algs are
+  only right by colour; wings and corners could go either way.
 
-- **A normal target:** the buffer's piece goes to any slot of its colour that still needs it.
-- **A break:** happens only when the buffer holds its own colour and all of that colour's slots are done.
-- **Choosing between slots:** the default sets aside slots holding the buffer's own colour, then takes the lowest letter.
-  - On 8,000 sampled traces it averaged 19.3 targets and 0.12 breaks, against 20.1 and 0.92 for plain lowest letter.
-  - It was never longer, but that's measured, not proven.
-- **Parity:** it's the parity of the swaps traced, since identical pieces have no permutation parity of their own. Different valid choices can change it.
-- **For trainers:** `interchangeableChoices` lists every slot a trainer should accept at each step, because more than one answer can be right.
+### The solver (`solveFourBld`)
+
+Traces all three piece types once, holding the cube as scrambled, and returns the steps with each parity alg
+in place.
+
+### Lighting x-centres (D-040)
+
+cubing.js's 3D player can only light x-centres a colour at a time. The engine now does that predictably, and
+the trainer and lessons show exact slots on a flat net.
+
+## The trainer (`/practice/4bld/`)
+
+- **Trace x-centres, wings or corners** from seeded 4x4 scrambles, with help that lights where to look.
+  X-centre tracing accepts any slot of the right colour and follows your choice.
+- **r2 and U2 drills:** recall a target's setup (or a special case's alg), reveal it animated with only the
+  buffer, target and swap slot lit, and mark yourself. Cases are scheduled with FSRS, like M2/OP.
+- **Special cases in both positions,** with the odd/even rule.
+- **Logged under `4bld`**, with case ids Weak 20 and Progress's trends read back.
+
+## The lessons (4BLD track, 1–10)
+
+1. What changes on a 4x4
+2. Holding the cube and choosing your reference
+3. Lettering wings and x-centres
+4. Solve order, and why centres go first
+5. Centres: the U2 method
+6. Wings: r2, and how it differs from M2
+7. Corners on a 4x4
+8. 4BLD parity, all of it
+9. What a 4BLD memo actually looks like
+10. Your first 4BLD solve
+
+- **Plain voice only,** as for 3BLD lessons 4–15.
+- **Every lesson has an interactive 4x4** (trace, shots, parity algs or a whole solve) and a checkpoint:
+  4x4 letters, 4x4 traces, parity questions, r2 or U2 setups, or a quiz.
 
 ## What's checked automatically
 
-- **Frames** (`test/trace/frames.test.ts`):
-  - **named rotations:** all 24 are accepted, non-rotations are refused, and 3x3 refuses both new frames;
-  - **corner references,** for all 8 corners on random scrambles with wide moves and rotations:
-    - the geometry model's colours show that corner solved;
-    - no other rotation does;
-    - a trailing rotation changes nothing;
-  - **traces under a corner frame** (x-centres, wings, corners) match the colour oracles run on colours the test rotates itself;
-  - **parity:** wing and corner parity are the same under all 24 rotations.
-- **X-centres** (`test/trace/xcentres.test.ts`, oracle in `test/oracle/xcentre-oracle.ts`):
-  - **9 hand-derived fixtures:**
-    - choices between slots;
-    - the break the default avoids, which also flips the parity;
-    - reversed-Greek letters;
-    - a solved buffer;
-    - a break-order list;
-    - fully solved x-centres;
-    - another buffer.
-  - **The independent oracle** (geometry colours, no kpuzzle) agrees on 60 random states × 24 buffers × 2 schemes × 2 policies.
-  - **Properties on 150 random states:**
-    - replaying the swaps solves the colours;
-    - breaks happen only when forced;
-    - target count = wrong slots + breaks;
-    - every step is one of `interchangeableChoices`.
-  - **Teeth:** dropping the avoidance, or forcing a break whenever the buffer holds its own colour, fails the fixtures and the oracle comparison.
+- **Datasets:** `r2-wings.FDr`, `u2-xcenters.Ubr`, `r2-parity.FDr`, `u2-parity.Ubr` and `op-corner-parity.UBL`
+  go through their verifiers with every other committed dataset. Buffers, swap slots, special cases and rules
+  are pinned, and the published algs are checked against the cases the engine derives. Regenerating writes
+  every file byte for byte.
+- **Solver** (`test/methods/four-bld.test.ts`):
+  - 120 random scrambles of outer, wide and inner turns all solve by colour, covering all eight odd/even
+    combinations;
+  - a parity step appears exactly when its count is odd;
+  - wing and corner counts are odd exactly when their permutations are;
+  - an inner slice quarter turn makes only the wings odd, an outer turn only the corners, a wide turn both;
+  - leaving out any parity step breaks a solve;
+  - corners before wings still solves, and centres last breaks some solves;
+  - every OP corner shot on a 4x4 moves exactly its corners and the UB/UL wing pairs.
+- **Masks:** on 4x4, wings and corners are lit slot by slot and x-centres by colour, checked against the
+  geometry model; the old code fails the test.
+- **Trainer logic:**
+  - shot cases and special cases follow the datasets;
+  - every drill state is solved by its alg;
+  - x-centre sessions accept any valid slot, refuse others, and end solved;
+  - scrambles are seeded.
+- **Checkpoints:**
+  - the table's setup and any other setup that works are accepted, and tempting setups are refused;
+  - an x-centre memo is accepted whichever valid slots it picks;
+  - parity answers are the count's parity.
+- **Lessons:** every 4x4 component prop is checked against the datasets and solver. Every number the prose
+  states has its own test: piece counts, which moves setups use, parity by turn type, and average memo sizes
+  over 200 scrambles (about 19, 24 and 8).
 
-**Totals:** engine 485 (was 470), storage 34 (+1 skipped), srs 5, analytics 9, web 83. Typecheck and lint are clean.
+## Checked in the browser
 
-## Why the rest didn't fit today
+- **Trainer:**
+  - an x-centre trace answered wrong ("Any of Q, R, S, T is right") and then with one of those;
+  - an r2 reveal showing setup `B L B'`, swap `2R2` and undo `B L' B'` with the three wings lit;
+  - the U2 special-case drill's four cases in both positions.
+- **Weak 20:** a U2 case after two misses, labelled "4BLD · U2 centres: C (Ufr) · even position".
+- **Lessons:**
+  - the path's 4BLD section;
+  - lesson 3's letters (UBl A, Ubr B, FDr K);
+  - lesson 10's walkthrough stepped through all 24 steps, with the centre, wing and corner parity steps in
+    place and a note on the odd step shot as its partner.
 
-1. **r2 and U2 need a new setup search.** The M2 search tracks every protected sticker's slot as one number. That works for M2's 3 protected pieces, but r2 protects 11 and U2 protects 15. Throwaway prototypes of an exhaustive depth-limited search (not committed) found:
-   - **r2** (buffer DFr, swap `2R2`):
-     - every wing except the side-effect wings UFr and DBr is reachable within 6 moves;
-     - the three l-slice wings need an l-slice move;
-     - an exhaustive search to depth 6 takes about 6 s.
-   - **U2** (buffer Ubr, swap slot Ufl): every x-centre except Ubl and Ufr within 6 moves, taking about 60 s.
+## Decisions I made without you
 
-   That's too slow for verification in the fast suite. Meet-in-the-middle should fix it, but it has to be built and proven exhaustive first.
-2. **4x4 verification needs a colour mode.** Four x-centres of a colour are identical, so an OP corner swap or a parity alg on 4x4 only has to leave the right colours. The dataset verifiers compare exact sticker permutations, so they'd reject correct algs.
-3. **Special cases need 4x4 comm catalogues.** These are catalogues of wing and x-centre comms with inner-slice generators, used for r2's FUr/BDr cases and U2's side-effect slots. Their size and search time haven't been measured.
-4. **Lessons and trainers come after the datasets.** Lessons 5–8 teach U2, r2, corners on 4x4 and 4BLD parity. Every alg in a lesson must be verified, and a 4BLD full-solve property test needs every piece above.
+These were the three questions in the earlier version of this checkpoint.
 
-## The plan for the rest of Phase 7
+- **U2 buffer:** Ubr, the tutorial's "Urb".
+- **Orientation:** hold the cube as scrambled. Lesson 2 mentions a corner reference as an alternative.
+- **r2 setups:** face turns plus 2L, as the tutorial PDF does.
 
-Each step lands only with its own verification:
+Each is in `docs/OVERNIGHT.md` with how to reverse it.
 
-1. **Setup search:** meet-in-the-middle, proven equal to the exhaustive search on the r2, U2 and M2 cases; the M2 datasets must stay byte-identical.
-2. **r2 and U2 swaps:** added as reference swaps with citations (Speedsolving wiki R2 page; the U2 centres tutorial thread), shape-checked like M2.
-3. **Colour-equivalent verification** for x-centres, with teeth: a wrong-colour result must fail.
-4. **Datasets:** `r2-wings.DFr` and `u2-xcenters.<buffer>`, with setups, special cases, odd/even rules and illegal-setup examples, each verified in full.
-5. **4x4 corners and parity:** OP corners on 4x4 and 4BLD parity (wings, corners, centre count).
-6. **A 4BLD solver** with the full-solve property test in both models.
-7. **Trainers:** 4x4 guided trace (x-centres, wings, corners) and an r2/U2 drill.
-8. **Lessons:** 4BLD 1–10, plain voice first like lessons 4–15, each with a cube and a checkpoint.
+## Known limits
 
-## What needs you
-
-1. **The U2 buffer.** The U2 tutorial thread uses "Urb", which is Ubr in the engine's names. Tell me if you'd rather use Ubl.
-2. **The orientation reference to teach.** Either "hold the cube as scrambled" (`asIs`) or "turn a chosen corner home" (`corner`). The engine supports both; no source settles it. If a corner, which one?
-3. **The r2 setup pool.** Face turns plus l-slice moves, which the tutorial PDF uses for l-slice wings. The alternative is face turns only, with those three wings as special cases.
-4. **Whether to finish Phase 7 before Phase 8 is reviewed,** or treat 4BLD as post-launch. Phase 8 ran today on the 3BLD site as it stands.
-5. **Still open from Phases 5 and 6:**
-   - lessons keep the standard buffers;
-   - D-031's implication for Gate B;
-   - lessons 16–23;
-   - the analytics weights and thresholds;
-   - legacy memo attempts.
+- **X-centres on the 3D cube** light a colour at a time; the net shows exact slots.
+- **The x-centre count, and so the U2 parity step,** depend on which slots you choose; the trainer and lessons
+  follow your choices, and the solver's walkthrough shows its own.
+- **Progress's trace diagnostics** (medians by lookup kind) read only the 3BLD trace trainer.
+- **Corner parity** uses a published PLL parity alg under a setup the engine found; no source I could read
+  describes 4x4 corner parity, so this is the engine's construction, verified, not a quoted method.

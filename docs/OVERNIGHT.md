@@ -711,3 +711,104 @@ Measured with Lighthouse against the built site on a local static server.
 - **Why not now:** that's a product decision with real trade-offs for the trainers, not a polish item, and
   BRIEF §10's target doesn't say which preset it means.
 - **Reversal:** n/a. It's a documented gap, listed in the Phase 8 checkpoint.
+
+## Phase 7 finished, and the open items (2026-09-16, `4bld/complete`)
+
+You said: finish Phase 7's r2 and U2 work, build 4BLD, close the mobile Lighthouse gap (item 3), and handle the older open items (item 5). No deploy. Everything below is on `4bld/complete`, branched from `phase-8/launch` so nothing already pushed is rewritten; `phase-7/4bld` stays as the record of where Phase 7 stopped.
+
+### The conventions no source settled: picked, not asked
+
+- **Choice:** the Phase 7 checkpoint asked you three things you didn't answer: the U2 buffer, the orientation reference to teach, and the r2 setup pool.
+- **Picked:**
+  - **U2 buffer: Ubr**, the tutorial's "Urb".
+  - **Orientation: hold the cube as scrambled** (the `asIs` frame). Lesson 2 of the 4BLD track mentions choosing a corner as a valid alternative the engine supports.
+  - **r2 setup pool: face turns plus 2L**, which is what the tutorial PDF does for l-slice wings. Face turns alone would make three wings special cases.
+- **Why:** each is the choice with a source behind it, or the one that removes a decision from a first solve.
+- **Reversal:** buffer or pool: regenerate the dataset and update the pinned test. Orientation: moderate; the trainers and lessons 2, 4 and 9 assume it.
+
+### 4x4 corners are Old Pochmann from UBL (D-041)
+
+- **Choice:** the 4BLD trainer had used UFR (3-style) for corners.
+- **Picked:** Old Pochmann, buffer UBL, the committed 3x3 dataset used as is.
+- **Why:** the 4BLD track assumes 3BLD, and the 3BLD path teaches OP corners. OP turns only outer faces, so its setups and swap work on a 4x4 unchanged; 3-style comms would also work, but nothing on the site teaches them before 4BLD.
+- **Reversal:** moderate. 3-style corners need their own 4x4 parity handling.
+
+### Corner parity on 4x4: a cited alg with the engine's setup (D-041)
+
+- **Finding:** no source I could read explains 4x4 corner parity. On a 4x4 an odd OP corner phase leaves the UB and UL wing pairs swapped.
+- **Picked:** the Speedsolving wiki's adjacent-dedge PLL parity alg, conjugated by `U2`, the shortest setup the engine found that puts its two pairs on UB and UL. Verified by colour, and fails without the setup.
+- **Also:** U2's own leftover after an odd count is undone by one more U2. That was found by checking, not read anywhere, so the entry is marked `engine-search`, not `reference`.
+- **Reversal:** easy. Any verified alg for the same leftover can replace it.
+
+### X-centres can only be lit a colour at a time (D-040)
+
+- **Finding** (in the browser): with the trace trainer's help on, the whole 4x4 went dark. cubing.js gives the four centres of a colour one piece value, and the mask kept whichever slot was written last.
+- **Picked:** the engine lights a colour of x-centres; the trace trainer and lessons show exact slots on a flat net beside the 3D cube.
+- **Reversal:** easy.
+
+### The 4BLD trainer
+
+- **Picked:**
+  - **Modes:** trace x-centres, wings or corners; r2 and U2 targets; each method's special cases in both positions.
+  - **X-centre tracing accepts every right answer,** following the slot you chose, since four x-centres of a colour are one piece.
+  - **Logging:** trainer `4bld`, case ids `r2:UBl`, `u2:Ubl:odd` and `trace-xcenters:Ufl`. Weak 20 asks them the trainer's way; Progress's trends include 4BLD.
+- **Not done:** Progress's trace diagnostics (medians by lookup kind) read only the 3BLD trace trainer.
+- **Reversal:** easy.
+
+### The 4BLD lessons
+
+- **Picked:** lessons 1–10 of BRIEF §6's 4BLD track, plain voice only (as lessons 4–15 were).
+- **Checked:** every component prop by the engine, as for 3BLD. Every number or behaviour the prose states has its own test named after the lesson: piece counts, which setups use which moves, which turns make which piece type odd, the average memo size (about 19 x-centre, 24 wing and 8 corner targets over 200 random scrambles), and the demo scrambles' counts.
+- **Caught while writing:**
+  - a wrong setup description in lesson 5;
+  - "most wings are two or three moves from BUr" (none is two);
+  - lesson 4's centre count, which I'd taken from a different slot choice than the solver's;
+  - a diagnostic in lesson 10 that the engine didn't support.
+  All fixed before commit.
+- **Reversal:** n/a.
+
+### Lessons 16–23: written now
+
+- **Choice:** they weren't in any phase of BRIEF §14, and I'd asked which phase they belong to. You said to do item 5, which listed them.
+- **Picked:** written, plain voice only: M2 edges, M2 special cases, accuracy, memo time, commutators, 3-style corners, 3-style edges, building comms.
+  - **Components:** M2 shots and tempting setups, commutators part by part, 3-style cases from the datasets, and what a solve with one mistake leaves behind.
+  - **Checkpoints:** six new generated kinds.
+  - **Links:** the M2/OP and 3-style trainers now link to these lessons.
+- **Caught while writing:**
+  - "a piece only stays moved if both A and B touch it" is false, and was rewritten;
+  - "M2 setups are one to three moves" (all but one are three).
+- **Reversal:** n/a.
+
+### Checkpoints grade what an answer does
+
+- **Picked:** a typed setup (OP, M2, r2, U2) is right if setup, swap and undo do what the verified record does; a typed expansion is right if it cancels to the same moves; a comm you build is right if `validateComm` says it solves the case; an x-centre memo is right if every letter is allowed where it's typed and the walk ends solved.
+- **Why:** a correct answer that differs from the table must not be marked wrong.
+- **Reversal:** easy.
+
+### "Which mistake left this cube?" uses signatures, checked for every item
+
+- **Picked:** three mistakes with distinct signatures: parity left out (2 corners and 2 edges), two targets in the wrong order (3 pieces of one type), a setup done twice (5 or more pieces). A generated item is kept only when the cube shows its kind's signature.
+- **Reversal:** easy.
+
+### Item 5: the older open decisions
+
+- **Lessons keep the standard buffers.** Kept. The 4BLD lessons do the same with their fixed buffers. The reason hasn't changed: the prose teaches one buffer's swap spot and setup rule. Reversal as before: moderate.
+- **D-031's implication for Gate B.** Recorded in D-022: comm length can't favour any 3-style buffer, so UFR and UF stay on convention and on what the lessons teach, not on comm length.
+- **Analytics weights and thresholds.** Kept as they are. They're still first guesses, and there's still no real drilling history to tune them against; changing them blind would be a different guess, not a better one.
+- **Legacy memo attempts.** Still not counted, but no longer invisible. Progress has a "From the old app" section: how many, between which dates, letters recalled in order, and every attempt in a table. They're still never turned into per-pair numbers.
+
+### Mobile performance (item 3)
+
+(See the follow-up checkpoint for the numbers.)
+
+- **Finding:** on lesson pages, Lighthouse's mobile simulation charged about 430 KB of script to the largest paint, though the text really painted at 0.1 s. Zod, the cube engine and the bundled datasets were all in the first load, because the lesson component map imported every interactive component.
+- **Changed:**
+  - **Lesson components load lazily** through `React.lazy`. The server still renders them in full, so the HTML is unchanged; the browser fetches their code during hydration and keeps the server's HTML on screen until it arrives.
+  - **A light `reader-context` module** and a **`@bld/storage/options` subpath** keep the engine and Zod out of the lesson view.
+  - **Datasets are parsed only when first read,** not all 12 at once.
+  - **Each 3D cube is built** only when it comes within 200px of the screen.
+  - **The theme boot script is inlined** (allowed by hash), so it no longer blocks first paint.
+  - **Fallback fonts are sized like Recursive** (size-adjust and metric overrides, measured in Chrome), so text doesn't re-wrap when the font arrives.
+  - **The prerequisites line is always rendered** at the same size, so it no longer pushes the lesson down when progress loads.
+- **Found in the browser while doing it:** the build hashed inline scripts with Windows line endings, which browsers normalise before hashing, so the inlined script was blocked by the site's own CSP. Both the layout and the CSP step now normalise line endings.
+- **Reversal:** easy for each.
