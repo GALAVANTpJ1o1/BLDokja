@@ -167,7 +167,12 @@ export function temptingSetups(puzzle: Puzzle, options: { readonly swap: SwapAlg
     if (length === undefined || (legalSetup !== undefined && length >= legalSetup.length)) continue;
     const setup = search.setup(target);
     const demo = demonstrateSetup(puzzle, swap, options.bufferSticker, target, setup, { onSideEffectPiece: "compose" });
-    if (!demo.ok) throw new Error(JSON.stringify(demo.error));
+    // A wing can't be flipped in its slot, so one of its two stickers names an exchange the cube can't
+    // do; those aren't targets at all, and there is nothing to be tempted by.
+    if (!demo.ok) {
+      if (demo.error.code === "invalid-target" && demo.error.detail.code === "impossible-exchange") continue;
+      throw new Error(JSON.stringify(demo.error));
+    }
     tempting.push({ target, setup, legalSetup, damagedPieces: demo.value.damagedPieces });
   }
   return tempting;

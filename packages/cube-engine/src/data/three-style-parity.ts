@@ -14,7 +14,7 @@ import { pieceName, stickerName } from "../pieces/names.js";
 import { pieceType } from "../pieces/piece-types.js";
 import { ENGINE_VERSION } from "../version.js";
 import { AlgEntrySchema, checkAlgEntry, entryForAlg, IntendedEffectSchema, stickerCycles, StickerName, type AlgDataset, type AlgEntry, type DatasetProblem } from "./alg-dataset.js";
-import type { M2Dataset } from "./m2-dataset.js";
+import type { SwapDataset } from "./swap-dataset.js";
 import { movesOf, targetAlg } from "./op-dataset.js";
 
 /**
@@ -183,7 +183,7 @@ export interface M2ThreeStyleParitySpec {
   readonly id: string;
   readonly corners: AlgDataset;
   readonly twists: AlgDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
 }
 
 export function buildM2ThreeStyleParityDataset(puzzle: Puzzle, spec: M2ThreeStyleParitySpec): Result<M2ThreeStyleParityDataset, ThreeStyleParityBuildError> {
@@ -289,7 +289,7 @@ export function verifyThreeStyleParityDataset(
 export function verifyM2ThreeStyleParityDataset(
   puzzle: Puzzle,
   parity: M2ThreeStyleParityDataset,
-  datasets: { readonly corners: AlgDataset; readonly twists: AlgDataset; readonly edges: M2Dataset },
+  datasets: { readonly corners: AlgDataset; readonly twists: AlgDataset; readonly edges: SwapDataset },
 ): ThreeStyleParityProblem[] {
   const problems: ThreeStyleParityProblem[] = [];
   const { corners, twists, edges } = datasets;

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { AlgDataset } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema, type ContentDataset } from "../../src/data/content-dataset.js";
-import type { M2Dataset } from "../../src/data/m2-dataset.js";
+import type { SwapDataset } from "../../src/data/swap-dataset.js";
 import type { Puzzle } from "../../src/core/puzzle.js";
 import { buildM2ThreeStyleParityDataset, buildThreeStyleParityDataset, type M2ThreeStyleParityDataset, type ThreeStyleParityDataset } from "../../src/data/three-style-parity.js";
 
@@ -27,7 +27,7 @@ function algDataset(name: string): AlgDataset {
 }
 
 /** The Gate B 3-style datasets (D-022, D-023) and the M2 edges for DF (D-025). */
-export function threeStyleDatasets(): { corners: AlgDataset; edges: AlgDataset; twists: AlgDataset; flips: AlgDataset; m2: M2Dataset } {
+export function threeStyleDatasets(): { corners: AlgDataset; edges: AlgDataset; twists: AlgDataset; flips: AlgDataset; m2: SwapDataset } {
   const m2 = committed("m2-edges.DF");
   if (m2.kind !== "setups" || m2.method !== "m2") throw new Error("m2-edges.DF is not an M2 dataset");
   return { corners: algDataset("3style-corners.UFR"), edges: algDataset("3style-edges.UF"), twists: algDataset("3style-twists.UFR"), flips: algDataset("3style-flips.UF"), m2 };

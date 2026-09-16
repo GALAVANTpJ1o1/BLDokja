@@ -1,5 +1,6 @@
 import { KPattern, type KPatternData } from "cubing/kpuzzle";
 import { at, mod } from "../core/arrays.js";
+import { identityPerm, type StickerPerm } from "../core/move-table.js";
 import { faceletsOf, verifiedMoves, type Puzzle, type PuzzleId } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { cornerTwistDirection, type TwistDirection } from "../pieces/orientation.js";
@@ -50,7 +51,6 @@ function resolveCycle(puzzle: Puzzle, cycle: readonly string[]): Result<{ type: 
   }
   const type = at(found, 0).type;
   if (found.some((f) => f.type.id !== type.id)) return err({ code: "mixed-piece-types", stickers: [...cycle] });
-  if (type.interchangeable) return err({ code: "interchangeable-pieces-unsupported", pieceType: type.id });
   for (let i = 0; i < cycle.length; i++) {
     for (let j = i + 1; j < cycle.length; j++) {
       if (at(found, i).sticker.position === at(found, j).sticker.position) {
@@ -115,6 +115,48 @@ function fixedOrientationTable(puzzle: Puzzle, orbitName: string): readonly (rea
 }
 
 /**
+ * The sticker permutation of a rigid exchange: the piece holding `a` goes to the slot holding `b` and
+ * back, each carrying its other stickers, and nothing else moves. This is what one step of a swap method
+ * has to do, apart from the swap's own side effect.
+ *
+ * Built straight from the sticker model rather than from a kpuzzle pattern, because a pattern names
+ * identical pieces by colour: on 4x4 the four U x-centres all read as "the U piece", so a pattern can't
+ * say which slot a particular one came from. The permutation here can.
+ *
+ * `undefined` means the exchange is impossible as named. A wing can't be flipped in its slot, so of its
+ * two stickers only one can stand opposite a given buffer sticker; naming the other describes a state the
+ * cube can't reach.
+ */
+export function rigidExchangePerm(puzzle: Puzzle, a: string, b: string): Result<StickerPerm, ThreeCycleError | { readonly code: "impossible-exchange"; readonly stickers: readonly [string, string] }> {
+  const resolved = resolveCycle(puzzle, [a, b]);
+  if (!resolved.ok) return resolved;
+  const { type, stickers } = resolved.value;
+  const [first, second] = stickers as [StickerInfo, StickerInfo];
+  const orbit = at(puzzle.stickerMap.orbits, type.orbitIndex);
+  const oriented = type.orientationOrder > 1;
+  // Stickers per piece, not orientations: a wing has two stickers but can't turn in its slot, and its
+  // orientation in a slot comes from the table instead.
+  const stickersPerPiece = orbit.stickersPerPiece;
+  const fixed = oriented ? undefined : fixedOrientationTable(puzzle, type.orbit);
+  const label = (sticker: StickerInfo) => (oriented ? sticker.label : 0);
+
+  const perm = identityPerm(puzzle.geometry.stickerCount);
+  // Read the same way as a pattern's facelets: the slot at label j + sign·k of this position shows the
+  // home sticker of label j of the piece that came here. k is the incoming piece's orientation here.
+  for (const [slot, incoming] of [
+    [first, second],
+    [second, first],
+  ] as const) {
+    const k = fixed === undefined ? mod(type.orientationSign * (label(slot) - label(incoming)), type.orientationOrder) : at(at(fixed, incoming.position), slot.position);
+    for (let j = 0; j < stickersPerPiece; j++) {
+      perm[at(at(orbit.slots, slot.position), mod(j + orbit.orientationSign * k, stickersPerPiece))] = at(at(orbit.slots, incoming.position), j);
+    }
+  }
+  if (at(perm, first.index) !== second.index) return err({ code: "impossible-exchange", stickers: [a, b] });
+  return ok(perm);
+}
+
+/**
  * The state whose trace from `buffer` is exactly `first`, `second`: the buffer slot holds the
  * `first` sticker, the `first` slot holds the `second` sticker, and the `second` slot holds the
  * buffer sticker, each piece carrying its other stickers along. Every other piece is solved.
@@ -128,6 +170,10 @@ export function threeCyclePattern(puzzle: Puzzle, cycle: ThreeCycle): Result<KPa
  * same way as `threeCyclePattern`: each slot receives the piece of the next sticker, the last slot
  * receives the buffer's piece, and every other piece is solved. With two stickers it is the rigid
  * exchange of the buffer piece and the target piece that a swap-based method performs.
+ *
+ * Interchangeable pieces (4x4 x-centres) work too: a slot receives the *colour* of the next sticker's
+ * piece, which is all those pieces have. A cycle among slots of one colour therefore builds the solved
+ * state, because that is what such a cycle looks like on a cube.
  */
 export function stickerCyclePattern(puzzle: Puzzle, stickers: readonly string[]): Result<KPattern, StickerCycleError> {
   if (stickers.length < 2) return err({ code: "cycle-too-short", length: stickers.length });

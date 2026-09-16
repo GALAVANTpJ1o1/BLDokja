@@ -6,7 +6,8 @@ import { generateDatasets } from "../../scripts/generate-datasets.js";
 /** The committed datasets are exactly what a fresh generation produces (`pnpm engine:generate --check`). */
 describe("alg datasets are reproducible", () => {
   it("regenerate byte for byte (line endings aside)", async () => {
-    const dir = join(import.meta.dirname, "..", "..", "..", "..", "content", "algs", "3x3");
+    // Names carry their folder now: "3x3/m2-edges.DF.json", "4x4/r2-wings.FDr.json".
+    const dir = join(import.meta.dirname, "..", "..", "..", "..", "content", "algs");
     const generated = await generateDatasets();
     for (const [name, text] of generated) {
       const path = join(dir, name);

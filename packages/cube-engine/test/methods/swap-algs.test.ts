@@ -14,11 +14,25 @@ const PINNED: Readonly<Record<SwapMethod, { swapPiece: string; swapStickers: Rec
   "op-corners": { swapPiece: "DFR", swapStickers: { UBL: "RDF", LUB: "DFR", BUL: "FDR" }, sideEffects: ["UB", "UL"], etm: 15 },
   "op-edges": { swapPiece: "UL", swapStickers: { UR: "UL", RU: "LU" }, sideEffects: ["UBR", "UFR"], etm: 14 },
   m2: { swapPiece: "UB", swapStickers: { DF: "UB", FD: "BU" }, sideEffects: ["B", "D", "DB", "F", "U", "UF"], etm: 1 },
+  // 4x4. r2 exchanges the buffer wing with UBr and carries the other r-slice wings and eight x-centres;
+  // U2 exchanges the buffer x-centre with the one diagonally across the U face, and carries the U layer.
+  r2: {
+    swapPiece: "UBr",
+    swapStickers: { DFr: "UBr", FDr: "BUr" },
+    sideEffects: ["Bdr", "Bur", "DBr", "Dbr", "Dfr", "Fdr", "Fur", "UFr", "Ubr", "Ufr"],
+    etm: 1,
+  },
+  u2: {
+    swapPiece: "Ufl",
+    swapStickers: { Ubr: "Ufl" },
+    sideEffects: ["UBL", "UBR", "UBl", "UBr", "UFL", "UFR", "UFl", "UFr", "ULb", "ULf", "URb", "URf", "Ubl", "Ufr"],
+    etm: 1,
+  },
 };
 
 describe("reference swap algs", () => {
   it.each(Object.keys(REFERENCE_SWAPS) as SwapMethod[])("%s: computed effect has the method's shape, matches the geometry model, and is pinned", async (method) => {
-    const puzzle = await loadPuzzle("3x3x3");
+    const puzzle = await loadPuzzle(REFERENCE_SWAPS[method].puzzle);
     const swap = referenceSwap(puzzle, method);
     if (!swap.ok) throw new Error(JSON.stringify(swap.error));
     expect(Array.from(swap.value.perm)).toEqual(Array.from(geometryAlgPermutation(puzzle.geometry, REFERENCE_SWAPS[method].alg)));
@@ -29,6 +43,16 @@ describe("reference swap algs", () => {
       sideEffects: [...swap.value.sideEffectPieces].sort(),
       etm: swap.value.etm,
     }).toEqual(pinned);
+  });
+
+  it("refuses a reference swap asked for on the wrong puzzle", async () => {
+    const three = await loadPuzzle("3x3x3");
+    const four = await loadPuzzle("4x4x4");
+    const code = (r: ReturnType<typeof referenceSwap>) => (r.ok ? "ok" : r.error.code);
+    expect(code(referenceSwap(three, "r2"))).toBe("wrong-puzzle");
+    expect(code(referenceSwap(four, "m2"))).toBe("wrong-puzzle");
+    expect(code(referenceSwap(four, "r2"))).toBe("ok");
+    expect(code(referenceSwap(four, "u2"))).toBe("ok");
   });
 
   it("rejects effects that don't have the method's shape", async () => {

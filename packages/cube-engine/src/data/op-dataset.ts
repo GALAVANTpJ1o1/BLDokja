@@ -231,7 +231,8 @@ export function buildOpSetupsDataset(puzzle: Puzzle, spec: OpSetupsSpec): Result
     id: spec.id,
     puzzle: "3x3x3",
     method: "op",
-    pieceType: reference.pieceType,
+    // Old Pochmann is only ever corners or edges; the reference swap's type is the wider piece-type union.
+    pieceType: reference.pieceType === "corners" ? "corners" : "edges",
     buffer: bufferSticker,
     kind: "setups",
     generatedBy: { engine: ENGINE_VERSION },

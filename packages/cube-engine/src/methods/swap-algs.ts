@@ -1,13 +1,14 @@
 import { at } from "../core/arrays.js";
 import { composePerms, identityPerm, moveTable, type StickerPerm } from "../core/move-table.js";
-import { faceletsOf, VERIFIED_MOVE_FAMILIES, type Puzzle } from "../core/puzzle.js";
+import { VERIFIED_MOVE_FAMILIES, type Puzzle, type PuzzleId } from "../core/puzzle.js";
 import { err, ok, type Result } from "../core/result.js";
 import { conjugatePerm, cubeSymmetries, relabelMove } from "../core/symmetry.js";
 import { expandNodes } from "../commutator/expand.js";
 import { moveCounts } from "../commutator/metrics.js";
 import { parseAlg, type AlgMove, type ParsedAlg } from "../commutator/parse.js";
-import { stickerCyclePattern, type StickerCycleError } from "../commutator/validate.js";
+import { rigidExchangePerm, type StickerCycleError } from "../commutator/validate.js";
 import { pieceName, stickerName } from "../pieces/names.js";
+import type { PieceTypeId } from "../pieces/piece-types.js";
 
 /**
  * Swap algs for Old Pochmann and M2 (DECISIONS D-020).
@@ -19,12 +20,13 @@ import { pieceName, stickerName } from "../pieces/names.js";
  * same way.
  */
 
-export type SwapMethod = "op-corners" | "op-edges" | "m2";
+export type SwapMethod = "op-corners" | "op-edges" | "m2" | "r2" | "u2";
 
 export interface ReferenceSwap {
   readonly method: SwapMethod;
-  readonly pieceType: "corners" | "edges";
-  /** As published. */
+  readonly pieceType: PieceTypeId;
+  readonly puzzle: PuzzleId;
+  /** As published, in this engine's notation (see the note on r2 below). */
   readonly alg: string;
   /** Buffer piece the published alg is for. */
   readonly bufferPiece: string;
@@ -35,6 +37,7 @@ export const REFERENCE_SWAPS: Readonly<Record<SwapMethod, ReferenceSwap>> = {
   "op-corners": {
     method: "op-corners",
     pieceType: "corners",
+    puzzle: "3x3x3",
     alg: "R U' R' U' R U R' F' R U R' U' R' F R",
     bufferPiece: "UBL",
     source: "J Perm, jperm.net/bld, Old Pochmann corners swap (retrieved 2026-09-14)",
@@ -42,6 +45,7 @@ export const REFERENCE_SWAPS: Readonly<Record<SwapMethod, ReferenceSwap>> = {
   "op-edges": {
     method: "op-edges",
     pieceType: "edges",
+    puzzle: "3x3x3",
     alg: "R U R' U' R' F R2 U' R' U' R U R' F'",
     bufferPiece: "UR",
     source: "J Perm, jperm.net/bld, Old Pochmann edges swap (retrieved 2026-09-14)",
@@ -49,9 +53,32 @@ export const REFERENCE_SWAPS: Readonly<Record<SwapMethod, ReferenceSwap>> = {
   m2: {
     method: "m2",
     pieceType: "edges",
+    puzzle: "3x3x3",
     alg: "M2",
     bufferPiece: "DF",
     source: "BRIEF §5.4: M2 edges, buffer DF, M2 as the swap",
+  },
+  /**
+   * r2 wings. The source writes the swap `r2`, which in this engine's notation (cubing.js) is `2R2`: `r`
+   * there means the two-layer turn Rw, and the inner slice alone is `2R` (D-006). What the swap does is
+   * computed from the moves, never read from the source.
+   */
+  r2: {
+    method: "r2",
+    pieceType: "wings",
+    puzzle: "4x4x4",
+    alg: "2R2",
+    bufferPiece: "DFr",
+    source: "Speedsolving wiki, R2 page: \"The buffer is DFr\", with r2 as the swap (retrieved 2026-09-16)",
+  },
+  /** U2 x-centres. The tutorial names the buffer \"Urb\", which is Ubr in this engine's names (D-009). */
+  u2: {
+    method: "u2",
+    pieceType: "xcenters",
+    puzzle: "4x4x4",
+    alg: "U2",
+    bufferPiece: "Ubr",
+    source: "Speedsolving forums, \"4x4 Blindfolded, U2 Centers Method Tutorial\": buffer Urb, one U2 per target (retrieved 2026-09-16)",
   },
 };
 
@@ -80,11 +107,29 @@ export const REFERENCE_JB = {
   source: "Speedsolving wiki, PLL page, Jb permutation, first alg listed, written (y2) R' U L U' R U2' L' U L U2 L' (retrieved 2026-09-14)",
 } as const;
 
-/** How many piece transpositions each part of a swap alg's effect must have. */
+/**
+ * How many piece transpositions each part of a swap alg's effect must have: of the method's own piece
+ * type, of the other two-or-three-sticker kind, and of single-sticker centres. Every number here is
+ * checked against the alg's computed effect, so a wrong one fails rather than passes something wrong.
+ */
 const SHAPES: Readonly<Record<SwapMethod, { readonly own: number; readonly other: number; readonly centres: number }>> = {
   "op-corners": { own: 1, other: 1, centres: 0 },
   "op-edges": { own: 1, other: 1, centres: 0 },
   m2: { own: 2, other: 0, centres: 2 },
+  // 2R2 swaps the buffer wing with UBr and the other pair of r-slice wings, and turns the eight r-slice
+  // x-centres in pairs.
+  r2: { own: 2, other: 0, centres: 4 },
+  // U2 swaps both diagonal pairs of U x-centres (its own kind), the two pairs of U corners, and four
+  // pairs of U-layer wings.
+  u2: { own: 2, other: 6, centres: 0 },
+};
+
+/** Which sticker-count kind a piece type is, for the shape counts above. */
+const OWN_KIND: Readonly<Record<PieceTypeId, "corners" | "edges" | "centres">> = {
+  corners: "corners",
+  edges: "edges",
+  wings: "edges",
+  xcenters: "centres",
 };
 
 export interface SwapEffect {
@@ -139,7 +184,7 @@ export function analyseSwap(puzzle: Puzzle, method: SwapMethod, perm: StickerPer
     if (to !== s && partner.get(nameOf(s)) !== nameOf(to)) return err({ code: "not-a-piece-swap" });
   }
 
-  const ownKind = REFERENCE_SWAPS[method].pieceType;
+  const ownKind = OWN_KIND[REFERENCE_SWAPS[method].pieceType];
   const counts = { own: 0, other: 0, centres: 0 };
   const seen = new Set<string>();
   for (let s = 0; s < perm.length; s++) {
@@ -173,11 +218,12 @@ export function analyseSwap(puzzle: Puzzle, method: SwapMethod, perm: StickerPer
   return ok({ perm, bufferPiece, swapPiece, swapStickers, sideEffectPieces });
 }
 
-export type SwapAlgError = { readonly code: "invalid-alg" } | SwapShapeError;
+export type SwapAlgError = { readonly code: "invalid-alg" } | { readonly code: "wrong-puzzle"; readonly expected: PuzzleId } | SwapShapeError;
 
 /** The reference swap alg, with its computed effect. */
 export function referenceSwap(puzzle: Puzzle, method: SwapMethod): Result<SwapAlg, SwapAlgError> {
   const reference = REFERENCE_SWAPS[method];
+  if (puzzle.id !== reference.puzzle) return err({ code: "wrong-puzzle", expected: reference.puzzle });
   const parsed = parseAlg(puzzle.id, reference.alg);
   if (!parsed.ok) return err({ code: "invalid-alg" });
   const moves = expandNodes(parsed.value.nodes);
@@ -233,7 +279,7 @@ export function sideEffectPerm(puzzle: Puzzle, swap: SwapEffect): StickerPerm {
 }
 
 export type TargetEffectError =
-  | { readonly code: "invalid-target"; readonly target: string; readonly detail: StickerCycleError }
+  | { readonly code: "invalid-target"; readonly target: string; readonly detail: StickerCycleError | { readonly code: "impossible-exchange"; readonly stickers: readonly [string, string] } }
   | { readonly code: "target-on-side-effect-piece"; readonly target: string };
 
 /**
@@ -254,14 +300,12 @@ export function targetEffect(
   target: string,
   options: { readonly onSideEffectPiece?: "error" | "compose" } = {},
 ): Result<StickerPerm, TargetEffectError> {
-  const exchange = stickerCyclePattern(puzzle, [bufferSticker, target]);
+  const exchange = rigidExchangePerm(puzzle, bufferSticker, target);
   if (!exchange.ok) return err({ code: "invalid-target", target, detail: exchange.error });
-  // The exchange is an involution, so the permutation that makes it equals the one that undoes it.
-  const facelets = Uint8Array.from(faceletsOf(puzzle, exchange.value));
   const { geometry } = puzzle;
-  const touchesSideEffect = facelets.some((home, slot) => home !== slot && swap.sideEffectPieces.includes(pieceName(geometry.size, geometry.sticker(slot).cubie)));
+  const touchesSideEffect = exchange.value.some((to, slot) => to !== slot && swap.sideEffectPieces.includes(pieceName(geometry.size, geometry.sticker(slot).cubie)));
   if (touchesSideEffect && options.onSideEffectPiece !== "compose") return err({ code: "target-on-side-effect-piece", target });
-  return ok(composePerms(facelets, sideEffectPerm(puzzle, swap)));
+  return ok(composePerms(exchange.value, sideEffectPerm(puzzle, swap)));
 }
 
 /**

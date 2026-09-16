@@ -1097,3 +1097,64 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Storage:** two optional fields on the existing settings record, so no migration and both are in every backup.
 - **Checked in the browser:** the written-out mode loads no 3D player, the net mode shows a labelled net, and the toggle speaks each prompt ("Target 1 of 20", then the correction after a wrong letter).
 - **Reversal:** easy. Both are settings with defaults that keep today's behaviour.
+
+## D-037 · Setups as pairs of halves, when the tracked slots outgrow one number
+
+**Status:** accepted 2026-09-16, Phase 7.
+
+- **The limit.** The setup search packs the target's slot and every tracked protected sticker into one
+  number (`slot₀·n^k + …`). That stays exact while `stickerCount^(tracked + 1)` is a safe integer: fine for
+  M2's three protected edges on 54 stickers, impossible for 4x4's r2 (eleven protected pieces) or U2
+  (fifteen) on 96.
+- **The pair search.** Every canonical half-sequence up to half the bound is listed once, with where it
+  sends each sticker and where each sticker came from. A setup S = A·B leaves a protected sticker p alone
+  exactly when `A[p] = B⁻¹[p]`, so halves are matched on that vector; the target of a matched pair is the
+  sticker A sends to the slot B takes the swap sticker from. Junctions are checked so the joined sequence
+  is canonical, and the same tie-breaks apply (shortest, then fewest quarter turns, then pool order).
+- **Bound.** Six moves by default, which covers every r2 and U2 target; a longer bound costs time and finds
+  nothing more.
+- **Which search runs** is decided by the state size, and `strategy: "pairs"` forces the new one so the two
+  can be compared.
+- **Verification** (`test/methods/setup-search.test.ts`): the two searches return the same setup for every
+  target, for M2 on all four M-slice buffers and for both Old Pochmann swaps; the pair search honours its
+  bound; and its setups go through the same geometry-model check as before.
+- **Reversal:** easy; the breadth-first search is untouched and still runs wherever it fits.
+
+## D-038 · 4BLD: r2 wings and U2 x-centres
+
+**Status:** accepted 2026-09-16, Phase 7. Datasets in `content/algs/4x4/`.
+
+- **Sources**, both read 2026-09-16, both only for conventions and published algs — every effect is computed here:
+  - **r2:** Speedsolving wiki, R2 page. "The buffer is DFr", `r2` as the swap, two r-slice special cases,
+    and the rule that if either is the second target of a pair you shoot the other.
+  - **U2:** Speedsolving forums, "4x4 Blindfolded, U2 Centers Method Tutorial". Buffer `Urb`, `Ulf: U2`,
+    one U2 per target, and algs for the two U-face special cases.
+- **Notation.** The sources' `r`, `d` and `u` are inner slices, which this engine writes `2R`, `2D`, `2U`
+  (D-006: cubing.js's `r` is the two-layer turn). Read that way, every published alg matches the effect the
+  engine derives from its case; read as wide turns, none of them do. That is what fixes the reading.
+- **What the engine derived:**
+  - **r2:** buffer sticker FDr (the lettered sticker of the DFr wing — a wing can't be flipped, so only one
+    of its two stickers can name an exchange), swap sticker BUr, 23 records, special cases UFr and DBr, and
+    the odd/even rule UFr ↔ DBr — the same rule the source states.
+  - **U2:** buffer Ubr, swap sticker Ufl (the setup for it is empty: the swap alone), 23 records, special
+    cases Ubl and Ufr, odd/even rule Ubl ↔ Ufr.
+- **Special-case algs.**
+  - **r2:** searched as a comm next to the swap, three per case at 11 moves, with the wiki's own alg kept
+    beside them as a cited fourth.
+  - **U2:** the tutorial's algs, cited. The search finds nothing for these cases, because the effect they
+    need is a 3-cycle of three x-centres *on one face*, and no comm in the catalogue makes one: of 144 such
+    cycles, the catalogue has none, while it covers 7,488 of the 12,144 cycles overall. Whether a shorter
+    alg exists is open; the cited ones are 16 moves and verified.
+- **Verification:** both datasets go through the same verifier as M2's (setups re-searched, every alg's
+  whole-puzzle permutation equal to the exchange plus the swap's side effect, odd/even rule and illegal
+  setups re-derived), plus `test/data/four-bld-datasets.test.ts`, which pins the buffers, swap slots,
+  special cases and rules, and checks the published algs. They regenerate byte for byte.
+- **Two engine changes this needed:**
+  - **Case states for interchangeable pieces.** A pattern names identical pieces by colour, so it can't say
+    which of the four U x-centres came from where. The exchange a swap step performs is now built directly
+    at sticker level (`rigidExchangePerm`), which also decides which of a wing's two stickers can name a
+    given exchange at all — the other describes a state the cube can't reach.
+  - **Cited algs are exempt from the search bounds.** The bounds say what the search was allowed to try; an
+    alg from a source is judged by its effect and carries its citation.
+- **Reversal:** the datasets regenerate from the script; changing a buffer means regenerating and updating
+  the pinned test.

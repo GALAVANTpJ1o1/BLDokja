@@ -89,6 +89,16 @@ export const DEFAULT_SETUP_POOLS = {
   "op-corners": { pool: ["U", "D", "R", "L", "F", "B"], regime: "every-move" },
   "op-edges": { pool: ["U", "D", "R", "L", "F", "B", "Uw", "Dw", "Rw", "Lw", "Fw", "Bw"], regime: "every-move" },
   m2: { pool: ["U", "D", "R", "L", "F", "B"], regime: "net" },
+  /**
+   * r2: face turns, plus the l slice for the wings on it. The r slice itself is left out — it moves the
+   * buffer and the pieces the swap leans on, so a setup could only ever undo it.
+   */
+  r2: { pool: ["U", "D", "R", "L", "F", "B", "2L"], regime: "net" },
+  /**
+   * U2: every face but U, plus the inner slices. U is left out because U2 already leans on the whole
+   * U layer, and no setup may disturb it.
+   */
+  u2: { pool: ["D", "R", "L", "F", "B", "2U", "2D", "2R", "2L", "2F", "2B"], regime: "net" },
 } as const satisfies Record<SwapAlg["method"], { pool: readonly string[]; regime: SetupRegime }>;
 
 /**

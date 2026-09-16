@@ -6,10 +6,10 @@ import { err, ok, type Result } from "../core/result.js";
 import type { CommCatalogue } from "../commutator/catalogue.js";
 import { formatMoves } from "../commutator/expand.js";
 import { temptingSetups } from "../methods/illegal-setup.js";
-import { M2_SPECIAL_BOUNDS, searchSliceComposites } from "../methods/m2-search.js";
-import { DEFAULT_SETUP_POOLS, searchSetups, type SetupTable } from "../methods/setup-search.js";
-import { analyseSwap, m2Swaps, REFERENCE_SWAPS, sideEffectPerm, targetEffect, type SwapAlg } from "../methods/swap-algs.js";
-import { stickerName } from "../pieces/names.js";
+import { SPECIAL_BOUNDS, searchSliceComposites } from "../methods/m2-search.js";
+import { DEFAULT_SETUP_POOLS, searchSetups, type SetupTable, type TargetSetup } from "../methods/setup-search.js";
+import { analyseSwap, m2Swaps, REFERENCE_SWAPS, sideEffectPerm, swapVariants, targetEffect, type SwapAlg } from "../methods/swap-algs.js";
+import { pieceName, stickerName } from "../pieces/names.js";
 import { pieceType } from "../pieces/piece-types.js";
 import { ENGINE_VERSION } from "../version.js";
 import {
@@ -26,14 +26,21 @@ import {
 import { datasetSwap, identitySymmetry, movesOf, OpSwapSchema, relabelled, targetAlg, type OpDatasetProblem, type OpSetupsDataset } from "./op-dataset.js";
 
 /**
- * M2 datasets (DECISIONS D-025): the setup table for one M-slice buffer, its special cases, the
- * odd/even rule, and the M2/OP parity alg.
+ * Swap-method datasets (DECISIONS D-025, D-038): the setup table for one buffer, its special cases, the
+ * odd/even rule, and the M2/OP parity alg. Three methods share this shape:
  *
- * Every step of M2 repeats the swap's side effect X (the other two M-slice edges swapped, centres
- * swapped). A target on one of X's edges can't be set up; its record holds algs for E·X, found as a
- * comm next to M2 (`searchSliceComposites`). On an odd step the cube carries X, so a target t needs
- * X·E_t instead, which is exactly another record's effect: the odd/even rule is read off the records
- * by simulation, never written in.
+ * | Method | Puzzle | Pieces | Swap |
+ * |---|---|---|---|
+ * | `m2` | 3x3x3 | edges | `M2` |
+ * | `r2` | 4x4x4 | wings | `2R2` (written `r2` in the sources; D-006) |
+ * | `u2` | 4x4x4 | x-centres | `U2` |
+ *
+ * Every step repeats the swap's side effect X: for M2 the other two M-slice edges and the centres, for r2
+ * the other pair of r-slice wings and eight x-centres, for U2 the rest of the U layer. A target on one of
+ * X's own pieces can't be set up; its record holds algs for E·X, found as a comm next to the swap
+ * (`searchSliceComposites`). On an odd step the cube carries X, so a target t needs X·E_t instead, which
+ * is exactly another record's effect: the odd/even rule is read off the records by simulation, never
+ * written in.
  */
 
 const Family = z.string().min(1);
@@ -43,20 +50,20 @@ const envelope = {
   format: z.literal("bld-platform/alg-dataset"),
   version: z.literal(1),
   id: z.string().min(1),
-  puzzle: z.literal("3x3x3"),
+  puzzle: z.enum(["3x3x3", "4x4x4"]),
   /** The engine, and the comm-search bounds the special algs (and parity algs) were searched with. */
   generatedBy: z.object({ engine: z.string().min(1), bounds: Bounds }),
 };
 
-export const M2RecordSchema = z.discriminatedUnion("kind", [
+export const SwapRecordSchema = z.discriminatedUnion("kind", [
   z.object({ id: z.string().min(1), kind: z.literal("target"), target: StickerName, setup: z.string(), intendedEffect: IntendedEffectSchema, algs: z.array(AlgEntrySchema).min(1).max(4) }),
   z.object({ id: z.string().min(1), kind: z.literal("special"), target: StickerName, intendedEffect: IntendedEffectSchema, algs: z.array(AlgEntrySchema).min(1).max(4) }),
 ]);
 
-export const M2DatasetSchema = z.object({
+export const SwapDatasetSchema = z.object({
   ...envelope,
-  method: z.literal("m2"),
-  pieceType: z.literal("edges"),
+  method: z.enum(["m2", "r2", "u2"]),
+  pieceType: z.enum(["edges", "wings", "xcenters"]),
   /** Buffer sticker. */
   buffer: StickerName,
   kind: z.literal("setups"),
@@ -69,7 +76,7 @@ export const M2DatasetSchema = z.object({
   oddStepRule: z.array(z.object({ target: StickerName, shootAs: StickerName })),
   /** Shorter setups that ignore the protected pieces, and what they break. */
   tempting: z.array(z.object({ target: StickerName, setup: z.string().min(1), damagedPieces: z.array(PieceName).min(1) })),
-  records: z.array(M2RecordSchema),
+  records: z.array(SwapRecordSchema),
 });
 
 export const M2OpParityDatasetSchema = z.object({
@@ -82,11 +89,11 @@ export const M2OpParityDatasetSchema = z.object({
   records: z.tuple([z.object({ id: z.literal("parity"), kind: z.literal("parity"), intendedEffect: IntendedEffectSchema, algs: z.array(AlgEntrySchema).min(1).max(4) })]),
 });
 
-export type M2Dataset = z.infer<typeof M2DatasetSchema>;
-export type M2Record = z.infer<typeof M2RecordSchema>;
+export type SwapDataset = z.infer<typeof SwapDatasetSchema>;
+export type SwapRecord = z.infer<typeof SwapRecordSchema>;
 export type M2OpParityDataset = z.infer<typeof M2OpParityDatasetSchema>;
 
-export type M2DatasetProblem =
+export type SwapDatasetProblem =
   | OpDatasetProblem
   | { readonly code: "special-targets-mismatch" }
   | { readonly code: "bounds-mismatch" }
@@ -94,19 +101,28 @@ export type M2DatasetProblem =
   | { readonly code: "odd-step-rule-mismatch"; readonly expected: string }
   | { readonly code: "tempting-mismatch" };
 
-/** Algs for a special effect: searched, or given (relabelled from another system, then verified). */
-export type SpecialAlgs = { readonly kind: "search"; readonly catalogue: CommCatalogue } | { readonly kind: "given"; readonly algs: ReadonlyMap<string, readonly string[]> };
+/**
+ * Algs for a special effect: searched, or given. Given algs come from a source (or another system) and
+ * are verified here like everything else; with a `citation` they are recorded as reference algs.
+ */
+export type SpecialAlgs =
+  | { readonly kind: "search"; readonly catalogue: CommCatalogue }
+  | { readonly kind: "given"; readonly algs: ReadonlyMap<string, readonly string[]>; readonly citation?: string };
 
-export interface M2Spec {
+export interface SwapSpec {
   readonly id: string;
-  /** An M2 swap (`m2Swaps`). */
+  /** The method's swap: `m2Swaps` for M2, the reference swap (or a symmetry image) for r2 and U2. */
   readonly swap: SwapAlg;
+  /**
+   * The buffer's own sticker: the one the swap sends to the helper slot. For wings that has to be the
+   * lettered sticker of the buffer wing, because only the stickers of its handedness can reach the slot.
+   */
   readonly bufferSticker: string;
   readonly symmetry: number;
   readonly specials: SpecialAlgs;
 }
 
-export type M2BuildError =
+export type SwapBuildError =
   | { readonly code: "setup-search-failed"; readonly detail: string }
   | { readonly code: "no-special-alg"; readonly target: string; readonly detail: string };
 
@@ -114,6 +130,33 @@ function effectOf(puzzle: Puzzle, swap: SwapAlg, buffer: string, target: string)
   const effect = targetEffect(puzzle, swap, buffer, target, { onSideEffectPiece: "compose" });
   if (!effect.ok) throw new Error(`${target}: ${JSON.stringify(effect.error)}`);
   return effect.value;
+}
+
+/**
+ * The stickers a method can actually shoot to.
+ *
+ * A wing can't be flipped in its slot, so of a wing's two stickers only one can stand for "this piece
+ * swaps with the buffer": naming the other one describes a state the cube can't reach, and the exchange
+ * then drags other pieces with it. Those stickers are dropped here, which leaves exactly one target per
+ * wing. Edges and corners keep every sticker (shooting UF and FU are different cases), and x-centres have
+ * one sticker each anyway.
+ *
+ * Which sticker survives isn't a convention: it's the one whose exchange moves only the buffer's piece,
+ * the target's piece, and the pieces the swap already carries.
+ */
+function shootableTargets(puzzle: Puzzle, swap: SwapAlg, bufferSticker: string, targets: readonly TargetSetup[]): TargetSetup[] {
+  const { geometry } = puzzle;
+  const pieceOf = (name: string) => {
+    const index = geometry.stickers.findIndex((s) => stickerName(geometry, s.index) === name);
+    return pieceName(geometry.size, geometry.sticker(index).cubie);
+  };
+  const bufferPiece = pieceOf(bufferSticker);
+  return targets.filter(({ target }) => {
+    const effect = targetEffect(puzzle, swap, bufferSticker, target, { onSideEffectPiece: "compose" });
+    if (!effect.ok) return false;
+    const allowed = new Set([bufferPiece, pieceOf(target), ...swap.sideEffectPieces]);
+    return stickerCycles(puzzle, effect.value).every((cycle) => cycle.every((name) => allowed.has(pieceOf(name))));
+  });
 }
 
 const samePerm = (a: ArrayLike<number>, b: ArrayLike<number>) => a.length === b.length && Array.from(a).every((x, i) => x === b[i]);
@@ -137,20 +180,26 @@ export function deriveOddStepRule(puzzle: Puzzle, swap: SwapAlg, buffer: string,
   return ok(rule);
 }
 
-function tables(puzzle: Puzzle, swap: SwapAlg, bufferSticker: string): Result<SetupTable, M2BuildError> {
-  const legal = searchSetups(puzzle, { swap, bufferSticker, ...DEFAULT_SETUP_POOLS.m2 });
+/** The method a dataset is for, as the swap method name. */
+type SwapDatasetMethod = SwapDataset["method"];
+
+function tables(puzzle: Puzzle, swap: SwapAlg, bufferSticker: string): Result<SetupTable, SwapBuildError> {
+  const legal = searchSetups(puzzle, { swap, bufferSticker, ...DEFAULT_SETUP_POOLS[swap.method as SwapDatasetMethod] });
   return legal.ok ? legal : err({ code: "setup-search-failed", detail: JSON.stringify(legal.error) });
 }
 
-export function buildM2Dataset(puzzle: Puzzle, spec: M2Spec): Result<M2Dataset, M2BuildError> {
+export function buildSwapDataset(puzzle: Puzzle, spec: SwapSpec): Result<SwapDataset, SwapBuildError> {
   const { swap, bufferSticker } = spec;
+  const method = swap.method as SwapDatasetMethod;
   const legal = tables(puzzle, swap, bufferSticker);
   if (!legal.ok) return legal;
   const swapText = formatMoves(swap.moves);
-  const reference = REFERENCE_SWAPS.m2;
+  const reference = REFERENCE_SWAPS[method];
+  const bounds = SPECIAL_BOUNDS[method];
 
-  const records: M2Record[] = [];
-  for (const { target, setup } of legal.value.targets) {
+  const records: SwapRecord[] = [];
+  const shootable = shootableTargets(puzzle, swap, bufferSticker, legal.value.targets);
+  for (const { target, setup } of shootable) {
     const effect = effectOf(puzzle, swap, bufferSticker, target);
     const intendedEffect = { stickerCycles: stickerCycles(puzzle, effect), sideEffectPieces: [...swap.sideEffectPieces] };
     if (setup !== undefined) {
@@ -158,16 +207,18 @@ export function buildM2Dataset(puzzle: Puzzle, spec: M2Spec): Result<M2Dataset, 
       records.push({ id: target, kind: "target", target, setup: setupText, intendedEffect, algs: [entryForAlg(puzzle, targetAlg(setupText, swapText), "engine-search")] });
       continue;
     }
-    let algs: string[];
+    let entries: AlgEntry[];
     if (spec.specials.kind === "search") {
       const found = searchSliceComposites(puzzle, spec.specials.catalogue, { swap, required: effect });
       if (!found.ok) return err({ code: "no-special-alg", target, detail: JSON.stringify(found.error) });
-      algs = found.value.map((c) => formatMoves(c.moves));
+      entries = found.value.map((c) => entryForAlg(puzzle, formatMoves(c.moves), "engine-search"));
     } else {
-      algs = [...(spec.specials.algs.get(target) ?? [])];
-      if (algs.length === 0) return err({ code: "no-special-alg", target, detail: "none given" });
+      const given = [...(spec.specials.algs.get(target) ?? [])];
+      if (given.length === 0) return err({ code: "no-special-alg", target, detail: "none given" });
+      const { citation } = spec.specials;
+      entries = given.map((alg) => (citation === undefined ? entryForAlg(puzzle, alg, "engine-search") : entryForAlg(puzzle, alg, "reference", citation)));
     }
-    records.push({ id: target, kind: "special", target, intendedEffect, algs: algs.map((alg) => entryForAlg(puzzle, alg, "engine-search")) });
+    records.push({ id: target, kind: "special", target, intendedEffect, algs: entries });
   }
 
   const rule = deriveOddStepRule(puzzle, swap, bufferSticker, records.map((r) => r.target));
@@ -178,12 +229,12 @@ export function buildM2Dataset(puzzle: Puzzle, spec: M2Spec): Result<M2Dataset, 
     format: "bld-platform/alg-dataset",
     version: 1,
     id: spec.id,
-    puzzle: "3x3x3",
-    method: "m2",
-    pieceType: "edges",
+    puzzle: reference.puzzle,
+    method,
+    pieceType: reference.pieceType === "corners" ? "edges" : reference.pieceType,
     buffer: bufferSticker,
     kind: "setups",
-    generatedBy: { engine: ENGINE_VERSION, bounds: { generators: [...M2_SPECIAL_BOUNDS.generators], maxInsertion: M2_SPECIAL_BOUNDS.maxInsertion, maxSetup: M2_SPECIAL_BOUNDS.maxSetup } },
+    generatedBy: { engine: ENGINE_VERSION, bounds: { generators: [...bounds.generators], maxInsertion: bounds.maxInsertion, maxSetup: bounds.maxSetup } },
     swap: {
       alg: swapEntry.alg,
       moves: swapEntry.moves,
@@ -197,56 +248,63 @@ export function buildM2Dataset(puzzle: Puzzle, spec: M2Spec): Result<M2Dataset, 
       swapSticker: legal.value.swapSticker,
       sideEffectPieces: [...swap.sideEffectPieces],
     },
-    setupFamilies: [...DEFAULT_SETUP_POOLS.m2.pool],
+    setupFamilies: [...DEFAULT_SETUP_POOLS[method].pool],
     regime: "net",
-    specialTargets: [...legal.value.unreachable],
+    specialTargets: shootable.filter((t) => t.setup === undefined).map((t) => t.target),
     oddStepRule: rule.value,
     tempting: temptingSetups(puzzle, { swap, bufferSticker, legal: legal.value }).map((t) => ({ target: t.target, setup: formatMoves(t.setup), damagedPieces: [...t.damagedPieces] })),
     records,
   });
 }
 
-/** The M2 swap a dataset states: an M2 variant for its buffer, relabelled from the reference by the stated symmetry. */
-export function m2DatasetSwap(puzzle: Puzzle, dataset: M2Dataset): Result<SwapAlg, M2DatasetProblem> {
-  const type = pieceType(puzzle, "edges");
+/**
+ * The swap a dataset states: a variant of its method's reference swap for its buffer, relabelled by the
+ * stated symmetry. M2 only counts variants that are still M-slice turns (`m2Swaps`); r2 and U2 take any
+ * symmetry image of their reference.
+ */
+export function datasetSwapAlg(puzzle: Puzzle, dataset: SwapDataset): Result<SwapAlg, SwapDatasetProblem> {
+  const type = pieceType(puzzle, dataset.pieceType);
   const buffer = type.stickerByName(dataset.buffer);
   if (buffer === undefined) return err({ code: "unknown-buffer", buffer: dataset.buffer });
   const bufferPiece = at(type.pieces, buffer.position).name;
-  const swaps = m2Swaps(puzzle);
+  const swaps = dataset.method === "m2" ? m2Swaps(puzzle) : swapVariants(puzzle, dataset.method);
   if (!swaps.ok) return err({ code: "invalid-swap", detail: JSON.stringify(swaps.error) });
   const text = formatMoves(movesOf(puzzle, dataset.swap.alg) ?? []);
   const swap = swaps.value.find((s) => s.bufferPiece === bufferPiece && formatMoves(s.moves) === text);
-  if (swap === undefined || relabelled(puzzle, dataset.swap.symmetry, REFERENCE_SWAPS.m2.alg) !== text) return err({ code: "swap-not-symmetry-image" });
+  if (swap === undefined || relabelled(puzzle, dataset.swap.symmetry, REFERENCE_SWAPS[dataset.method].alg) !== text) return err({ code: "swap-not-symmetry-image" });
   return ok(swap);
 }
 
-export function verifyM2Dataset(puzzle: Puzzle, dataset: M2Dataset): M2DatasetProblem[] {
-  const problems: M2DatasetProblem[] = [];
+export function verifySwapDataset(puzzle: Puzzle, dataset: SwapDataset): SwapDatasetProblem[] {
+  const problems: SwapDatasetProblem[] = [];
   const entryProblems: DatasetProblem[] = [];
-  const swapResult = m2DatasetSwap(puzzle, dataset);
+  const swapResult = datasetSwapAlg(puzzle, dataset);
   if (!swapResult.ok) return [swapResult.error];
   const swap = swapResult.value;
 
   // The swap.
+  const method = dataset.method;
   const stated = dataset.swap;
   if ((stated.source === "reference") !== (stated.symmetry === identitySymmetry(puzzle))) problems.push({ code: "swap-not-reference" });
-  if (stated.citation !== REFERENCE_SWAPS.m2.source) problems.push({ code: "citation-mismatch", record: "swap" });
+  if (stated.citation !== REFERENCE_SWAPS[method].source) problems.push({ code: "citation-mismatch", record: "swap" });
   checkAlgEntry(puzzle, "swap", { alg: stated.alg, moves: stated.moves, etm: stated.etm, qtm: stated.qtm, htm: stated.htm, stm: stated.stm, source: "engine-search" }, swap.perm, entryProblems);
-  const shape = analyseSwap(puzzle, "m2", swap.perm, swap.bufferPiece);
+  const shape = analyseSwap(puzzle, method, swap.perm, swap.bufferPiece);
   if (!shape.ok) problems.push({ code: "invalid-swap", detail: JSON.stringify(shape.error) });
-  const bufferIndex = pieceType(puzzle, "edges").stickerByName(dataset.buffer)?.index ?? -1;
+  const bufferIndex = pieceType(puzzle, dataset.pieceType).stickerByName(dataset.buffer)?.index ?? -1;
   if (stickerName(puzzle.geometry, at(swap.perm, bufferIndex)) !== stated.swapSticker) problems.push({ code: "swap-mismatch", field: "swapSticker" });
   if (JSON.stringify(stated.sideEffectPieces) !== JSON.stringify(swap.sideEffectPieces)) problems.push({ code: "swap-mismatch", field: "sideEffectPieces" });
 
   // Bounds and tables.
   const bounds = dataset.generatedBy.bounds;
-  if (JSON.stringify(bounds) !== JSON.stringify({ generators: M2_SPECIAL_BOUNDS.generators, maxInsertion: M2_SPECIAL_BOUNDS.maxInsertion, maxSetup: M2_SPECIAL_BOUNDS.maxSetup })) {
+  const expectedBounds = SPECIAL_BOUNDS[method];
+  if (JSON.stringify(bounds) !== JSON.stringify({ generators: expectedBounds.generators, maxInsertion: expectedBounds.maxInsertion, maxSetup: expectedBounds.maxSetup })) {
     problems.push({ code: "bounds-mismatch" });
   }
-  if (JSON.stringify(dataset.setupFamilies) !== JSON.stringify(DEFAULT_SETUP_POOLS.m2.pool)) problems.push({ code: "setup-families-invalid", detail: "setupFamilies" });
+  if (JSON.stringify(dataset.setupFamilies) !== JSON.stringify(DEFAULT_SETUP_POOLS[method].pool)) problems.push({ code: "setup-families-invalid", detail: "setupFamilies" });
   const legal = tables(puzzle, swap, dataset.buffer);
   if (!legal.ok) return [...problems, { code: "setup-families-invalid", detail: JSON.stringify(legal.error) }];
-  if (JSON.stringify(dataset.specialTargets) !== JSON.stringify(legal.value.unreachable)) problems.push({ code: "special-targets-mismatch" });
+  const expectedSpecials = shootableTargets(puzzle, swap, dataset.buffer, legal.value.targets).filter((t) => t.setup === undefined).map((t) => t.target);
+  if (JSON.stringify(dataset.specialTargets) !== JSON.stringify(expectedSpecials)) problems.push({ code: "special-targets-mismatch" });
 
   // Records.
   const swapText = formatMoves(swap.moves);
@@ -274,6 +332,9 @@ export function verifyM2Dataset(puzzle: Puzzle, dataset: M2Dataset): M2DatasetPr
     } else {
       if (legalSetup.setup !== undefined) problems.push({ code: "kind-mismatch", record: record.id });
       for (const entry of record.algs) {
+        // The bounds say what the search was allowed to use. An alg from a source is judged by its effect
+        // and carries its citation; it may be written with moves the search never tried.
+        if (entry.source !== "engine-search") continue;
         if (!(movesOf(puzzle, entry.alg) ?? []).every((m) => bounds.generators.includes(m.family))) problems.push({ code: "alg-outside-bounds", record: record.id, alg: entry.alg });
       }
     }
@@ -284,7 +345,8 @@ export function verifyM2Dataset(puzzle: Puzzle, dataset: M2Dataset): M2DatasetPr
       seen.add(entry.moves);
     }
   }
-  const expectedIds = legal.value.targets.map((t) => t.target);
+  const shootable = shootableTargets(puzzle, swap, dataset.buffer, legal.value.targets);
+  const expectedIds = shootable.map((t) => t.target);
   const present = dataset.records.map((r) => r.id);
   for (const id of expectedIds) if (!present.includes(id)) problems.push({ code: "missing-record", record: id });
   for (const id of present) if (!expectedIds.includes(id)) problems.push({ code: "unexpected-record", record: id });
@@ -302,10 +364,10 @@ export function verifyM2Dataset(puzzle: Puzzle, dataset: M2Dataset): M2DatasetPr
 }
 
 /** The M2/OP parity effect: the OP corner swap's side effect together with M2's. */
-export function m2OpParityEffect(puzzle: Puzzle, corners: OpSetupsDataset, edges: M2Dataset): Result<StickerPerm, M2DatasetProblem> {
+export function m2OpParityEffect(puzzle: Puzzle, corners: OpSetupsDataset, edges: SwapDataset): Result<StickerPerm, SwapDatasetProblem> {
   const cornerSwap = datasetSwap(puzzle, corners);
   if (!cornerSwap.ok) return cornerSwap;
-  const edgeSwap = m2DatasetSwap(puzzle, edges);
+  const edgeSwap = datasetSwapAlg(puzzle, edges);
   if (!edgeSwap.ok) return edgeSwap;
   return ok(composePerms(sideEffectPerm(puzzle, cornerSwap.value), sideEffectPerm(puzzle, edgeSwap.value)));
 }
@@ -313,17 +375,17 @@ export function m2OpParityEffect(puzzle: Puzzle, corners: OpSetupsDataset, edges
 export interface M2OpParitySpec {
   readonly id: string;
   readonly corners: OpSetupsDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly symmetry: number;
   readonly algs: SpecialAlgs;
 }
 
-export function buildM2OpParityDataset(puzzle: Puzzle, spec: M2OpParitySpec): Result<M2OpParityDataset, M2DatasetProblem | M2BuildError> {
+export function buildM2OpParityDataset(puzzle: Puzzle, spec: M2OpParitySpec): Result<M2OpParityDataset, SwapDatasetProblem | SwapBuildError> {
   const effect = m2OpParityEffect(puzzle, spec.corners, spec.edges);
   if (!effect.ok) return effect;
   let algs: string[];
   if (spec.algs.kind === "search") {
-    const m2 = m2DatasetSwap(puzzle, spec.edges);
+    const m2 = datasetSwapAlg(puzzle, spec.edges);
     if (!m2.ok) return m2;
     const found = searchSliceComposites(puzzle, spec.algs.catalogue, { swap: m2.value, required: effect.value });
     if (!found.ok) return err({ code: "no-special-alg", target: "parity", detail: JSON.stringify(found.error) });
@@ -348,8 +410,8 @@ export function buildM2OpParityDataset(puzzle: Puzzle, spec: M2OpParitySpec): Re
   });
 }
 
-export function verifyM2OpParityDataset(puzzle: Puzzle, parity: M2OpParityDataset, corners: OpSetupsDataset, edges: M2Dataset): M2DatasetProblem[] {
-  const problems: M2DatasetProblem[] = [];
+export function verifyM2OpParityDataset(puzzle: Puzzle, parity: M2OpParityDataset, corners: OpSetupsDataset, edges: SwapDataset): SwapDatasetProblem[] {
+  const problems: SwapDatasetProblem[] = [];
   if (corners.pieceType !== "corners") problems.push({ code: "parity-mismatch", field: "pieceType" });
   if (parity.buffers.corners !== corners.buffer || parity.buffers.edges !== edges.buffer) problems.push({ code: "parity-mismatch", field: "buffers" });
   if (parity.swaps.corners !== corners.swap.alg || parity.swaps.edges !== edges.swap.alg) problems.push({ code: "parity-mismatch", field: "swaps" });

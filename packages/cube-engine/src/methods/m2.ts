@@ -4,7 +4,7 @@ import { cubeSymmetries, relabelMove } from "../core/symmetry.js";
 import { buildCatalogue, type CommCatalogue } from "../commutator/catalogue.js";
 import { expandNodes, formatMoves, invertMoves } from "../commutator/expand.js";
 import { parseAlg, type AlgMove } from "../commutator/parse.js";
-import { buildM2Dataset, buildM2OpParityDataset, verifyM2Dataset, verifyM2OpParityDataset, type M2Dataset, type M2DatasetProblem, type M2OpParityDataset } from "../data/m2-dataset.js";
+import { buildSwapDataset, buildM2OpParityDataset, verifySwapDataset, verifyM2OpParityDataset, type SwapDataset, type SwapDatasetProblem, type M2OpParityDataset } from "../data/swap-dataset.js";
 import { buildOpSetupsDataset, verifyOpSetupsDataset, type OpSetupsDataset } from "../data/op-dataset.js";
 import type { Scheme } from "../lettering/scheme.js";
 import { pieceName } from "../pieces/names.js";
@@ -38,7 +38,7 @@ function movesOf(text: string): AlgMove[] | undefined {
  * The edge target steps, in trace order, with the odd/even rule applied. `append` adds targets after
  * the traced ones (the parity partner of D-026); they count as steps for the odd/even rule too.
  */
-export function m2Phase(dataset: M2Dataset, traced: TraceResult, options: { readonly append?: readonly string[] } = {}): Result<TargetStep[], M2PhaseError> {
+export function m2Phase(dataset: SwapDataset, traced: TraceResult, options: { readonly append?: readonly string[] } = {}): Result<TargetStep[], M2PhaseError> {
   const swap = movesOf(dataset.swap.alg);
   if (swap === undefined) return err({ code: "invalid-dataset-alg", alg: dataset.swap.alg });
   const steps: TargetStep[] = [];
@@ -65,7 +65,7 @@ export function m2Phase(dataset: M2Dataset, traced: TraceResult, options: { read
 export interface M2OpConfig {
   readonly scheme: Scheme;
   readonly corners: OpSetupsDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly parity: M2OpParityDataset;
   readonly breakOrder?: TracePolicy["breakOrder"];
 }
@@ -103,7 +103,7 @@ export function solveM2Op(puzzle: Puzzle, input: TraceInput, config: M2OpConfig)
 
 export interface M2OpSystem {
   readonly corners: OpSetupsDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly parity: M2OpParityDataset;
 }
 
@@ -111,7 +111,7 @@ export type M2OpSystemError =
   | { readonly code: "unknown-buffer"; readonly buffer: string }
   | { readonly code: "no-verified-m2-system"; readonly cornerBuffer: string; readonly edgeBuffer: string }
   | { readonly code: "build-failed"; readonly detail: string }
-  | { readonly code: "verification-failed"; readonly problems: readonly M2DatasetProblem[] };
+  | { readonly code: "verification-failed"; readonly problems: readonly SwapDatasetProblem[] };
 
 const catalogues = new WeakMap<Puzzle, CommCatalogue>();
 const systems = new WeakMap<Puzzle, Map<string, Result<M2OpSystem, M2OpSystemError>>>();
@@ -190,12 +190,12 @@ function buildSystem(puzzle: Puzzle, { cornerBuffer, edgeBuffer }: { readonly co
   const m2 = swaps.value.find((s) => s.bufferPiece === pieceOf(edgeSticker.index));
   if (m2 === undefined) return err({ code: "no-verified-m2-system", cornerBuffer, edgeBuffer });
   const catalogue = specialCatalogue(puzzle);
-  const edges = buildM2Dataset(puzzle, { id: `m2-edges.${edgeBuffer}`, swap: m2, bufferSticker: edgeBuffer, symmetry: symmetry.index, specials: { kind: "search", catalogue } });
+  const edges = buildSwapDataset(puzzle, { id: `m2-edges.${edgeBuffer}`, swap: m2, bufferSticker: edgeBuffer, symmetry: symmetry.index, specials: { kind: "search", catalogue } });
   if (!edges.ok) return err({ code: "build-failed", detail: JSON.stringify(edges.error) });
   const parity = buildM2OpParityDataset(puzzle, { id: `m2op-parity.${cornerBuffer}-${edgeBuffer}`, corners: corners.value, edges: edges.value, symmetry: symmetry.index, algs: { kind: "search", catalogue } });
   if (!parity.ok) return err({ code: "build-failed", detail: JSON.stringify(parity.error) });
 
-  const problems = [...verifyOpSetupsDataset(puzzle, corners.value), ...verifyM2Dataset(puzzle, edges.value), ...verifyM2OpParityDataset(puzzle, parity.value, corners.value, edges.value)];
+  const problems = [...verifyOpSetupsDataset(puzzle, corners.value), ...verifySwapDataset(puzzle, edges.value), ...verifyM2OpParityDataset(puzzle, parity.value, corners.value, edges.value)];
   if (problems.length > 0) return err({ code: "verification-failed", problems });
   return ok({ corners: corners.value, edges: edges.value, parity: parity.value });
 }

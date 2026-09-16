@@ -3,7 +3,7 @@ import { err, ok, type Result } from "../core/result.js";
 import { expandNodes } from "../commutator/expand.js";
 import { parseAlg, type AlgMove } from "../commutator/parse.js";
 import type { AlgDataset } from "../data/alg-dataset.js";
-import type { M2Dataset } from "../data/m2-dataset.js";
+import type { SwapDataset } from "../data/swap-dataset.js";
 import type { M2ThreeStyleParityDataset, ParityTail, ThreeStyleParityDataset } from "../data/three-style-parity.js";
 import type { Scheme } from "../lettering/scheme.js";
 import { pieceType } from "../pieces/piece-types.js";
@@ -181,7 +181,7 @@ export interface M2ThreeStyleConfig {
   readonly scheme: Scheme;
   readonly corners: AlgDataset;
   readonly twists: AlgDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly parity: M2ThreeStyleParityDataset;
   readonly breakOrder?: TracePolicy["breakOrder"];
 }

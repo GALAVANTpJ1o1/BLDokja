@@ -103,7 +103,24 @@ describe("threeCyclePattern", () => {
     expect(code(threeCyclePattern(three, ["UFR", "UB", "DBL"]))).toEqual({ code: "mixed-piece-types", stickers: ["UFR", "UB", "DBL"] });
     expect(code(threeCyclePattern(three, ["UFR", "RUF", "DBL"]))).toEqual({ code: "same-piece", stickers: ["UFR", "RUF"] });
     expect(code(threeCyclePattern(three, ["UF", "DB", "BD"]))).toEqual({ code: "same-piece", stickers: ["DB", "BD"] });
-    expect(code(threeCyclePattern(four, ["Ufr", "Dfr", "Ruf"]))).toEqual({ code: "interchangeable-pieces-unsupported", pieceType: "xcenters" });
+    expect(code(threeCyclePattern(four, ["Ufr", "Ufl", "Ubl"]))).toEqual("ok");
+  });
+
+  it("builds x-centre cases too, where a cycle within one colour is simply the solved cube", async () => {
+    const four = await loadPuzzle("4x4x4");
+    // Three different faces: a real case, and the pieces land where the cycle says.
+    const mixed = threeCyclePattern(four, ["Ufr", "Fur", "Ruf"]);
+    if (!mixed.ok) throw new Error(JSON.stringify(mixed.error));
+    expect(mixed.value.isIdentical(four.kpuzzle.defaultPattern())).toBe(false);
+    const centres = mixed.value.patternData.CENTERS;
+    const type = pieceType(four, "xcenters");
+    const at = (name: string) => centres?.pieces[type.pieceByName(name)?.position ?? -1];
+    const home = (name: string) => four.kpuzzle.defaultPattern().patternData.CENTERS?.pieces[type.pieceByName(name)?.position ?? -1];
+    expect([at("Ufr"), at("Fur"), at("Ruf")]).toEqual([home("Fur"), home("Ruf"), home("Ufr")]);
+    // Same colour: the pieces are identical, so the "case" is a solved cube.
+    const oneColour = threeCyclePattern(four, ["Ufr", "Ufl", "Ubl"]);
+    if (!oneColour.ok) throw new Error(JSON.stringify(oneColour.error));
+    expect(oneColour.value.isIdentical(four.kpuzzle.defaultPattern())).toBe(true);
   });
 });
 

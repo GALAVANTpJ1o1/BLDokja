@@ -7,14 +7,14 @@ import { parseAlg, type AlgMove } from "../../src/commutator/parse.js";
 import { entryForAlg } from "../../src/data/alg-dataset.js";
 import { ContentDatasetSchema } from "../../src/data/content-dataset.js";
 import {
-  buildM2Dataset,
+  buildSwapDataset,
   buildM2OpParityDataset,
-  verifyM2Dataset,
+  verifySwapDataset,
   verifyM2OpParityDataset,
-  type M2Dataset,
-  type M2DatasetProblem,
+  type SwapDataset,
+  type SwapDatasetProblem,
   type M2OpParityDataset,
-} from "../../src/data/m2-dataset.js";
+} from "../../src/data/swap-dataset.js";
 import { buildOpSetupsDataset, type OpSetupsDataset } from "../../src/data/op-dataset.js";
 import { M2_SPECIAL_BOUNDS } from "../../src/methods/m2-search.js";
 import { opSystem } from "../../src/methods/op.js";
@@ -24,7 +24,7 @@ import { pieceName, stickerName } from "../../src/pieces/names.js";
 
 interface System {
   readonly corners: OpSetupsDataset;
-  readonly edges: M2Dataset;
+  readonly edges: SwapDataset;
   readonly parity: M2OpParityDataset;
 }
 
@@ -39,7 +39,7 @@ async function reference(): Promise<{ puzzle: Puzzle; system: System }> {
   if (!swap.ok || !op.ok) throw new Error("swaps");
   const df = swap.value.find((s) => s.bufferPiece === "DF");
   if (df === undefined) throw new Error("DF");
-  const edges = buildM2Dataset(puzzle, { id: "m2-edges.DF", swap: df, bufferSticker: "DF", symmetry: 0, specials: { kind: "search", catalogue } });
+  const edges = buildSwapDataset(puzzle, { id: "m2-edges.DF", swap: df, bufferSticker: "DF", symmetry: 0, specials: { kind: "search", catalogue } });
   if (!edges.ok) throw new Error(JSON.stringify(edges.error));
   const parity = buildM2OpParityDataset(puzzle, { id: "m2op-parity.UBL-DF", corners: op.value.corners, edges: edges.value, symmetry: 0, algs: { kind: "search", catalogue } });
   if (!parity.ok) throw new Error(JSON.stringify(parity.error));
@@ -78,7 +78,7 @@ function image(puzzle: Puzzle, system: System, symmetry: number): System {
   });
   if (!corners.ok) throw new Error(JSON.stringify(corners.error));
   const specials = new Map(system.edges.records.filter((r) => r.kind === "special").map((r) => [nameOf(r.target), r.algs.map((a) => relabelText(puzzle, symmetry, a.alg))]));
-  const edges = buildM2Dataset(puzzle, { id: `m2-edges.${edgeBuffer}`, swap: m2, bufferSticker: edgeBuffer, symmetry, specials: { kind: "given", algs: specials } });
+  const edges = buildSwapDataset(puzzle, { id: `m2-edges.${edgeBuffer}`, swap: m2, bufferSticker: edgeBuffer, symmetry, specials: { kind: "given", algs: specials } });
   if (!edges.ok) throw new Error(JSON.stringify(edges.error));
   const parityAlgs = new Map([["parity", system.parity.records[0].algs.map((a) => relabelText(puzzle, symmetry, a.alg))]]);
   const parity = buildM2OpParityDataset(puzzle, { id: `m2op-parity.${cornerBuffer}-${edgeBuffer}`, corners: corners.value, edges: edges.value, symmetry, algs: { kind: "given", algs: parityAlgs } });
@@ -86,7 +86,7 @@ function image(puzzle: Puzzle, system: System, symmetry: number): System {
   return { corners: corners.value, edges: edges.value, parity: parity.value };
 }
 
-const codes = (problems: readonly M2DatasetProblem[]) => [...new Set(problems.map((p) => p.code))].sort();
+const codes = (problems: readonly SwapDatasetProblem[]) => [...new Set(problems.map((p) => p.code))].sort();
 
 describe("M2 datasets: good datasets verify", () => {
   it("the reference (DF, with UBL corners for parity), with the derived odd/even rule, including a JSON round trip", async () => {
@@ -101,7 +101,7 @@ describe("M2 datasets: good datasets verify", () => {
       { target: "BD", shootAs: "FU" },
     ]);
     expect(edges.tempting).toHaveLength(21);
-    expect(verifyM2Dataset(puzzle, edges)).toEqual([]);
+    expect(verifySwapDataset(puzzle, edges)).toEqual([]);
     expect(verifyM2OpParityDataset(puzzle, parity, corners, edges)).toEqual([]);
     for (const dataset of [edges, parity]) expect(ContentDatasetSchema.parse(JSON.parse(JSON.stringify(dataset)))).toEqual(dataset);
   });
@@ -114,7 +114,7 @@ describe("M2 datasets: good datasets verify", () => {
       const { corners, edges, parity } = image(puzzle, system, g.index);
       const context = `symmetry ${g.index}: ${corners.buffer} / ${edges.buffer}`;
       expect(edges.swap.source, context).toBe("symmetry");
-      expect(verifyM2Dataset(puzzle, edges), context).toEqual([]);
+      expect(verifySwapDataset(puzzle, edges), context).toEqual([]);
       expect(verifyM2OpParityDataset(puzzle, parity, corners, edges), context).toEqual([]);
     }
   });
@@ -123,12 +123,12 @@ describe("M2 datasets: good datasets verify", () => {
 describe("M2 datasets: every kind of corruption is caught", () => {
   it("M2 setups datasets", async () => {
     const { puzzle, system } = await reference();
-    const check = (mutate: (d: M2Dataset) => void) => {
+    const check = (mutate: (d: SwapDataset) => void) => {
       const copy = structuredClone(system.edges);
       mutate(copy);
-      return codes(verifyM2Dataset(puzzle, copy));
+      return codes(verifySwapDataset(puzzle, copy));
     };
-    const recordFor = (d: M2Dataset, target: string) => {
+    const recordFor = (d: SwapDataset, target: string) => {
       const record = d.records.find((r) => r.target === target);
       if (record === undefined) throw new Error(target);
       return record;

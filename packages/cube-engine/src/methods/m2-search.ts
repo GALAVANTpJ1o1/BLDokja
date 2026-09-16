@@ -27,6 +27,17 @@ import type { SwapAlg } from "./swap-algs.js";
 /** Special-case search bounds: your choice of face turns and M only, no E or S (D-025). */
 export const M2_SPECIAL_BOUNDS: CommSearchBounds = { generators: ["U", "D", "R", "L", "F", "B", "M"], maxInsertion: 4, maxSetup: 3 };
 
+/**
+ * The bounds each swap method's special cases are searched within (D-025, D-038). A special alg is a comm
+ * next to the swap, and the comm must be a clean 3-cycle of the method's own pieces: on 4x4 that needs an
+ * inner slice, so r2 gets the two slices beside its own (`2R`, `2L`) and U2 gets all six.
+ */
+export const SPECIAL_BOUNDS: Readonly<Record<"m2" | "r2" | "u2", CommSearchBounds>> = {
+  m2: M2_SPECIAL_BOUNDS,
+  r2: { generators: ["U", "D", "R", "L", "F", "B", "2R", "2L"], maxInsertion: 4, maxSetup: 3 },
+  u2: { generators: ["U", "D", "R", "L", "F", "B", "2U", "2D", "2R", "2L", "2F", "2B"], maxInsertion: 3, maxSetup: 3 },
+};
+
 export type CompositeForm = "comm-then-swap" | "swap-then-comm";
 
 export interface SliceComposite {
