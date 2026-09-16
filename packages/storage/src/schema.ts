@@ -37,6 +37,8 @@ export const PairImageSchema = z
     text: z.string(),
     uses: z.number().int().nonnegative(),
     flags: z.array(z.literal("placeholder")).optional(),
+    /** A user-supplied raster image. No remote URLs or active SVG content. */
+    asset: z.string().max(2_800_000).regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/).optional(),
     legacy: z.array(LegacyPairWordRowSchema).min(1).optional(),
   })
   .strict();
@@ -254,6 +256,29 @@ export const DifficultySchema = z
 
 export const DifficultyPresetSchema = z.object({ id: z.string().min(1).max(64), name: z.string().min(1).max(60), difficulty: DifficultySchema }).strict();
 
+export const FirstSolveSchema = z.object({
+  id: z.string().min(1), scramble: z.string().max(2000),
+  /** -2: edge memo; -1: corner memo; 0..n: verified execution steps. */
+  cursor: z.number().int().min(-2), memoCursor: z.number().int().nonnegative().optional(), scheme: StoredSchemeSchema.optional(),
+  buffers: BufferPairSchema, startedAt: isoInstant, updatedAt: isoInstant,
+  completedAt: isoInstant.optional(),
+}).strict();
+
+export const MemoryPalaceSchema = z.object({
+  id: z.string().min(1), name: z.string().min(1).max(100),
+  locations: z.array(z.object({ id: z.string().min(1), name: z.string().min(1).max(100), prompt: z.string().max(1000) }).strict()).max(100),
+}).strict();
+
+export const MemoStorySchema = z.object({
+  id: z.string().min(1), title: z.string().min(1).max(100), palaceId: z.string().optional(),
+  scenes: z.array(z.object({ id: z.string().min(1), pairId: z.string().min(2), imageId: z.string().min(1), locationId: z.string().optional(), text: z.string().max(1000) }).strict()).max(200),
+}).strict();
+
+export const AlgPreferenceSchema = z.object({
+  rating: z.number().int().min(1).max(5).optional(), regrips: z.number().int().min(0).max(30).optional(),
+  fingerTricks: z.string().max(1000).optional(), notes: z.string().max(1000).optional(),
+}).strict();
+
 /** Preferences. Every field is optional so a new preference never needs a migration. */
 
 export const SettingsSchema = z
@@ -277,6 +302,14 @@ export const SettingsSchema = z
     difficultyPresets: z.array(DifficultyPresetSchema).max(50).optional(),
     /** The comm sandbox's scratchpad. */
     scratchpad: z.string().max(20_000).optional(),
+    firstSolve: FirstSolveSchema.optional(),
+    lessonPositions: z.record(z.string(), z.string().max(200)).optional(),
+    trainerLevel: z.enum(["recognition", "setup", "algorithm", "blind", "solves"]).optional(),
+    memoryPalaces: z.array(MemoryPalaceSchema).max(50).optional(),
+    memoStories: z.array(MemoStorySchema).max(100).optional(),
+    /** dataset|case|alg, preserving separate preferences for each notation. */
+    algPreferences: z.record(z.string(), AlgPreferenceSchema).optional(),
+    physicalChecks: z.record(z.string(), isoInstant).optional(),
   })
   .strict();
 
@@ -335,3 +368,7 @@ export type Buffers = z.infer<typeof BuffersSchema>;
 export type AlgOverrides = z.infer<typeof AlgOverridesSchema>;
 export type Difficulty = z.infer<typeof DifficultySchema>;
 export type DifficultyPreset = z.infer<typeof DifficultyPresetSchema>;
+export type FirstSolve = z.infer<typeof FirstSolveSchema>;
+export type MemoryPalace = z.infer<typeof MemoryPalaceSchema>;
+export type MemoStory = z.infer<typeof MemoStorySchema>;
+export type AlgPreference = z.infer<typeof AlgPreferenceSchema>;

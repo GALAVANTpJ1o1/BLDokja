@@ -64,6 +64,26 @@ describe.each(backends)("storage on the %s backend", (_name, make) => {
     await expect(s.putSettings({ readAloud: "yes" } as never)).rejects.toBeInstanceOf(StorageValidationError);
   });
 
+  it("backs up and restores guided progress, personal pictures, stories and algorithm preferences", async () => {
+    const s = createStorage(make());
+    const settings = {
+      firstSolve: { id: "solve-1", scramble: "R U", cursor: -1, memoCursor: 4, buffers: { corners: "UBL", edges: "DF" }, startedAt: AT, updatedAt: AT },
+      lessonPositions: { commutators: "section-4" }, trainerLevel: "recognition" as const,
+      memoryPalaces: [{ id: "home", name: "Home", locations: [{ id: "desk", name: "Desk", prompt: "Apple on the desk" }] }],
+      memoStories: [{ id: "story", title: "My story", palaceId: "home", scenes: [{ id: "scene", pairId: "AB", imageId: "img-AB", locationId: "desk", text: "Apple jumps" }] }],
+      algPreferences: { "case|alg": { rating: 5, regrips: 0, fingerTricks: "Right index", notes: "My favourite" } },
+      physicalChecks: { "case|alg": AT },
+    };
+    const picture = { ...pair("AB"), images: [{ id: "img-AB", text: "Apple", uses: 1, asset: "data:image/png;base64,iVBORw0KGgo=" }] };
+    await s.putSettings(settings); await s.putLetterPair(picture);
+    const backup = await exportData(s, AT);
+    const restored = createStorage(memoryBackend());
+    expect((await importData(restored, JSON.stringify(backup))).ok).toBe(true);
+    expect(await restored.settings()).toEqual(settings);
+    expect(await restored.letterPair("AB")).toEqual(picture);
+    await expect(s.putLetterPair({ ...picture, images: [{ ...picture.images[0], id: "img-AB", text: "Apple", uses: 1, asset: "https://example.com/photo.png" }] })).rejects.toBeInstanceOf(StorageValidationError);
+  });
+
   it("refuses invalid writes", async () => {
     const s = createStorage(make());
     await expect(s.putLetterPair({ ...pair("AB"), id: "BA" })).rejects.toBeInstanceOf(StorageValidationError);
