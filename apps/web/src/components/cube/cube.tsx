@@ -118,7 +118,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
     return new Set(puzzle.geometry.stickers.filter((sticker) => selected.has(current[sticker.index])).map((sticker) => sticker.index));
   }, [puzzle, setupPattern, replayPattern, highlightKey, revealOnly]);
   const finalPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, `${setup} ${alg}`)), [puzzle, setup, alg]);
-  const description = useMemo(() => (puzzle === undefined || setupPattern === undefined ? [] : describeCube(netCells(puzzle, setupPattern))), [puzzle, setupPattern]);
+  const description = useMemo(() => (puzzle === undefined || replayPattern === undefined ? [] : describeCube(netCells(puzzle, replayPattern), revealOnly ? netHighlight : undefined)), [puzzle, replayPattern, revealOnly, netHighlight]);
   // With no highlight, every facelet is regular: setting this mask clears an earlier highlight on a live player.
   const mask = useMemo(() => {
     if (puzzle === undefined || setupPattern === undefined) return undefined;
@@ -204,7 +204,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
           </p>
         )}
         <div className="flex flex-col gap-1 t-body">
-          {(ready && replayPattern !== undefined ? describeCube(netCells(puzzle, replayPattern)) : [en.cube.loading]).map((line) => (
+          {(ready && replayPattern !== undefined ? describeCube(netCells(puzzle, replayPattern), revealOnly ? netHighlight : undefined) : [en.cube.loading]).map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>

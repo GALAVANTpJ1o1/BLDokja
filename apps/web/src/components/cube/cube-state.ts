@@ -34,7 +34,7 @@ export function netCells(puzzle: Puzzle, pattern: KPattern): NetCell[] {
 }
 
 /** The screen-reader text for a cube state: each face, row by row, as colour names (BRIEF §10). */
-export function describeCube(cells: readonly NetCell[]): string[] {
+export function describeCube(cells: readonly NetCell[], revealed?: ReadonlySet<number>): string[] {
   const faces: FaceName[] = ["U", "F", "R", "B", "L", "D"];
   return faces.map((face) => {
     const onFace = cells.filter((c) => c.slotFace === face).sort((a, b) => a.row - b.row || a.col - b.col);
@@ -42,7 +42,7 @@ export function describeCube(cells: readonly NetCell[]): string[] {
     const rows = Array.from({ length: size }, (_, r) =>
       onFace
         .filter((c) => c.row === r)
-        .map((c) => en.cube.colourNames[c.colour])
+        .map((c) => revealed === undefined || revealed.has(c.index) ? en.cube.colourNames[c.colour] : en.cube.hiddenSticker)
         .join(" "),
     );
     return en.cube.faceRow(en.cube.faceNames[face], rows.join("; "));

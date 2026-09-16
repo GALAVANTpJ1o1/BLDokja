@@ -127,6 +127,7 @@ export const en = {
     describe: "Describe this cube",
     faceNames: { U: "Up", L: "Left", F: "Front", R: "Right", B: "Back", D: "Down" },
     colourNames: { U: "white", L: "orange", F: "green", R: "red", B: "blue", D: "yellow" },
+    hiddenSticker: "hidden",
     faceRow: (face: string, colours: string) => `${face} face, row by row: ${colours}.`,
     play: "Play",
     pause: "Pause",
