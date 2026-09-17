@@ -25,7 +25,8 @@
     "typecheck": "tsc -p tsconfig.build.json --noEmit && tsc -p tsconfig.json",
     "report": "tsx scripts/report.ts",
     "bench": "tsx scripts/bench.ts",
-    "generate": "tsx scripts/generate-datasets.ts"
+    "generate": "tsx scripts/generate-datasets.ts",
+    "generate:cfop": "tsx scripts/generate-cfop-datasets.ts"
   },
   "dependencies": {
     "cubing": "0.63.4",

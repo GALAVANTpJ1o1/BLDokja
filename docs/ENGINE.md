@@ -159,3 +159,13 @@ pnpm engine:bench                           # tracing and search timings
 - **4x4 wing orientation.** A 4x4 wing away from home can carry kpuzzle orientation 1, so never assume 0 when building 4x4 states (D-018).
 - **Rotation parity.** On 3x3x3, 12 of the 24 whole-cube rotations are odd on edges (and on centres). So "corner parity equals edge parity" only holds once the centres are solved; normalise a scramble that ends in a rotation before making any parity claim (D-008).
 - **Letter pairs.** A trace never produces same-letter pairs, but the letter-pair library still uses all 576 cells (D-013).
+
+## CFOP last-layer foundation (D-046)
+
+`data/last-layer.ts` enumerates legal recognition cases and validates `content/algs/cfop/`: 57 OLL, 21 PLL, three EO, seven CO, two corner-permutation and four final edge-permutation cases. Case fields must match their canonical ID, and Zod rejects unreachable twist/flip sums and malformed/parity-mismatched permutations. Internal IDs are not standard community OLL numbers.
+
+Algorithm verification is stage-specific, without weakening the BLD exact-effect verifiers. OLL may permute the U layer; EO may change corners; corner permutation may change oriented edges. F2L is preserved in every stage and shipped entries restore the centre frame. Canonical notation, cancelled expansion, move counts and provenance use the existing metadata machinery. The generated solver options are correct reference options, not ergonomic speedcubing recommendations.
+
+`data/last-layer-match.ts` returns a case ID plus frame correction and pre-/post-AUF moves. A null ID means the stage needs at most its AUF; undefined means an unmet prerequisite, unsolved F2L or unsupported puzzle. Independent post-AUF relabels piece values, whereas pre-AUF shifts slots; confusing them produces wrong physical paths. Tests apply matcher paths across all 288 legal PLL states and rotated OLL states, and test OLL on all 216 legal orientation combinations with non-identity permutation.
+
+`pnpm cfop:generate` regenerates the six files through cubing.js's solver and verifies them before writing. `pnpm cfop:generate --check` checks fresh generation against committed data. No solver or filesystem dependency enters the pure recognition/validation module.

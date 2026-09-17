@@ -1,0 +1,92 @@
+{
+  "format": "bld-platform/last-layer-dataset",
+  "version": 1,
+  "id": "edge-perm",
+  "puzzle": "3x3x3",
+  "kind": "edge-perm",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "records": [
+    {
+      "id": "edge-perm-1",
+      "edges": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R2 U F2 L2 B2 D' B2 L2 F2 U2 R2",
+          "moves": "R2 U F2 L2 B2 D' B2 L2 F2 U2 R2",
+          "etm": 11,
+          "qtm": 20,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "edge-perm-2",
+      "edges": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R2 U2 F2 L2 B2 D B2 L2 F2 U' R2",
+          "moves": "R2 U2 F2 L2 B2 D B2 L2 F2 U' R2",
+          "etm": 11,
+          "qtm": 20,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "edge-perm-3",
+      "edges": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R2 U' R2 U R2 B2 R2 U B2 U' R2 B2",
+          "moves": "R2 U' R2 U R2 B2 R2 U B2 U' R2 B2",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 12,
+          "stm": 12,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "edge-perm-4",
+      "edges": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "U R2 F2 B2 L2 D' R2 F2 B2 L2",
+          "moves": "U R2 F2 B2 L2 D' R2 F2 B2 L2",
+          "etm": 10,
+          "qtm": 18,
+          "htm": 10,
+          "stm": 10,
+          "source": "cubing-solver"
+        }
+      ]
+    }
+  ]
+}

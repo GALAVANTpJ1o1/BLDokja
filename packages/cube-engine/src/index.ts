@@ -278,6 +278,14 @@ export {
   type ThreeStyleParitySpec,
 } from "./data/three-style-parity.js";
 export { ContentDatasetSchema, type ContentDataset } from "./data/content-dataset.js";
+export {
+  LastLayerDatasetSchema, LAST_LAYER_KINDS, verifyLastLayerDataset, lastLayerRecordPattern, lastLayerStageSatisfied, lastLayerCases,
+  enumerateOll, enumeratePll, enumerateEo, enumerateCo, enumerateCornerPermOnly, enumerateEdgePermOnly,
+  ollPattern, pllPattern, eoPattern, coPattern, cornerPermPattern, edgePermPattern,
+  type LastLayerDataset, type LastLayerKind, type OllDataset, type PllDataset,
+  type EoDataset, type CoDataset, type CornerPermDataset, type EdgePermDataset,
+} from "./data/last-layer.js";
+export { matchLastLayerCase, type LastLayerMatch } from "./data/last-layer-match.js";
 export { drillScramble, type DrillScramble, type DrillScrambleError } from "./scramble/drill.js";
 export {
   buildOpCornerParityDataset,

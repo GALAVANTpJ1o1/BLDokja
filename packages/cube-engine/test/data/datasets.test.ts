@@ -11,6 +11,7 @@ import { verifyM2ThreeStyleParityDataset, verifyThreeStyleParityDataset } from "
 import { m2OpSystem } from "../../src/methods/m2.js";
 import { opSystem } from "../../src/methods/op.js";
 import { threeStyleParities } from "./committed.js";
+import { verifyLastLayerDataset } from "../../src/data/last-layer.js";
 
 /**
  * Every committed alg dataset (BRIEF §5.4: "no unverified algorithm ships"). Each file is
@@ -59,6 +60,12 @@ const REQUIRED: Readonly<Record<string, number>> = {
   // 4BLD parity (D-041): U2's leftover, and OP corners' leftover on a 4x4.
   "u2-parity.Ubr.json": 1,
   "op-corner-parity.UBL.json": 1,
+  "oll.json": 57,
+  "pll.json": 21,
+  "eo.json": 3,
+  "co.json": 7,
+  "corner-perm.json": 2,
+  "edge-perm.json": 4,
 };
 
 function load(path: string): ContentDataset {
@@ -85,6 +92,8 @@ function expectedName(dataset: ContentDataset): string {
       return `${dataset.method}-parity.${dataset.buffer}.json`;
     case "corner-parity":
       return `op-corner-parity.${dataset.buffer}.json`;
+    case "oll": case "pll": case "eo": case "co": case "corner-perm": case "edge-perm":
+      return `${dataset.kind}.json`;
   }
 }
 
@@ -104,6 +113,9 @@ describe("committed alg datasets", () => {
     expect(new Set(dataset.records.map((r) => r.id)).size).toBe(dataset.records.length);
 
     switch (dataset.kind) {
+      case "oll": case "pll": case "eo": case "co": case "corner-perm": case "edge-perm":
+        expect(verifyLastLayerDataset(puzzle, dataset)).toEqual([]);
+        break;
       case "cycles":
       case "twists":
       case "flips":

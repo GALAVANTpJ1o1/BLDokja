@@ -1,0 +1,72 @@
+{
+  "format": "bld-platform/last-layer-dataset",
+  "version": 1,
+  "id": "eo",
+  "puzzle": "3x3x3",
+  "kind": "eo",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "records": [
+    {
+      "id": "eo-1",
+      "edges": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R L F U2 F R L U F2 L2 B2 R2 U2 D R2 U' B2 U' B2",
+          "moves": "R L F U2 F R L U F2 L2 B2 R2 U2 D R2 U' B2 U' B2",
+          "etm": 19,
+          "qtm": 28,
+          "htm": 19,
+          "stm": 19,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "eo-2",
+      "edges": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R U' B U2 B' U R U2 F R2 F' U2 R2 F' U2 F U2",
+          "moves": "R U' B U2 B' U R U2 F R2 F' U2 R2 F' U2 F U2",
+          "etm": 17,
+          "qtm": 24,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "eo-3",
+      "edges": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R L' F2 D2 B R' L U2 R2 B2 R2 U' R2 B2 R2 B2 D2",
+          "moves": "R L' F2 D2 B R' L U2 R2 B2 R2 U' R2 B2 R2 B2 D2",
+          "etm": 17,
+          "qtm": 28,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    }
+  ]
+}

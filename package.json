@@ -16,6 +16,7 @@
     "engine:report": "pnpm --filter @bld/cube-engine report",
     "engine:bench": "pnpm --filter @bld/cube-engine bench",
     "engine:generate": "pnpm --filter @bld/cube-engine generate",
+    "cfop:generate": "pnpm --filter @bld/cube-engine generate:cfop",
     "import:legacy": "pnpm --filter @bld/storage import:legacy",
     "test:storage": "pnpm --filter @bld/storage test",
     "test:web": "pnpm --filter @bld/web test"

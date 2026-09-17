@@ -1,0 +1,558 @@
+{
+  "format": "bld-platform/last-layer-dataset",
+  "version": 1,
+  "id": "pll",
+  "puzzle": "3x3x3",
+  "kind": "pll",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "records": [
+    {
+      "id": "pll-01",
+      "corners": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R2 U F2 L2 B2 D' B2 L2 F2 U2 R2",
+          "moves": "R2 U F2 L2 B2 D' B2 L2 F2 U2 R2",
+          "etm": 11,
+          "qtm": 20,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-02",
+      "corners": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R2 U2 F2 L2 B2 D B2 L2 F2 U' R2",
+          "moves": "R2 U2 F2 L2 B2 D B2 L2 F2 U' R2",
+          "etm": 11,
+          "qtm": 20,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-03",
+      "corners": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        1,
+        0,
+        3,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R2 U' R2 U R2 B2 R2 U B2 U' R2 B2",
+          "moves": "R2 U' R2 U R2 B2 R2 U B2 U' R2 B2",
+          "etm": 12,
+          "qtm": 20,
+          "htm": 12,
+          "stm": 12,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-04",
+      "corners": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "edges": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "U R2 F2 B2 L2 D' R2 F2 B2 L2",
+          "moves": "U R2 F2 B2 L2 D' R2 F2 B2 L2",
+          "etm": 10,
+          "qtm": 18,
+          "htm": 10,
+          "stm": 10,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-05",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "U L2 F2 U F2 U' F2 D F2 D' L2",
+          "moves": "U L2 F2 U F2 U' F2 D F2 D' L2",
+          "etm": 11,
+          "qtm": 17,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-06",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        0,
+        2,
+        1,
+        3
+      ],
+      "algs": [
+        {
+          "alg": "R L U2 R L F2 U' R2 B2 U' B2 D R2 D' L2 B2 D'",
+          "moves": "R L U2 R L F2 U' R2 B2 U' B2 D R2 D' L2 B2 D'",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-07",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "U B2 U' B2 D L2 F2 U F2 D' L2",
+          "moves": "U B2 U' B2 D L2 F2 U F2 D' L2",
+          "etm": 11,
+          "qtm": 17,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-08",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "algs": [
+        {
+          "alg": "R L' B2 R' L' U' L2 F2 D' L2 D R2 D' R2 L2 F2 U'",
+          "moves": "R L' B2 R' L' U' L2 F2 D' L2 D R2 D' R2 L2 F2 U'",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-09",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "algs": [
+        {
+          "alg": "U' R2 B2 U' F2 U B2 U' F2 U R2",
+          "moves": "U' R2 B2 U' F2 U B2 U' F2 U R2",
+          "etm": 11,
+          "qtm": 17,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-10",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R L F2 R' L D' R2 B2 U R2 U' R2 D R2 L2 F2 U'",
+          "moves": "R L F2 R' L D' R2 B2 U R2 U' R2 D R2 L2 F2 U'",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-11",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        2,
+        0,
+        3,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R L U2 R' L F2 D' R2 F2 U' R2 U L2 U' B2 U",
+          "moves": "R L U2 R' L F2 D' R2 F2 U' R2 U L2 U' B2 U",
+          "etm": 16,
+          "qtm": 23,
+          "htm": 16,
+          "stm": 16,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-12",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        2,
+        1,
+        0,
+        3
+      ],
+      "algs": [
+        {
+          "alg": "U R L' U2 R L' D' L2 U2 F2 L2 B2 D L2 D R2 D' R2",
+          "moves": "U R L' U2 R L' D' L2 U2 F2 L2 B2 D L2 D R2 D' R2",
+          "etm": 18,
+          "qtm": 27,
+          "htm": 18,
+          "stm": 18,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-13",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "algs": [
+        {
+          "alg": "R L F2 R L' U' L2 B2 D B2 R2 L2 U' R2 D R2 D'",
+          "moves": "R L F2 R L' U' L2 B2 D B2 R2 L2 U' R2 D R2 D'",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-14",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        3,
+        0,
+        1,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "U R2 F2 U B2 U' F2 U B2 U' R2",
+          "moves": "U R2 F2 U B2 U' F2 U B2 U' R2",
+          "etm": 11,
+          "qtm": 17,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-15",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "algs": [
+        {
+          "alg": "U B2 U' B2 D B2 D' R2 U R2 B2",
+          "moves": "U B2 U' B2 D B2 D' R2 U R2 B2",
+          "etm": 11,
+          "qtm": 17,
+          "htm": 11,
+          "stm": 11,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-16",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "edges": [
+        3,
+        2,
+        0,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R L F2 R L' U F2 D F2 L2 U B2 R2 L2 U' F2 U",
+          "moves": "R L F2 R L' U F2 D F2 L2 U B2 R2 L2 U' F2 U",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-17",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "edges": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R L' F2 R L' U' F2 U2 L2 U' F2 U2 L2 U' F2 U2 R2",
+          "moves": "R L' F2 R L' U' F2 U2 L2 U' F2 U2 L2 U' F2 U2 R2",
+          "etm": 17,
+          "qtm": 27,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-18",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "edges": [
+        0,
+        2,
+        1,
+        3
+      ],
+      "algs": [
+        {
+          "alg": "R L' B2 R' L U' B2 U2 R2 U B2 U2 R2 U' B2 U2 R2",
+          "moves": "R L' B2 R' L U' B2 U2 R2 U B2 U2 R2 U' B2 U2 R2",
+          "etm": 17,
+          "qtm": 27,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-19",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "edges": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R L U2 R L' F R2 F2 U2 F R2 B2 R2 U2 B' U2 B2",
+          "moves": "R L U2 R L' F R2 F2 U2 F R2 B2 R2 U2 B' U2 B2",
+          "etm": 17,
+          "qtm": 27,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-20",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "edges": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "algs": [
+        {
+          "alg": "U R L F2 R' L' U B2 U2 L2 U F2 U' L2 U2 B2 U R2",
+          "moves": "U R L F2 R' L' U B2 U2 L2 U F2 U' L2 U2 B2 U R2",
+          "etm": 18,
+          "qtm": 27,
+          "htm": 18,
+          "stm": 18,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "pll-21",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "edges": [
+        2,
+        1,
+        0,
+        3
+      ],
+      "algs": [
+        {
+          "alg": "R L' B2 R' L' F R2 F2 D2 F' R2 F2 L2 U2 B U2 B2",
+          "moves": "R L' B2 R' L' F R2 F2 D2 F' R2 F2 L2 U2 B U2 B2",
+          "etm": 17,
+          "qtm": 27,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    }
+  ]
+}

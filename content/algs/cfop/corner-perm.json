@@ -1,0 +1,52 @@
+{
+  "format": "bld-platform/last-layer-dataset",
+  "version": 1,
+  "id": "corner-perm",
+  "puzzle": "3x3x3",
+  "kind": "corner-perm",
+  "generatedBy": {
+    "engine": "0.1.0"
+  },
+  "records": [
+    {
+      "id": "corner-perm-1",
+      "corners": [
+        0,
+        1,
+        3,
+        2
+      ],
+      "algs": [
+        {
+          "alg": "R L' B2 R' L' U' L2 F2 D' L2 D R2 D' R2 L2 F2 U'",
+          "moves": "R L' B2 R' L' U' L2 F2 D' L2 D R2 D' R2 L2 F2 U'",
+          "etm": 17,
+          "qtm": 25,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    },
+    {
+      "id": "corner-perm-2",
+      "corners": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "algs": [
+        {
+          "alg": "R' L B2 R' L U' B2 U2 R2 U' B2 U2 R2 U' B2 U2 L2",
+          "moves": "R' L B2 R' L U' B2 U2 R2 U' B2 U2 R2 U' B2 U2 L2",
+          "etm": 17,
+          "qtm": 27,
+          "htm": 17,
+          "stm": 17,
+          "source": "cubing-solver"
+        }
+      ]
+    }
+  ]
+}
