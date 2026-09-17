@@ -1,0 +1,61 @@
+@layer components {
+  .hero-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 3rem; align-items: center; }
+  .hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .hero-title { font-size: clamp(2.75rem,4.6vw,4.2rem); font-weight: 720; line-height: 1.12; letter-spacing: -.055em; max-width: 16ch; text-wrap: balance; }
+  .hero-copy > p { max-width: 42ch; color: var(--text-quiet); }
+  .home-launch > .hero-layout { padding-block: 2.5rem 3rem; border-bottom: 1px solid var(--line); }
+  .hero-stage { position: relative; padding: 2rem; border-radius: var(--radius-stage); border: 1px solid var(--line); background: var(--surface-raised); }
+  .hero-stage figure > .cube-stage { background: transparent; border: 0; max-width: 30rem; }
+  .hero-stage .cube-caption { margin-top: .5rem; }
+  .home-journey { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.5fr); gap: 4rem; }
+  .home-journey-links > a { padding-block: 1rem; border-bottom: 1px solid var(--line); transition: background var(--duration-fast); }
+  .home-journey-links > a:hover { background: var(--surface-raised); }
+  .home-today { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 2rem; }
+  .learning-intro { grid-template-columns: minmax(0,1.5fr) minmax(0,.65fr); padding-block: 1rem 2.5rem; border-bottom: 1px solid var(--line); }
+  .learning-intro .cube-stage { max-width: 15rem; background: transparent; border: 0; }
+  .learning-intro .cube-caption { display: none; }
+  .learning-path { display: grid; grid-template-columns: 13rem minmax(0,1fr); column-gap: 3rem; align-items: start; }
+  .learning-track-nav { position: sticky; top: 1.5rem; grid-column: 1; grid-row: 1 / span 8; display: flex; flex-direction: column; gap: .45rem; padding-right: 1.5rem; border-right: 1px solid var(--line); }
+  .learning-track-nav .btn { justify-content: flex-start; border-color: transparent; background: transparent; }
+  .learning-track-nav .btn:hover { background: var(--stage); border-color: var(--line); }
+  .learning-track { grid-column: 2; scroll-margin-top: 2rem; }
+  .learning-track > h2 { padding-bottom: 1rem; font-size: 1.7rem; }
+  .learning-track > p { margin-bottom: 1rem; }
+  .learning-lesson { position: relative; display: grid; grid-template-columns: 2.4rem minmax(0,1fr) auto; gap: 1rem; padding: 1.25rem .75rem; border-top: 1px solid var(--line); transition: background var(--duration-fast); }
+  .learning-lesson:hover { background: var(--surface-raised); }
+  .learning-lesson[data-status="next"] { background: var(--surface-raised); border-left: 2px solid var(--accent,var(--text)); }
+  .learning-order { display: grid; place-items: center; width: 2rem; height: 2rem; margin-top: .05rem; border: 1px solid var(--line-strong); border-radius: 50%; font-size: .75rem; font-weight: 550; }
+  .learning-lesson[data-status="done"] .learning-order { background: var(--text); color: var(--ground); }
+  .learning-lesson a { text-decoration: none; }
+  .learning-lesson a::after { content: ''; position: absolute; inset: 0; }
+  .learning-lesson a:focus-visible::after { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .learning-lesson .t-body { font-size: .875rem; line-height: 1.6; max-width: 65ch; }
+  .learning-lesson-state { display: flex; align-items: center; gap: .45rem; color: var(--text-quiet); font-size: .75rem; white-space: nowrap; }
+  .lesson-article { max-width: 1160px; margin-inline: auto; }
+  .lesson-header { padding-bottom: 1.75rem; border-bottom: 1px solid var(--line); }
+  .lesson-header h1 { max-width: 30ch; }
+  .lesson-header > .t-meta:first-child { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+  .lesson-with-toc { display: grid; grid-template-columns: minmax(0,1fr) 13rem; gap: 4rem; }
+  .lesson-body { min-width: 0; }
+  .lesson-body > p, .lesson-body > ul, .lesson-body > ol { max-width: var(--width-reading); }
+  .lesson-body h2 { font-size: clamp(1.4rem,2vw,1.7rem); line-height: 1.3; font-weight: 650; margin-top: 1.75rem; letter-spacing: -.025em; }
+  .lesson-body h3 { font-size: 1.125rem; line-height: 1.4; font-weight: 600; margin-top: 1rem; }
+  .lesson-body > h2 { padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .lesson-body ul { list-style: disc; padding-left: 1.25rem; display: flex; flex-direction: column; gap: .35rem; }
+  .lesson-body ol { list-style: decimal; padding-left: 1.5rem; display: flex; flex-direction: column; gap: .35rem; }
+  .lesson-body strong { font-weight: 680; }
+  .lesson-body em { font-style: normal; }
+  .lesson-body code { font-family: var(--font-mono); font-variation-settings: "CASL" 0,"MONO" 1; }
+  .lesson-body > div:has(figure) { margin-block: 1.25rem; padding: 1.5rem; border-radius: var(--radius-stage); background: var(--surface-raised); border: 1px solid var(--line); }
+  .lesson-toc { display: flex; flex-direction: column; gap: .4rem; position: sticky; top: 2rem; align-self: start; padding-left: 1rem; border-left: 1px solid var(--line); font-size: .8rem; }
+  .lesson-toc h2 { margin-bottom: .5rem; }
+  .lesson-toc a { padding-block: .35rem; color: var(--text-quiet); text-decoration: none; }
+  .lesson-toc a:hover { color: var(--text); text-decoration: underline; }
+  .reading-position { font-size: .8rem; color: var(--text-quiet); }
+  .lesson-next { display: flex; flex-direction: column; gap: .4rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .lesson-next a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 44px; font-size: 1.125rem; font-weight: 600; text-decoration: none; }
+  .lesson-next a:hover { text-decoration: underline; }
+  @media (max-width: 1199px) { .lesson-with-toc { display: block; } .lesson-toc { display: none; } }
+  @media (max-width: 1000px) { .learning-path { grid-template-columns: 10rem minmax(0,1fr); gap: 2rem; } .learning-lesson-state { grid-column: 2; } .hero-layout { gap: 1.5rem; } .hero-stage { padding: 1rem; } }
+  @media (max-width: 767px) { .hero-layout, .home-journey, .home-today { grid-template-columns: minmax(0,1fr); gap: 1.75rem; } .hero-title { font-size: 2.65rem; max-width: 17ch; } .home-launch > .hero-layout { padding-block: 1.5rem 2rem; } .hero-stage { padding: .5rem; } .home-launch { gap: 2.5rem; } .home-journey { gap: 1.5rem; } .learning-intro { display: block; padding: .5rem 0 1.5rem; } .learning-intro > div:last-child { display: none; } .learning-path { display: flex; flex-direction: column; gap: 2rem; } .learning-track-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: .35rem; padding: 0 0 1rem; border-right: 0; border-bottom: 1px solid var(--line); } .learning-track-nav .btn { border-color: var(--line-strong); padding: .5rem .7rem; font-size: .78rem; } .learning-lesson { grid-template-columns: 2rem minmax(0,1fr); gap: .65rem; padding: 1rem .25rem; } .learning-lesson-state { grid-column: 2; } .learning-track > h2 { font-size: 1.45rem; } .lesson-body > div:has(figure) { padding: .75rem; margin-inline: -.25rem; } .lesson-header h1 { font-size: 2rem; } }
+}

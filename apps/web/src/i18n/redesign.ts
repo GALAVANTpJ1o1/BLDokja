@@ -1,0 +1,15 @@
+export const redesign = {
+  settingsTitle: "Make this space yours",
+  settingsIntro: "Choose a room for focused practice. Your cube, your pace, your preferences.",
+  footer: "A local-only cubing workbench.",
+  footerNote: "Small steps. Deeper understanding.",
+  roomAlt: "A solved cube in a quiet study overlooking a mountain lake at night",
+  cubeInspect: "Drag to explore",
+  play: "Play",
+  pause: "Pause",
+  restart: "Restart",
+  previousMove: "Previous move",
+  nextMove: "Next move",
+  pattern: (name: string) => `Cube pattern: ${name}. Select to change pattern.`,
+  patterns: { solved: "Solved", checkerboard: "Checkerboard", "cube-in-a-cube": "Cube in a cube", superflip: "Superflip", snake: "Snake", donut: "Six-spot donut" },
+} as const;

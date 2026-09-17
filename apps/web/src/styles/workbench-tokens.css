@@ -1,0 +1,33 @@
+/* Presentation roles derive from the existing, contrast-tested colourways. */
+:root {
+  --surface: color-mix(in srgb, var(--ground) 94%, var(--stage));
+  --surface-raised: color-mix(in srgb, var(--stage) 55%, var(--ground));
+  --surface-hover: color-mix(in srgb, var(--stage) 80%, var(--ground));
+  --line: color-mix(in srgb, var(--rule) 56%, var(--ground));
+  --line-strong: var(--rule);
+  --action: var(--text);
+  --on-action: var(--ground);
+  --radius-control: 8px;
+  --radius-panel: 12px;
+  --radius-stage: 18px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --duration-fast: 120ms;
+  --duration-ui: 180ms;
+  --duration-layer: 240ms;
+  --ease-settle: cubic-bezier(.2,.7,.2,1);
+  --width-shell: 1320px;
+  --width-reading: 65ch;
+  --z-room: 0;
+  --z-content: 1;
+  --z-header: 20;
+  --z-mobile-nav: 40;
+  --scroll-thumb: var(--text-quiet);
+  --scroll-track: var(--ground);
+}

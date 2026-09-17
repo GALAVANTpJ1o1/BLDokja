@@ -1,0 +1,79 @@
+@layer components {
+  .tool-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+  .tool-link { position: relative; display: flex; flex-direction: column; gap: .65rem; padding: 1.5rem; text-decoration: none; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); transition: background var(--duration-ui), border-color var(--duration-ui); }
+  .tool-link:hover { background: var(--surface-hover); border-color: var(--rule); }
+  .tool-link h3, .tool-link h2 { font-size: 1.1rem; font-weight: 650; letter-spacing: -.025em; }
+  .tool-link p { color: var(--text-quiet); font-size: .85rem; max-width: 52ch; line-height: 1.65; }
+  .tool-icon { width: 24px; height: 24px; }
+  .practice-directory { gap: 3rem; }
+  .practice-directory > section { display: grid; grid-template-columns: 12rem minmax(0,1fr); column-gap: 3rem; align-items: start; }
+  .practice-directory > section > h2 { padding-top: 1.25rem; font-size: 1.25rem; border-top: 1px solid var(--line-strong); }
+  .practice-directory .tool-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 1.5rem; }
+  .practice-directory .tool-grid > li { min-width: 0; }
+  .practice-directory .tool-link { height: 100%; padding: 1.3rem .5rem; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
+  .practice-directory .tool-link:hover { background: var(--surface-raised); }
+  .practice-directory .tool-link h3 { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+  .practice-directory .tool-link h3 svg { opacity: 0; transition: opacity var(--duration-ui); }
+  .practice-directory .tool-link:hover h3 svg, .practice-directory .tool-link:focus-visible h3 svg { opacity: 1; }
+  .practice-spotlight { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); border-radius: var(--radius-stage); overflow: hidden; border: 1px solid var(--line); background: var(--surface-raised); }
+  .practice-spotlight > div { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1rem; padding: 2rem; }
+  .practice-spotlight-image { min-height: 230px; background: url('/images/study-room.webp') center 68%/cover no-repeat; }
+  .trainer-shell { gap: 1.75rem; }
+  .trainer-header { padding-bottom: 1.5rem; border-bottom: 1px solid var(--line); }
+  .trainer-header > div:first-child { max-width: 58rem; gap: .65rem; }
+  .trainer-header > div:last-child .btn { font-size: .78rem; }
+  .trainer-settings { background: var(--surface); border-color: var(--line); }
+  .trainer-settings summary { min-height: 48px; font-weight: 560; }
+  .trainer-stage { min-width: 0; }
+  .trainer-surface, .workbench-layout { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 2rem; align-items: start; min-width: 0; }
+  .trainer-surface > :not(figure):not(.cube-group), .workbench-controls { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); min-width: 0; }
+  .cube-stage { border-radius: var(--radius-stage); border: 1px solid var(--line); background: var(--surface-raised); aspect-ratio: 1; width: 100%; max-width: 32rem; align-self: center; position: relative; }
+  .cube-caption { display: flex; align-items: center; justify-content: center; gap: .4rem; color: var(--text-quiet); font-size: .72rem; }
+  .cube-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: .45rem; padding-top: .5rem; }
+  .cube-controls .btn { font-size: .78rem; padding-inline: .8rem; }
+  .segmented-control { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+  .segmented-control > span { margin-right: .6rem; }
+  .segmented-control .btn { background: var(--surface); border-color: var(--line-strong); min-height: 44px; }
+  .segmented-control .btn[aria-pressed="true"] { background: var(--text); color: var(--ground); border-color: var(--text); }
+  .speffz-workspace { display: flex; flex-direction: column; gap: 1.5rem; }
+  .speffz-preflight { padding: 1.5rem; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-panel); }
+  .speffz-surface { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 2rem; align-items: start; }
+  .speffz-surface > figure .cube-stage { max-width: 100%; }
+  .speffz-controls { padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); }
+  .speffz-sticker { min-width: 90px; min-height: 100px; }
+  .speffz-sticker[aria-pressed="true"] { background: var(--stage); color: var(--text); box-shadow: 0 0 0 2px var(--text); }
+  .speffz-controls form { flex-direction: column; align-items: stretch; gap: .75rem; }
+  .speffz-controls form label { width: 100%; }
+  .speffz-controls form input { width: 100%; text-align: left; font-size: 1.5rem; min-height: 54px; }
+  .progress-workbench { max-width: 1120px; }
+  .progress-overview { padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); }
+  .lettering-workbench > section { padding-block: 1.5rem; border-top: 1px solid var(--line); }
+  .workspace-algorithms > .control-row { padding: 1rem; background: var(--surface-raised); border-radius: var(--radius-control); }
+  .workspace-algorithms .data-table-wrap { max-height: 34rem; }
+  .workspace-reference .data-table-wrap { border-radius: 0; }
+  .workspace-memory > div, .workspace-debug > div { min-width: 0; }
+  .algorithm-browser { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 1.5rem 2rem; align-items: start; }
+  .algorithm-browser > .algorithm-filters, .algorithm-browser > label, .algorithm-browser > p { grid-column: 1 / -1; }
+  .algorithm-result-list { min-width: 0; display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 1.5rem; }
+  .algorithm-editor { min-width: 0; padding-left: 2rem; border-left: 1px solid var(--line); }
+  .algorithm-editor .trainer-surface { display: flex; flex-direction: column; gap: 1rem; }
+  .algorithm-editor .trainer-surface > figure { position: static; width: 100%; }
+  .algorithm-editor .cube-stage { max-width: 17rem; }
+  .algorithm-editor .trainer-surface > div { width: 100%; padding: 1.25rem; }
+  .algorithm-editor .cube-controls { gap: .3rem; }
+  .last-layer-explorer { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 1rem 2rem; margin-block: 1.5rem; align-items: start; }
+  .last-layer-explorer > header, .last-layer-explorer > .control-row, .last-layer-explorer > label, .last-layer-explorer > p { grid-column: 1 / -1; }
+  .last-layer-explorer > .trainer-surface { display: flex; flex-direction: column; gap: 1rem; }
+  .last-layer-explorer .cube-stage { max-width: 20rem; }
+  .last-layer-explorer > .trainer-surface > div { width: 100%; }
+  .last-layer-explorer .data-table-wrap { max-height: 36rem; }
+  .memory-workbench { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 2rem 3rem; align-items: start; }
+  .memory-workbench > p, .memory-workbench > section:nth-of-type(3) { grid-column: 1 / -1; }
+  .memory-workbench > section:nth-of-type(2) { padding-top: 0; border-top: 0; }
+  .progress-insights { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3rem; align-items: start; }
+  @media (max-width: 1000px) { .algorithm-browser { grid-template-columns: minmax(0,1fr); } .algorithm-editor { padding: 1.5rem 0 0; border-left: 0; border-top: 1px solid var(--line); } .algorithm-result-list { position: static; } }
+  @media (max-width: 767px) { .memory-workbench, .progress-insights, .last-layer-explorer { grid-template-columns: minmax(0,1fr); gap: 1.5rem; } .memory-workbench > section:nth-of-type(2) { border-top: 1px solid var(--line); padding-top: 1.5rem; } }
+  @media (min-width: 768px) { .trainer-surface > figure, .trainer-surface > .cube-group { position: sticky; top: 1.5rem; align-self: start; } }
+  @media (max-width: 1000px) { .practice-directory > section { grid-template-columns: 9rem minmax(0,1fr); gap: 1.5rem; } .speffz-surface { grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap: 1rem; } .speffz-controls { padding: 1rem; } }
+  @media (max-width: 767px) { .tool-grid, .trainer-surface, .workbench-layout, .speffz-surface, .practice-spotlight { grid-template-columns: minmax(0,1fr); } .practice-directory > section { display: flex; gap: 1rem; } .practice-directory .tool-grid { grid-template-columns: minmax(0,1fr); } .practice-directory > section > h2 { padding-top: 1rem; } .practice-directory { gap: 2rem; } .practice-spotlight > div { padding: 1.25rem; } .practice-spotlight-image { display: none; } .trainer-surface { gap: 1rem; } .trainer-surface > :not(figure):not(.cube-group) { padding: 1rem; } .speffz-surface { gap: 1.25rem; } .speffz-preflight { padding: 1rem; } .trainer-header { align-items: flex-start; gap: 1rem; } .cube-controls .btn { padding-inline: .65rem; } }
+}

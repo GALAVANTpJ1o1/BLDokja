@@ -1,0 +1,45 @@
+@layer components {
+  .settings-stack { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); gap: 2rem; max-width: none; }
+  .settings-heading { grid-column: 1 / -1; display: flex; flex-direction: column; gap: .6rem; }
+  .settings-heading p { color: var(--text-quiet); }
+  .settings-section { display: flex; flex-direction: column; gap: 1.5rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
+  .settings-section > h2 { font-size: 1.3rem; }
+  .settings-appearance { grid-column: 1; grid-row: 2 / span 3; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); padding: 1.5rem; }
+  .settings-appearance > h2 { display: none; }
+  .settings-secondary { grid-column: 1 / -1; }
+  .settings-room { grid-column: 2; grid-row: 2; margin: 0; aspect-ratio: 3 / 4; border-radius: var(--radius-stage); overflow: hidden; border: 1px solid var(--line); }
+  .settings-room img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .settings-offline { grid-column: 2; grid-row: 3; }
+  .settings-lettering { grid-column: 2; grid-row: 4; }
+  .settings-data { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.25rem 3rem; }
+  .settings-data > h2, .settings-data > p, .settings-data > .min-h-\[1\.7rem\] { grid-column: 1 / -1; }
+  .settings-appearance fieldset { min-width: 0; }
+  .settings-appearance legend { font-size: 1rem; font-weight: 650; padding-bottom: .3rem; }
+  .appearance-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .65rem; }
+  .colourway-choice { position: relative; display: flex; flex-direction: column; gap: .4rem; min-width: 0; padding: .35rem .35rem .55rem; border: 1px solid var(--line-strong); border-radius: var(--radius-control); cursor: pointer; background: var(--ground); transition: border-color var(--duration-fast), background var(--duration-fast); }
+  .colourway-choice:hover { border-color: var(--text); background: var(--stage); }
+  .colourway-choice[data-selected="true"] { outline: 2px solid var(--text); outline-offset: 1px; }
+  .colourway-choice .t-ui { font-size: .75rem; padding-inline: .2rem; }
+  .colourway-choice .t-meta { font-size: .65rem; padding-inline: .2rem; line-height: 1.35; }
+  .colourway-photo, .scenery-preview { display: block; height: 68px; border-radius: 4px; background-image: url('/images/scenic-atlas.webp'); background-size: 600% 200%; background-repeat: no-repeat; }
+  .colourway-photo { background-position-y: 0%; }
+  .scenery-preview { background-position-y: 100%; }
+  .colourway-photo-slate, .scenery-preview-none { background-position-x: 0%; }
+  .colourway-photo-jade, .scenery-preview-galaxy { background-position-x: 20%; }
+  .colourway-photo-coral, .scenery-preview-rain { background-position-x: 40%; }
+  .colourway-photo-cotton, .scenery-preview-snow { background-position-x: 60%; }
+  .colourway-photo-ocean, .scenery-preview-forest { background-position-x: 80%; }
+  .colourway-photo-forest, .scenery-preview-ocean { background-position-x: 100%; }
+  .colourway-swatch { display: flex; align-items: center; gap: .35rem; padding-inline: .2rem; }
+  .colourway-swatch span { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--line); }
+  .settings-options { display: grid; grid-template-columns: repeat(auto-fit,minmax(8rem,1fr)); gap: .5rem; }
+  .settings-options .btn { padding-inline: .55rem; font-size: .78rem; }
+  .lettering-workbench { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap: 2rem 3rem; align-items: start; }
+  .lettering-workbench > header { grid-column: 1 / -1; }
+  .lettering-workbench > section { min-width: 0; }
+  .lettering-workbench > section:last-child { border: 1px solid var(--line); padding: 1.5rem; background: var(--surface-raised); border-radius: var(--radius-panel); }
+  @media (max-width: 1000px) { .lettering-workbench { grid-template-columns: minmax(0,1fr); } }
+  .settings-data input[type="file"] { max-width: 100%; }
+  @media (min-width: 1200px) { .settings-appearance .appearance-grid { grid-template-columns: repeat(6,minmax(0,1fr)); } .settings-stack { grid-template-columns: minmax(0,1.8fr) minmax(0,1fr); } .colourway-photo, .scenery-preview { height: 76px; } .colourway-choice .t-ui { font-size: .75rem; } }
+  @media (max-width: 767px) { .settings-stack { display: flex; flex-direction: column; gap: 1.5rem; } .settings-room { display: none; } .settings-appearance { padding: 1rem; } .appearance-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; } .colourway-photo, .scenery-preview { height: 80px; } .colourway-choice .t-ui { font-size: .8rem; } .settings-data { display: flex; flex-direction: column; gap: 1.25rem; } }
+}

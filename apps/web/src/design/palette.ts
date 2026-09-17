@@ -18,8 +18,8 @@ export interface InterfaceColours {
 }
 
 export const INTERFACE: Readonly<Record<ThemeName, InterfaceColours>> = {
-  dark: { ground: "#2C2F45", stage: "#34374F", text: "#EFE9E1", textQuiet: "#B9B6C4", rule: "#4F5474", focus: "#EFE9E1" },
-  light: { ground: "#E8E7EF", stage: "#DCDAE6", text: "#23253A", textQuiet: "#4E5068", rule: "#A9A7BA", focus: "#23253A" },
+  dark: { ground: "#213640", stage: "#29434D", text: "#F0F5F7", textQuiet: "#B1C7D0", rule: "#567582", focus: "#F0F5F7" },
+  light: { ground: "#EEF1F2", stage: "#DFE7EB", text: "#223744", textQuiet: "#516673", rule: "#A9B9C1", focus: "#223744" },
 };
 
 export const CHALK = INTERFACE.dark.text;

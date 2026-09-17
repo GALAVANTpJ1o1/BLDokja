@@ -1,3 +1,12 @@
+/* Manrope is the interface face; Recursive retains spatial letters and algorithm notation. */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url(/fonts/manrope-5.3.0-latin-wght.woff2) format('woff2-variations');
+}
+
 /*
  * Recursive, split into two families so a page downloads only what it shows (Phase 8 performance pass).
  * Fontsource's full file carries all five axes (305 KB for Latin); the design uses weight with either
