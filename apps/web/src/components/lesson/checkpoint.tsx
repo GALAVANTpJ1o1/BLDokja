@@ -315,7 +315,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
               {reader !== undefined ? <ItemPrompt item={item} reader={reader} /> : null}
             </>
           )}
-          <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+          <form noValidate onSubmit={submit} className="flex flex-wrap items-end gap-2">
             {item.kind === "mistake" ? (
               <fieldset className="flex flex-col gap-2">
                 <legend className="sr-only">{en.lessonExtra.mistakeQuestion}</legend>

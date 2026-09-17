@@ -101,6 +101,7 @@ function CaseEditor({ reader, dataset, current, report }: { reader: Reader; data
   const [why, setWhy] = useState(false);
   const [compare, setCompare] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [algorithmError, setAlgorithmError] = useState<string>();
   const alg = current.algs.find((item) => item.alg === chosen) ?? current.algs[0];
   const key = preferenceKey(dataset.id, current.recordId, alg?.alg ?? "");
   const preference = stored?.algPreferences?.[key];
@@ -115,7 +116,8 @@ function CaseEditor({ reader, dataset, current, report }: { reader: Reader; data
   const prefer = async (text: string) => {
     if (busy) return;
     const checked = checkUserAlg(reader.puzzle, dataset, current.recordId, text);
-    if (!checked.ok) { report(copy.algs.invalid); return; }
+    if (!checked.ok) { setAlgorithmError(copy.algs.invalid); report(copy.algs.invalid); return; }
+    setAlgorithmError(undefined);
     setBusy(true);
     try { await update({ algOverrides: withUserAlg(stored?.algOverrides, dataset.id, current.recordId, checked.alg.alg) }); setChosen(checked.alg.alg); setTyped(""); report(copy.common.saved); } catch { report(copy.common.error); } finally { setBusy(false); }
   };
@@ -127,7 +129,7 @@ function CaseEditor({ reader, dataset, current, report }: { reader: Reader; data
       <h2 className="t-heading">{current.letters} <span className="text-quiet t-meta">{current.recordId}</span></h2><p className="t-notation break-words">{alg.alg}</p>
       <p className="t-meta text-quiet">{copy.common.moves}: {counts?.moves} · {copy.algs.rotations}: {counts?.rotations} · {copy.algs.slices}: {counts?.slices} · {copy.algs.wide}: {counts?.wide}</p>
       <details className="quiet-disclosure" onToggle={(event) => { setWhy(event.currentTarget.open); }}><summary>{copy.algs.why}</summary>{why ? <div className="mt-4"><WhyAlg key={alg.alg} reader={reader} alg={alg.alg} setup={alg.inverseMoves} /></div> : null}</details>
-      <form onSubmit={submit} className="flex flex-col gap-3"><label className="t-ui flex flex-col gap-2">{copy.common.algorithm}<input className="field mono w-full" value={typed} maxLength={200} onChange={(event) => { setTyped(event.target.value); }} /></label><button className="btn btn-strong self-start" type="submit" disabled={typed.trim() === "" || busy}>{copy.algs.save}</button></form>
+      <form noValidate onSubmit={submit} className="flex flex-col gap-3"><label htmlFor="algorithm-alternative" className="t-ui flex flex-col gap-2">{copy.common.algorithm}<input id="algorithm-alternative" name="algorithm" aria-invalid={algorithmError !== undefined || undefined} aria-describedby={algorithmError === undefined ? undefined : "algorithm-alternative-error"} className="field mono w-full" value={typed} maxLength={200} onChange={(event) => { setAlgorithmError(undefined); setTyped(event.target.value); }} /></label>{algorithmError === undefined ? null : <p id="algorithm-alternative-error" className="status-line" role="alert">{algorithmError}</p>}<button className="btn btn-strong self-start" type="submit" disabled={typed.trim() === "" || busy}>{copy.algs.save}</button></form>
     </div></div>
     <details className="quiet-disclosure"><summary>{copy.algs.alternatives}</summary><div className="flex flex-col gap-4 mt-4">
       <label className="t-ui control-row">{copy.algs.ranking}<select className="field" value={ranking} onChange={(event) => { setRanking(event.target.value as typeof ranking); }}>{(["ergonomic", "shortest", "personal"] as const).map((value) => <option key={value} value={value}>{copy.algs[value]}</option>)}</select></label>
@@ -135,10 +137,10 @@ function CaseEditor({ reader, dataset, current, report }: { reader: Reader; data
       <details className="quiet-disclosure"><summary>{copy.algs.weights}</summary><div className="grid gap-3 md:grid-cols-3 mt-3">{(Object.keys(weights) as (keyof ErgonomicWeights)[]).map((field) => <label className="t-meta flex flex-col gap-2" key={field}>{({ moves: copy.algs.moveWeight, rotations: copy.algs.rotationWeight, slices: copy.algs.sliceWeight, wide: copy.algs.wideWeight, regrips: copy.algs.regripWeight, preference: copy.algs.preferenceWeight })[field]}<input className="field" type="number" min={0} max={20} step={0.5} value={weights[field]} onChange={(event) => { setWeights({ ...weights, [field]: Math.min(20, Math.max(0, Number(event.target.value))) }); }} /></label>)}</div></details>
       {ranked.map((item) => <div className="flex flex-wrap gap-3 items-center border-b border-rule pb-3" key={item.alg}><button className="text-link t-notation text-left flex-1 min-w-0 break-words" type="button" onClick={() => { setChosen(item.alg); }}>{item.alg}</button><span className="t-meta text-quiet">{item.etm}</span><button type="button" className="btn" disabled={busy} onClick={() => { void prefer(item.alg); }}>{copy.algs.choose}</button>{item.source === "yours" ? <button className="btn" type="button" onClick={() => { void update({ algOverrides: withoutUserAlg(stored?.algOverrides, dataset.id, current.recordId, item.alg) }).catch(() => { report(copy.common.error); }); }}>{copy.common.remove}</button> : null}</div>)}
     </div></details>
-    <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => { event.preventDefault(); void update({ algPreferences: { ...stored?.algPreferences, [key]: draft } }).then(() => { report(copy.common.saved); }).catch(() => { report(copy.common.error); }); }}>
+    <form noValidate className="grid gap-4 md:grid-cols-2" onSubmit={(event) => { event.preventDefault(); void update({ algPreferences: { ...stored?.algPreferences, [key]: draft } }).then(() => { report(copy.common.saved); }).catch(() => { report(copy.common.error); }); }}>
       <label className="t-ui flex flex-col gap-2">{copy.algs.rating}<select className="field" value={draft.rating ?? ""} onChange={(event) => { setDraft({ ...draft, rating: event.target.value === "" ? undefined : Number(event.target.value) }); }}><option value="">{copy.common.empty}</option>{[1,2,3,4,5].map((value) => <option key={value}>{value}</option>)}</select></label>
       <label className="t-ui flex flex-col gap-2">{copy.algs.regrips}<input className="field" type="number" min={0} max={30} value={draft.regrips ?? ""} onChange={(event) => { setDraft({ ...draft, regrips: event.target.value === "" ? undefined : Number(event.target.value) }); }} /></label>
-      {(["fingerTricks", "notes"] as const).map((field) => <label className="t-ui flex flex-col gap-2" key={field}>{field === "fingerTricks" ? copy.algs.fingers : copy.algs.notes}<textarea rows={3} className="field" maxLength={1000} value={draft[field] ?? ""} onChange={(event) => { setDraft({ ...draft, [field]: event.target.value }); }} /></label>)}
+      {(["fingerTricks", "notes"] as const).map((field) => { const id = `algorithm-preference-${field}`; return <label htmlFor={id} className="t-ui flex flex-col gap-2" key={field}>{field === "fingerTricks" ? copy.algs.fingers : copy.algs.notes}<textarea id={id} name={field} rows={3} className="field min-h-28 resize-none" maxLength={1000} value={draft[field] ?? ""} onChange={(event) => { setDraft({ ...draft, [field]: event.target.value }); }} /></label>; })}
       <button type="submit" className="btn justify-self-start">{copy.common.save}</button>
     </form>
     <details className="quiet-disclosure" onToggle={(event) => { setCompare(event.currentTarget.open); }}><summary>{copy.algs.compare}</summary>{compare ? <AlternatingTrials current={current} /> : null}</details>

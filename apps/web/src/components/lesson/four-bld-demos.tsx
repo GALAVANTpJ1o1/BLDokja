@@ -174,7 +174,7 @@ export function FourTrace({ scramble, pieces, mode = "guided", label }: { scramb
                 <button type="button" className="btn btn-strong" onClick={() => { accept(step.letters[0] ?? "", step.accepted[0] ?? ""); }}>{copy.next}</button>
               </div>
             ) : (
-              <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+              <form noValidate onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {retype ? copy.retype(step.letters.join(" / ")) : copy.target(position + 1)}
                   <input ref={input} id={inputId} className="field w-24 text-center t-subheading casual" value={typed} maxLength={1} autoComplete="off" autoCapitalize="characters" onChange={(e) => { setTyped(e.target.value); }} />

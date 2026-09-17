@@ -57,6 +57,7 @@ export function PairDiscover({ ctx, health }: { ctx: LibraryContext; health: Lib
       <BigPair id={current} />
       {existing !== undefined ? <p className="t-meta text-quiet">{en.pairs.alternates}: {ctx.byId.get(current)?.images.map((i) => i.text).join(", ")}</p> : null}
       <form
+        noValidate
         className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
@@ -234,9 +235,9 @@ export function PairSentence({ ctx }: { ctx: LibraryContext }) {
         </section>
       ))}
       <p className="t-body">{en.pairs.sentencePrompt}</p>
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1" htmlFor="pair-sentence">
         <span className="t-meta text-quiet">{en.pairs.sentenceLabel}</span>
-        <textarea className="field min-h-24" value={sentence} onChange={(e) => { setSentence(e.target.value); }} />
+        <textarea id="pair-sentence" name="sentence" className="field min-h-24 resize-none" value={sentence} onChange={(e) => { setSentence(e.target.value); }} />
       </label>
       <p className="t-meta text-quiet">{en.pairs.sentenceHint}</p>
       <div>

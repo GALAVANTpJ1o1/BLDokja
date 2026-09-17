@@ -100,7 +100,7 @@ export function ProgressiveTrainer() {
         {level === "algorithm" || level === "blind" ? <p className="t-notation">{current?.letters} · {current?.recordId}</p> : level === "setup" ? <p className="t-notation">{record?.target}</p> : null}
         {level === "solves" ? <p className="t-notation break-words">{random.scramble}</p> : null}
         {level === "blind" && !hidden && !graded ? <button className="btn btn-strong" type="button" disabled={!available} onClick={() => { setHidden(true); started.current = performance.now(); field.current?.focus(); }}>{copy.levels.hide}</button> : null}
-        <form className="flex flex-col gap-3" onSubmit={(event) => { void submit(event); }}>
+        <form noValidate className="flex flex-col gap-3" onSubmit={(event) => { void submit(event); }}>
           <label className="t-ui flex flex-col gap-2">{copy.levels.answer}<input ref={field} className="field mono w-full" autoComplete="off" maxLength={10_000} value={typed} disabled={!available} onChange={(event) => { setTyped(event.target.value); }} /></label>
           <button className="btn btn-strong self-start" type="submit" disabled={!available || busy || graded || level === "blind" && !hidden}>{copy.common.verify}</button>
         </form>

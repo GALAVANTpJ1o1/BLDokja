@@ -227,6 +227,7 @@ export function DifficultyEditor() {
       <section className="flex flex-col gap-4 border-t border-rule pt-6">
         <h2 className="t-heading">{en.difficulty.presets}</h2>
         <form
+          noValidate
           className="flex flex-wrap items-end gap-2"
           onSubmit={(e) => {
             e.preventDefault();

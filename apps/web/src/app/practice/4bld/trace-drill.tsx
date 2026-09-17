@@ -194,7 +194,7 @@ function TraceRun({ reader, events, append, settings, mode, pieces, help, seed, 
           {prompt !== undefined ? (
             <>
               {prompt.isBreak ? <p className="t-body">{en.fourBld.breakNote}</p> : pieces === "xcenters" && prompt.accepted.length > 1 && position === 0 ? <p className="t-meta text-quiet">{en.fourBld.choiceNote}</p> : null}
-              <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+              <form noValidate onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {retyping ? en.fourBld.retype(prompt.letters.join(" / ")) : en.fourBld.target(position + 1)}
                   <input ref={input} id={inputId} autoFocus className="field w-24 text-center t-subheading casual" value={typed} maxLength={1} autoComplete="off" autoCapitalize="characters" onChange={(e) => { setTyped(e.target.value); }} />

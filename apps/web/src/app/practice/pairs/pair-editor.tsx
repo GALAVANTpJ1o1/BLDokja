@@ -117,6 +117,7 @@ export function PairEditor({ ctx, id, onClose }: { ctx: LibraryContext; id: stri
           ))}
         </ul>
         <form
+          noValidate
           className="flex flex-wrap items-center gap-2"
           onSubmit={(e) => {
             e.preventDefault();
@@ -135,9 +136,9 @@ export function PairEditor({ ctx, id, onClose }: { ctx: LibraryContext; id: stri
         ) : null}
       </fieldset>
 
-      <label className="flex flex-col gap-1">
+      <label className="flex flex-col gap-1" htmlFor="pair-notes">
         <span className="t-meta text-quiet">{en.pairs.notes}</span>
-        <textarea className="field min-h-20" value={notes} onChange={(e) => { setNotes(e.target.value); }} />
+        <textarea id="pair-notes" name="notes" className="field min-h-20 resize-none" value={notes} onChange={(e) => { setNotes(e.target.value); }} />
       </label>
       <label className="flex flex-col gap-1">
         <span className="t-meta text-quiet">{en.pairs.category}</span>

@@ -1,7 +1,7 @@
 "use client";
 
 import { drillScramble } from "@bld/cube-engine";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Cube } from "@/components/cube/cube";
 import { netCells, patternFor } from "@/components/cube/cube-state";
 import { StickerNet } from "@/components/cube/sticker-net";
@@ -26,6 +26,9 @@ const TYPE_ROLES = [
 
 export function LabView() {
   const puzzle = usePuzzle();
+  const [drillStarted, setDrillStarted] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const [levelSelected, setLevelSelected] = useState(true);
   const comm = algDatasets().threeStyleCorners.records.find((r) => r.id === "UBR-UBL");
   const commAlg = comm?.algs[0];
   const setup = useMemo(() => {
@@ -105,12 +108,13 @@ export function LabView() {
       <section className="flex flex-col gap-4">
         <h2 className="t-heading">Controls</h2>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn btn-strong">Start drill</button>
-          <button type="button" className="btn">Reveal</button>
-          <button type="button" className="btn" aria-pressed="true">Level 2</button>
-          <button type="button" className="btn" disabled>Not available</button>
-          <input className="field" placeholder="Type a letter" aria-label="Type a letter" />
+          <button type="button" className="btn btn-strong" aria-pressed={drillStarted} onClick={() => { setDrillStarted(true); }}>{en.lab.startDrill}</button>
+          <button type="button" className="btn" aria-pressed={revealed} onClick={() => { setRevealed((value) => !value); }}>{en.lab.reveal}</button>
+          <button type="button" className="btn" aria-pressed={levelSelected} onClick={() => { setLevelSelected((value) => !value); }}>{en.lab.level}</button>
+          <button type="button" className="btn" disabled>{en.lab.notAvailable}</button>
+          <input className="field" placeholder={en.lab.typeLetter} aria-label={en.lab.typeLetter} />
         </div>
+        <p className="t-meta" role="status">{drillStarted ? en.lab.drillStarted : revealed ? en.lab.revealed : levelSelected ? en.lab.levelSelected : ""}</p>
         <p className="t-body">
           A link reads like <a href="#content">this lesson on buffers</a>.
         </p>

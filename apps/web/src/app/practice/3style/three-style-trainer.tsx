@@ -296,6 +296,7 @@ export function ThreeStyleTrainer() {
                 </div>
               ) : null}
               <form
+                noValidate
                 className="flex flex-wrap items-end gap-2"
                 onSubmit={(e) => {
                   e.preventDefault();

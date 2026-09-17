@@ -97,7 +97,7 @@ export function TraceWalk({ scramble, pieces, method = "op", mode = "guided", la
                 </button>
               </div>
             ) : (
-              <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+              <form noValidate onSubmit={submit} className="flex flex-wrap items-end gap-2">
                 <label htmlFor={inputId} className="flex flex-col gap-1 t-ui">
                   {mustRetype === undefined ? en.lesson.typeLetter(index + 1) : en.lesson.retype(mustRetype)}
                   <input ref={input} id={inputId} className="field w-24 text-center t-subheading casual" value={typed} maxLength={2} autoComplete="off" autoCapitalize="characters" onChange={(e) => { setTyped(e.target.value); }} />

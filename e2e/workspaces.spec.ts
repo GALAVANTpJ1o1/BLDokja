@@ -101,6 +101,60 @@ test("personal palace and memo-story order survive reload without remote request
   expect(external).toEqual([]);
 });
 
+test("memory forms retain native validation, controlled textareas, and their reset action", async ({ page }) => {
+  await page.goto("/practice/memory/");
+  const palaceName = page.getByLabel("Palace name", { exact: true });
+  await page.getByRole("button", { name: "Save palace", exact: true }).click();
+  await expect(palaceName).toBeFocused();
+  expect(await palaceName.evaluate((field: HTMLInputElement) => field.validity.valueMissing)).toBe(true);
+
+  await palaceName.fill("Validation palace");
+  await page.getByRole("button", { name: "Add location", exact: true }).click();
+  const prompt = page.getByLabel("Reusable image prompt", { exact: true });
+  await expect(prompt).toHaveAttribute("name", "location-prompt");
+  await prompt.fill("A controlled prompt");
+  await expect(page.locator('textarea[name="location-prompt"]')).toHaveValue("A controlled prompt");
+  await page.getByRole("button", { name: "New palace", exact: true }).click();
+  await expect(palaceName).toHaveValue("");
+
+  const pair = page.getByLabel("Letter pair", { exact: true });
+  await page.getByRole("button", { name: "Save pair image", exact: true }).click();
+  await expect(pair).toBeFocused();
+  expect(await pair.evaluate((field: HTMLInputElement) => field.validity.valueMissing)).toBe(true);
+
+  await pair.fill("ABC");
+  await page.getByLabel("Image word or phrase", { exact: true }).first().fill("Too many letters");
+  await page.getByRole("button", { name: "Save pair image", exact: true }).click();
+  await expect(pair).toHaveAttribute("aria-invalid", "true");
+  await expect(pair).toBeFocused();
+
+  const memo = page.getByLabel("Memo pairs (space-separated)", { exact: true });
+  await memo.fill("AB");
+  await page.getByRole("button", { name: "Compose from my images", exact: true }).click();
+  await expect(memo).toHaveAttribute("aria-invalid", "true");
+  await expect(memo).toBeFocused();
+});
+
+test("custom form errors stay associated with their controlled field and refocus it", async ({ page }) => {
+  await page.goto("/practice/debug/");
+  const scramble = page.getByLabel("Original scramble", { exact: true });
+  await expect(scramble).toHaveAttribute("id", "dnf-scramble");
+  await scramble.fill("not valid notation");
+  await page.getByRole("button", { name: "Inspect this solve", exact: true }).click();
+  const dnfScramble = page.locator("#dnf-scramble");
+  await expect(dnfScramble).toHaveAttribute("aria-invalid", "true");
+  await expect(dnfScramble).toBeFocused();
+  await expect(page.locator("#dnf-debug-error")).toBeVisible();
+
+  await page.goto("/practice/algorithms/");
+  const algorithm = page.getByLabel("Algorithm", { exact: true });
+  await expect(algorithm).toHaveAttribute("id", "algorithm-alternative");
+  await algorithm.fill("R");
+  await page.getByRole("button", { name: "Verify and save as preferred", exact: true }).click();
+  await expect(page.locator("#algorithm-alternative")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#algorithm-alternative-error")).toBeVisible();
+});
+
 test("recognition uses native keyboard submission and keeps focus", async ({ page }) => {
   await page.goto("/practice/levels/");
   await expect(page.getByRole("button",{ name:"Check this step",exact:true })).toBeEnabled();

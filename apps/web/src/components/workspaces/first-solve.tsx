@@ -111,7 +111,7 @@ export function FirstSolve() {
         {finished ? <><h2 className="t-heading">{copy.first.finished}</h2><label className="t-body flex gap-3 items-center"><input type="checkbox" checked={physical} onChange={(event) => { setPhysical(event.target.checked); }} />{copy.first.physical}</label><button type="button" className="btn btn-strong" disabled={!physical || busy} onClick={() => { setBusy(true); void save({ ...run, completedAt: nowIso() }).catch(() => { setMessage(copy.common.error); }).finally(() => { setBusy(false); }); }}>{copy.first.complete}</button></> : <>
           <h2 className="t-heading">{title}</h2><p className="text-quiet">{cursor < 0 ? copy.first.memoPrompt : copy.first.executionPrompt}</p>
           {cursor >= 0 ? <p className="t-notation">{stepTitle}</p> : null}
-          <form onSubmit={(event) => { void advance(event); }} className="flex flex-col gap-3">
+          <form noValidate onSubmit={(event) => { void advance(event); }} className="flex flex-col gap-3">
             <label className="flex flex-col gap-2 t-ui">{cursor < 0 ? copy.first.typedLetter : copy.first.typedMoves}<input ref={input} className="field mono w-full" value={typed} maxLength={2000} autoComplete="off" onChange={(event) => { setTyped(event.target.value); }} /></label>
             <button type="submit" className="btn btn-strong self-start" disabled={busy}>{copy.common.verify}</button>
           </form>

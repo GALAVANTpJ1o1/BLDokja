@@ -153,6 +153,7 @@ function TypedCard({ ctx, id, onLogged, onNext }: { ctx: LibraryContext; id: str
     <div className="flex flex-col items-start gap-4">
       <p className="t-title">{word}</p>
       <form
+        noValidate
         className="flex flex-wrap items-center gap-2"
         onSubmit={(e) => {
           e.preventDefault();

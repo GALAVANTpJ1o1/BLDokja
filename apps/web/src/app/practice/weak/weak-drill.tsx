@@ -130,6 +130,7 @@ export function WeakDrill() {
           {prompt.question}
           {prompt.typed !== undefined ? (
             <form
+              noValidate
               className="flex flex-wrap items-end gap-2"
               onSubmit={(e) => {
                 e.preventDefault();

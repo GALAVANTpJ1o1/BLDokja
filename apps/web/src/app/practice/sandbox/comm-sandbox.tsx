@@ -61,7 +61,7 @@ export function CommSandbox() {
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
+        <label className="flex flex-col gap-1" htmlFor="comm-sandbox-scratchpad">
           <span className="t-meta text-quiet">{en.sandbox.input}</span>
           <input className="field t-notation text-[1.125rem]" value={text} placeholder={en.sandbox.placeholder} spellCheck={false} autoComplete="off" onChange={(e) => { setText(e.target.value); }} />
         </label>
@@ -157,7 +157,7 @@ export function CommSandbox() {
         <label className="flex flex-col gap-1">
           <span className="t-heading">{en.sandbox.scratchpad}</span>
           <span className="t-meta text-quiet">{en.sandbox.scratchpadHint}</span>
-          <textarea className="field t-notation min-h-40" value={scratchValue} maxLength={20_000} spellCheck={false} onChange={(e) => { onScratch(e.target.value); }} />
+          <textarea id="comm-sandbox-scratchpad" name="scratchpad" className="field t-notation min-h-40 resize-none" value={scratchValue} maxLength={20_000} spellCheck={false} onChange={(e) => { onScratch(e.target.value); }} />
         </label>
         {scratchSaved ? <p className="t-meta" role="status">{en.sandbox.scratchpadSaved}</p> : null}
       </section>

@@ -115,7 +115,7 @@
   }
   .panel { border: 1px solid color-mix(in srgb, var(--rule) 72%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--stage) 36%, var(--ground)); }
   .field::placeholder { color: var(--text-quiet); opacity: .8; }
-  textarea.field { padding: .75rem; resize: vertical; }
+  textarea.field { padding: .75rem; resize: none; }
   .workspace { width: 100%; max-width: 1280px; margin-inline: auto; }
   .appearance-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; }
   .guide-invitation { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
