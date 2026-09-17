@@ -45,7 +45,7 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
   }, []);
 
   return (
-    <div className="workspace flex flex-col gap-8">
+    <div className="workspace trainer-shell flex flex-col">
       <TrainerHeader
         title={title}
         intro={intro}
@@ -92,7 +92,7 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
 /** A labelled group of mutually exclusive buttons for trainer settings. */
 export function Segmented<T extends string>({ label, options, labels, value, onChange }: { label: string; options: readonly T[]; labels: Readonly<Record<T, string>>; value: T; onChange: (value: T) => void }) {
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={label}>
+    <div className="segmented-control" role="group" aria-label={label}>
       <span className="t-meta text-quiet">{label}</span>
       {options.map((option) => (
         <button key={option} type="button" className="btn min-h-10 px-3" aria-pressed={value === option} onClick={() => { onChange(option); }}>

@@ -51,10 +51,10 @@ export function ProgressView() {
   const correct = attempts.filter((a) => a.correct).length;
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="progress-workbench flex flex-col gap-10">
       <p className="t-meta text-quiet">{polish.scramble.provisional}</p>
       <TransitionLink className="text-link self-start" href="/practice/levels/">{workspaces.levels.stats}</TransitionLink>
-      <div className="flex flex-col gap-4">
+      <div className="progress-overview flex flex-col gap-4">
         <Segmented<Range> label={en.analytics.range} options={["30", "90", "all"]} labels={en.analytics.ranges} value={range} onChange={setRange} />
         <p className="t-body">
           {en.analytics.attempts(attempts.length)} · {en.analytics.days(days)}
@@ -63,7 +63,7 @@ export function ProgressView() {
         {all.length === 0 ? <p className="t-body text-quiet">{en.analytics.empty}</p> : null}
       </div>
 
-      <Diagnostics attempts={attempts} />
+      <div className="progress-insights"><Diagnostics attempts={attempts} />
 
       <section className="flex flex-col gap-4 border-t border-rule pt-6">
         <h2 className="t-heading">{en.analytics.trendsTitle}</h2>
@@ -72,6 +72,7 @@ export function ProgressView() {
         <Trends attempts={attempts.filter((a) => a.trainer === trainer)} name={en.analytics.trainers[trainer]} />
       </section>
 
+      </div>
       <section className="flex flex-col gap-4 border-t border-rule pt-6">
         <Heatmap attempts={attempts} letters={libraryLetters(reader.scheme)} />
       </section>

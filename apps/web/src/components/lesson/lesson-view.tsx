@@ -1,6 +1,7 @@
 "use client";
 
 import type { Voice } from "@bld/storage";
+import { CheckIcon, CircleIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { VOICES } from "@bld/storage/options";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
@@ -130,7 +131,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
                     {i > 0 ? ", " : ""}
                     <TransitionLink href={`/learn/${id}/`}>{byId.get(id)?.title ?? id}</TransitionLink>
                     <span className="ml-1 inline-block w-[1.1em] text-center" aria-label={progress === undefined ? undefined : done ? en.lesson.prerequisiteDone : en.lesson.prerequisiteNotDone}>
-                      {progress === undefined ? "" : done ? "✓" : "·"}
+                      {progress === undefined ? null : done ? <CheckIcon size={14} aria-hidden /> : <CircleIcon size={8} aria-hidden />}
                     </span>
                   </span>
                 );
@@ -164,9 +165,9 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
           </div>
 
           {next !== undefined ? (
-            <p className="border-t border-rule pt-4 t-body">
-              {en.lesson.nextLesson}: <TransitionLink href={`/learn/${next.id}/`}>{next.title}</TransitionLink>
-            </p>
+            <nav className="lesson-next" aria-label={en.lesson.nextLesson}>
+              <span className="t-meta text-quiet">{en.lesson.nextLesson}</span><TransitionLink href={`/learn/${next.id}/`}><span>{next.title}</span><CaretRightIcon size={20} aria-hidden /></TransitionLink>
+            </nav>
           ) : null}
         </article>
 

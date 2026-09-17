@@ -10,6 +10,7 @@ import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
 import { OfflinePack } from "@/components/pwa/offline-pack";
 import { AppearanceChoices } from "@/components/settings/appearance-choices";
+import { redesign } from "@/i18n/redesign";
 import { useSpeechAvailable } from "@/lib/speech";
 // Storage, and the export and import code with its schemas, load after the page has painted.
 import { nowIso } from "@/lib/ids";
@@ -26,7 +27,7 @@ function Choice<T extends string>({ legend, hint, options, labels, value, onChan
       {hint !== undefined ? <p className="t-meta text-quiet">{hint}</p> : null}
       {/* A grid, not a wrapping row: the selected option is heavier (DESIGN.md), and in a row that changes
           where the options wrap when your saved choice arrives, which moves the page. */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-2">
+      <div className="settings-options">
         {options.map((option) => (
           <label key={option} className={`btn ${value === option ? "btn-strong" : ""}`}>
             <input type="radio" name={name} value={option} checked={value === option} onChange={() => { onChange(option); }} className="sr-only" />
@@ -38,9 +39,9 @@ function Choice<T extends string>({ legend, hint, options, labels, value, onChan
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
   return (
-    <section className="flex flex-col gap-5 border-t border-rule pt-6">
+    <section className={`settings-section ${className}`}>
       <h2 className="t-heading">{title}</h2>
       {children}
     </section>
@@ -136,10 +137,11 @@ export function SettingsView() {
   }
 
   return (
-    <div className="settings-stack flex max-w-3xl flex-col gap-8">
-      <h1 className="t-title">{en.settings.title}</h1>
+    <div className="settings-stack">
+      <header className="settings-heading"><h1 className="t-title">{redesign.settingsTitle}</h1><p className="t-body">{redesign.settingsIntro}</p></header>
+      <figure className="settings-room"><img src="/images/study-room.webp" width={768} height={1024} alt={redesign.roomAlt} /></figure>
 
-      <Section title={en.settings.appearance}>
+      <Section title={en.settings.appearance} className="settings-appearance">
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
         <AppearanceChoices />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
@@ -155,16 +157,16 @@ export function SettingsView() {
         />
       </Section>
 
-      <Section title={polish.offline.title}><OfflinePack /></Section>
+      <Section title={polish.offline.title} className="settings-offline"><OfflinePack /></Section>
 
-      <Section title={en.scheme.lettering}>
+      <Section title={en.scheme.lettering} className="settings-lettering">
         <p className="flex flex-col gap-1">
           <TransitionLink href="/settings/lettering/" className="t-ui font-[650]">{en.scheme.link}</TransitionLink>
           <span className="t-body text-quiet">{en.scheme.linkHint}</span>
         </p>
       </Section>
 
-      <Section title={en.settings.data}>
+      <Section title={en.settings.data} className="settings-data">
         <p className="t-body">{en.settings.dataIntro}</p>
         <p className="t-meta text-quiet">{persistence}</p>
         <div className="flex flex-col gap-2">

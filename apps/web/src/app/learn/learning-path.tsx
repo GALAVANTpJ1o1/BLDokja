@@ -3,6 +3,7 @@
 import { lessonDone, useLessonProgress } from "@/components/lesson/use-progress";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { CheckIcon, CaretRightIcon } from "@phosphor-icons/react";
 
 export interface PathLesson {
   readonly id: string;
@@ -31,8 +32,8 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
   const done = new Set(lessons.filter((l) => lessonDone(progress, l.id, l.checkpoints)).map((l) => l.id));
   const next = lessons.find((l) => !done.has(l.id));
   return (
-    <div className="learning-path flex flex-col gap-10">
-      <nav className="learning-track-nav flex flex-wrap gap-2" aria-label={en.learn.tracks}>
+    <div className="learning-path gap-y-10">
+      <nav className="learning-track-nav" aria-label={en.learn.tracks}>
         {TRACKS.filter((track) => lessons.some((lesson) => lesson.track === track.id)).map((track) => (
           <a key={track.id} className="btn" href={`#track-${track.id}`}>{track.title}</a>
         ))}
@@ -58,17 +59,16 @@ function TrackLessons({ lessons, done, next }: { lessons: readonly PathLesson[];
       {lessons.map((lesson) => {
         const status = done.has(lesson.id) ? en.learn.done : next?.id === lesson.id ? en.learn.next : en.learn.notStarted;
         return (
-          <li key={lesson.id} className="learning-lesson grid grid-cols-[2.5rem_1fr] gap-x-3 border-t border-rule py-4">
-            <span className={`t-subheading mono ${done.has(lesson.id) ? "" : "text-quiet"}`}>{lesson.order}</span>
+          <li key={lesson.id} className="learning-lesson" data-status={done.has(lesson.id) ? "done" : next?.id === lesson.id ? "next" : "new"}>
+            <span className="learning-order mono">{done.has(lesson.id) ? <CheckIcon size={14} aria-hidden /> : lesson.order}</span>
             <div className="flex flex-col gap-1">
               <TransitionLink href={`/learn/${lesson.id}/`} className={`t-subheading ${next?.id === lesson.id ? "font-[700]" : ""}`}>
                 {lesson.title}
               </TransitionLink>
               <span className="t-body text-quiet">{lesson.objective}</span>
-              <span className="t-meta">
-                {status} · {en.learn.minutes(lesson.minutes)}
-              </span>
+              <span className="t-meta text-quiet">{en.learn.minutes(lesson.minutes)}</span>
             </div>
+            <span className="learning-lesson-state">{status}<CaretRightIcon size={14} aria-hidden /></span>
           </li>
         );
       })}

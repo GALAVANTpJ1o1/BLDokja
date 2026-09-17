@@ -17,5 +17,5 @@ const views = {
 
 export function WorkspaceLoader({ view }: { view: keyof typeof views }) {
   const View = views[view];
-  return <View />;
+  return <div className={`workspace-${view}`}><View /></div>;
 }

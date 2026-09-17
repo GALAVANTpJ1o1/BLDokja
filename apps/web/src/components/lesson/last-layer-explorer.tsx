@@ -25,7 +25,7 @@ export function LastLayerExplorer({ kind: requestedKind, compact = "false" }: { 
   const current = records.find((record) => record.id === selected) ?? records[0];
   const alg = current?.algs[0];
   const short = compact === "true";
-  return <section className="my-6 flex flex-col gap-4" aria-label={copy.cfop.referenceTitle}>
+  return <section className={`last-layer-explorer ${short ? "last-layer-compact" : ""}`} aria-label={copy.cfop.referenceTitle}>
     {!short ? <header className="flex flex-col gap-1"><h2 className="t-heading">{copy.cfop.referenceTitle}</h2><p className="t-body text-quiet">{copy.cfop.referenceIntro}</p></header> : null}
     <div className="control-row">
       <label className="t-ui flex items-center gap-2">{copy.cfop.stage}<select className="field" value={kind} onChange={(event) => { setKind(event.target.value as LastLayerKind); setSelected(undefined); }}>
@@ -33,7 +33,7 @@ export function LastLayerExplorer({ kind: requestedKind, compact = "false" }: { 
       </select></label>
       <label className="t-ui flex items-center gap-2">{copy.cfop.speed}<select className="field" value={tempo} onChange={(event) => { setTempo(Number(event.target.value)); }}><option value={0.6}>0.6×</option><option value={1}>1×</option><option value={1.5}>1.5×</option></select></label>
     </div>
-    {!short ? <label className="t-ui flex flex-col gap-2">{copy.cfop.search}<input type="search" className="field" value={search} onChange={(event) => { setSearch(event.target.value); setSelected(undefined); }} /></label> : null}
+    {!short ? <label className="t-ui flex flex-col gap-2">{copy.cfop.search}<span className="search-field"><input type="search" className="field" value={search} onChange={(event) => { setSearch(event.target.value); setSelected(undefined); }} />{search !== "" ? <button type="button" className="btn search-clear" onClick={() => { setSearch(""); setSelected(undefined); }}>{copy.common.clear}</button> : null}</span></label> : null}
     <p className="t-meta text-quiet">{copy.cfop.cases(records.length)} · {copy.cfop.cues[kind]}</p>
     <div className="data-table-wrap max-h-64" tabIndex={0} data-shortcuts="off"><table className="data-table" aria-label={copy.cfop.groups[kind]}><thead><tr><th scope="col">{copy.cfop.case}</th><th scope="col">{copy.cfop.notation}</th></tr></thead><tbody>
       {records.map((record) => <tr key={record.id} aria-selected={current?.id === record.id}><th scope="row"><button className="text-link mono" type="button" onClick={() => { setSelected(record.id); }}>{record.id}</button></th><td className="t-notation whitespace-normal">{record.algs[0]?.alg}</td></tr>)}

@@ -17,7 +17,7 @@ export interface TrainerHeading {
  */
 export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: TrainerHeading & { readonly onKeys?: () => void; readonly readAloud?: { readonly on: boolean; readonly toggle: () => void } }) {
   return (
-    <header className="flex flex-wrap items-end justify-between gap-3">
+    <header className="trainer-header flex flex-wrap items-end justify-between gap-3">
       <div className="flex flex-col gap-1">
         <p className="t-meta text-quiet">
           <TransitionLink href="/practice/">{en.nav.practice}</TransitionLink>

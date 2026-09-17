@@ -3,7 +3,7 @@ import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
 import { speffz } from "@/i18n/speffz";
-import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon } from "@phosphor-icons/react/dist/ssr";
+import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon, CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: en.practice.title };
 
@@ -32,10 +32,11 @@ export default function PracticePage() {
   return (
     <div className="workspace practice-directory flex flex-col gap-10">
       <header className="page-heading"><h1 className="t-title">{polish.practice.title}</h1><p className="t-body">{polish.practice.intro}</p></header>
+      <div className="practice-spotlight"><div><BookOpenIcon size={24} weight="light" aria-hidden /><h2 className="t-heading">{polish.home.first}</h2><p className="t-body text-quiet">{polish.home.firstIntro}</p><TransitionLink className="btn btn-strong" href="/practice/first-solve/">{polish.home.first}</TransitionLink></div><div className="practice-spotlight-image" aria-hidden /></div>
       <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.drills}</h2>
       <ul className="tool-grid">
         {TRAINERS.map((t) => (
-          <li key={t.href}><TransitionLink href={t.href} className="tool-link"><TargetIcon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}</h3><p>{t.blurb}</p></TransitionLink>
+          <li key={t.href}><TransitionLink href={t.href} className="tool-link"><TargetIcon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}<CaretRightIcon size={18} aria-hidden /></h3><p>{t.blurb}</p></TransitionLink>
           </li>
         ))}
       </ul>

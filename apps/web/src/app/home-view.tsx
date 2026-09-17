@@ -48,14 +48,14 @@ export function HomeView() {
   // on the page waiting for IndexedDB, and this keeps the same shape as both states below.
   if (!started) {
     return (
-      <div className="workspace home-launch flex flex-col gap-16">
+      <div className="workspace home-launch flex flex-col gap-12">
         <section className="hero-layout">
           <div className="hero-copy"><h1 className="hero-title">{polish.home.title}</h1><p className="t-body max-w-[42ch] text-quiet">{polish.home.intro}</p><div className="flex flex-wrap gap-3"><TransitionLink href="/learn/" className="btn btn-strong">{polish.home.start}</TransitionLink><TransitionLink href="/practice/" className="btn">{polish.home.practice}</TransitionLink></div></div>
           <div className="hero-stage"><HeroCube eager setup="R U R' U'" label={polish.home.cube} /></div>
         </section>
-        <section className="grid gap-8 md:grid-cols-[1fr_1.4fr]">
+        <section className="home-journey">
           <div className="flex flex-col gap-4"><h2 className="t-heading">{polish.home.journey}</h2><p className="text-quiet t-body">{polish.home.firstIntro}</p><TransitionLink href="/practice/first-solve/" className="btn self-start">{polish.home.first}</TransitionLink><p className="t-meta text-quiet">{polish.home.local}</p></div>
-          <div className="flex flex-col gap-6">{[{ href: "/learn/", title: polish.home.path, body: polish.home.pathIntro, icon: BookOpenIcon }, { href: "/practice/levels/", title: polish.home.drill, body: polish.home.drillIntro, icon: TargetIcon }, { href: "/practice/memory/", title: polish.home.personal, body: polish.home.personalIntro, icon: BrainIcon }].map((item) => <TransitionLink key={item.href} href={item.href} className="flex items-start gap-5 no-underline"><item.icon size={28} weight="light" className="shrink-0" aria-hidden /><span><span className="t-subheading block mb-1">{item.title}</span><span className="t-ui text-quiet">{item.body}</span></span></TransitionLink>)}</div>
+          <div className="home-journey-links flex flex-col">{[{ href: "/learn/", title: polish.home.path, body: polish.home.pathIntro, icon: BookOpenIcon }, { href: "/practice/levels/", title: polish.home.drill, body: polish.home.drillIntro, icon: TargetIcon }, { href: "/practice/memory/", title: polish.home.personal, body: polish.home.personalIntro, icon: BrainIcon }].map((item) => <TransitionLink key={item.href} href={item.href} className="flex items-start gap-5 no-underline"><item.icon size={28} weight="light" className="shrink-0" aria-hidden /><span><span className="t-subheading block mb-1">{item.title}</span><span className="t-ui text-quiet">{item.body}</span></span></TransitionLink>)}</div>
         </section>
       </div>
     );
@@ -65,7 +65,7 @@ export function HomeView() {
     <div className="workspace home-launch flex flex-col gap-10">
       <h1 className="t-title">{en.home.todayTitle}</h1>
       <div className="hero-layout"><div className="hero-copy"><h2 className="t-heading">{polish.home.first}</h2><p className="t-body text-quiet">{polish.home.firstIntro}</p><TransitionLink href="/practice/first-solve/" className="btn btn-strong self-start">{polish.home.first}</TransitionLink></div><div className="hero-stage"><HeroCube eager label={polish.home.cube} /></div></div>
-      <div className="tool-grid">
+      <div className="home-today">
       <section className="flex flex-col gap-2 border-t border-rule pt-4">
         <h2 className="t-heading">{en.home.nextLesson}</h2>
         <TransitionLink href="/learn/" className="t-body">{en.home.continueLesson}</TransitionLink>

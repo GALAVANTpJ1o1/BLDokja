@@ -24,7 +24,8 @@ export function AppearanceChoices() {
         const c = COLOURWAY_COLOURS[id];
         return <label key={id} className="colourway-choice" data-selected={ready && settings.colourway === id}>
           <input className="sr-only" type="radio" name={`${name}-colour`} value={id} checked={ready && settings.colourway === id} onChange={() => { void save({ colourway: id }); }} />
-          <span className="colourway-swatch" aria-hidden>{[c.dark.ground, c.dark.stage, c.dark.accent, c.light.stage, c.light.ground].map((colour, i) => <span key={i} style={{ background: colour }} />)}</span>
+          <span className={`colourway-photo colourway-photo-${id}`} aria-hidden />
+          <span className="colourway-swatch" aria-hidden>{[c.dark.ground, c.dark.accent, c.light.stage].map((colour, i) => <span key={i} style={{ background: colour }} />)}</span>
           <span className="t-ui">{copy.colourways[id]}</span><span className="t-meta min-h-4">{ready && settings.colourway === id ? copy.selected : ""}</span>
         </label>;
       })}</div>

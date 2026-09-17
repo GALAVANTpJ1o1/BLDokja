@@ -20,7 +20,7 @@ export function MoveExplorer({ moves, label }: { moves: string; label: string })
       <Cube key={history.length} setup={history.slice(0, -1).join(" ")} alg={last ?? ""} autoplay={threeDRequested} label={label} />
       <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={label}>
         {options.map((move, index) => (
-          <button ref={index === 0 ? firstMove : undefined} key={move} type="button" className="btn t-notation min-w-12" onClick={() => { setHistory((h) => [...h, move]); }}>
+          <button ref={index === 0 ? firstMove : undefined} key={`${move}-${index}`} type="button" className="btn t-notation min-w-12" onClick={() => { setHistory((h) => [...h, move]); }}>
             {move}
           </button>
         ))}

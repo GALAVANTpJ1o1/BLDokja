@@ -73,20 +73,20 @@ export function SpeffzTrainer() {
     if (index + 1 === queue.length) setScore(s => ({ ...s, elapsed: performance.now() - began.current }));
   };
   if (reader === undefined) return <p role="status">{copy.loading}</p>;
-  return <div className="flex flex-col gap-6">
-    {run === undefined || done ? <div className="flex flex-col gap-4">
+  return <div className="speffz-workspace">
+    {run === undefined || done ? <div className="speffz-preflight flex flex-col gap-4">
       <Segmented label={copy.family} options={["edges", "corners"]} labels={{ edges: copy.edges, corners: copy.corners }} value={family} onChange={setFamily} />
       <Segmented label={copy.count} options={["10", "20", "30", "50"]} labels={{ "10": "10", "20": "20", "30": "30", "50": "50" }} value={count} onChange={setCount} />
       <p className="t-meta text-quiet">{copy.ready}</p><button className="btn btn-strong self-start" type="button" onClick={start}>{done ? copy.restart : copy.start}</button>
     </div> : null}
     <p className="t-meta text-quiet">{copy.fixed}</p>
-    {current !== undefined ? <div className="grid gap-6 md:grid-cols-2">
+    {current !== undefined ? <div className="speffz-surface">
       <Cube highlight={current.stickers} revealOnly label={copy.progress(index + 1, queue.length)} />
-      <div className="flex flex-col gap-4">
+      <div className="speffz-controls flex flex-col gap-4">
         <p className="t-subheading">{copy.progress(index + 1, queue.length)}</p><p className="t-body">{copy.choose}</p>
         <div className="flex flex-wrap gap-3">{current.stickers.map(sticker => {
           const face = reader.faceOf(sticker); const label = copy.selected(en.cube.colourNames[face], face);
-          return <button type="button" key={sticker} className="btn grid min-h-24 min-w-20 place-items-center gap-2 border-2" style={{ borderColor: selected === sticker ? "var(--text)" : "var(--rule)" }} aria-label={label} aria-pressed={selected === sticker} disabled={busy || failedEvent !== undefined || identified.includes(sticker)} onClick={() => { setSelected(sticker); setTyped(""); field.current?.focus(); }}>
+          return <button type="button" key={sticker} className="speffz-sticker btn grid place-items-center gap-2 border-2" aria-label={label} aria-pressed={selected === sticker} disabled={busy || failedEvent !== undefined || identified.includes(sticker)} onClick={() => { setSelected(sticker); setTyped(""); field.current?.focus(); }}>
             <span className="grid h-12 w-12 place-items-center rounded-md" style={{ background: `var(--face-${face.toLowerCase()})`, color: "var(--cube-body)" }}>{identified.includes(sticker) ? reader.letterOf(sticker) : "?"}</span><span className="t-meta">{en.cube.colourNames[face]}<br />{face}</span>
           </button>;
         })}</div>
