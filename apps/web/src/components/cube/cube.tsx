@@ -2,6 +2,7 @@
 
 import { expandNodes, faceletsOf, formatMoves, parseAlg, stickerName, stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
 import type { TwistyPlayer } from "cubing/twisty";
+import { ArrowCounterClockwiseIcon, CaretLeftIcon, CaretRightIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { en } from "@/i18n/en";
@@ -153,7 +154,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
         created = new Player({
           puzzle: puzzleId,
           visualization: "PG3D",
-          hintFacelets: "floating",
+          hintFacelets: eager ? "none" : "floating",
           background: "none",
           controlPanel: "none",
           experimentalSetupAlg: setup,
@@ -177,12 +178,13 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
     })();
     return () => {
       life.disposed = true;
+      created?.pause();
       created?.remove();
       player.current = null;
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [near, sceneRequested, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, force3D, settings.palette, settings.cubeView, playerKey]);
+  }, [near, sceneRequested, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, eager, force3D, settings.palette, settings.cubeView, playerKey]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);
@@ -220,7 +222,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
   }
   return (
     <figure className={`flex flex-col gap-2 ${className ?? ""}`}>
-      <div ref={stage} className="relative aspect-square w-full max-w-[28rem] self-center rounded-[4px] bg-stage" aria-hidden={!showNet}>
+      <div ref={stage} className="cube-stage" aria-hidden={!showNet}>
         {showNet ? (
           <StickerNet cells={netCells(puzzle, replayPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} hideUnrevealed={revealOnly} label={label} className="h-full w-full p-3" />
         ) : (
@@ -236,12 +238,12 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
       {showNet ? fallbackControls : null}
       {/* Only the 3D player animates, so the step controls belong to it. */}
       {controls && alg !== "" && !showNet ? (
-        <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={label}>
+        <div className="cube-controls" role="group" aria-label={label}>
           <button type="button" className="btn" onClick={() => { act((p) => { p.jumpToStart(); }); setPlaying(false); }}>
-            {en.cube.restart}
+            <ArrowCounterClockwiseIcon size={16} aria-hidden />{en.cube.restart}
           </button>
           <button type="button" className="btn" onClick={() => { act((p) => { p.controller.animationController.play(STEP_BACK); }); }}>
-            {en.cube.stepBack}
+            <CaretLeftIcon size={16} aria-hidden />{en.cube.stepBack}
           </button>
           <button
             type="button"
@@ -254,10 +256,10 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
               setPlaying(!playing);
             }}
           >
-            {playing ? en.cube.pause : en.cube.play}
+            {playing ? <PauseIcon size={16} weight="fill" aria-hidden /> : <PlayIcon size={16} weight="fill" aria-hidden />}{playing ? en.cube.pause : en.cube.play}
           </button>
           <button type="button" className="btn" onClick={() => { act((p) => { p.controller.animationController.play(STEP_FORWARD); }); }}>
-            {en.cube.stepForward}
+            {en.cube.stepForward}<CaretRightIcon size={16} aria-hidden />
           </button>
         </div>
       ) : null}
