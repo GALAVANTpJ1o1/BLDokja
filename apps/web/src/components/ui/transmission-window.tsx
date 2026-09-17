@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 
 export interface TransmissionWindowProps {
   readonly open: boolean;
@@ -9,17 +9,19 @@ export interface TransmissionWindowProps {
   readonly children: ReactNode;
   /** Buttons along the bottom edge. */
   readonly actions?: ReactNode;
+  /** Explicit trigger: Safari pointer activation does not necessarily focus buttons. */
+  readonly returnFocusRef?: RefObject<HTMLElement | null>;
 }
 
 /**
  * The one dialog shell (DESIGN.md, "Transmission window"): an angular panel with a thin chalk glow,
  * corner brackets, and a blurred backdrop. Built on the native <dialog> element, so focus is kept
  * inside, Escape closes it, and the rest of the page is inert while it is open. It enters with a
- * short scale-and-fade (under 200ms); with reduced motion it simply appears.
+ * short opacity-only fade (under 200ms); with reduced motion it simply appears.
  *
  * The text inside stays plain: a clear heading and ordinary sentences.
  */
-export function TransmissionWindow({ open, title, onClose, children, actions }: TransmissionWindowProps) {
+export function TransmissionWindow({ open, title, onClose, children, actions, returnFocusRef }: TransmissionWindowProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -27,8 +29,8 @@ export function TransmissionWindow({ open, title, onClose, children, actions }: 
     const element = dialog.current;
     if (element === null) return;
     if (open && !element.open) element.showModal();
-    if (!open && element.open) element.close();
-  }, [open]);
+    if (!open && element.open) { element.close(); returnFocusRef?.current?.focus(); }
+  }, [open, returnFocusRef]);
 
   return (
     <dialog

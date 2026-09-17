@@ -1,94 +1,64 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { generateStars, paintStarfield, starCount, type Star } from "./starfield-model";
+import { ENVIRONMENTS } from "@bld/storage/options";
+import type { Environment } from "@bld/storage";
+import { generateStars, starCount, type Star } from "./starfield-model";
+import { paintScenery } from "./scenery-model";
 import { useReducedMotion } from "@/design/motion";
 
-interface NavigatorHints {
-  readonly deviceMemory?: number;
-  readonly connection?: { readonly saveData?: boolean };
+interface NavigatorHints { readonly deviceMemory?: number; readonly connection?: { readonly saveData?: boolean } }
+
+function sceneActive(): Environment {
+  const value = document.documentElement.dataset.environment;
+  return ENVIRONMENTS.find(scene => scene === value) ?? "galaxy";
 }
 
-function darkThemeActive(): boolean {
-  const theme = document.documentElement.dataset.theme;
-  if (theme === "dark") return true;
-  if (theme === "light") return false;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-function token(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-/**
- * The persistent star layer behind every page (DESIGN.md, "Constellation layer"). One fixed canvas,
- * aria-hidden and inert. It repaints on scroll, resize and theme change only, never on a timer; in
- * the light theme it isn't drawn at all, and with reduced motion scroll leaves it exactly where it is.
- */
+/** One adaptive canvas. Repaints only on deliberate actions; navigation RAF stops after 360ms. */
 export function Starfield() {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const navigate = useRef<() => void>(() => undefined);
+  const pathname = usePathname();
+  const previousPath = useRef(pathname);
   const reducedMotion = useReducedMotion();
-
   useEffect(() => {
-    const element = canvas.current;
-    const context = element?.getContext("2d");
-    if (element === null || context === null || context === undefined) return;
-    let stars: Star[] = [];
-    let frame = 0;
-
+    const element = canvas.current; const ctx = element?.getContext("2d");
+    if (element === null || ctx === null || ctx === undefined) return;
+    let points: Star[] = []; let frame = 0; let travelUntil = 0;
+    const hints = navigator as Navigator & NavigatorHints;
+    const lowCost = hints.connection?.saveData === true || (hints.deviceMemory !== undefined && hints.deviceMemory <= 4);
+    const ratio = () => Math.min(lowCost ? 1 : 1.5, window.devicePixelRatio || 1);
     const layout = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const pixelRatio = Math.min(2, window.devicePixelRatio || 1);
-      const hints = navigator as Navigator & NavigatorHints;
-      stars = generateStars(starCount({ width, height, hardwareConcurrency: navigator.hardwareConcurrency, ...(hints.deviceMemory === undefined ? {} : { deviceMemory: hints.deviceMemory }), ...(hints.connection?.saveData === undefined ? {} : { saveData: hints.connection.saveData }) }));
-      element.width = Math.round(width * pixelRatio);
-      element.height = Math.round(height * pixelRatio);
-      element.style.width = `${width}px`;
-      element.style.height = `${height}px`;
+      points = generateStars(starCount({ width: innerWidth, height: innerHeight, hardwareConcurrency: navigator.hardwareConcurrency, ...(hints.deviceMemory === undefined ? {} : { deviceMemory: hints.deviceMemory }), ...(hints.connection?.saveData === undefined ? {} : { saveData: hints.connection.saveData }) }));
+      element.width = Math.round(innerWidth * ratio()); element.height = Math.round(innerHeight * ratio());
+      // CSS percentage sizing excludes platform scrollbar gutters; 100vw/innerWidth can create overflow.
+      element.style.width = "100%"; element.style.height = "100%";
     };
-
     const paint = () => {
       frame = 0;
-      const dark = darkThemeActive();
-      element.hidden = !dark;
-      if (!dark) return;
-      paintStarfield(context, stars, {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        pixelRatio: Math.min(2, window.devicePixelRatio || 1),
-        scrollY: window.scrollY,
-        reducedMotion,
-        ground: token("--ground"),
-        chalk: token("--chalk"),
-      });
+      if (document.hidden) return;
+      const scene = sceneActive(); element.hidden = scene === "none";
+      if (scene === "none") return;
+      const style = getComputedStyle(document.documentElement);
+      const remaining = Math.max(0, Math.min(360, travelUntil - performance.now()));
+      const travel = Math.sin((1 - remaining / 360) * Math.PI);
+      ctx.setTransform(ratio(), 0, 0, ratio(), 0, 0);
+      paintScenery(ctx, points, scene, { width: innerWidth, height: innerHeight, scrollY, reducedMotion, travel: remaining > 0 && !lowCost ? travel : 0 }, style.getPropertyValue("--text").trim(), style.getPropertyValue("--accent").trim() || style.getPropertyValue("--text").trim());
+      if (remaining > 0 && !reducedMotion && !lowCost) schedule();
     };
-
-    const schedule = () => {
-      if (frame === 0) frame = requestAnimationFrame(paint);
-    };
-    const onResize = () => {
-      layout();
-      schedule();
-    };
-
-    layout();
-    paint();
+    const schedule = () => { if (frame === 0 && !document.hidden) frame = requestAnimationFrame(paint); };
+    const onResize = () => { layout(); schedule(); };
+    const onVisibility = () => { travelUntil = 0; if (document.hidden && frame !== 0) { cancelAnimationFrame(frame); frame = 0; } else schedule(); };
+    navigate.current = () => { if (!reducedMotion && !lowCost) travelUntil = performance.now() + 360; schedule(); };
+    layout(); paint();
     window.addEventListener("resize", onResize, { passive: true });
-    // With reduced motion, scrolling changes nothing, so it isn't even listened to.
     if (!reducedMotion) window.addEventListener("scroll", schedule, { passive: true });
-    const themeWatch = new MutationObserver(schedule);
-    themeWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    const scheme = window.matchMedia("(prefers-color-scheme: dark)");
-    scheme.addEventListener("change", schedule);
-    return () => {
-      if (frame !== 0) cancelAnimationFrame(frame);
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", schedule);
-      themeWatch.disconnect();
-      scheme.removeEventListener("change", schedule);
-    };
+    document.addEventListener("visibilitychange", onVisibility);
+    const watch = new MutationObserver(schedule); watch.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-colourway", "data-environment"] });
+    const scheme = matchMedia("(prefers-color-scheme: dark)"); scheme.addEventListener("change", schedule);
+    return () => { if (frame !== 0) cancelAnimationFrame(frame); window.removeEventListener("resize", onResize); window.removeEventListener("scroll", schedule); document.removeEventListener("visibilitychange", onVisibility); watch.disconnect(); scheme.removeEventListener("change", schedule); navigate.current = () => undefined; };
   }, [reducedMotion]);
-
+  useEffect(() => { if (previousPath.current !== pathname) { previousPath.current = pathname; navigate.current(); } }, [pathname]);
   return <canvas ref={canvas} aria-hidden="true" className="starfield" />;
 }

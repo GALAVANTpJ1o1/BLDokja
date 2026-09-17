@@ -138,6 +138,16 @@ describe("quarantine", () => {
 });
 
 describe("parseExport", () => {
+  it("round-trips optional appearance and guide progress without changing old settings", async () => {
+    const s = createStorage(memoryBackend());
+    await s.putSettings({ theme: "dark", palette: "deuteranopia", colourway: "jade", environment: "forest", compactLayout: true, siteGuideStep: 3, siteGuideSeen: true });
+    const exported = await exportData(s, AT);
+    const target = createStorage(memoryBackend());
+    expect((await importData(target, exported)).ok).toBe(true);
+    expect(await target.settings()).toEqual(await s.settings());
+    await expect(s.putSettings({ colourway: "untrusted" } as never)).rejects.toBeInstanceOf(StorageValidationError);
+    await expect(s.putSettings({ siteGuideStep: 100 })).rejects.toBeInstanceOf(StorageValidationError);
+  });
   it("refuses non-JSON, non-exports, and files from a newer version", () => {
     expect(parseExport("{nope")).toMatchObject({ ok: false, error: { code: "not-json" } });
     expect(parseExport({ hello: 1 })).toMatchObject({ ok: false, error: { code: "not-an-export" } });

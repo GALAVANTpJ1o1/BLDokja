@@ -33,6 +33,9 @@ Thumbs.db
 out/
 next-env.d.ts
 .artifacts/
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/config.local.json
 apps/web/public/workers/
 apps/web/public/vendor/cubing/
 apps/web/public/fonts/recursive-*.woff2

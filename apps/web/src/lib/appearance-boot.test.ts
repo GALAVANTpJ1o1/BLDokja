@@ -17,6 +17,9 @@ describe("appearance boot script", () => {
     localStorage.clear();
     delete document.documentElement.dataset.theme;
     delete document.documentElement.dataset.palette;
+    delete document.documentElement.dataset.colourway;
+    delete document.documentElement.dataset.environment;
+    delete document.documentElement.dataset.density;
   });
 
   it("applies a saved theme and palette from the settings mirror", () => {
@@ -35,5 +38,17 @@ describe("appearance boot script", () => {
     expect(document.documentElement.dataset.palette).toBeUndefined();
     localStorage.setItem(APPEARANCE_KEY, "{not json");
     expect(run).not.toThrow();
+  });
+  it("applies valid scenery/colourway/density without accepting arbitrary attribute input", () => {
+    localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ colourway: "jade", environment: "forest", compactLayout: true }));
+    run();
+    expect(document.documentElement.dataset.colourway).toBe("jade");
+    expect(document.documentElement.dataset.environment).toBe("forest");
+    expect(document.documentElement.dataset.density).toBe("compact");
+    localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ colourway: "<script>", environment: "network", compactLayout: "yes" }));
+    run();
+    expect(document.documentElement.dataset.colourway).toBe("jade");
+    expect(document.documentElement.dataset.environment).toBe("forest");
+    expect(document.documentElement.dataset.density).toBe("compact");
   });
 });

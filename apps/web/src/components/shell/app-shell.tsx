@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { TransitionLink as Link } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { explore } from "@/i18n/explore";
+import { SiteGuide } from "./site-guide";
 
 const SECTIONS = [
   { href: "/learn/", label: en.nav.learn, match: "/learn", icon: BookOpenIcon },
@@ -36,12 +37,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link href="/" className="shell-brand"><CubeIcon size={30} weight="light" aria-hidden />
           <span className="t-subheading casual">{en.site.name}</span>
         </Link>
-        <nav className="shell-nav" aria-label={en.nav.label}>{links}</nav>
+        <div className="flex items-center gap-2"><nav className="shell-nav" aria-label={en.nav.label}>{links}</nav><SiteGuide /></div>
       </header>
 
       <main id="content" className="page-content shell-main">
         {pathname !== "/" ? <div className="mb-4"><Link className="btn" href={pathname.startsWith("/practice/") && pathname !== "/practice/" ? "/practice/" : pathname.startsWith("/learn/") && pathname !== "/learn/" ? "/learn/" : "/"}>{pathname.startsWith("/practice/") && pathname !== "/practice/" ? explore.backPractice : pathname.startsWith("/learn/") && pathname !== "/learn/" ? explore.backLearn : explore.backHome}</Link></div> : null}
         {children}
+        <SiteGuide invitation />
       </main>
 
       <nav aria-label={en.nav.label} className="shell-bottom">

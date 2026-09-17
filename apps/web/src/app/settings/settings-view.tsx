@@ -9,6 +9,7 @@ import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
 import { OfflinePack } from "@/components/pwa/offline-pack";
+import { AppearanceChoices } from "@/components/settings/appearance-choices";
 import { useSpeechAvailable } from "@/lib/speech";
 // Storage, and the export and import code with its schemas, load after the page has painted.
 import { nowIso } from "@/lib/ids";
@@ -140,6 +141,7 @@ export function SettingsView() {
 
       <Section title={en.settings.appearance}>
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
+        <AppearanceChoices />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
         <Choice<CubeView> legend={en.settings.cubeView} hint={`${en.settings.cubeViewHint} ${polish.cube3DHint}`} options={CUBE_VIEWS} labels={en.settings.cubeViews} value={ready ? settings.cubeView : undefined} onChange={(cubeView) => { if (cubeView === "3d") request3D(); void update({ cubeView }); }} />
         <Choice<Voice> legend={en.settings.voice} hint={en.settings.voiceHint} options={VOICES} labels={en.settings.voices} value={settings.voice} onChange={(voice) => void update({ voice })} />

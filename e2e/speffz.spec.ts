@@ -31,7 +31,8 @@ test("Speffz round shows whole pieces, checks every sticker and saves recognitio
   await expect(page.getByText("Piece 2 of 10", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Back to practice", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: `.artifacts/speffz-${info.project.name}.png`, fullPage: true });
+  await page.evaluate(async () => { await document.fonts.ready; scrollTo(0, 0); });
+  await page.screenshot({ path: `.artifacts/speffz-${info.project.name}.png`, fullPage: true, scale: "css", animations: "disabled" });
   await page.reload();
   await expect(page.getByText("0 of 2 first attempts correct", { exact: true })).toBeVisible();
   expect(errors).toEqual([]);

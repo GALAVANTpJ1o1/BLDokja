@@ -1,4 +1,4 @@
-import { CUBE_VIEWS, PALETTES, THEMES, VOICES } from "./options.js";
+import { COLOURWAYS, CUBE_VIEWS, ENVIRONMENTS, PALETTES, THEMES, VOICES } from "./options.js";
 import { z } from "./zod.js";
 
 /**
@@ -285,6 +285,11 @@ export const SettingsSchema = z
   .object({
     theme: z.enum(THEMES).optional(),
     palette: z.enum(PALETTES).optional(),
+    colourway: z.enum(COLOURWAYS).optional(),
+    environment: z.enum(ENVIRONMENTS).optional(),
+    compactLayout: z.boolean().optional(),
+    siteGuideStep: z.number().int().min(0).max(5).optional(),
+    siteGuideSeen: z.boolean().optional(),
     /** How cubes are shown: the 3D player, a flat sticker net, or the state written out (BRIEF §10). */
     cubeView: z.enum(CUBE_VIEWS).optional(),
     /** Whether trainers read each prompt aloud, the non-visual path through a drill (BRIEF §10). */
@@ -360,6 +365,8 @@ export type Provenance = z.infer<typeof ProvenanceSchema>;
 export type Settings = z.infer<typeof SettingsSchema>;
 export type ExportV1 = z.infer<typeof ExportV1Schema>;
 export type Theme = (typeof THEMES)[number];
+export type Colourway = (typeof COLOURWAYS)[number];
+export type Environment = (typeof ENVIRONMENTS)[number];
 export type Palette = (typeof PALETTES)[number];
 export type CubeView = (typeof CUBE_VIEWS)[number];
 export type Voice = (typeof VOICES)[number];

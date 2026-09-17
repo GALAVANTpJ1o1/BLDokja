@@ -1,6 +1,6 @@
 "use client";
 
-import type { CubeView, Palette, Settings, Theme, Voice } from "@bld/storage";
+import type { Colourway, CubeView, Environment, Palette, Settings, Theme, Voice } from "@bld/storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 /**
@@ -16,6 +16,9 @@ export const APPEARANCE_KEY = "bld.appearance";
 export interface ResolvedSettings {
   readonly theme: Theme;
   readonly palette: Palette;
+  readonly colourway: Colourway;
+  readonly environment: Environment;
+  readonly compactLayout: boolean;
   readonly cubeView: CubeView;
   readonly readAloud: boolean;
   readonly voice: Voice | undefined;
@@ -34,7 +37,7 @@ interface SettingsContextValue {
   readonly update: (patch: Partial<Settings>) => Promise<void>;
 }
 
-const DEFAULTS: ResolvedSettings = { theme: "system", palette: "standard", cubeView: "3d", readAloud: false, voice: undefined, lastBackupAt: undefined, persistentStorage: undefined };
+const DEFAULTS: ResolvedSettings = { theme: "system", palette: "standard", colourway: "slate", environment: "galaxy", compactLayout: false, cubeView: "3d", readAloud: false, voice: undefined, lastBackupAt: undefined, persistentStorage: undefined };
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
 
@@ -44,8 +47,11 @@ function applyAppearance(settings: ResolvedSettings): void {
   else root.dataset.theme = settings.theme;
   if (settings.palette === "standard") delete root.dataset.palette;
   else root.dataset.palette = settings.palette;
+  root.dataset.colourway = settings.colourway;
+  root.dataset.environment = settings.environment;
+  root.dataset.density = settings.compactLayout ? "compact" : "comfortable";
   try {
-    localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ theme: settings.theme, palette: settings.palette }));
+    localStorage.setItem(APPEARANCE_KEY, JSON.stringify({ theme: settings.theme, palette: settings.palette, colourway: settings.colourway, environment: settings.environment, compactLayout: settings.compactLayout }));
   } catch {
     // Storage blocked: the stored settings still apply once loaded.
   }
@@ -55,6 +61,9 @@ function resolve(stored: Settings | undefined): ResolvedSettings {
   return {
     theme: stored?.theme ?? DEFAULTS.theme,
     palette: stored?.palette ?? DEFAULTS.palette,
+    colourway: stored?.colourway ?? DEFAULTS.colourway,
+    environment: stored?.environment ?? DEFAULTS.environment,
+    compactLayout: stored?.compactLayout ?? DEFAULTS.compactLayout,
     cubeView: stored?.cubeView ?? DEFAULTS.cubeView,
     readAloud: stored?.readAloud ?? DEFAULTS.readAloud,
     voice: stored?.voice,
