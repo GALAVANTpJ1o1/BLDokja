@@ -14,6 +14,8 @@ import { usePuzzle } from "./use-puzzle";
 export interface CubeProps {
   /** Only the home hero eagerly loads 3D; teaching cubes offer a precise net first. */
   readonly eager?: boolean;
+  /** A compact product-signature cube may stay spatial without changing the reader's lesson cube preference. */
+  readonly force3D?: boolean;
   /** Which cube. 4x4x4 draws the same way, with a 4×4 net as its fallback. */
   readonly puzzleId?: PuzzleId;
   /** The state shown before `alg`, as moves from solved (a scramble or a case setup). */
@@ -84,10 +86,10 @@ function prefersReducedMotion(): boolean {
  * engine, sticker colours from the palette tokens, and a text description for screen readers. If the
  * 3D player can't load, the same state is shown as a flat net.
  */
-export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, revealOnly = false, dim = "strong", controls = false, autoplay = false, eager = false, label, tempo = 1, className }: CubeProps) {
+export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, revealOnly = false, dim = "strong", controls = false, autoplay = false, eager = false, force3D = false, label, tempo = 1, className }: CubeProps) {
   const puzzle = usePuzzle(puzzleId);
   const { settings, threeDRequested, request3D } = useSettings();
-  const sceneRequested = eager || threeDRequested || autoplay;
+  const sceneRequested = eager || force3D || threeDRequested || autoplay;
   const host = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const player = useRef<TwistyPlayer | null>(null);
@@ -184,8 +186,8 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
 
   const ready = puzzle !== undefined && finalPattern !== undefined;
   // "text" writes the state out instead of drawing it; "net" skips the 3D player, which also loads nothing.
-  const showNet = ready && (failed || settings.cubeView === "net" || !sceneRequested);
-  const showText = settings.cubeView === "text";
+  const showNet = ready && (failed || (!force3D && settings.cubeView === "net") || !sceneRequested);
+  const showText = !force3D && settings.cubeView === "text";
   const fallbackControls = controls && moves.length > 0 ? <div className="flex flex-col gap-2">
     <p className="t-meta text-quiet" role="status">{polish.cube.position(replayIndex, moves.length)}{replayIndex > 0 ? ` · ${formatMoves(moves.slice(replayIndex - 1, replayIndex))}` : ""}</p>
     <div className="control-row" role="group" aria-label={label}>

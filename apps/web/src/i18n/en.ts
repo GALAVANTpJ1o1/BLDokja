@@ -26,6 +26,8 @@ export const en = {
     progress: "Progress",
     settings: "Settings",
     home: "Home",
+    cube: "Navigation cube",
+    cubeHint: "Change the cube pattern",
   },
   home: {
     newTitle: "Start with the path",

@@ -7,6 +7,7 @@ import { TransitionLink as Link } from "@/components/transitions/transition-link
 import { en } from "@/i18n/en";
 import { explore } from "@/i18n/explore";
 import { SiteGuide } from "./site-guide";
+import { NavigationCube } from "@/components/cube/navigation-cube";
 
 const SECTIONS = [
   { href: "/learn/", label: en.nav.learn, match: "/learn", icon: BookOpenIcon },
@@ -34,9 +35,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
 
       <header className="shell-header">
-        <Link href="/" className="shell-brand"><CubeIcon size={30} weight="light" aria-hidden />
+        <div className="shell-identity"><NavigationCube signal={pathname} /><Link href="/" className="shell-brand"><CubeIcon size={24} weight="light" aria-hidden />
           <span className="t-subheading casual">{en.site.name}</span>
-        </Link>
+        </Link></div>
         <div className="flex items-center gap-2"><nav className="shell-nav" aria-label={en.nav.label}>{links}</nav><SiteGuide /></div>
       </header>
 
