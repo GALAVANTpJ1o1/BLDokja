@@ -1312,3 +1312,26 @@ Short records of choices that would be expensive to reverse, or where sources di
 - The six handoff datasets remain computationally generated `cubing-solver` reference options, not ergonomic or standard named speedcubing recommendations. Case IDs are internal catalogue IDs, not community OLL numbering. Better algorithms must verify against these goals before becoming teaching defaults or personal choices.
 - Keep the pure engine free of file/browser access. Generator tooling alone reads/writes data; the complete content-dataset test includes every CFOP file. Preserve Claude's scratch research in ignored `.artifacts/cfop-handoff/` rather than publish it or delete it.
 - Reversal: recognition identities and stage contracts remain independent from algorithm choice, lesson copy and presentation. Full CFOP lessons, friendly algorithm choices and separate recognition/recall analytics remain the next milestone.
+
+## D-047 · Independent sighted path and exact move review
+
+**Status:** first two CFOP lessons implemented and verified 2026-09-17; bounded finish review disposition ship, full production regression 85 passing / three intentional skips. No phase marker advanced.
+
+- Extend existing typed MDX, checkpoints, lesson renderer and roadmap rather than build a separate course UI. CFOP has no BLD prerequisites and its own next marker; existing BLD roadmap behaviour is preserved. Native track jump links avoid burying the new path below 33 BLD lessons.
+- Deliver notation and connected-pair insertions first, explicitly not a complete beginner F2L or full CFOP course. Pairing/extraction, 2-look OLL/PLL, advanced F2L and full OLL/PLL drills remain pending. Do not expose provisional solver strings as ergonomic teaching defaults.
+- Computational search selected the insertion demonstrations; independent content tests pin all five pair sticker colours, starting identities, preserved cross/other slots and exact solved result. Examples use the site's white-U/yellow-D fixed frame, hence a yellow cross on D, and explain using another physical cross colour.
+- Cube highlights follow the pair's physical identities and retain the six fixed centre landmarks. Do not highlight unrelated pieces occupying the destination slot as if they belonged to the pair.
+- Previous move removes one explorer action without storage mutation; clearing the last action or resetting returns focus to the first move. Each explorer has independent history. Net-first remains the default; autoplay animates only after session consent to 3D.
+- Quiz retry remounts the answer registry and questions together. Clearing only the registry left stale visual selections and prevented their unchanged choices from being registered again.
+- CFOP suppresses irrelevant custom BLD buffer warnings, without changing custom trainer configuration or the standard-buffer convention in BLD lessons. Existing StorageAdapter checkpoint events and backups need no schema change.
+- No new visual tokens, fonts, raster assets, identity or image-comp approval. Reversal: CFOP content/recognition can grow independently of the existing blindfold courses and algorithm-selection layer.
+
+## D-048 · Guide readiness belongs to the application, not Firefox session restore
+
+**Status:** narrow correction implemented and verified 2026-09-17: five repeated original Firefox checks, ten native diagnostics and complete four-target production regression passed.
+
+- The complete regression exposed a reproducible Firefox guide-reopen failure after reload. Native event logging pinned the discrepancy: DOM `disabled` was false while React's current handler props still had `disabled: true`; all pointer/click events reached the trigger, but React correctly withheld its handler until settings were ready.
+- Firefox restores dynamic button enablement across loads. Set only the guide trigger's native `autocomplete="off"` policy, preserving SSR disabled state, hydration readiness, keyboard behaviour and saved guide progress. The small literal spread emits this documented Firefox button attribute without unsafe type casts or weakening the readiness guard.
+- Primary references: [MDN disabled attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled) and [Mozilla's matching React hydration report](https://bugzilla.mozilla.org/show_bug.cgi?id=1847798). No browser sniffing, forced clicks, fixture sleep or global autocomplete policy.
+- The existing browser test also asserts the native policy before exercising save, Escape, reload, resume and restart. No persistence schema, visual system or phase marker changes.
+- Reversal: easy, but retain the reload regression; removing the attribute reintroduces a window in which the trigger appears interactive before its handler is ready.

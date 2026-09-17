@@ -18,6 +18,7 @@ export interface PathLesson {
 const TRACKS: readonly { readonly id: string; readonly title: string; readonly intro?: string }[] = [
   { id: "3bld", title: en.learn.track3bld },
   { id: "4bld", title: en.learn.track4bld, intro: en.learn.track4bldIntro },
+  { id: "cfop", title: en.learn.trackCfop, intro: en.learn.trackCfopIntro },
 ];
 
 /**
@@ -30,6 +31,11 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
   const next = lessons.find((l) => !done.has(l.id));
   return (
     <div className="flex flex-col gap-8">
+      <nav className="flex flex-wrap gap-2" aria-label={en.learn.tracks}>
+        {TRACKS.filter((track) => lessons.some((lesson) => lesson.track === track.id)).map((track) => (
+          <a key={track.id} className="btn" href={`#track-${track.id}`}>{track.title}</a>
+        ))}
+      </nav>
       {TRACKS.map((track) => {
         const inTrack = lessons.filter((l) => l.track === track.id);
         if (inTrack.length === 0) return null;
@@ -37,7 +43,7 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
           <section key={track.id} className="flex flex-col gap-2" aria-labelledby={`track-${track.id}`}>
             <h2 id={`track-${track.id}`} className="t-heading">{track.title}</h2>
             {track.intro !== undefined ? <p className="t-body text-quiet prose-measure">{track.intro}</p> : null}
-            <TrackLessons lessons={inTrack} done={done} next={next} />
+            <TrackLessons lessons={inTrack} done={done} next={track.id === "cfop" ? inTrack.find((lesson) => !done.has(lesson.id)) : next} />
           </section>
         );
       })}

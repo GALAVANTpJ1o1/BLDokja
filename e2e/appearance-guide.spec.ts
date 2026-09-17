@@ -44,6 +44,7 @@ test("guide saves its step, handles Back and Escape, and can be replayed", async
   page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
   await page.goto("/practice/");
   const trigger = page.getByRole("button", { name: "Site guide", exact: true });
+  await expect(trigger).toHaveAttribute("autocomplete", "off");
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Site guide", exact: true });
   await expect(dialog.getByText("Step 1 of 6", { exact: true })).toBeVisible();

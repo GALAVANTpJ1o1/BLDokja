@@ -291,7 +291,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       {loadFailed ? <p role="alert" className="t-meta">{workspaces.common.error}</p> : !ready ? <p className="t-meta text-quiet">{en.cube.loading}</p> : null}
 
       {kind === "quiz" ? (
-        <QuizContext.Provider value={{ report, revealed: quizRevealed }}>
+        <QuizContext.Provider key={attempt} value={{ report, revealed: quizRevealed }}>
           <div className="flex flex-col gap-5">{children}</div>
           {!quizRevealed ? (
             <div>

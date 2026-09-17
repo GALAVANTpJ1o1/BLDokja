@@ -1,0 +1,78 @@
+---
+id: cfop-paired-insertions
+title: Beginner F2L — put a pair into its slot
+track: cfop
+order: 2
+prerequisites:
+  - cfop-notation
+estimatedMinutes: 8
+objectives:
+  - Identify a corner and middle-layer edge that belong together
+  - Recognise a connected pair by both of its matching side colours
+  - Explain opening, inserting and closing a slot
+checkpoints:
+  - id: pairs
+    title: Recognising an F2L pair
+recap:
+  - Face names describe positions; primes reverse a quarter turn.
+  - You already know how to make an aligned cross with the beginner method.
+---
+
+F2L means **first two layers**. Each of the four slots holds one bottom-layer corner and one middle-layer edge. Instead of finishing all corners and then all edges, you work on one matching corner–edge pair at a time.
+
+<Cube setup="R U R'" alg="R U' R'" controls="true" highlight="UFL FUL LUF UF FU U D F B R L" dim="soft" label="Connected front-right F2L pair: open R, insert with U prime, close R prime" />
+
+## Find the two pieces that belong together
+
+Keep your solved cross on D. The site's standard orientation is white on U, yellow on D, green on F and red on R, so these examples use a **yellow cross**. On your own cube you can choose another cross colour; keep it on D and identify the pair from the adjacent centres. If you use another sticker palette, read the face names as well as the colours.
+
+For the front-right slot, find the corner containing D, F and R colours and the edge containing F and R colours. The edge has **no U or D colour**. Judge all stickers of each piece, not a single green sticker. The two side colours tell you which slot is theirs.
+
+## What a connected pair looks like
+
+In this example the DFR corner is at UFL and its FR edge is at UF. Their touching side stripes agree: the two U-facing stickers have the F colour, and the two F-facing stickers have the R colour. The D-coloured corner sticker faces L. That matching two-colour block is the pair, even though it is not in its home slot yet.
+
+Step through the three moves:
+
+1. **R opens the slot.** The cross is temporarily disturbed; do not judge the sequence halfway through.
+2. **U' brings the pair into position.** Follow both pieces together.
+3. **R' closes the slot.** The pair is solved, the cross is restored and the other three F2L slots remain solved.
+
+This is an explanation of this particular pair position, **not** a universal recipe for every corner and edge you find on U. First check that the pair is connected and aligned for this opening.
+
+## Enter from the other side
+
+Here the same DFR/FR pieces form a block at UBR and UR. The U-facing stickers carry R colour; the R-facing stickers carry F colour. The D-coloured corner sticker faces B.
+
+<Cube setup="F' U' F" alg="F' U F" controls="true" highlight="UBR BUR RUB UR RU U D F B R L" dim="soft" label="Connected front-right F2L pair from the other side: open F prime, insert U, close F" />
+
+F' opens, U inserts and F closes. Again, the completed sequence restores the cross and does not damage the other three slots. Think **open → move the block → close**, rather than memorising unrelated letters.
+
+## Practise recognising before executing
+
+Reset an example. Without turning, name the corner's three colours, the edge's two colours and the target slot. Point to the matching stripes. Only then run the insertion. Repeat from both sides until you can explain why the last move restores the cross.
+
+On your own cube, a disconnected pair or a corner trapped in a slot needs preparation first. Do not force one of these insertions onto it. This lesson covers connected insertions only; pairing, extraction and the later last-layer lessons are still being built.
+
+<Checkpoint id="pairs" kind="quiz">
+  <Question id="edge" prompt="Which edge belongs with the DFR corner?" answer="fr">
+    <Option id="fr">The edge with F and R colours</Option>
+    <Option id="dr">The edge with D and R colours</Option>
+    <Option id="uf">Any edge with an F-coloured sticker</Option>
+  </Question>
+  <Question id="block" prompt="What confirms that these two U-layer pieces form the connected pair shown?" answer="both">
+    <Option id="one">They both have one green sticker somewhere</Option>
+    <Option id="both">They belong to the same slot and their two touching colour stripes agree</Option>
+    <Option id="white">Their white stickers both face U</Option>
+  </Question>
+  <Question id="cross" prompt="When must the insertion restore your cross and protected slots?" answer="end">
+    <Option id="each">After every individual move, including the opening</Option>
+    <Option id="end">After the complete open–insert–close sequence</Option>
+    <Option id="never">Only after finishing the whole cube</Option>
+  </Question>
+  <Question id="universal" prompt="Can you apply R U' R' to any two pieces on U and expect their pair to solve?" answer="no">
+    <Option id="yes">Yes, as long as one is a corner</Option>
+    <Option id="no">No; first recognise the connected pair and its alignment for this insertion</Option>
+    <Option id="fast">Yes, if the turns are fast enough</Option>
+  </Question>
+</Checkpoint>

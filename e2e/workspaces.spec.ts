@@ -13,7 +13,10 @@ test("all practice workspaces load without page errors or overflow", async ({ pa
   const errors: string[] = [];
   page.on("pageerror",(error) => errors.push(error.message));
   await page.goto("/settings/");
-  await page.getByText("Plain and precise", { exact: true }).click();
+  await expect(page.getByRole("radio", { name: /Jade lagoon/ })).toBeEnabled();
+  const voice = page.getByRole("radio", { name: "Plain and precise", exact: true });
+  await voice.locator("..").click();
+  await expect(voice).toBeChecked();
   for (const route of ["practice","practice/3style","practice/m2op","practice/trace","practice/algorithms","practice/memory","practice/debug","practice/levels","practice/reference","practice/big-cubes","learn/commutators","learn/three-style-corners","learn/m2-edges"]) {
     await page.goto(`/${route}/`);
     await expect(page.getByRole("heading",{ level:1 })).toBeVisible();
@@ -195,7 +198,7 @@ test("verified custom M2 system is built in a responsive worker", async ({ page 
   await expect(page.getByRole("button", { name: "Reveal", exact: true })).toBeVisible({ timeout:180_000 });
   await page.goto("/learn/m2-edges/");
   const picker = page.locator("dialog[open]");
-  if (await picker.count()) await picker.getByRole("button", { name: "Plain and precise", exact: true }).click();
+  if (await picker.count()) await picker.getByRole("button", { name: /^Plain and precise/ }).click();
   await expect(page.getByText("Your trainers keep your own buffers. This lesson uses the standard teaching system shown here.", { exact: true })).toBeVisible();
 });
 
@@ -242,10 +245,13 @@ test("an available update is discoverable and activates only on request", async 
 
 test("a deferred lesson checkpoint becomes usable when reached", async ({ page }) => {
   await page.goto("/settings/");
-  await page.getByText("Plain and precise", { exact:true }).click();
+  await expect(page.getByRole("radio", { name: /Jade lagoon/ })).toBeEnabled();
+  const voice = page.getByRole("radio", { name: "Plain and precise", exact: true });
+  await voice.locator("..").click();
+  await expect(voice).toBeChecked();
   await page.goto("/learn/commutators/");
   const picker = page.locator("dialog[open]");
-  if (await picker.count()) await picker.getByRole("button", { name:"Plain and precise", exact:true }).click();
+  if (await picker.count()) await picker.getByRole("button", { name:/^Plain and precise/ }).click();
   const heading = page.getByRole("heading", { name:/^Checkpoint:/ }).first();
   const checkpoint = page.locator("section").filter({ has:heading });
   await expect(async () => {

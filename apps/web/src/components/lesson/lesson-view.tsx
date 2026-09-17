@@ -34,7 +34,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
   const overrides = useMemo<ReaderOverrides>(() => (frontmatter.lettering === "speffz" ? { buffers: "standard", lettering: "speffz" } : { buffers: "standard" }), [frontmatter.lettering]);
   const ownBuffers = stored?.buffers;
   const buffersDiffer =
-    ownBuffers !== undefined &&
+    frontmatter.track !== "cfop" && ownBuffers !== undefined &&
     (["op", "m2", "threeStyle"] as const).some((m) => {
       const own = ownBuffers[m];
       return own !== undefined && (own.corners !== GATE_B_BUFFERS[m].corners || own.edges !== GATE_B_BUFFERS[m].edges);

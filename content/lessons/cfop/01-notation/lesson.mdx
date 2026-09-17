@@ -1,0 +1,64 @@
+---
+id: cfop-notation
+title: Read the moves before learning CFOP
+track: cfop
+order: 1
+prerequisites: []
+estimatedMinutes: 5
+objectives:
+  - Read face turns, primes and double turns from the correct viewpoint
+  - Distinguish a wide move, a slice move and a whole-cube rotation
+  - Practise moves without losing your place
+checkpoints:
+  - id: notation
+    title: Reading CFOP notation
+---
+
+Already solve a 3×3 with the beginner method? This independent CFOP path starts with notation, then F2L. It does not teach the beginner method or require blindfolded lessons.
+
+## Read one turn
+
+The face names describe where a face is **now**, not its colour: U is up, D down, F front, B back, R right and L left. A bare letter is a clockwise quarter turn, viewed straight at that face. An apostrophe reverses it; a 2 means a half turn.
+
+<MoveExplorer moves="R R' R2 L L' U U' U2 D F B" label="CFOP face turns: choose a move and inspect its effect" />
+
+Try R, then R'. They undo each other. Try R2 twice. **Previous move** removes just your latest press; **Start over** returns this explorer to solved. Each explorer has its own history.
+
+Do not judge B clockwise while looking at F. Imagine walking round to the back and facing B first. The same rule applies to L and D.
+
+## Two layers are not the whole cube
+
+Rw turns the right outer layer and its neighbouring middle layer together. Some references write this as lowercase r; here the wide-move examples use Rw. M turns only the middle layer between L and R, in L's direction.
+
+x, y and z rotate the entire cube in the directions of R, U and F respectively. A rotation changes your viewpoint, not whether the cube is solved. After y, the face now in front is F, even though its colour has changed.
+
+<MoveExplorer moves="Rw Rw' M M' x x' y y' z z'" label="CFOP wide moves, slices and rotations" />
+
+## Learn sequences in small chunks
+
+Read one move, make it, then check your hands against the cube. Use the net or text view for exact sticker positions; **Inspect in 3D** adds a spatial view. On a physical cube, start slowly enough to notice an accidental extra U turn. Speed comes after repeatable execution.
+
+You do not need to learn an algorithm list before starting F2L. First learn what a pair is, where it belongs and how opening a slot lets it enter.
+
+<Checkpoint id="notation" kind="quiz">
+  <Question id="prime" prompt="What does F' mean?" answer="reverse">
+    <Option id="reverse">A counterclockwise quarter turn, viewed straight at F</Option>
+    <Option id="double">Two clockwise turns of F</Option>
+    <Option id="rotation">Rotate the whole cube towards F</Option>
+  </Question>
+  <Question id="half" prompt="What happens if you do R2 twice from solved?" answer="solved">
+    <Option id="prime">The same state as R'</Option>
+    <Option id="solved">The cube returns to solved</Option>
+    <Option id="wide">The same state as Rw</Option>
+  </Question>
+  <Question id="wide" prompt="Which move turns two neighbouring layers together?" answer="wide">
+    <Option id="slice">M</Option>
+    <Option id="wide">Rw</Option>
+    <Option id="whole">x</Option>
+  </Question>
+  <Question id="view" prompt="After a y rotation, what does F refer to?" answer="position">
+    <Option id="colour">Always the green face</Option>
+    <Option id="position">The face now at the front</Option>
+    <Option id="old">The face that was at the front before rotating</Option>
+  </Question>
+</Checkpoint>
