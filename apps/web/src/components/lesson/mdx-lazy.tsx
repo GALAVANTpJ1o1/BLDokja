@@ -36,6 +36,7 @@ export const FourSolve = deferred(() => import("./four-bld-demos").then((m) => m
 export const FourTrace = deferred(() => import("./four-bld-demos").then((m) => m.FourTrace));
 export const IllegalSetup = deferred(() => import("./op-demos").then((m) => m.IllegalSetup));
 export const Letter = deferred(() => import("./inline").then((m) => m.Letter));
+export const LastLayerExplorer = deferred(() => import("./last-layer-explorer").then((m) => m.LastLayerExplorer));
 export const M2Shot = deferred(() => import("./extra-demos").then((m) => m.M2Shot));
 export const M2Tempting = deferred(() => import("./extra-demos").then((m) => m.M2Tempting));
 export const MoveExplorer = deferred(() => import("./move-explorer").then((m) => m.MoveExplorer));

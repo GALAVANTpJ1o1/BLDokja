@@ -1,0 +1,41 @@
+---
+id: cfop-two-look-pll
+title: Two-look PLL — permute corners, then edges
+track: cfop
+order: 6
+prerequisites:
+  - cfop-two-look-oll
+estimatedMinutes: 7
+objectives:
+  - Check that orientation is complete before PLL
+  - Recognise corner and edge permutation stages separately
+  - Finish with any required U adjustment
+checkpoints:
+  - id: pll
+    title: Two-look PLL recognition
+recap:
+  - Two-look OLL leaves the U-layer stickers oriented before any permutation step.
+---
+
+PLL moves pieces without changing the solved orientation. Check the top stickers first: if they are not oriented, return to OLL instead of trying to diagnose permutation colours.
+
+In two-look PLL, follow the corners to their home slots, then follow the edges. A final U adjustment is a normal part of recognising the finished state, not evidence that the algorithm failed.
+
+<LastLayerExplorer kind="corner-perm" compact="true" />
+
+<LastLayerExplorer kind="edge-perm" compact="true" />
+
+Only bigger cubes have the piece-family parity algorithms in this site’s reference data. An ordinary 3×3 PLL case is not labelled parity; its corner and edge permutations are constrained together by the cube.
+
+<Checkpoint id="pll" kind="quiz">
+  <Question id="oriented" prompt="What should be true before starting PLL?" answer="orientation">
+    <Option id="orientation">The last-layer stickers are already oriented</Option>
+    <Option id="cross">Every F2L pair is still on U</Option>
+    <Option id="parity">A 3×3 parity algorithm has been used</Option>
+  </Question>
+  <Question id="order" prompt="What is the two-look PLL order here?" answer="corners">
+    <Option id="corners">Corners first, then edges</Option>
+    <Option id="edges">Edges first, then corners</Option>
+    <Option id="full">All pieces at once only</Option>
+  </Question>
+</Checkpoint>

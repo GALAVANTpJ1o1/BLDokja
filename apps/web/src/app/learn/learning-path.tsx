@@ -19,6 +19,7 @@ const TRACKS: readonly { readonly id: string; readonly title: string; readonly i
   { id: "3bld", title: en.learn.track3bld },
   { id: "4bld", title: en.learn.track4bld, intro: en.learn.track4bldIntro },
   { id: "cfop", title: en.learn.trackCfop, intro: en.learn.trackCfopIntro },
+  { id: "oh", title: en.learn.trackOh, intro: en.learn.trackOhIntro },
 ];
 
 /**
@@ -43,7 +44,7 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
           <section key={track.id} className="flex flex-col gap-2" aria-labelledby={`track-${track.id}`}>
             <h2 id={`track-${track.id}`} className="t-heading">{track.title}</h2>
             {track.intro !== undefined ? <p className="t-body text-quiet prose-measure">{track.intro}</p> : null}
-            <TrackLessons lessons={inTrack} done={done} next={track.id === "cfop" ? inTrack.find((lesson) => !done.has(lesson.id)) : next} />
+            <TrackLessons lessons={inTrack} done={done} next={track.id === "cfop" || track.id === "oh" ? inTrack.find((lesson) => !done.has(lesson.id)) : next} />
           </section>
         );
       })}

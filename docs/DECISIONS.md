@@ -1335,3 +1335,26 @@ Short records of choices that would be expensive to reverse, or where sources di
 - Primary references: [MDN disabled attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled) and [Mozilla's matching React hydration report](https://bugzilla.mozilla.org/show_bug.cgi?id=1847798). No browser sniffing, forced clicks, fixture sleep or global autocomplete policy.
 - The existing browser test also asserts the native policy before exercising save, Escape, reload, resume and restart. No persistence schema, visual system or phase marker changes.
 - Reversal: easy, but retain the reload regression; removing the attribute reintroduces a window in which the trigger appears interactive before its handler is ready.
+
+## D-049 · Verified CFOP reference and OH teaching boundary
+
+**Status:** implemented 2026-09-17, before the visual redesign requested in `FRONTEND.md`.
+
+- The CFOP curriculum now finishes the confirmed order: notation, beginner F2L, two-look OLL/PLL,
+  advanced intuitive F2L, then full OLL/PLL. Its six compact reference groups read the existing
+  engine-verified case datasets (3 EO, 7 CO, 57 OLL, 2 corner-permutation, 4 edge-permutation and
+  21 PLL classes); they do not create a second case, notation or animation implementation.
+- The algorithm library is one selectable reference surface: CFOP last layer, 3-style commutators/setup
+  detail, 3BLD method parity and 4BLD piece-family parity. Ordinary 3×3 CFOP is explicitly kept out of
+  the parity categories. A case animation begins at the inverse of verified notation and plays the
+  stored moves back to the relevant stage goal.
+- OH is a separate, open 3×3 learning track. It teaches grip, turning, CFOP execution and practice
+  without claiming that a solver-generated reference sequence is an ergonomic OH default. Standard
+  notation, personal verified alternatives and subjective grip/finger-trick annotations remain distinct.
+- The official shadcn initializer (Base UI/Nova) is compatible with Next 16 and Tailwind 4. It created
+  `components.json` and the utility entry point. Its generated visual theme was intentionally removed;
+  shadcn remains an optional accessible primitive source and cannot silently replace the product token
+  system. The first initializer attempt was blocked by the sandbox proxy; the approved network retry
+  completed.
+- Reversal: lesson content and the reference viewer are additive. Keep the strict dataset parse and the
+  distinction between computed reference notation and personal ergonomics if replacing their presentation.

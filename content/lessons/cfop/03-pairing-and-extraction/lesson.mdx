@@ -1,0 +1,47 @@
+---
+id: cfop-pairing-extraction
+title: Beginner F2L — pair, extract, then insert
+track: cfop
+order: 3
+prerequisites:
+  - cfop-paired-insertions
+estimatedMinutes: 7
+objectives:
+  - Separate a trapped corner or edge without breaking the cross
+  - Pair pieces on U before choosing an insertion
+  - Keep one completed F2L slot protected
+checkpoints:
+  - id: prepare
+    title: Preparing an F2L pair
+recap:
+  - A connected pair goes into its slot by opening, moving the block, then closing.
+---
+
+A disconnected pair is not an insertion problem yet. First put both pieces where you can see them, then make a block on U. Keep the cross on D and use the side centres to decide the destination.
+
+<MoveExplorer moves="R U R' U' F U F'" label="F2L preparation moves: turn one move at a time" />
+
+## Extract before forcing
+
+If a corner is trapped in its own slot with the matching edge above it, open that slot just enough to lift the corner to U. Turn U to keep the edge away, then close the slot. The point is not a fixed sequence: it is leaving the cross and every finished slot as you found them.
+
+<Cube setup="R U R'" alg="U' R U' R'" controls="true" label="A short F2L preparation sequence, shown with replay controls" />
+
+## Pair on U
+
+Name the corner's D colour and its two side colours. Find the edge with those two side colours. Turn U until the stickers that must touch form matching stripes. If the pair would point straight into its slot, move it away first; this gives your opening move somewhere safe to work.
+
+Prefer a short, explainable preparation over rushing into an insertion. On a physical cube, stop after the pairing move and check both pieces; that habit prevents most accidental cross damage.
+
+<Checkpoint id="prepare" kind="quiz">
+  <Question id="trapped" prompt="What is the first aim when one F2L piece is trapped?" answer="extract">
+    <Option id="extract">Bring it to a visible U-layer position while restoring the slot</Option>
+    <Option id="force">Repeat its insertion until it works</Option>
+    <Option id="cross">Dismantle the cross to make room</Option>
+  </Question>
+  <Question id="match" prompt="Which colours identify the edge that belongs with a corner?" answer="side">
+    <Option id="side">The corner's two side colours</Option>
+    <Option id="up">Only the colour facing U</Option>
+    <Option id="any">Any sticker that matches one side</Option>
+  </Question>
+</Checkpoint>

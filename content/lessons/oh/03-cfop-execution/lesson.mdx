@@ -1,0 +1,41 @@
+---
+id: oh-cfop-execution
+title: One-handed CFOP — change execution, not recognition
+track: oh
+order: 3
+prerequisites:
+  - oh-turning-finger-tricks
+estimatedMinutes: 8
+objectives:
+  - Adapt F2L planning to a one-handed working slot
+  - Separate standard reference notation from OH-friendly personal choices
+  - Practise OLL and PLL recognition before execution
+checkpoints:
+  - id: cfop
+    title: One-handed CFOP execution
+recap:
+  - Regrips and rotations are costs to inspect, not failures to hide.
+---
+
+CFOP recognition stays the same in OH. The useful change is choosing work that keeps the cube in a comfortable grip. During F2L, favour a visible pair whose insertion uses your confident faces and protects completed slots. Accept a short rotation when it avoids a long, unstable rescue sequence.
+
+<Cube setup="R U R'" alg="R U' R'" controls="true" label="Standard F2L reference insertion with one-handed replay" />
+
+The displayed notation is a **standard/reference** sequence. Its OH-friendly alternative is not assumed from the letters alone: a personal alternative must be verified for the same case before it is saved. The workbench ranks verified alternatives by move count, rotations, slices, regrips and your own comfort rating, then lets you compare two in alternating timed trials.
+
+For last layer, run recognition and execution separately. First identify the picture without turning. Then replay its verified sequence slowly, marking each regrip you need. Only combine the two when each part is dependable.
+
+<LastLayerExplorer kind="pll" compact="true" />
+
+<Checkpoint id="cfop" kind="quiz">
+  <Question id="recognition" prompt="What changes about CFOP recognition in OH?" answer="same">
+    <Option id="same">The cube recognition is the same; execution choices change</Option>
+    <Option id="letters">All case notation uses different letters</Option>
+    <Option id="none">F2L is skipped</Option>
+  </Question>
+  <Question id="alternative" prompt="When is an OH personal alternative safe to save?" answer="verified">
+    <Option id="verified">After its effect is verified for the exact case</Option>
+    <Option id="short">Whenever it has fewer written moves</Option>
+    <Option id="copied">As soon as it is copied from a list</Option>
+  </Question>
+</Checkpoint>

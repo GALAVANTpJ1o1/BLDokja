@@ -1,0 +1,41 @@
+---
+id: cfop-two-look-oll
+title: Two-look OLL — orient edges, then corners
+track: cfop
+order: 5
+prerequisites:
+  - cfop-last-layer-concepts
+estimatedMinutes: 7
+objectives:
+  - Read U-layer edge orientation before corner orientation
+  - Choose a verified two-look OLL case
+  - Rehearse recognition separately from execution
+checkpoints:
+  - id: oll
+    title: Two-look OLL recognition
+recap:
+  - Orientation changes sticker direction; it does not promise correct piece locations.
+---
+
+For two-look OLL, first read the four U-layer edge stickers. Do not turn just because one top sticker looks unfamiliar; inspect the whole edge pattern. Once the edges are oriented, read the corners as a separate picture.
+
+<LastLayerExplorer kind="eo" compact="true" />
+
+Switch the same viewer to **orient corners** after you can identify the edge picture. Use the case list as recognition practice: say the case identifier first, then play the notation. That keeps recognition timing separate from execution timing.
+
+<LastLayerExplorer kind="co" compact="true" />
+
+The sequences in this project are verified against their stage, including preserved F2L. They are deliberately labelled reference notation; save a verified personal replacement in the algorithm workbench only after checking its exact effect.
+
+<Checkpoint id="oll" kind="quiz">
+  <Question id="first" prompt="Which pieces do you read first in two-look OLL?" answer="edges">
+    <Option id="edges">The four U-layer edges</Option>
+    <Option id="corners">The four U-layer corners</Option>
+    <Option id="all">All pieces must be read as one full OLL case</Option>
+  </Question>
+  <Question id="second" prompt="When do you identify the corner-orientation picture?" answer="after">
+    <Option id="after">After the edge-orientation stage is complete</Option>
+    <Option id="before">Before inspecting U-layer edges</Option>
+    <Option id="pll">Only after PLL</Option>
+  </Question>
+</Checkpoint>

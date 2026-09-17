@@ -56,16 +56,16 @@ test("first solve checks one letter and resumes the saved step after reload", as
 
 test("preferred algorithms are verified, saved and listed without duplicate preferred rows", async ({ page }) => {
   await page.goto("/practice/algorithms/");
-  const first = page.locator("table[aria-label='Your algorithm workbench'] tbody tr").first();
+  const first = page.locator("table[aria-label='Algorithm library'] tbody tr").first();
   await expect(first).toBeVisible();
   const alg = await first.locator("td").nth(1).textContent() ?? "";
   await page.getByLabel("Algorithm",{ exact:true }).fill(alg);
   await page.getByRole("button",{ name:"Verify and save as preferred",exact:true }).click();
   await expect(first).toContainText("Your saved algorithm");
   await page.getByLabel("My saved cases",{ exact:true }).check();
-  await expect(page.locator("table[aria-label='Your algorithm workbench'] tbody tr")).toHaveCount(1);
+  await expect(page.locator("table[aria-label='Algorithm library'] tbody tr")).toHaveCount(1);
   await page.reload();
-  await expect(page.locator("table[aria-label='Your algorithm workbench'] tbody tr").first()).toContainText("Your saved algorithm");
+  await expect(page.locator("table[aria-label='Algorithm library'] tbody tr").first()).toContainText("Your saved algorithm");
 });
 
 test("personal palace and memo-story order survive reload without remote requests", async ({ page }) => {

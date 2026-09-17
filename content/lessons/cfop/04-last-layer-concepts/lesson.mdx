@@ -1,0 +1,41 @@
+---
+id: cfop-last-layer-concepts
+title: Last layer — orient first, then permute
+track: cfop
+order: 4
+prerequisites:
+  - cfop-pairing-extraction
+estimatedMinutes: 6
+objectives:
+  - Separate orientation from permutation
+  - Recognise the two stages of a last-layer solve
+  - Use case playback without confusing a reference algorithm for a hand preference
+checkpoints:
+  - id: stages
+    title: Last-layer stages
+recap:
+  - F2L ends with the first two layers solved and protected.
+---
+
+The last layer has two jobs. **Orientation** makes every U-layer sticker face the right way; **permutation** puts those oriented pieces in their home positions. A piece can be oriented but still be in the wrong place, so do not mix the questions.
+
+<Cube setup="R U R' U R U2 R'" alg="R U2 R' U' R U' R'" controls="true" label="Last-layer orientation example with full replay controls" />
+
+Two-look last layer handles the jobs in smaller groups: edges then corners for OLL, corners then edges for PLL. Full OLL and PLL recognise the whole picture at once. Both routes finish the same cube; choose the route that matches what you have practised.
+
+<LastLayerExplorer kind="eo" compact="true" />
+
+The reference viewer always starts from the computed case and plays notation back to its stage goal. Its algorithms are verified reference sequences, not a claim that they are the best finger tricks for every hand.
+
+<Checkpoint id="stages" kind="quiz">
+  <Question id="orientation" prompt="What does last-layer orientation decide?" answer="direction">
+    <Option id="direction">Whether each piece's stickers face the right directions</Option>
+    <Option id="slot">Whether every piece is already in its home slot</Option>
+    <Option id="cross">Whether the cross is on D</Option>
+  </Question>
+  <Question id="route" prompt="What changes between two-look and full last layer?" answer="recognition">
+    <Option id="recognition">How much of the picture you recognise before choosing an algorithm</Option>
+    <Option id="goal">The solved state you are trying to reach</Option>
+    <Option id="puzzle">The puzzle being solved</Option>
+  </Question>
+</Checkpoint>

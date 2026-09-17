@@ -1,4 +1,4 @@
-import { AlgDatasetSchema, SwapDatasetSchema, SwapParityDatasetSchema, M2OpParityDatasetSchema, OpCornerParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, type AlgDataset, type SwapDataset, type SwapParityDataset, type M2OpParityDataset, type OpCornerParityDataset, type OpParityDataset, type OpSetupsDataset } from "@bld/cube-engine";
+import { AlgDatasetSchema, LastLayerDatasetSchema, SwapDatasetSchema, SwapParityDatasetSchema, M2OpParityDatasetSchema, OpCornerParityDatasetSchema, OpParityDatasetSchema, OpSetupsDatasetSchema, type AlgDataset, type LastLayerDataset, type SwapDataset, type SwapParityDataset, type M2OpParityDataset, type OpCornerParityDataset, type OpParityDataset, type OpSetupsDataset } from "@bld/cube-engine";
 import threeStyleCornersRaw from "../../../../content/algs/3x3/3style-corners.UFR.json";
 import threeStyleEdgesRaw from "../../../../content/algs/3x3/3style-edges.UF.json";
 import m2EdgesRaw from "../../../../content/algs/3x3/m2-edges.DF.json";
@@ -11,6 +11,12 @@ import r2ParityRaw from "../../../../content/algs/4x4/r2-parity.FDr.json";
 import r2WingsRaw from "../../../../content/algs/4x4/r2-wings.FDr.json";
 import u2ParityRaw from "../../../../content/algs/4x4/u2-parity.Ubr.json";
 import u2CentresRaw from "../../../../content/algs/4x4/u2-xcenters.Ubr.json";
+import eoRaw from "../../../../content/algs/cfop/eo.json";
+import coRaw from "../../../../content/algs/cfop/co.json";
+import ollRaw from "../../../../content/algs/cfop/oll.json";
+import cornerPermRaw from "../../../../content/algs/cfop/corner-perm.json";
+import edgePermRaw from "../../../../content/algs/cfop/edge-perm.json";
+import pllRaw from "../../../../content/algs/cfop/pll.json";
 
 /**
  * The verified alg datasets in /content/algs (generated and checked by the engine's test suite,
@@ -40,6 +46,11 @@ const u2Centres = once((): SwapDataset => parsed("u2-xcenters.Ubr.json", SwapDat
 const r2Parity = once((): SwapParityDataset => parsed("r2-parity.FDr.json", SwapParityDatasetSchema, r2ParityRaw));
 const u2Parity = once((): SwapParityDataset => parsed("u2-parity.Ubr.json", SwapParityDatasetSchema, u2ParityRaw));
 const cornerParity4x4 = once((): OpCornerParityDataset => parsed("op-corner-parity.UBL.json", OpCornerParityDatasetSchema, opCornerParityRaw));
+const cfopLastLayer = once((): readonly LastLayerDataset[] => [
+  parsed("cfop/eo.json", LastLayerDatasetSchema, eoRaw), parsed("cfop/co.json", LastLayerDatasetSchema, coRaw),
+  parsed("cfop/oll.json", LastLayerDatasetSchema, ollRaw), parsed("cfop/corner-perm.json", LastLayerDatasetSchema, cornerPermRaw),
+  parsed("cfop/edge-perm.json", LastLayerDatasetSchema, edgePermRaw), parsed("cfop/pll.json", LastLayerDatasetSchema, pllRaw),
+]);
 
 /**
  * Each dataset is parsed only when it's first read: a lesson that needs M2's table doesn't pay for parsing the
@@ -82,6 +93,9 @@ const datasets = {
   },
   get cornerParity4x4() {
     return cornerParity4x4();
+  },
+  get cfopLastLayer() {
+    return cfopLastLayer();
   },
 };
 

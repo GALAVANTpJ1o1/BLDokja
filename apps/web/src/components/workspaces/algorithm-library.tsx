@@ -4,7 +4,9 @@ import type { AlgDataset } from "@bld/cube-engine";
 import type { AlgPreference } from "@bld/storage";
 import { useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Cube } from "@/components/cube/cube";
+import { LastLayerExplorer } from "@/components/lesson/last-layer-explorer";
 import { useSettings } from "@/components/settings/settings-provider";
+import { algDatasets } from "@/content/algs";
 import { workspaces as copy } from "@/i18n/workspaces";
 import { csvCell, download } from "@/lib/download";
 import { threeStyleForReader, useMethodData } from "@/lib/methods";
@@ -17,6 +19,36 @@ import { checkUserAlg, commCases, withUserAlg, withoutUserAlg, type CaseAlg, typ
 import { WhyAlg } from "./why-alg";
 
 export function AlgorithmLibrary() {
+  const [family, setFamily] = useState<"cfop" | "comms" | "3bld-parity" | "4bld-parity">("comms");
+  const puzzle = family === "4bld-parity" ? "4x4x4" : "3x3x3";
+  return <div className="flex flex-col gap-6">
+    <div className="control-row">
+      <label className="t-ui flex items-center gap-2">{copy.algs.puzzle}<output className="field">{puzzle}</output></label>
+      <label className="t-ui flex items-center gap-2">{copy.algs.family}<select className="field" value={family} onChange={(event) => setFamily(event.target.value as typeof family)}>
+        {(["cfop", "comms", "3bld-parity", "4bld-parity"] as const).map((item) => <option value={item} key={item}>{copy.algs.groups[item]}</option>)}
+      </select></label>
+    </div>
+    {family === "cfop" ? <LastLayerExplorer /> : family === "comms" ? <BlindAlgorithmLibrary /> : <ParityReference family={family} />}
+  </div>;
+}
+
+function ParityReference({ family }: { family: "3bld-parity" | "4bld-parity" }) {
+  const datasets = algDatasets();
+  const sources = family === "3bld-parity" ? [datasets.opParity, datasets.m2opParity] : [datasets.r2Parity, datasets.u2Parity, datasets.cornerParity4x4];
+  return <section className="flex flex-col gap-5" aria-label={copy.algs.groups[family]}>
+    <p className="t-body text-quiet">{family === "3bld-parity" ? copy.algs.parityNote : copy.algs.fourParityNote}</p>
+    {sources.map((dataset) => {
+      const entry = dataset.records[0]?.algs[0];
+      if (entry === undefined) return null;
+      return <article className="trainer-surface grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.8fr)]" key={dataset.id}>
+        <Cube puzzleId={dataset.puzzle} alg={entry.moves} controls label={`${dataset.id}: ${entry.alg}`} />
+        <div className="flex flex-col gap-3 self-center"><h2 className="t-subheading">{dataset.id}</h2><p className="t-notation break-words">{entry.alg}</p><p className="t-meta text-quiet">{copy.algs.standard} · {entry.etm} {copy.common.moves}</p></div>
+      </article>;
+    })}
+  </section>;
+}
+
+function BlindAlgorithmLibrary() {
   const reader = useReader();
   const built = useMethodData(reader, threeStyleForReader);
   const { stored } = useSettings();

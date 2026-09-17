@@ -23,7 +23,7 @@ export const LessonFrontmatterSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9-]+$/),
     title: z.string().min(1),
-    track: z.enum(["3bld", "4bld", "cfop"]),
+    track: z.enum(["3bld", "4bld", "cfop", "oh"]),
     order: z.number().int().positive(),
     prerequisites: z.array(z.string()),
     estimatedMinutes: z.number().int().positive(),
