@@ -2,30 +2,30 @@
 name: BLDokja
 description: Exact cubes and spatial letters in a readable, optionally scenic workbench.
 colors:
-  slate-light-ground: "#E8E7EF"
-  slate-light-stage: "#DCDAE6"
-  slate-light-text: "#23253A"
-  slate-light-text-quiet: "#4E5068"
-  slate-light-rule: "#A9A7BA"
-  slate-light-accent: "#615584"
-  slate-dark-ground: "#2C2F45"
-  slate-dark-stage: "#34374F"
-  slate-dark-text: "#EFE9E1"
-  slate-dark-text-quiet: "#B9B6C4"
-  slate-dark-rule: "#4F5474"
-  slate-dark-accent: "#C4B7E2"
+  slate-light-ground: "#EEF1F2"
+  slate-light-stage: "#DFE7EB"
+  slate-light-text: "#223744"
+  slate-light-text-quiet: "#516673"
+  slate-light-rule: "#A9B9C1"
+  slate-light-accent: "#346577"
+  slate-dark-ground: "#213640"
+  slate-dark-stage: "#29434D"
+  slate-dark-text: "#F0F5F7"
+  slate-dark-text-quiet: "#B1C7D0"
+  slate-dark-rule: "#567582"
+  slate-dark-accent: "#94D8DB"
   jade-light-ground: "#E1EEEA"
   jade-light-stage: "#CEE3DB"
   jade-light-text: "#173D36"
   jade-light-text-quiet: "#3C6258"
   jade-light-rule: "#789E91"
   jade-light-accent: "#17675E"
-  jade-dark-ground: "#173B3D"
-  jade-dark-stage: "#21494A"
-  jade-dark-text: "#EFF7F3"
-  jade-dark-text-quiet: "#B5D3CB"
-  jade-dark-rule: "#628B80"
-  jade-dark-accent: "#9AD8C7"
+  jade-dark-ground: "#0C3035"
+  jade-dark-stage: "#133E42"
+  jade-dark-text: "#EBF5F1"
+  jade-dark-text-quiet: "#AECBC8"
+  jade-dark-rule: "#466D6F"
+  jade-dark-accent: "#8BDACB"
   coral-light-ground: "#F4E7E5"
   coral-light-stage: "#ECD2CE"
   coral-light-text: "#512F3C"
@@ -101,40 +101,40 @@ typography:
     lineHeight: 1
     fontVariation: '"CASL" 1, "MONO" 0'
   hero:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "clamp(2.7rem, 5vw, 4.8rem)"
     fontWeight: 720
     lineHeight: 1.04
     letterSpacing: "-0.055em"
   title:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "clamp(2rem, 3.5vw, 3.25rem)"
     fontWeight: 680
     lineHeight: 1.12
     letterSpacing: "-0.045em"
   heading:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "1.375rem"
     fontWeight: 620
     lineHeight: 1.25
   subheading:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "1.125rem"
     fontWeight: 600
     lineHeight: 1.35
   body:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "1.0625rem"
     fontWeight: 420
     lineHeight: 1.6
     fontVariation: '"CASL" 0, "MONO" 0'
   ui:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "0.9375rem"
     fontWeight: 500
     lineHeight: 1.4
   meta:
-    fontFamily: '"Recursive Casual", "Recursive Casual Fallback", ui-sans-serif, system-ui, sans-serif'
+    fontFamily: '"Manrope", ui-sans-serif, system-ui, sans-serif'
     fontSize: "0.8125rem"
     fontWeight: 450
     lineHeight: 1.4
@@ -208,6 +208,12 @@ components:
 > The historical prose below is retained. The September 17 extension at the end supersedes earlier **no-interface-accent / cube-only hue** and **light-theme-no-scenery** statements only for the surrounding room's decoration. It does not weaken the rule that a semantic face colour always means its face, nor permit theme colours to label cube faces, tracks, correctness or mastery. The September 16 top-navigation and revised-radius decisions also supersede the original rail and universal-4px layout proposal.
 
 > This is an approved established-system extension, not a replacement visual world. No five-block direction record, image-comp approval, concept roll, signature name or selection seed is claimed.
+
+> **Redesign authority — September 18, 2026.** The frontend is a quiet precision workbench rather than a generic dashboard: blue-charcoal slate and deep jade form the working room; a restrained scenic layer gives the room depth without sitting behind text; the cube remains the semantic authority for its six face colours. `Manrope` is the self-hosted interface and reading face, while Recursive remains for notation and spatial letter treatment. The implementation is divided into `workbench-tokens.css`, `primitives.css`, `shell.css`, `learning.css`, `workspaces.css`, and `settings.css`, so the same hierarchy reaches the home, course, practice, algorithm, form, table, progress, and settings surfaces.
+>
+> The navigation cube is a real, engine-verified 3D player: it begins solved, runs exact inverse-to-target transitions, coalesces rapid route changes, and pauses when hidden or offscreen. It respects reduced motion and never changes learner state. Optional room assets are local, pointer-inert presentation only: `public/images/study-room.webp` and `public/images/scenic-atlas.webp`. They were generated for this product's visual direction and must not be used as cube diagrams, instructional evidence, or remote content.
+>
+> The responsive shell becomes a thumb-reachable bottom navigation at phone width. Dense tables retain their real data and become horizontally scrollable where necessary; controls, validation messages, and focus outlines stay native and visible. Motion is limited to navigation feedback and cube state changes, with the global reduced-motion rule disabling both transition and animation work.
 
 # BLDokja design system
 

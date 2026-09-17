@@ -1365,3 +1365,14 @@ Short records of choices that would be expensive to reverse, or where sources di
 
 - The navigation cube uses checkerboard, cube-in-a-cube, and superflip rather than arbitrary short move snippets. The sequences were transcribed from named pattern references and checked by `navigation-patterns.test.ts`: each is parsed by the cube engine, returns to solved through its computed inverse, and has its documented finite order.
 - The runtime always travels through `inverse(current) + target`, so it remains a legal state transition rather than a sticker replacement.
+
+## D-051 · Precision-workbench frontend redesign
+
+**Status:** implemented locally 2026-09-18 at the user's explicit request; no phase marker advanced.
+
+- The frontend now uses a shared precision-workbench system across home, learning, trainers, algorithm/reference workspaces, progress and settings. It preserves the existing route, StorageAdapter, form, validation, dataset and cube-engine boundaries; the change is presentation and interaction framing, not replacement product functionality.
+- Manrope 5.3.0 is a local, self-hosted interface/readability face (`public/fonts/manrope-5.3.0-latin-wght.woff2`, OFL license included). Recursive remains for spatial-letter display and verified algorithm notation. This replaces the overly casual all-Recursive interface without adding a network font dependency.
+- `study-room.webp` and `scenic-atlas.webp` are local generated visual assets for the configurable room surface. They are decorative, pointer-inert and independent of learning data; they never stand in for a cube state, case diagram or user-uploaded content.
+- Navigation patterns now include engine-tested checkerboard, cube-in-a-cube, superflip, snake and donut states. The player routes through the computed inverse of its completed logical pattern before applying the requested target; it coalesces a rapid retarget, pauses out of view/hidden, and remains still under reduced motion. `navigation-patterns.test.ts` proves the named patterns parse, transform and invert in the cube engine.
+- The visual direction is deliberately blue-charcoal and jade rather than the prior purple-slate treatment. Scenery remains subordinate to opaque reading/work surfaces, and all colourway values retain the contrast checks in the design suite.
+- Reversal: the modular styles and image assets can be exchanged independently. Keep the verified cube pattern tests, local-font license, native control semantics and contrast coverage if the visual layer changes again.
