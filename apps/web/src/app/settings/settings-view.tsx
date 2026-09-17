@@ -136,7 +136,7 @@ export function SettingsView() {
   }
 
   return (
-    <div className="flex max-w-3xl flex-col gap-8">
+    <div className="settings-stack flex max-w-3xl flex-col gap-8">
       <h1 className="t-title">{en.settings.title}</h1>
 
       <Section title={en.settings.appearance}>

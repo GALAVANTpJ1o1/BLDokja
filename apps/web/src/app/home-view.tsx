@@ -48,7 +48,7 @@ export function HomeView() {
   // on the page waiting for IndexedDB, and this keeps the same shape as both states below.
   if (!started) {
     return (
-      <div className="workspace flex flex-col gap-16">
+      <div className="workspace home-launch flex flex-col gap-16">
         <section className="hero-layout">
           <div className="hero-copy"><h1 className="hero-title">{polish.home.title}</h1><p className="t-body max-w-[42ch] text-quiet">{polish.home.intro}</p><div className="flex flex-wrap gap-3"><TransitionLink href="/learn/" className="btn btn-strong">{polish.home.start}</TransitionLink><TransitionLink href="/practice/" className="btn">{polish.home.practice}</TransitionLink></div></div>
           <div className="hero-stage"><HeroCube eager setup="R U R' U'" label={polish.home.cube} /></div>
@@ -62,7 +62,7 @@ export function HomeView() {
   }
 
   return (
-    <div className="workspace flex flex-col gap-10">
+    <div className="workspace home-launch flex flex-col gap-10">
       <h1 className="t-title">{en.home.todayTitle}</h1>
       <div className="hero-layout"><div className="hero-copy"><h2 className="t-heading">{polish.home.first}</h2><p className="t-body text-quiet">{polish.home.firstIntro}</p><TransitionLink href="/practice/first-solve/" className="btn btn-strong self-start">{polish.home.first}</TransitionLink></div><div className="hero-stage"><HeroCube eager label={polish.home.cube} /></div></div>
       <div className="tool-grid">

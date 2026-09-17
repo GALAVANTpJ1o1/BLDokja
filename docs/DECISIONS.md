@@ -1358,3 +1358,10 @@ Short records of choices that would be expensive to reverse, or where sources di
   completed.
 - Reversal: lesson content and the reference viewer are additive. Keep the strict dataset parse and the
   distinction between computed reference notation and personal ergonomics if replacing their presentation.
+
+## D-050 · Navigation cube uses engine-verified display patterns
+
+**Status:** accepted (2026-09-17).
+
+- The navigation cube uses checkerboard, cube-in-a-cube, and superflip rather than arbitrary short move snippets. The sequences were transcribed from named pattern references and checked by `navigation-patterns.test.ts`: each is parsed by the cube engine, returns to solved through its computed inverse, and has its documented finite order.
+- The runtime always travels through `inverse(current) + target`, so it remains a legal state transition rather than a sticker replacement.

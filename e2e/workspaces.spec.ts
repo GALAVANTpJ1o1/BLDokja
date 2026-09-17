@@ -3,7 +3,9 @@ import { test, expect } from "@playwright/test";
 test("home keeps the cube prominent without horizontal overflow", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.locator("twisty-player")).toBeVisible({ timeout: 60_000 });
+  // The header now owns a second, independently interactive navigation cube. This assertion is
+  // deliberately scoped to the home hero so it still proves the primary cube rendered.
+  await expect(page.locator("main twisty-player")).toBeVisible({ timeout: 60_000 });
   await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: `.artifacts/home-${info.project.name}.png`, fullPage: true });

@@ -31,12 +31,12 @@ export function LastLayerExplorer({ kind: requestedKind, compact = "false" }: { 
       <label className="t-ui flex items-center gap-2">{copy.cfop.stage}<select className="field" value={kind} onChange={(event) => { setKind(event.target.value as LastLayerKind); setSelected(undefined); }}>
         {kinds.map((item) => <option value={item} key={item}>{copy.cfop.groups[item]}</option>)}
       </select></label>
-      <label className="t-ui flex items-center gap-2">{copy.cfop.speed}<select className="field" value={tempo} onChange={(event) => setTempo(Number(event.target.value))}><option value={0.6}>0.6×</option><option value={1}>1×</option><option value={1.5}>1.5×</option></select></label>
+      <label className="t-ui flex items-center gap-2">{copy.cfop.speed}<select className="field" value={tempo} onChange={(event) => { setTempo(Number(event.target.value)); }}><option value={0.6}>0.6×</option><option value={1}>1×</option><option value={1.5}>1.5×</option></select></label>
     </div>
     {!short ? <label className="t-ui flex flex-col gap-2">{copy.cfop.search}<input type="search" className="field" value={search} onChange={(event) => { setSearch(event.target.value); setSelected(undefined); }} /></label> : null}
     <p className="t-meta text-quiet">{copy.cfop.cases(records.length)} · {copy.cfop.cues[kind]}</p>
     <div className="data-table-wrap max-h-64" tabIndex={0} data-shortcuts="off"><table className="data-table" aria-label={copy.cfop.groups[kind]}><thead><tr><th scope="col">{copy.cfop.case}</th><th scope="col">{copy.cfop.notation}</th></tr></thead><tbody>
-      {records.map((record) => <tr key={record.id} aria-selected={current?.id === record.id}><th scope="row"><button className="text-link mono" type="button" onClick={() => setSelected(record.id)}>{record.id}</button></th><td className="t-notation whitespace-normal">{record.algs[0]?.alg}</td></tr>)}
+      {records.map((record) => <tr key={record.id} aria-selected={current?.id === record.id}><th scope="row"><button className="text-link mono" type="button" onClick={() => { setSelected(record.id); }}>{record.id}</button></th><td className="t-notation whitespace-normal">{record.algs[0]?.alg}</td></tr>)}
     </tbody></table></div>
     {current === undefined || alg === undefined ? <p className="t-body">{copy.common.empty}</p> : <div className="trainer-surface grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)]"><Cube setup={inverse(alg.moves)} alg={alg.moves} controls tempo={tempo} label={`${copy.cfop.selected}: ${current.id}`} /><div className="flex flex-col gap-3 self-center"><h3 className="t-subheading mono">{current.id}</h3><p className="t-notation break-words">{alg.alg}</p><p className="t-meta text-quiet">{copy.cfop.generated} · {alg.etm} {copy.common.moves}</p><p className="t-body text-quiet"><strong>{copy.cfop.oh}.</strong> {copy.cfop.noOh}</p></div></div>}
   </section>;

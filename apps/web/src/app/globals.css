@@ -157,7 +157,7 @@
   .data-table th, .data-table td { padding: .8rem 1rem; vertical-align: top; }
   .data-table tbody tr + tr { border-top: 1px solid color-mix(in srgb, var(--rule) 55%, transparent); }
   .data-table tbody tr:hover { background: color-mix(in srgb, var(--stage) 50%, transparent); }
-  .status-line { border-left: 3px solid var(--text); padding: .75rem 1rem; background: var(--stage); border-radius: 0 10px 10px 0; }
+  .status-line { border-top: 2px solid var(--text); padding: .75rem 1rem; background: var(--stage); border-radius: 0 0 10px 10px; }
   .step-track { display: flex; flex-wrap: wrap; gap: .5rem; }
   .step-track button { min-height: 44px; padding: .6rem 1rem; border-radius: 10px; border: 1px solid var(--rule); font-size: .875rem; }
   .step-track button[aria-current="step"] { background: var(--text); color: var(--ground); }
@@ -182,7 +182,57 @@
   .nav-cube:hover { transform: rotate(-3deg) scale(1.04); border-color: var(--text); }
   .nav-cube figure, .nav-cube figure > div { width: 40px !important; height: 40px !important; min-height: 0 !important; margin: 0; }
   .nav-cube figcaption, .nav-cube figure > button { display: none; }
+  .nav-cube p { display: none; }
+  .nav-cube .sticker-net { padding: 3px; }
   .shell-main { padding: 2.75rem 1.5rem 6rem; max-width: 1330px; margin-inline: auto; min-width: 0; background: color-mix(in srgb,var(--ground) 96%,var(--stage)); border-inline: 1px solid color-mix(in srgb,var(--rule) 34%,transparent); border-radius: 0 0 20px 20px; }
+  .home-launch .hero-layout { min-height: min(38rem, calc(100dvh - 11rem)); padding-block: clamp(1rem, 4vw, 4rem); border-bottom: 1px solid color-mix(in srgb,var(--rule) 70%,transparent); }
+  .home-launch .hero-copy { align-items: flex-start; }
+  .home-launch .hero-copy > p { font-size: clamp(1.05rem, 1.4vw, 1.3rem); line-height: 1.5; }
+  .home-launch .hero-stage { border-radius: 18px; border: 1px solid color-mix(in srgb,var(--rule) 55%,transparent); background: linear-gradient(135deg, color-mix(in srgb,var(--stage) 88%,transparent), color-mix(in srgb,var(--ground) 78%,transparent)); box-shadow: 18px 18px 0 color-mix(in srgb,var(--stage) 70%,transparent); }
+  .home-launch .hero-stage::before { content: ""; display: block; height: 3px; margin: .25rem .5rem 0; background: repeating-linear-gradient(90deg,var(--text) 0 3px,transparent 3px 9px); opacity: .55; }
+  .practice-directory > section { gap: 1.25rem; }
+  .practice-directory > section > h2 { padding-bottom: .75rem; border-bottom: 2px solid var(--text); }
+  .practice-directory .tool-grid { gap: 0; border: 1px solid color-mix(in srgb,var(--rule) 65%,transparent); border-radius: 12px; overflow: hidden; background: color-mix(in srgb,var(--stage) 22%,var(--ground)); }
+  .practice-directory .tool-grid > li, .practice-directory .tool-grid > a { min-width: 0; }
+  .practice-directory .tool-link { min-height: 12.5rem; height: 100%; border: 0; border-radius: 0; background: transparent; padding: 1.5rem; position: relative; }
+  .practice-directory .tool-link::after { content: ""; position: absolute; inset: auto 1.5rem 1.2rem; height: 1px; background: var(--text); transform: scaleX(0); transform-origin: left; transition: transform 180ms cubic-bezier(.2,0,0,1); }
+  .practice-directory .tool-link:hover { transform: none; background: color-mix(in srgb,var(--stage) 80%,transparent); }
+  .practice-directory .tool-link:hover::after { transform: scaleX(1); }
+  .practice-directory .tool-grid > :nth-child(3n + 2) .tool-link { background: color-mix(in srgb,var(--stage) 35%,var(--ground)); }
+  .settings-stack > section { padding: clamp(1.25rem,2vw,2rem); border: 1px solid color-mix(in srgb,var(--rule) 60%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--stage) 18%,var(--ground)); }
+  .settings-stack > section > h2 { padding-bottom: .75rem; border-bottom: 1px solid var(--rule); }
+  .workspace > .data-table-wrap, .workspace > section .data-table-wrap { box-shadow: 6px 6px 0 color-mix(in srgb,var(--stage) 85%,transparent); }
+  .learning-intro { min-height: 19rem; padding-bottom: 2rem; border-bottom: 2px solid var(--text); }
+  .learning-intro > div:last-child { border: 1px solid color-mix(in srgb,var(--rule) 62%,transparent); background: color-mix(in srgb,var(--stage) 32%,var(--ground)); }
+  .learning-intro figure { min-height: 15rem; }
+  .learning-track-nav { padding-bottom: 1rem; border-bottom: 1px solid var(--rule); }
+  .learning-track-nav .btn { border-radius: 999px; min-height: 38px; padding-inline: .8rem; }
+  .learning-track { scroll-margin-top: 6rem; }
+  .learning-track > h2 { display: flex; align-items: baseline; gap: .75rem; padding-bottom: .65rem; border-bottom: 2px solid var(--text); }
+  .learning-lessons { counter-reset: lesson; }
+  .learning-lesson { min-height: 5.4rem; position: relative; transition: background-color 160ms cubic-bezier(.2,0,0,1); }
+  .learning-lesson:hover { margin-inline: -.8rem; padding-inline: .8rem; background: color-mix(in srgb,var(--stage) 65%,transparent); }
+  .learning-lesson > span { font-size: .8rem; padding-top: .15rem; }
+  .learning-lesson a { text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .lesson-header { padding-bottom: 1.5rem; border-bottom: 2px solid var(--text); }
+  .lesson-header > .t-meta:first-child { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+  .lesson-body > h2 { margin-top: 2.75rem; padding-top: 1.25rem; font-size: clamp(1.4rem,2vw,1.85rem); letter-spacing: -.025em; }
+  .lesson-body > div:has(figure) { border: 1px solid color-mix(in srgb,var(--rule) 52%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--stage) 42%,var(--ground)); }
+  .lesson-toc { padding-left: 1rem; border-left: 1px solid var(--rule); }
+  .progress-workbench > .page-heading { margin-bottom: .5rem; }
+  .progress-workbench > div:not(.page-heading), .progress-workbench > section { padding-top: 1.25rem; border-top: 1px solid var(--rule); }
+  .lettering-workbench > section { padding: 1.25rem; border: 1px solid color-mix(in srgb,var(--rule) 58%,transparent); border-radius: 12px; background: color-mix(in srgb,var(--stage) 18%,var(--ground)); }
+  .control-row { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
+  .control-row > .field, .control-row select.field { min-width: min(100%, 12rem); }
+  .control-row select.field { max-width: 100%; }
+  .search-field { position: relative; display: block; }
+  .search-field .field { padding-right: 8.75rem; }
+  .search-clear { position: absolute; right: .3rem; top: 50%; min-height: 34px; padding-inline: .6rem; transform: translateY(-50%); font-size: .8rem; }
+  .trainer-surface { padding-top: .25rem; }
+  .trainer-surface > :not(figure):not(.cube-group) { padding: clamp(1rem,2vw,1.5rem); border-top: 2px solid var(--text); background: color-mix(in srgb,var(--stage) 25%,transparent); }
+  .trainer-surface figure { background: color-mix(in srgb,var(--stage) 20%,transparent); }
+  .data-table-wrap { border-radius: 8px; }
+  .data-table th { box-shadow: inset 0 -1px var(--rule); }
   .shell-header, .shell-main { position: relative; z-index: 1; }
   :root[data-density="compact"] .shell-main { max-width: 1080px; padding-top: 1.25rem; }
   :root[data-density="compact"] .workspace, :root[data-density="compact"] .lesson-article { max-width: 1024px; }
@@ -193,8 +243,8 @@
   .shell-bottom a { display: flex; flex: 1; min-height: 60px; flex-direction: column; align-items: center; justify-content: center; gap: .2rem; padding: .5rem; text-decoration: none; font-size: .75rem; color: var(--text-quiet); }
   .shell-bottom a[aria-current="page"] { color: var(--text); font-weight: 700; background: var(--stage); border-radius: 15px; }
   .update-notice { position: relative; max-width: 40rem; margin: 1rem; padding: 1.25rem; border: 1px solid var(--text); border-radius: 16px; background: var(--ground); }
-  @media (min-width: 768px) { .hero-layout { grid-template-columns: 1.05fr 1fr; gap: 3rem; } .tool-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .workbench-layout { grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); } .workbench-layout > figure { position: sticky; top: 2rem; } .shell-bottom { display: none; } .shell-main { padding: 3rem 2rem 5rem; } .update-notice { bottom: 1rem; left: auto; } }
-  @media (max-width: 767px) { .shell-header { min-height: 64px; padding-inline: 1rem; } .shell-nav { display: none; } .nav-cube { width: 36px; height: 36px; } .nav-cube figure, .nav-cube figure > div { width: 34px !important; height: 34px !important; } .hero-title { max-width: 16ch; } .hero-stage figure { min-height: 19rem; } .lesson-body > div:has(figure) { padding: .5rem; margin-inline: -.5rem; } }
+  @media (min-width: 768px) { .hero-layout { grid-template-columns: 1.05fr 1fr; gap: 3rem; } .tool-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .practice-directory .tool-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .practice-directory .tool-grid > :not(:nth-child(3n + 1)) { border-left: 1px solid color-mix(in srgb,var(--rule) 55%,transparent); } .practice-directory .tool-grid > :nth-child(n + 4) { border-top: 1px solid color-mix(in srgb,var(--rule) 55%,transparent); } .workbench-layout { grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); } .workbench-layout > figure { position: sticky; top: 2rem; } .shell-bottom { display: none; } .shell-main { padding: 3rem 2rem 5rem; } .update-notice { bottom: 1rem; left: auto; } }
+  @media (max-width: 767px) { .shell-header { min-height: 64px; padding-inline: 1rem; } .shell-nav { display: none; } .nav-cube { width: 36px; height: 36px; } .nav-cube figure, .nav-cube figure > div { width: 34px !important; height: 34px !important; } .hero-title { max-width: 16ch; } .hero-stage figure { min-height: 19rem; } .lesson-body > div:has(figure) { padding: .5rem; margin-inline: -.5rem; } .shell-main { padding: 1.5rem 1rem calc(5.5rem + env(safe-area-inset-bottom)); border-inline: 0; border-radius: 0; } .page-heading { margin-bottom: 1.5rem; padding-bottom: 1rem; } .page-heading .t-title, .t-title { font-size: clamp(1.85rem, 9vw, 2.4rem); } .practice-directory .tool-link { min-height: auto; padding: 1.15rem; } .practice-directory .tool-grid > :nth-child(even) .tool-link { background: color-mix(in srgb,var(--stage) 35%,var(--ground)); } .practice-directory .tool-grid > :nth-child(3n + 2) .tool-link { background: transparent; } .practice-directory .tool-grid > :nth-child(even) { background: color-mix(in srgb,var(--stage) 35%,var(--ground)); } .learning-intro { min-height: 0; padding-bottom: 1.25rem; } .learning-intro > div:last-child { max-width: 17rem; } .learning-intro figure { min-height: 12rem; } .learning-track-nav { gap: .4rem; } .learning-track-nav .btn { min-height: 34px; font-size: .75rem; } .learning-lesson { grid-template-columns: 2rem minmax(0,1fr); min-height: 0; padding-block: .85rem; } .learning-lesson:hover { margin-inline: 0; padding-inline: 0; background: transparent; } .learning-lesson .t-body { font-size: .94rem; line-height: 1.45; } .lesson-header { padding-bottom: 1rem; } .trainer-surface > :not(figure):not(.cube-group) { padding: 1rem; border-top-width: 2px; } .data-table th, .data-table td { padding: .7rem .8rem; } .control-row > label.control-row { width: 100%; justify-content: space-between; } .control-row > label.control-row .field { flex: 1; min-width: 0; max-width: 100%; } .shell-bottom a { min-height: 52px; font-size: .7rem; } .search-field .field { padding-right: 7.5rem; } }
   @media (min-width: 1200px) { .lesson-with-toc { display: grid; grid-template-columns: minmax(0,1fr) 15rem; gap: 4rem; } }
   @media (prefers-reduced-motion: no-preference) { .status-line { animation: feedback-settle 180ms cubic-bezier(.2,0,0,1); } }
   html[data-motion="reduce"] .status-line { animation: none; }

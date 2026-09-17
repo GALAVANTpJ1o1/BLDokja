@@ -6,9 +6,9 @@ export const metadata: Metadata = { title: en.progress.title };
 
 export default function ProgressPage() {
   return (
-    <div className="flex max-w-5xl flex-col gap-4">
-      <h1 className="t-title">{en.analytics.title}</h1>
-      <p className="t-body prose-measure">{en.analytics.intro}</p>
+    <div className="progress-workbench flex max-w-5xl flex-col gap-6">
+      <header className="page-heading"><h1 className="t-title">{en.analytics.title}</h1>
+      <p className="t-body prose-measure">{en.analytics.intro}</p></header>
       <ProgressLoader />
     </div>
   );

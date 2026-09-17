@@ -136,7 +136,11 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
 
   useEffect(() => {
     const container = host.current;
-    if (container === null || !near || !sceneRequested || puzzle === undefined || setupPattern === undefined || settings.cubeView !== "3d") return;
+    // A signature cube deliberately stays spatial even when the reader has chosen nets for
+    // instructional cubes.  Previously force3D requested a scene but this guard still rejected
+    // it when the saved preference was "net", leaving the compact navigation cube in its loading
+    // fallback indefinitely.
+    if (container === null || !near || !sceneRequested || puzzle === undefined || setupPattern === undefined || (!force3D && settings.cubeView !== "3d")) return;
     const life = { disposed: false };
     const active = () => !life.disposed;
     let created: TwistyPlayer | null = null;
@@ -178,7 +182,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
     };
     // The palette is read when the player is created, so a palette change remounts it. Highlight changes
     // don't: the mask effect above updates the live player.
-  }, [near, sceneRequested, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, settings.palette, settings.cubeView, playerKey]);
+  }, [near, sceneRequested, puzzle, puzzleId, setupPattern, setup, alg, tempo, autoplay, force3D, settings.palette, settings.cubeView, playerKey]);
 
   const act = (fn: (p: TwistyPlayer) => void) => {
     if (player.current !== null) fn(player.current);

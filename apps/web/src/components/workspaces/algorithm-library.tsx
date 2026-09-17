@@ -24,7 +24,7 @@ export function AlgorithmLibrary() {
   return <div className="flex flex-col gap-6">
     <div className="control-row">
       <label className="t-ui flex items-center gap-2">{copy.algs.puzzle}<output className="field">{puzzle}</output></label>
-      <label className="t-ui flex items-center gap-2">{copy.algs.family}<select className="field" value={family} onChange={(event) => setFamily(event.target.value as typeof family)}>
+      <label className="t-ui flex items-center gap-2">{copy.algs.family}<select className="field" value={family} onChange={(event) => { setFamily(event.target.value as typeof family); }}>
         {(["cfop", "comms", "3bld-parity", "4bld-parity"] as const).map((item) => <option value={item} key={item}>{copy.algs.groups[item]}</option>)}
       </select></label>
     </div>
@@ -38,7 +38,7 @@ function ParityReference({ family }: { family: "3bld-parity" | "4bld-parity" }) 
   return <section className="flex flex-col gap-5" aria-label={copy.algs.groups[family]}>
     <p className="t-body text-quiet">{family === "3bld-parity" ? copy.algs.parityNote : copy.algs.fourParityNote}</p>
     {sources.map((dataset) => {
-      const entry = dataset.records[0]?.algs[0];
+      const entry = dataset.records[0].algs[0];
       if (entry === undefined) return null;
       return <article className="trainer-surface grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.8fr)]" key={dataset.id}>
         <Cube puzzleId={dataset.puzzle} alg={entry.moves} controls label={`${dataset.id}: ${entry.alg}`} />
@@ -76,7 +76,7 @@ function BlindAlgorithmLibrary() {
       <label className="t-ui flex gap-2 items-center"><input type="checkbox" checked={mine} onChange={(event) => { setMine(event.target.checked); }} />{copy.common.mine}</label>
       <button type="button" className="btn ml-auto" onClick={csv}>{copy.algs.csv}</button>
     </div>
-    <label className="flex flex-col gap-2 t-ui">{copy.common.search}<input type="search" className="field w-full" value={search} onChange={(event) => { setSearch(event.target.value); setLimit(60); }} /></label>
+    <label className="flex flex-col gap-2 t-ui">{copy.common.search}<span className="search-field"><input type="search" className="field w-full" value={search} onChange={(event) => { setSearch(event.target.value); setLimit(60); }} />{search !== "" ? <button className="btn search-clear" type="button" onClick={() => { setSearch(""); setLimit(60); }}>{copy.common.clear}</button> : null}</span></label>
     <p className="t-meta text-quiet">{copy.common.count(visible.length)} · {copy.common.buffer}: {dataset.buffer}</p>
     <div className="data-table-wrap max-h-[26rem]" tabIndex={0} data-shortcuts="off">
       <table className="data-table" aria-label={copy.algs.title}><thead><tr>{[copy.algs.case, copy.common.targets, copy.common.preferred, copy.common.moves, copy.algs.source].map((label) => <th key={label} scope="col">{label}</th>)}</tr></thead>

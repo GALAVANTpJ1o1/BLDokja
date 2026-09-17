@@ -3,6 +3,7 @@
 import { graphemes, type LetterPair, type MemoryPalace, type MemoStory } from "@bld/storage";
 import { useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
+import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { workspaces as copy } from "@/i18n/workspaces";
 import { getStorage, newId, nowIso } from "@/lib/storage-client";
 import { composeScenes, readRaster, reorder } from "@/trainers/memory-workspace";
@@ -24,6 +25,7 @@ export function MemoryWorkspace() {
   const fileField = useRef<HTMLInputElement>(null);
   const imageRequest = useRef(0);
   const [readingImage, setReadingImage] = useState(false);
+  const [removePalaceOpen, setRemovePalaceOpen] = useState(false);
   useEffect(() => { void getStorage().letterPairs().then(setPairs).catch(() => { setMessage(copy.common.error); }); }, []);
   const perform = async (action: () => Promise<void>) => {
     if (busy) return;
@@ -71,7 +73,7 @@ export function MemoryWorkspace() {
           <div className="control-row self-end"><button className="btn" type="button" disabled={index === 0} aria-label={copy.memory.up} onClick={() => { setPalace({ ...palace, locations: reorder(palace.locations, index, index - 1) }); }}>↑</button><button className="btn" type="button" onClick={() => { setPalace({ ...palace, locations: palace.locations.filter((item) => item.id !== location.id) }); }}>{copy.common.remove}</button></div>
         </li>)}</ol>
         <p className="t-meta text-quiet">{copy.memory.localPrompt}</p>
-        <div className="control-row"><button className="btn" type="button" disabled={palace.locations.length >= 100} onClick={() => { setPalace({ ...palace, locations: [...palace.locations, { id: newId(), name: "", prompt: "" }] }); }}>{copy.memory.addLocation}</button><button className="btn btn-strong" type="submit" disabled={busy}>{copy.memory.savePalace}</button>{stored?.memoryPalaces?.some((item) => item.id === palace.id) ? <button className="btn" type="button" onClick={() => { if (window.confirm(copy.memory.confirmRemove)) void perform(async () => { await update({ memoryPalaces: stored.memoryPalaces?.filter((item) => item.id !== palace.id) }); setPalace(newPalace()); }); }}>{copy.memory.removePalace}</button> : null}</div>
+        <div className="control-row"><button className="btn" type="button" disabled={palace.locations.length >= 100} onClick={() => { setPalace({ ...palace, locations: [...palace.locations, { id: newId(), name: "", prompt: "" }] }); }}>{copy.memory.addLocation}</button><button className="btn btn-strong" type="submit" disabled={busy}>{copy.memory.savePalace}</button>{stored?.memoryPalaces?.some((item) => item.id === palace.id) ? <button className="btn" type="button" onClick={() => { setRemovePalaceOpen(true); }}>{copy.memory.removePalace}</button> : null}</div>
       </form>
     </section>
     <section className="flex flex-col gap-4 border-t border-rule pt-6" aria-label={copy.memory.pairs}><h2 className="t-heading">{copy.memory.pairs}</h2>
@@ -112,5 +114,6 @@ export function MemoryWorkspace() {
       <details className="quiet-disclosure"><summary>{copy.memory.savedStories}</summary><div className="flex flex-col gap-3 mt-3">{stored?.memoStories?.map((item) => <div key={item.id} className="control-row"><button className="text-link" type="button" onClick={() => { setStory(item); setMemo(item.scenes.map((scene) => scene.pairId).join(" ")); }}>{item.title}</button><button className="btn ml-auto" type="button" onClick={() => { void perform(() => update({ memoStories: stored.memoStories?.filter((saved) => saved.id !== item.id) })); }}>{copy.common.remove}</button></div>)}</div></details>
     </section>
     {message ? <p role="status" className="status-line">{message}</p> : null}
+    <TransmissionWindow open={removePalaceOpen} title={copy.memory.removePalace} onClose={() => { setRemovePalaceOpen(false); }} actions={<><button className="btn" type="button" onClick={() => { setRemovePalaceOpen(false); }}>{copy.common.cancel}</button><button className="btn btn-strong" type="button" onClick={() => { setRemovePalaceOpen(false); void perform(async () => { await update({ memoryPalaces: stored?.memoryPalaces?.filter((item) => item.id !== palace.id) }); setPalace(newPalace()); }); }}>{copy.memory.removePalace}</button></>}><p>{copy.memory.confirmRemove}</p></TransmissionWindow>
   </div>;
 }

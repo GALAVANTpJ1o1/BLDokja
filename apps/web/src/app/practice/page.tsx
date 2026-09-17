@@ -30,7 +30,7 @@ const TOOLS = [
 
 export default function PracticePage() {
   return (
-    <div className="workspace flex flex-col gap-10">
+    <div className="workspace practice-directory flex flex-col gap-10">
       <header className="page-heading"><h1 className="t-title">{polish.practice.title}</h1><p className="t-body">{polish.practice.intro}</p></header>
       <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.drills}</h2>
       <ul className="tool-grid">

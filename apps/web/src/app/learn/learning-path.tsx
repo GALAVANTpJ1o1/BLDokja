@@ -31,8 +31,8 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
   const done = new Set(lessons.filter((l) => lessonDone(progress, l.id, l.checkpoints)).map((l) => l.id));
   const next = lessons.find((l) => !done.has(l.id));
   return (
-    <div className="flex flex-col gap-8">
-      <nav className="flex flex-wrap gap-2" aria-label={en.learn.tracks}>
+    <div className="learning-path flex flex-col gap-10">
+      <nav className="learning-track-nav flex flex-wrap gap-2" aria-label={en.learn.tracks}>
         {TRACKS.filter((track) => lessons.some((lesson) => lesson.track === track.id)).map((track) => (
           <a key={track.id} className="btn" href={`#track-${track.id}`}>{track.title}</a>
         ))}
@@ -41,7 +41,7 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
         const inTrack = lessons.filter((l) => l.track === track.id);
         if (inTrack.length === 0) return null;
         return (
-          <section key={track.id} className="flex flex-col gap-2" aria-labelledby={`track-${track.id}`}>
+          <section key={track.id} className="learning-track flex flex-col gap-3" aria-labelledby={`track-${track.id}`}>
             <h2 id={`track-${track.id}`} className="t-heading">{track.title}</h2>
             {track.intro !== undefined ? <p className="t-body text-quiet prose-measure">{track.intro}</p> : null}
             <TrackLessons lessons={inTrack} done={done} next={track.id === "cfop" || track.id === "oh" ? inTrack.find((lesson) => !done.has(lesson.id)) : next} />
@@ -54,11 +54,11 @@ export function LearningPath({ lessons }: { lessons: readonly PathLesson[] }) {
 
 function TrackLessons({ lessons, done, next }: { lessons: readonly PathLesson[]; done: ReadonlySet<string>; next: PathLesson | undefined }) {
   return (
-    <ol className="flex flex-col">
+    <ol className="learning-lessons flex flex-col">
       {lessons.map((lesson) => {
         const status = done.has(lesson.id) ? en.learn.done : next?.id === lesson.id ? en.learn.next : en.learn.notStarted;
         return (
-          <li key={lesson.id} className="grid grid-cols-[2.5rem_1fr] gap-x-3 border-t border-rule py-4">
+          <li key={lesson.id} className="learning-lesson grid grid-cols-[2.5rem_1fr] gap-x-3 border-t border-rule py-4">
             <span className={`t-subheading mono ${done.has(lesson.id) ? "" : "text-quiet"}`}>{lesson.order}</span>
             <div className="flex flex-col gap-1">
               <TransitionLink href={`/learn/${lesson.id}/`} className={`t-subheading ${next?.id === lesson.id ? "font-[700]" : ""}`}>

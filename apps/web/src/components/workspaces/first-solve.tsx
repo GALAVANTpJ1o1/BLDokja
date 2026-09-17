@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react
 import { Cube } from "@/components/cube/cube";
 import { usePuzzle } from "@/components/cube/use-puzzle";
 import { useSettings } from "@/components/settings/settings-provider";
+import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { algDatasets } from "@/content/algs";
 import { workspaces as copy } from "@/i18n/workspaces";
 import { GATE_B_BUFFERS, readerFor } from "@/lib/reader";
@@ -41,6 +42,7 @@ export function FirstSolve() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [physical, setPhysical] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const shownAt = useRef(0);
   useEffect(() => { shownAt.current = performance.now(); }, [runKey]);
@@ -120,6 +122,7 @@ export function FirstSolve() {
       </section>
     </div>
     <details className="quiet-disclosure"><summary>{copy.first.progress}</summary>{(["edges", "corners"] as const).map((type) => <p className="t-notation mt-2" key={type}>{copy.common.pieces[type]}: {solution.traces[type].targets.slice(0, cursor >= 0 || cursor === -1 && type === "edges" ? undefined : type === pieceType ? memoCursor : 0).join(" ")}</p>)}</details>
-    <button type="button" className="text-link self-start" onClick={() => { if (window.confirm(copy.first.reset)) { void update({ firstSolve: undefined }).then(() => { setIndex((value) => value + 1); }).catch(() => { setMessage(copy.common.error); }); } }}>{copy.first.restart}</button>
+    <><button type="button" className="text-link self-start" onClick={() => { setResetOpen(true); }}>{copy.first.restart}</button>
+    <TransmissionWindow open={resetOpen} title={copy.first.restart} onClose={() => { setResetOpen(false); }} actions={<><button type="button" className="btn" onClick={() => { setResetOpen(false); }}>{copy.common.cancel}</button><button type="button" className="btn btn-strong" onClick={() => { setResetOpen(false); void update({ firstSolve: undefined }).then(() => { setIndex((value) => value + 1); }).catch(() => { setMessage(copy.common.error); }); }}>{copy.first.restart}</button></>}><p>{copy.first.reset}</p></TransmissionWindow></>
   </div>;
 }

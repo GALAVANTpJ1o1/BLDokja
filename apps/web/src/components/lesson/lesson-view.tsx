@@ -92,7 +92,7 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
     <LessonMetaContext.Provider value={{ lessonId: frontmatter.id, checkpoints: frontmatter.checkpoints }}>
       <LessonVoiceContext.Provider value={chosen}>
         <article className="lesson-article flex flex-col gap-8">
-          <header className="flex flex-col gap-3">
+          <header className="lesson-header flex flex-col gap-3">
             <p className="t-meta text-quiet">
               <TransitionLink href="/learn/">{en.lesson.backToPath}</TransitionLink> · {frontmatter.order}. · {en.lesson.minutes(frontmatter.estimatedMinutes)}
             </p>
