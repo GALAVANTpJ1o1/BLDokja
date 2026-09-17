@@ -1376,3 +1376,12 @@ Short records of choices that would be expensive to reverse, or where sources di
 - Navigation patterns now include engine-tested checkerboard, cube-in-a-cube, superflip, snake and donut states. The player routes through the computed inverse of its completed logical pattern before applying the requested target; it coalesces a rapid retarget, pauses out of view/hidden, and remains still under reduced motion. `navigation-patterns.test.ts` proves the named patterns parse, transform and invert in the cube engine.
 - The visual direction is deliberately blue-charcoal and jade rather than the prior purple-slate treatment. Scenery remains subordinate to opaque reading/work surfaces, and all colourway values retain the contrast checks in the design suite.
 - Reversal: the modular styles and image assets can be exchanged independently. Keep the verified cube pattern tests, local-font license, native control semantics and contrast coverage if the visual layer changes again.
+
+## D-052 · Public v1 distribution is a reproducible static checkout
+
+**Status:** accepted 2026-09-18 at the owner's request to publish Version 1.
+
+- The public checkout declares Node.js `>=22.3.0` and documents Corepack as the package-manager activation path. `pnpm install --frozen-lockfile`, `pnpm dev`, and the four verification commands are documented at the repository root.
+- The built app is a static export in `apps/web/out/`; it remains local-first with no account, backend, analytics, or configuration secret required for a new contributor to run it. Host-specific headers and offline verification remain in `docs/DEPLOY.md`.
+- Local agent instructions, build products, generated worker/vendor bundles, review artifacts, legacy databases, exports, and environment files stay ignored. They do not belong in the public source history.
+- Reversal: update the documented toolchain together with the lockfile; do not loosen the data, build-output, or environment ignore rules when adding public documentation.

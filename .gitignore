@@ -12,6 +12,10 @@
 # Local Claude Code settings
 .claude/settings.local.json
 
+# Local agent instructions supplied outside the repository
+AGENTS.md
+FRONTEND (1).md
+
 # Legacy Android build output, IDE state and machine-specific paths
 legacy/android/**/build/
 legacy/android/.gradle/
