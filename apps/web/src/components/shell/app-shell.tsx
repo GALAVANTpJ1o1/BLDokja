@@ -4,8 +4,10 @@ import { usePathname } from "next/navigation";
 import { ArrowLeftIcon, BookOpenIcon, CubeIcon, SlidersHorizontalIcon, ChartLineIcon, TargetIcon, UserCircleIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { TransitionLink as Link } from "@/components/transitions/transition-link";
+import { contact } from "@/i18n/contact";
 import { en } from "@/i18n/en";
 import { explore } from "@/i18n/explore";
+import { privacy } from "@/i18n/privacy";
 import { SiteGuide } from "./site-guide";
 import { NavigationCube } from "@/components/cube/navigation-cube";
 import { redesign } from "@/i18n/redesign";
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {pathname !== "/" ? <Link className="shell-back" href={pathname.startsWith("/practice/") && pathname !== "/practice/" ? "/practice/" : pathname.startsWith("/learn/") && pathname !== "/learn/" ? "/learn/" : "/"}><ArrowLeftIcon size={15} aria-hidden />{pathname.startsWith("/practice/") && pathname !== "/practice/" ? explore.backPractice : pathname.startsWith("/learn/") && pathname !== "/learn/" ? explore.backLearn : explore.backHome}</Link> : null}
         {children}
         <SiteGuide invitation />
-        <footer className="shell-footer"><span><CubeIcon size={18} weight="light" aria-hidden />{redesign.footer}</span><span>{redesign.footerNote}</span></footer>
+        <footer className="shell-footer"><span><CubeIcon size={18} weight="light" aria-hidden />{redesign.footer}</span><span>{redesign.footerNote}</span><span><Link href="/contact/">{contact.title}</Link>{" · "}<Link href="/privacy/">{privacy.title}</Link></span></footer>
       </main>
 
       <nav aria-label={en.nav.label} className="shell-bottom">
