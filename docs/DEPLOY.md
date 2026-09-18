@@ -61,3 +61,39 @@ and the app links to `/learn/`.
 
 Nothing in the code refers to a host name: pages are linked by absolute path, and the manifest's
 `start_url` is `/`. Any domain or subpath-free hosting works as it stands.
+
+## v2: accounts and sync (Supabase)
+
+v2 (docs/DECISIONS.md D-053 onward) adds an optional account layer behind Supabase. Guests still need
+none of this — the site above still works exactly as v1 without it. This section is the recipe for the
+account/sync layer only; it is not yet deployed anywhere (M8 in the v2 plan is owner-approved production
+launch, still pending).
+
+**Environment variables.** There is no committed `.env.example` (a permission rule in this environment
+blocks writing any `.env*` file, even a placeholder one) — the variables an actual deploy needs are:
+
+| Variable | Where it's read | Safe to expose publicly? |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | `apps/web` build (baked into the static export) | Yes — it's just the project's API host |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `apps/web` build | Yes — this key only ever acts through RLS; it is designed to be public |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `apps/web` build | Yes — Turnstile site keys are meant to be embedded client-side |
+| `SUPABASE_SERVICE_ROLE_KEY` | `supabase/functions/redeem-recovery-code` only, via `supabase secrets set` | **No.** Never put this in `apps/web`'s env or any `NEXT_PUBLIC_*` variable — it bypasses every RLS policy |
+| `SITE_ORIGINS` | same Edge Function, a comma-separated CORS allow-list | Not secret, just config |
+
+Because `apps/web` is a static export, `NEXT_PUBLIC_*` values are visible to anyone who views the page
+source — that is expected and safe for the three above, and exactly why the service-role key must never
+become one of them.
+
+**Supabase migrations** live in `supabase/migrations/` (profiles, the sync tables, the private
+letter-pair-images Storage bucket, and the three leaderboard functions — see D-056/D-057 for the design).
+Apply them with `supabase db push` against the real project once it exists; `supabase/config.toml` is the
+local-dev configuration (`supabase start`, needs Docker, not available in every environment).
+
+**Supabase Auth Site URL and redirect URLs** must be set to the real deployed origin
+(`https://bldokja.pages.dev`, once confirmed available) before launch — `supabase/config.toml`'s
+`site_url`/`additional_redirect_urls` are the local-dev placeholders (`127.0.0.1:3000`) and are not
+production values.
+
+**Deploying `apps/web`'s static export changes nothing about the "no cookies" claim above** — the
+Supabase JS client keeps its session in `localStorage`, not a cookie, so that guarantee still holds for
+v2 as built here.
