@@ -5,8 +5,8 @@ import { expect, test, type Page } from "@playwright/test";
  * privacy, leaderboard, 404, SEO and breadcrumb pieces are all really there. Needs no backend, so it
  * runs against a plain `pnpm dev`/`pnpm build` of the app.
  *
- * NOT YET RUN: written without a browser available (the authoring session could not reach
- * localhost). Expect to fix selectors or timings on first run.
+ * First run (owner, against `pnpm dev`, chromium + mobile): 20 of 22 passed; the two failures were a
+ * selector matching Next's duplicate noindex tag on the 404 page, since fixed. Not yet re-run.
  */
 
 const SITE = "https://bldokja.pages.dev";
