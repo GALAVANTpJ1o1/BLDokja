@@ -3,7 +3,9 @@
 The site is a folder of static files. There is no server, no database and no API: everything a reader does
 stays in their browser (BRIEF §2, §12). Any static host works.
 
-**Nothing has been deployed.** This file is the recipe; running it is yours to do.
+**Live at https://bldokja.pages.dev** since 2026-09-19: a Cloudflare Pages project named `bldokja` (free
+`*.pages.dev` subdomain, direct upload, no git integration). This file is the recipe for building and
+redeploying it; the Cloudflare-specific commands are under "Deploying to Cloudflare Pages" below.
 
 ## Build it
 
@@ -22,6 +24,42 @@ pnpm build
 | `scripts/sw.mjs` | writes `sw.js`, which precaches every file so the site works offline |
 
 Upload the contents of `apps/web/out/` to the host's root.
+
+## Deploying to Cloudflare Pages
+
+Needs `wrangler` logged in (`pnpm exec wrangler whoami`). Both Supabase values below are public by design
+(the URL is an API host, the publishable key only acts through RLS), so they can sit on the command line;
+the service-role key must never appear anywhere in this flow.
+
+```
+# bash / Git Bash
+export NEXT_PUBLIC_SUPABASE_URL="https://dlqphprfgsqyfbpsfvqd.supabase.co"
+export NEXT_PUBLIC_SUPABASE_ANON_KEY="<the sb_publishable_... key>"
+pnpm build
+pnpm exec wrangler pages deploy apps/web/out --project-name bldokja --branch main
+```
+
+```
+# PowerShell
+$env:NEXT_PUBLIC_SUPABASE_URL="https://dlqphprfgsqyfbpsfvqd.supabase.co"
+$env:NEXT_PUBLIC_SUPABASE_ANON_KEY="<the sb_publishable_... key>"
+pnpm build
+pnpm exec wrangler pages deploy apps/web/out --project-name bldokja --branch main
+```
+
+- **Set both variables in the same shell that runs `pnpm build`.** `next build` would also read
+  `apps/web/.env.local`, but `scripts/csp.mjs` runs afterwards as a plain Node script and does not; without
+  the variable in the environment it writes `connect-src 'self'` and the deployed site silently has no
+  accounts, leaderboards or deletion (D-069).
+- `--branch main` is what makes it the **Production** deployment; any other branch name publishes a preview
+  at its own hostname. `wrangler pages deployment list --project-name bldokja` shows which is which.
+- A deploy replaces the whole site atomically and keeps earlier deployments, so a bad one can be rolled back
+  from the Cloudflare dashboard (Workers & Pages → bldokja → Deployments).
+
+Checks worth repeating after each deploy (all passed on the first one, D-072): the CSP `<meta>` on `/account/`
+names the Supabase origin; the response headers match the table below; `/sw.js` is `no-cache`; the
+leaderboard page loads its data (an `rpc/leaderboard_streaks` call answered 200 under the CSP); and
+`BLD_TEST_URL=https://bldokja.pages.dev pnpm exec playwright test launch` passes.
 
 ## Headers
 
@@ -66,8 +104,8 @@ Nothing in the code refers to a host name: pages are linked by absolute path, an
 
 v2 (docs/DECISIONS.md D-053 onward) adds an optional account layer behind Supabase. Guests still need
 none of this — the site above still works exactly as v1 without it. This section is the recipe for the
-account/sync layer only; it is not yet deployed anywhere (M8 in the v2 plan is owner-approved production
-launch, still pending).
+account/sync layer only. It is deployed: all ten migrations are applied to the live project and both Edge
+Functions are deployed (D-072).
 
 **Environment variables.** There is no committed `.env.example` (a permission rule in this environment
 blocks writing any `.env*` file, even a placeholder one) — the variables an actual deploy needs are:
@@ -89,10 +127,17 @@ letter-pair-images Storage bucket, and the three leaderboard functions — see D
 Apply them with `supabase db push` against the real project once it exists; `supabase/config.toml` is the
 local-dev configuration (`supabase start`, needs Docker, not available in every environment).
 
-**Supabase Auth Site URL and redirect URLs** must be set to the real deployed origin
-(`https://bldokja.pages.dev`, once confirmed available) before launch — `supabase/config.toml`'s
-`site_url`/`additional_redirect_urls` are the local-dev placeholders (`127.0.0.1:3000`) and are not
-production values.
+**Supabase Auth Site URL and redirect URLs** should be set to the deployed origin
+(`https://bldokja.pages.dev`, now confirmed) in the Supabase dashboard (Authentication → URL Configuration) —
+`supabase/config.toml`'s `site_url`/`additional_redirect_urls` are the local-dev placeholders
+(`127.0.0.1:3000`) and are not production values. Low urgency: accounts use a synthetic, never-delivered
+email address (D-054), so no email link is ever sent that would carry this URL.
+
+**Edge Function origins.** Both functions allow the exact origins in `SITE_ORIGINS` (default
+`http://localhost:3000,https://bldokja.pages.dev`), any localhost/127.0.0.1 port, and any host under
+`.bldokja.pages.dev` (preview deployments). Verified from the live origin with a CORS preflight (D-072).
+Redeploy after changing them: `supabase functions deploy delete-own-account` and
+`supabase functions deploy redeem-recovery-code --no-verify-jwt`.
 
 **Deploying `apps/web`'s static export changes nothing about the "no cookies" claim above** — the
 Supabase JS client keeps its session in `localStorage`, not a cookie, so that guarantee still holds for

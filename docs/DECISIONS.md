@@ -1630,3 +1630,21 @@ All three scenarios failed at the same line, waiting for the sign-in heading aft
 Found by reading the trace's console log and network entries out of `.artifacts/playwright-results/*/trace.zip`, which is worth remembering: the run's artifacts carry the browser console, every request and its status, and the full page snapshot, so a failure on the owner's machine can be diagnosed here without a reachable server.
 
 **Fifth run** (after redeploying both functions): scenarios 12 and 5 passed, in 13 and 15 seconds. 15 failed on `net::ERR_ABORTED` navigating to `/account/` immediately after the post-auth flow, which ends in `window.location.reload()` — the reload landed mid-navigation and cancelled it. Nothing is wrong when that happens, so every navigation in the spec now goes through `gotoStable`, which retries an aborted one. The reload itself is deliberate (local storage is namespaced per account and has to be reopened), so this is the spec's problem to absorb, not the app's.
+
+## D-072 · Launch: v2 deployed to bldokja.pages.dev (M8)
+
+**Status:** live (2026-09-19), deployed on the owner's explicit go-ahead. Cloudflare Pages project `bldokja`, direct upload of `apps/web/out` from commit `66754a4`, Production environment, free `*.pages.dev` subdomain (no purchase). The recipe is in `docs/DEPLOY.md`.
+
+**Before uploading:** unit suites, lint and typecheck green; `e2e/launch.spec.ts` 22/22 and `e2e/accounts.spec.ts` 3/3 against the owner's dev server; all ten migrations confirmed applied on the live database (`supabase migration list --linked`, including the D-069 security hardening); both Edge Functions redeployed by the owner. The built output was checked before upload: the CSP on every page allows exactly `'self'` plus the Supabase origin, no source maps, no JWT-shaped strings or service-role material in the bundle (the one text match for `sb_secret_` is supabase-js's own guard that refuses such keys in a browser), 630 files, 21 MB.
+
+**Checked on the live site (from the built-in browser, no accounts created):**
+- Response headers as specified: `frame-ancestors 'none'`, `nosniff`, `no-referrer`, the permissions policy, `sw.js` no-cache, `/_next/static/*` immutable for a year, unknown paths 404, no cookies.
+- Home, learn, practice, progress, contact, privacy, account and leaderboard all render; at 375px none overflows horizontally, each has one `h1`, the account page shows the sign-in form (so the session check reached Supabase under the production CSP), Contact carries the agreed email and Instagram links, and 5BLD is labelled "Building".
+- The leaderboard called `rpc/leaderboard_streaks` on Supabase from the production origin and got 200 — the call D-069 found the CSP was blocking.
+- CORS preflights to both Edge Functions from `https://bldokja.pages.dev` succeeded.
+- Offline: registering the service worker (it waits for the first interaction, by design) precached all 622 files and activated.
+- Load: 20 concurrent virtual users, 5 rounds each of three pages and three leaderboard RPCs (600 requests): 0 failures, median about 95 ms, p95 about 1.2 s for pages and 0.9 s for RPCs, whole run 2.8 s. The tail is 20 simultaneous new TLS connections from one home connection, not server time. This is a smoke test of the free tiers, not a capacity claim.
+
+**Not exercised on the live origin:** sign-up, sign-in, sync and deletion against production. They ran against the owner's dev server and the same Supabase project (D-070, D-071), but the production CSP and origin have only been checked through the requests above. `BLD_E2E_ACCOUNTS=1 BLD_TEST_URL=https://bldokja.pages.dev pnpm exec playwright test accounts --project=chromium` covers it and is safe to run (throwaway `e2e-` accounts, deleted by the test).
+
+**Still open, owner's side:** Supabase dashboard → Authentication → URL Configuration → Site URL `https://bldokja.pages.dev` (low urgency, D-054: no email link is ever sent); deleting leftover `e2e-` users from earlier failed runs; the known-and-accepted risks in D-069 (open sign-up without a captcha is the one to watch once the site has visitors).

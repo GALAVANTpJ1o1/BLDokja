@@ -14,7 +14,7 @@ The full specification is in `BRIEF.md`. Read it before any non-trivial work. Th
 
 ## Current phase
 
-**v2 — accounts, cross-device sync and launch polish** (branch `v2/accounts-sync`, plan milestones M1–M8). v1 (engine, lessons, trainers, local-only storage) is complete and live on `master`. M1–M6 are done (Supabase schema, auth, sync, activity/leaderboards, loader and SEO/launch pages); M7 (regression, security, load and browser inspection) is partly done — see `docs/DECISIONS.md` D-068 — and M8 (owner-approved launch to `bldokja.pages.dev`) has not started. Decisions since v1 are D-053 onward.
+**v2 — accounts, cross-device sync and launch polish** (branch `v2/accounts-sync`, plan milestones M1–M8). v1 (engine, lessons, trainers, local-only storage) is complete and live on `master`. M1–M7 are done (Supabase schema, auth, sync, activity/leaderboards, loader and SEO/launch pages; regression, security, load and browser checks, D-068 to D-071) and M8 has launched — the site went live at `https://bldokja.pages.dev` on 2026-09-19 (D-072, recipe in `docs/DEPLOY.md`), pending the owner's sign-off that the phase is done. Decisions since v1 are D-053 onward.
 
 The `Don't add accounts, auth, or a backend` rule below applied to v1; v2 deliberately adds an optional Supabase backend (`docs/DECISIONS.md` D-053 to D-056), and guest mode must keep working exactly as in v1.
 
