@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AccountError, generateRecoveryCode, sha256Hex, USERNAME_PATTERN, usernameToEmail } from "./account";
+import { AccountError, generateRecoveryCode, sha256Hex, USERNAME_INPUT_PATTERN, USERNAME_PATTERN, usernameToEmail } from "./account";
 
 describe("username format", () => {
   it("accepts 3-24 lowercase letters, digits, underscores and hyphens", () => {
@@ -15,6 +15,18 @@ describe("username format", () => {
     expect(USERNAME_PATTERN.test("a b")).toBe(false);
     expect(USERNAME_PATTERN.test("a@b")).toBe(false);
     expect(USERNAME_PATTERN.test("")).toBe(false);
+  });
+
+  /**
+   * An <input pattern> is compiled with the `v` flag and is implicitly anchored, which is exactly
+   * what this rebuilds. The obvious spelling of the class -- a bare `-` just before the `]` -- is a
+   * syntax error under that flag, and a browser responds by logging and then ignoring the attribute
+   * altogether, so the field silently stops validating (docs/DECISIONS.md D-071).
+   */
+  it("has an input-attribute spelling that a browser can actually compile", () => {
+    const asBrowsersCompileIt = new RegExp(`^(?:${USERNAME_INPUT_PATTERN})$`, "v");
+    for (const name of ["abc", "a_b-9", "x".repeat(24)]) expect(asBrowsersCompileIt.test(name), name).toBe(true);
+    for (const name of ["ab", "x".repeat(25), "Abc", "a b", "a@b", ""]) expect(asBrowsersCompileIt.test(name), name).toBe(false);
   });
 });
 

@@ -6,7 +6,7 @@ import { PostAuthFlow } from "@/components/account/post-auth-flow";
 import { useSync } from "@/components/sync/sync-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
-import { AccountError, type AccountErrorCode } from "@/lib/account";
+import { AccountError, USERNAME_INPUT_PATTERN, type AccountErrorCode } from "@/lib/account";
 import type { LetterPairConflict } from "@/lib/sync/pairs";
 import { account } from "@/i18n/account";
 import { contact } from "@/i18n/contact";
@@ -144,7 +144,7 @@ function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthSt
         <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void (mode === "sign-up" ? submitSignUp() : submitSignIn()); }}>
           <label className="flex flex-col gap-2">
             {mode === "sign-up" ? account.signUp.username : account.signIn.username}
-            <input className="field" value={username} onChange={(e) => { setUsername(e.target.value.toLowerCase()); }} autoComplete="username" required pattern="[a-z0-9_-]{3,24}" />
+            <input className="field" value={username} onChange={(e) => { setUsername(e.target.value.toLowerCase()); }} autoComplete="username" required pattern={USERNAME_INPUT_PATTERN} />
           </label>
           {mode === "sign-up" ? <p className="t-meta text-quiet">{account.signUp.usernameHint}</p> : null}
           <label className="flex flex-col gap-2">
@@ -245,6 +245,7 @@ function SignedInView() {
 
   const [revealCode, setRevealCode] = useState<string | undefined>(undefined);
   const [recoveryBusy, setRecoveryBusy] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string | undefined>(undefined);
 
   const [optIn, setOptIn] = useState(false);
   const [displayName, setDisplayName] = useState("");
@@ -253,6 +254,7 @@ function SignedInView() {
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
   async function submitUsername() {
     setUsernameBusy(true);
@@ -284,8 +286,11 @@ function SignedInView() {
 
   async function doRegenerateRecoveryCode() {
     setRecoveryBusy(true);
+    setRecoveryError(undefined);
     try {
       setRevealCode(await regenerateRecoveryCode());
+    } catch (err) {
+      setRecoveryError(messageFor(err)); // same reasoning as doDeleteAccount below
     } finally {
       setRecoveryBusy(false);
     }
@@ -302,8 +307,14 @@ function SignedInView() {
 
   async function doDeleteAccount() {
     setDeleteBusy(true);
+    setDeleteError(undefined);
     try {
       await deleteAccount();
+    } catch (err) {
+      // Nothing caught this before, so a failure threw into a floating promise and the dialog just
+      // sat there: the user pressed the button that deletes everything and got no answer either way.
+      // Found when the delete Edge Function's CORS list blocked the call (docs/DECISIONS.md D-071).
+      setDeleteError(messageFor(err));
     } finally {
       setDeleteBusy(false);
     }
@@ -322,7 +333,7 @@ function SignedInView() {
 
       <Section title={account.account.changeUsername.title}>
         <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void submitUsername(); }}>
-          <label className="flex flex-col gap-2">{account.account.changeUsername.newUsername}<input className="field" value={newUsername} onChange={(e) => { setNewUsername(e.target.value.toLowerCase()); }} pattern="[a-z0-9_-]{3,24}" required /></label>
+          <label className="flex flex-col gap-2">{account.account.changeUsername.newUsername}<input className="field" value={newUsername} onChange={(e) => { setNewUsername(e.target.value.toLowerCase()); }} pattern={USERNAME_INPUT_PATTERN} required /></label>
           {usernameStatus !== undefined ? <p className="t-body">{usernameStatus}</p> : null}
           <button type="submit" className="btn btn-strong" disabled={usernameBusy}>{account.account.changeUsername.submit}</button>
         </form>
@@ -338,6 +349,7 @@ function SignedInView() {
 
       <Section title={account.account.recoveryCode.title}>
         <p className="t-body">{account.account.recoveryCode.body}</p>
+        {recoveryError !== undefined ? <p role="alert" className="t-body">{recoveryError}</p> : null}
         <button type="button" className="btn" disabled={recoveryBusy} onClick={() => void doRegenerateRecoveryCode()}>{account.account.recoveryCode.regenerate}</button>
       </Section>
 
@@ -365,10 +377,10 @@ function SignedInView() {
       <TransmissionWindow
         open={deleting}
         title={account.account.deleteAccount.title}
-        onClose={() => { setDeleting(false); setDeleteConfirmText(""); }}
+        onClose={() => { setDeleting(false); setDeleteConfirmText(""); setDeleteError(undefined); }}
         actions={
           <>
-            <button type="button" className="btn" onClick={() => { setDeleting(false); setDeleteConfirmText(""); }}>{account.account.cancel}</button>
+            <button type="button" className="btn" onClick={() => { setDeleting(false); setDeleteConfirmText(""); setDeleteError(undefined); }}>{account.account.cancel}</button>
             <button type="button" className="btn btn-strong" disabled={deleteConfirmText !== account.account.deleteAccount.confirmWord || deleteBusy} onClick={() => void doDeleteAccount()}>{account.account.deleteAccount.button}</button>
           </>
         }
@@ -378,6 +390,7 @@ function SignedInView() {
           {account.account.deleteAccount.typeToConfirm}
           <input className="field max-w-48 mono" value={deleteConfirmText} onChange={(e) => { setDeleteConfirmText(e.target.value); }} autoComplete="off" />
         </label>
+        {deleteError !== undefined ? <p role="alert" className="t-body">{deleteError}</p> : null}
       </TransmissionWindow>
     </div>
   );

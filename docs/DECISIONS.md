@@ -1613,3 +1613,18 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **`getByLabel` matches substrings, case-insensitively.** Having decided wrongly that it was signed out, cleanup's `getByLabel("Username")` matched the *signed-in* view's "New username" box, typed the username into it, and then waited for an exact "Password" field that only exists on the signed-out form — burning the rest of each test's timeout (4 and 5 minutes) on a test whose assertions had all passed.
 - **Fix.** One `openAccountPage()` helper opens `/account/` and waits for whichever of the two views renders before answering; every helper starts there and asserts the state it needs, so a wrong assumption fails in seconds with a sentence instead of hanging. Every label lookup is now `exact`.
 - Throwaway `e2e-` accounts from that run were left behind and need deleting from the Supabase dashboard by hand.
+
+## D-071 · Fourth run: account deletion was CORS-blocked, and failed silently when it was
+
+**Status:** fixed in the repo (2026-09-18). **`delete-own-account` must be redeployed** for the fix to take effect; until then the e2e run only passes against a dev server on port 3000.
+
+All three scenarios failed at the same line, waiting for the sign-in heading after confirming deletion. The page snapshot showed the confirm dialog still open, still signed in, with no message of any kind. The browser console recorded in the Playwright trace named the cause outright:
+
+> Access to fetch at `.../functions/v1/delete-own-account` from origin `http://localhost:3001` has been blocked by CORS policy: ... the 'Access-Control-Allow-Origin' header has a value 'http://localhost:3000'
+
+- **The Edge Functions' origin allow-list was a fixed list of two.** `pnpm dev` moves to 3001 whenever 3000 is taken, and that was enough to break both Edge Functions with no server-side trace at all. Both now also accept any localhost/127.0.0.1 port and any preview host under `.bldokja.pages.dev` (only this Cloudflare project can publish there; bare `*.pages.dev` is everyone's and is not matched). CORS was never the thing protecting these functions -- the bearer token is -- so widening it costs nothing. Preview deployments would have hit this after launch regardless of the port.
+- **A failed deletion said nothing.** `doDeleteAccount` had no `catch`, so the error went to an unhandled rejection and the dialog just sat there: the user presses the button that erases everything and learns nothing either way. It now shows the message. `doRegenerateRecoveryCode` had the same hole.
+- **The username `pattern` attribute never worked in any browser.** `[a-z0-9_-]{3,24}` is a syntax error under the `v` flag that HTML compiles `pattern` with ("Invalid character in character class", logged on every render of the account page), and a browser that can't compile the pattern ignores the attribute — so the field accepted anything until the server refused it. Both inputs now use `USERNAME_INPUT_PATTERN` from `lib/account.ts`, escaped, with a test that compiles it the way a browser does.
+- **The spec** now surfaces the dialog's own error text instead of timing out in silence.
+
+Found by reading the trace's console log and network entries out of `.artifacts/playwright-results/*/trace.zip`, which is worth remembering: the run's artifacts carry the browser console, every request and its status, and the full page snapshot, so a failure on the owner's machine can be diagnosed here without a reachable server.

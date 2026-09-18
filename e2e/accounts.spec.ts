@@ -107,7 +107,12 @@ async function deleteAccount(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Delete account", exact: true }).first().click();
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
   await page.getByRole("button", { name: "Delete account", exact: true }).last().click();
-  await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible({ timeout: 30_000 });
+  // The dialog reports its own failures now, so say what went wrong instead of timing out in
+  // silence the way the third run did on a CORS-blocked Edge Function call (D-071).
+  const signedOut = page.getByRole("heading", { name: "Sign in", exact: true });
+  const failed = page.getByRole("dialog").getByRole("alert");
+  await expect(signedOut.or(failed)).toBeVisible({ timeout: 30_000 });
+  if (await failed.isVisible()) throw new Error(`the app refused to delete the account: ${(await failed.innerText()).trim()}`);
 }
 
 // Cleanup that works from whatever state a test left the page in -- signed in (delete), signed out

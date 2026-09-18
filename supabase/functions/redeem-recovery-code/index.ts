@@ -19,16 +19,30 @@
 // verify that once the sign-up/forgot-password UI can drive it for real.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+// Same origin rule as delete-own-account/index.ts, and for the same reasons -- see the comment there.
 const ALLOWED_ORIGINS = (Deno.env.get("SITE_ORIGINS") ?? "http://localhost:3000,https://bldokja.pages.dev")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+const PREVIEW_HOST_SUFFIX = ".bldokja.pages.dev";
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_FAILED_ATTEMPTS = 5;
 
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1")) return true;
+  return url.protocol === "https:" && url.hostname.endsWith(PREVIEW_HOST_SUFFIX);
+}
+
 function corsHeaders(origin: string | null): HeadersInit {
-  const allowOrigin = origin !== null && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowOrigin = origin !== null && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",

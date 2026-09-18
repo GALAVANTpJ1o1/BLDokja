@@ -14,6 +14,14 @@ export { sha256Hex };
  */
 
 export const USERNAME_PATTERN = /^[a-z0-9_-]{3,24}$/;
+/**
+ * The same rule, written for an `<input pattern>` attribute. Browsers compile that attribute with
+ * the `v` flag, which rejects the unescaped trailing `-` that is fine in the RegExp literal above:
+ * Chrome threw "Invalid character in character class" on every render of the account page and then
+ * ignored the attribute entirely, so the field accepted anything until the server refused it
+ * (docs/DECISIONS.md D-071). Keep the two in step, and keep the backslash.
+ */
+export const USERNAME_INPUT_PATTERN = "[a-z0-9_\\-]{3,24}";
 export const MIN_PASSWORD_LENGTH = 8;
 /** Excludes 0/O/1/I/L: a recovery code is read and typed back by a human, not pasted from a manager. */
 const RECOVERY_CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";

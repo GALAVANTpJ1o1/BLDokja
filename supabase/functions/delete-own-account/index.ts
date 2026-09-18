@@ -20,13 +20,36 @@
 // deletion (added after that live run, in the D-069 security review) and have not been exercised live.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+// Which pages a browser may call this from. Exact origins come from SITE_ORIGINS (or the defaults),
+// plus two families that can't be listed exactly:
+//   - any localhost/127.0.0.1 port. `pnpm dev` moves to 3001 whenever 3000 is taken, and the
+//     hardcoded 3000 turned account deletion into a preflight failure for a whole e2e run before
+//     anyone noticed (docs/DECISIONS.md D-071);
+//   - preview deployments, which get a per-branch hostname under the project's own pages.dev
+//     subdomain. Only this Cloudflare project can publish there -- unlike bare *.pages.dev, which
+//     is every Cloudflare user's, and must never be matched.
+// CORS is not what protects this function: every call is authorised by its own bearer token. This
+// only decides which pages a browser will let read the reply.
 const ALLOWED_ORIGINS = (Deno.env.get("SITE_ORIGINS") ?? "http://localhost:3000,https://bldokja.pages.dev")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+const PREVIEW_HOST_SUFFIX = ".bldokja.pages.dev";
+
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1")) return true;
+  return url.protocol === "https:" && url.hostname.endsWith(PREVIEW_HOST_SUFFIX);
+}
 
 function corsHeaders(origin: string | null): HeadersInit {
-  const allowOrigin = origin !== null && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowOrigin = origin !== null && isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
