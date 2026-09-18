@@ -128,8 +128,8 @@ letter-pair-images Storage bucket, and the three leaderboard functions — see D
 Apply them with `supabase db push` against the real project once it exists; `supabase/config.toml` is the
 local-dev configuration (`supabase start`, needs Docker, not available in every environment).
 
-**Supabase Auth Site URL and redirect URLs** should be set to the deployed origin
-(`https://bldokja.pages.dev`, now confirmed) in the Supabase dashboard (Authentication → URL Configuration) —
+**Supabase Auth Site URL and redirect URLs** are set to the deployed origin
+(`https://bldokja.pages.dev`) in the Supabase dashboard (Authentication → URL Configuration; done by the owner, 2026-09-19) —
 `supabase/config.toml`'s `site_url`/`additional_redirect_urls` are the local-dev placeholders
 (`127.0.0.1:3000`) and are not production values. Low urgency: accounts use a synthetic, never-delivered
 email address (D-054), so no email link is ever sent that would carry this URL.

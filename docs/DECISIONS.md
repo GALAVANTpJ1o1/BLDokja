@@ -1647,7 +1647,7 @@ Found by reading the trace's console log and network entries out of `.artifacts/
 
 **Not exercised on the live origin:** sign-up, sign-in, sync and deletion against production. They ran against the owner's dev server and the same Supabase project (D-070, D-071), but the production CSP and origin have only been checked through the requests above. `BLD_E2E_ACCOUNTS=1 BLD_TEST_URL=https://bldokja.pages.dev pnpm exec playwright test accounts --project=chromium` covers it and is safe to run (throwaway `e2e-` accounts, deleted by the test).
 
-**Still open, owner's side:** Supabase dashboard → Authentication → URL Configuration → Site URL `https://bldokja.pages.dev` (low urgency, D-054: no email link is ever sent); deleting leftover `e2e-` users from earlier failed runs; the known-and-accepted risks in D-069 (open sign-up without a captcha is the one to watch once the site has visitors).
+**Owner's side, closed 2026-09-19:** the owner ran the launch and accounts e2e against the live site (all passing after D-073) and completed the Supabase dashboard steps (Site URL, leftover `e2e-` users). **Still to watch:** the known-and-accepted risks in D-069; open sign-up without a captcha is the one that matters once the site has visitors.
 
 ## D-073 · The share-card image was served as application/octet-stream
 
