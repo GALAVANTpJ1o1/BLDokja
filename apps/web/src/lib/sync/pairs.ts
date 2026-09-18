@@ -2,6 +2,7 @@ import { canonicalJson, LetterPairSchema, type LetterPair } from "@bld/storage";
 import { currentAccountId, getStorage } from "@/lib/storage-client";
 import { getSupabase } from "@/lib/supabase-client";
 import { sha256Hex } from "@/lib/hash";
+import { downloadPairImages, uploadPairImages, type PairImagesStorageClient } from "./pair-images";
 import { getPairTracking, setPairTracking, type PairSyncState, type PairTracking } from "./pairs-tracking";
 
 interface RemoteRow {
@@ -16,8 +17,8 @@ interface UpsertResult {
   readonly error: { message: string } | null;
 }
 
-/** The slice of the Supabase client this module calls -- see events.ts's EventsSyncClient for why this is narrower than the real SupabaseClient type. */
-export interface PairsSyncClient {
+/** The slice of the Supabase client this module calls -- see events.ts's EventsSyncClient for why this is narrower than the real SupabaseClient type. Extends PairImagesStorageClient since pushing/pulling a pair with an image needs Storage too. */
+export interface PairsSyncClient extends PairImagesStorageClient {
   from(table: "sync_letter_pairs"): {
     select(columns: string): PromiseLike<{ data: readonly RemoteRow[] | null; error: { message: string } | null }>;
     insert(row: { id: string; user_id: string; data: unknown }): { select(columns: string): PromiseLike<UpsertResult> };
@@ -41,8 +42,15 @@ export interface ReconcileLetterPairsResult {
   readonly pushed: number;
   readonly pulled: number;
   readonly failed: boolean;
-  /** Both sides changed since the last sync. Neither is overwritten; the local copy stays active until the user resolves it -- there is no UI for that yet (see docs/DECISIONS.md). */
+  /** Both sides changed since the last sync. Neither is overwritten; the local copy stays active until the user resolves it (resolveLetterPairConflict). */
   readonly conflicts: readonly LetterPairConflict[];
+}
+
+/** Downloads any referenced images and validates the result as a real LetterPair, or returns undefined if either step fails -- a network blip on the image or a corrupt/foreign row, treated the same way: skip this row this cycle rather than crash or fabricate data. */
+async function inflateRemotePair(data: unknown, client: PairImagesStorageClient): Promise<LetterPair | undefined> {
+  const inflated = await downloadPairImages(data, client);
+  const parsed = LetterPairSchema.safeParse(inflated);
+  return parsed.success ? parsed.data : undefined;
 }
 
 /**
@@ -85,8 +93,8 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
 
     if (row.deleted_at !== null) {
       if (local !== undefined && locallyChanged) {
-        conflicts.push({ id: row.id, local, remote: row.data as LetterPair, remoteRev: row.rev });
-        conflictIds.add(row.id);
+        const remote = await inflateRemotePair(row.data, client);
+        if (remote !== undefined) { conflicts.push({ id: row.id, local, remote, remoteRev: row.rev }); conflictIds.add(row.id); }
       } else if (local !== undefined) {
         await storage.deleteLetterPair(row.id, row.deleted_at);
       }
@@ -96,15 +104,15 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
     }
 
     if (locallyChanged && local !== undefined) {
-      conflicts.push({ id: row.id, local, remote: row.data as LetterPair, remoteRev: row.rev });
-      conflictIds.add(row.id);
+      const remote = await inflateRemotePair(row.data, client);
+      if (remote !== undefined) { conflicts.push({ id: row.id, local, remote, remoteRev: row.rev }); conflictIds.add(row.id); }
       continue;
     }
 
-    const parsed = LetterPairSchema.safeParse(row.data);
-    if (!parsed.success) continue; // Corrupt or foreign remote row: skip it rather than crash the whole reconciliation.
-    await storage.putLetterPair(parsed.data);
-    const hash = await sha256Hex(canonicalJson(parsed.data));
+    const parsed = await inflateRemotePair(row.data, client);
+    if (parsed === undefined) continue; // Corrupt/foreign row or a failed image download: skip it rather than crash the whole reconciliation.
+    await storage.putLetterPair(parsed);
+    const hash = await sha256Hex(canonicalJson(parsed));
     localHashes.set(row.id, hash);
     nextTracking[row.id] = { rev: row.rev, hash, deleted: false };
     pulled++;
@@ -117,19 +125,27 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
     const tracked = nextTracking[pair.id];
     if (tracked !== undefined && !tracked.deleted && tracked.hash === hash) continue;
 
+    // Images are uploaded to Storage and replaced by a small reference in what's actually sent;
+    // the hash above is computed from the local pair (including its inline asset) so change
+    // detection is unaffected by this substitution.
+    const remoteData = await uploadPairImages(pair, accountId, client);
+
     if (tracked === undefined) {
-      const { data, error } = await client.from("sync_letter_pairs").insert({ id: pair.id, user_id: accountId, data: pair }).select("rev");
+      const { data, error } = await client.from("sync_letter_pairs").insert({ id: pair.id, user_id: accountId, data: remoteData }).select("rev");
       if (error) { failed = true; continue; }
       const rev = data?.[0]?.rev;
       if (rev !== undefined) { nextTracking[pair.id] = { rev, hash, deleted: false }; pushed++; }
       continue;
     }
 
-    const { data, error } = await client.from("sync_letter_pairs").update({ data: pair }).eq("id", pair.id).eq("rev", tracked.rev).select("rev");
+    const { data, error } = await client.from("sync_letter_pairs").update({ data: remoteData }).eq("id", pair.id).eq("rev", tracked.rev).select("rev");
     if (error) { failed = true; continue; }
     if (data === null || data.length === 0) {
-      const remote = remoteById.get(pair.id);
-      if (remote !== undefined) { conflicts.push({ id: pair.id, local: pair, remote: remote.data as LetterPair, remoteRev: remote.rev }); conflictIds.add(pair.id); }
+      const remoteRow = remoteById.get(pair.id);
+      if (remoteRow !== undefined) {
+        const remote = await inflateRemotePair(remoteRow.data, client);
+        if (remote !== undefined) { conflicts.push({ id: pair.id, local: pair, remote, remoteRev: remoteRow.rev }); conflictIds.add(pair.id); }
+      }
       continue;
     }
     const rev = data[0]?.rev;
@@ -160,9 +176,10 @@ export interface ResolveConflictResult {
 /**
  * Resolves a reported conflict by picking one side outright -- there is no field-level merge UI,
  * matching how far this pass of the sync engine goes (see docs/DECISIONS.md). "local" pushes the
- * user's local edit over the server's version, using the rev captured at detection time as the
- * expected rev; "remote" applies the server's version locally and updates tracking to match, so the
- * next reconciliation stops re-reporting this pair.
+ * user's local edit over the server's version (uploading any of its images the same way a normal
+ * push would), using the rev captured at detection time as the expected rev; "remote" applies the
+ * server's version locally and updates tracking to match, so the next reconciliation stops
+ * re-reporting this pair.
  */
 export async function resolveLetterPairConflict(conflict: LetterPairConflict, choice: "local" | "remote", client: PairsSyncClient = getSupabase()): Promise<ResolveConflictResult> {
   const accountId = currentAccountId();
@@ -177,7 +194,8 @@ export async function resolveLetterPairConflict(conflict: LetterPairConflict, ch
     return { ok: true, staleAgain: false };
   }
 
-  const { data, error } = await client.from("sync_letter_pairs").update({ data: conflict.local }).eq("id", conflict.id).eq("rev", conflict.remoteRev).select("rev");
+  const remoteData = await uploadPairImages(conflict.local, accountId, client);
+  const { data, error } = await client.from("sync_letter_pairs").update({ data: remoteData }).eq("id", conflict.id).eq("rev", conflict.remoteRev).select("rev");
   if (error) return { ok: false, staleAgain: false };
   if (data === null || data.length === 0) return { ok: false, staleAgain: true };
   const rev = data[0]?.rev;
