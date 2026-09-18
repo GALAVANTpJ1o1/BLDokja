@@ -44,6 +44,11 @@ export function NavigationCube({ signal }: { signal: string }) {
     const container = host.current;
     if (container === null) return;
     const life = { disposed: false };
+    // Read through a call, not the bare property: this async IIFE awaits across the exact point
+    // where the effect's own cleanup (below) sets life.disposed from a separate closure, and
+    // TypeScript's flow analysis doesn't model that interleaving -- it would otherwise "prove" the
+    // disposal checks below can never be true and flag them as dead code, which they aren't.
+    const isDisposed = () => life.disposed;
     let player: TwistyPlayer | undefined;
     let busy = false;
     let running: NavigationPattern | undefined;
@@ -64,7 +69,7 @@ export function NavigationCube({ signal }: { signal: string }) {
       current.jumpToStart();
       // Await the new model before enabling the end listener: a stale atEnd cannot commit a target.
       await current.experimentalModel.detailedTimelineInfo.get();
-      if (life.disposed) return;
+      if (isDisposed()) return;
       running = target;
       if (media.matches) current.jumpToEnd();
       else if (available()) current.play();
@@ -122,7 +127,7 @@ export function NavigationCube({ signal }: { signal: string }) {
         };
         const vantages = await current.experimentalCurrentVantages();
         await Promise.all(Array.from(vantages, (vantage) => vantage.render()));
-        if (!life.disposed) { setReady(true); void drain(); }
+        if (!isDisposed()) { setReady(true); void drain(); }
       } catch (error) { console.error("navigation cube: unable to load 3D", error); }
     })();
     return () => {
