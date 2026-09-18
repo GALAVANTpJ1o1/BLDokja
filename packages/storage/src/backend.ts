@@ -6,7 +6,7 @@
  * All access goes through `transaction`, which hands `fn` an explicit scope. Nothing depends on an
  * ambient "current transaction", so a nested call can't silently escape its transaction.
  */
-export const COLLECTIONS = ["letterPairs", "events", "meta", "tombstones", "quarantine"] as const;
+export const COLLECTIONS = ["letterPairs", "events", "meta", "tombstones", "quarantine", "outbox"] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export interface RawEntry {

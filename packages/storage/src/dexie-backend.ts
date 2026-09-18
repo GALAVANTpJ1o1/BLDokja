@@ -1,13 +1,15 @@
 import { Dexie, type Table } from "dexie";
 import { COLLECTIONS, serial, type Backend, type BackendScope, type Collection, type RawEntry } from "./backend.js";
-import { SCHEMA_VERSION } from "./schema.js";
+import { DEXIE_VERSION } from "./schema.js";
 
 /**
  * The IndexedDB backend. The only file in the project that imports Dexie (CLAUDE.md).
  *
  * Every collection is a table with out-of-line string keys, so records are stored exactly as the
- * storage layer hands them over. The Dexie version tracks SCHEMA_VERSION: a schema bump adds a
- * `version(n).upgrade()` here together with the export migration (MIGRATION.md §5).
+ * storage layer hands them over. The Dexie version tracks DEXIE_VERSION (schema.ts), not
+ * SCHEMA_VERSION: adding a new object store bumps this and needs no `.upgrade()` (an empty new store
+ * needs no data migration); a change to an *existing* store's record shape adds a
+ * `version(n).upgrade()` here together with the matching export migration (MIGRATION.md §5).
  *
  * A transaction reads through to IndexedDB, buffers its writes in memory, and commits them all in one
  * IndexedDB transaction when `fn` returns; if `fn` throws, nothing is written. Buffering avoids Dexie's
@@ -18,7 +20,7 @@ import { SCHEMA_VERSION } from "./schema.js";
 class BldDatabase extends Dexie {
   constructor(name: string) {
     super(name);
-    this.version(SCHEMA_VERSION).stores(Object.fromEntries(COLLECTIONS.map((c) => [c, ""])));
+    this.version(DEXIE_VERSION).stores(Object.fromEntries(COLLECTIONS.map((c) => [c, ""])));
   }
 
   tableFor(collection: Collection): Table<unknown, string> {

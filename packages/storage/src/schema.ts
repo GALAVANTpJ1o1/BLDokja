@@ -2,9 +2,9 @@ import { COLOURWAYS, CUBE_VIEWS, ENVIRONMENTS, PALETTES, THEMES, VOICES } from "
 import { z } from "./zod.js";
 
 /**
- * The local data schema, version 1 (docs/MIGRATION.md §3). One number covers the export envelope and
- * the IndexedDB store. Every record read back from storage or imported from a file is parsed with
- * these schemas; the TypeScript types are inferred from them.
+ * The local data schema, version 1 (docs/MIGRATION.md §3). Covers the export envelope and record
+ * validation. Every record read back from storage or imported from a file is parsed with these
+ * schemas; the TypeScript types are inferred from them.
  *
  * Adding an optional field or a new event type doesn't need a new version: older data still parses.
  * Anything that would make existing data fail to parse, or change what a field means, does
@@ -12,6 +12,15 @@ import { z } from "./zod.js";
  */
 export const SCHEMA_VERSION = 1;
 export const EXPORT_FORMAT = "bld-platform/export";
+
+/**
+ * The IndexedDB object-store set (dexie-backend.ts), versioned separately from SCHEMA_VERSION since
+ * v2.0 (docs/DECISIONS.md): adding a purely local collection (e.g. the sync outbox) needs a Dexie
+ * version bump to create the new object store, but changes nothing about what an export contains or
+ * how a record validates, so it shouldn't force an export-format version bump too. A change that
+ * *does* alter record validation bumps both together, as SCHEMA_VERSION's own doc above describes.
+ */
+export const DEXIE_VERSION = 2;
 
 /** A string split into user-perceived characters. */
 export const graphemes = (text: string): string[] => Array.from(new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(text), (s) => s.segment);
@@ -315,6 +324,21 @@ export const SettingsSchema = z
     /** dataset|case|alg, preserving separate preferences for each notation. */
     algPreferences: z.record(z.string(), AlgPreferenceSchema).optional(),
     physicalChecks: z.record(z.string(), isoInstant).optional(),
+    /**
+     * IANA time zone name (e.g. "Asia/Kolkata"), used to bucket the activity calendar and streaks
+     * into local days. Not format-checked here (IANA names don't fit a simple regex); the client only
+     * ever writes a value it read from `Intl.supportedValuesOf("timeZone")` or the same picker.
+     */
+    timezone: z.string().min(1).max(64).optional(),
+    /** Optional daily practice goal (v2 §H). Goals never gate a feature; they're a threshold the UI checks against an already-computed day count. */
+    dailyGoal: z.object({ enabled: z.boolean(), attempts: z.number().int().positive().max(500) }).strict().optional(),
+    /**
+     * Per-field last-write timestamp, populated only once an account is signed in. Lets cloud sync
+     * merge Settings per field (v2 §F "independent settings: merge per field") instead of treating the
+     * whole record as one last-write-wins blob. Guests never populate this; a record with no sync
+     * shadow at all is just a guest's settings, exactly as today.
+     */
+    syncFieldUpdatedAt: z.record(z.string(), isoInstant).optional(),
   })
   .strict();
 
@@ -351,6 +375,23 @@ export const ExportV1Schema = z
     );
   });
 
+/**
+ * A queued sync push, local-only: never appears in an export (an outbox entry names *this device's*
+ * pending work, not portable user data -- v2 §G's rule against syncing device-specific facts applies
+ * here too). `recordId` is the id of the thing to push; for "settings" there is only ever one record,
+ * so it uses the fixed id "settings".
+ */
+export const OutboxEntrySchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.enum(["event", "letterPair", "settings"]),
+    recordId: z.string().min(1),
+    queuedAt: isoInstant,
+    lastAttemptAt: isoInstant.optional(),
+    lastError: z.string().max(500).optional(),
+  })
+  .strict();
+
 export type LetterPair = z.infer<typeof LetterPairSchema>;
 export type PairImage = z.infer<typeof PairImageSchema>;
 export type LegacyPairWordRow = z.infer<typeof LegacyPairWordRowSchema>;
@@ -379,3 +420,4 @@ export type FirstSolve = z.infer<typeof FirstSolveSchema>;
 export type MemoryPalace = z.infer<typeof MemoryPalaceSchema>;
 export type MemoStory = z.infer<typeof MemoStorySchema>;
 export type AlgPreference = z.infer<typeof AlgPreferenceSchema>;
+export type OutboxEntry = z.infer<typeof OutboxEntrySchema>;

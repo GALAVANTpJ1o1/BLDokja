@@ -4,11 +4,13 @@ import {
   AppEventSchema,
   LegacySettingSchema,
   LetterPairSchema,
+  OutboxEntrySchema,
   ProvenanceSchema,
   SettingsSchema,
   type AppEvent,
   type LegacySetting,
   type LetterPair,
+  type OutboxEntry,
   type Provenance,
   type Settings,
 } from "./schema.js";
@@ -46,6 +48,8 @@ export interface StorageReader {
   legacyAppSettings(): Promise<LegacySetting[] | undefined>;
   tombstones(): Promise<Tombstone[]>;
   quarantine(): Promise<QuarantineEntry[]>;
+  /** Queued sync pushes, oldest first. Empty for a guest, always. */
+  outbox(): Promise<OutboxEntry[]>;
 }
 
 export interface StorageWriter {
@@ -57,6 +61,10 @@ export interface StorageWriter {
   putSettings(settings: Settings): Promise<void>;
   appendProvenance(entry: Provenance): Promise<void>;
   putLegacyAppSettings(rows: readonly LegacySetting[]): Promise<void>;
+  /** Queues a sync push; replaces any existing queued entry with the same id (re-queuing a dirty record is idempotent). */
+  enqueueOutbox(entry: OutboxEntry): Promise<void>;
+  /** Removes a queued entry once it's been pushed successfully. Missing id is a no-op. */
+  dequeueOutbox(id: string): Promise<void>;
   /** "Delete all my data": every collection, tombstones and quarantine included. */
   clearAll(): Promise<void>;
 }
@@ -125,6 +133,7 @@ function scopedOps(scope: BackendScope, now: () => string): StorageOps {
     legacyAppSettings: () => readValid("meta", META.legacyAppSettings, LegacySettingSchema.array()),
     tombstones: async () => (await scope.getAll("tombstones")).map((e) => e.value as Tombstone),
     quarantine: async () => (await scope.getAll("quarantine")).map((e) => e.value as QuarantineEntry),
+    outbox: async () => (await readAllValid("outbox", OutboxEntrySchema)).sort((a, b) => (a.queuedAt < b.queuedAt ? -1 : a.queuedAt > b.queuedAt ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
 
     async putLetterPair(pair) {
       const valid = checked(LetterPairSchema, "letter pair", pair);
@@ -156,8 +165,15 @@ function scopedOps(scope: BackendScope, now: () => string): StorageOps {
     async putLegacyAppSettings(rows) {
       await scope.put("meta", META.legacyAppSettings, checked(LegacySettingSchema.array(), "legacy app settings", rows));
     },
+    async enqueueOutbox(entry) {
+      const valid = checked(OutboxEntrySchema, "outbox entry", entry);
+      await scope.put("outbox", valid.id, valid);
+    },
+    async dequeueOutbox(id) {
+      await scope.delete("outbox", id);
+    },
     async clearAll() {
-      for (const c of ["letterPairs", "events", "meta", "tombstones", "quarantine"] as const) await scope.clear(c);
+      for (const c of ["letterPairs", "events", "meta", "tombstones", "quarantine", "outbox"] as const) await scope.clear(c);
     },
   };
 }
@@ -175,12 +191,15 @@ export function createStorage(backend: Backend, options: { readonly now?: () => 
     legacyAppSettings: () => transaction((tx) => tx.legacyAppSettings()),
     tombstones: () => transaction((tx) => tx.tombstones()),
     quarantine: () => transaction((tx) => tx.quarantine()),
+    outbox: () => transaction((tx) => tx.outbox()),
     putLetterPair: (pair) => transaction((tx) => tx.putLetterPair(pair)),
     deleteLetterPair: (id, at) => transaction((tx) => tx.deleteLetterPair(id, at)),
     appendEvents: (events) => transaction((tx) => tx.appendEvents(events)),
     putSettings: (settings) => transaction((tx) => tx.putSettings(settings)),
     appendProvenance: (entry) => transaction((tx) => tx.appendProvenance(entry)),
     putLegacyAppSettings: (rows) => transaction((tx) => tx.putLegacyAppSettings(rows)),
+    enqueueOutbox: (entry) => transaction((tx) => tx.enqueueOutbox(entry)),
+    dequeueOutbox: (id) => transaction((tx) => tx.dequeueOutbox(id)),
     clearAll: () => transaction((tx) => tx.clearAll()),
   };
 }
