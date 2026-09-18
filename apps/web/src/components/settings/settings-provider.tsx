@@ -105,10 +105,20 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   const update = useCallback((patch: Partial<Settings>): Promise<void> => {
     const save = async () => {
-    const { getStorage, requestPersistentStorage } = await storageClient();
+    const { getStorage, requestPersistentStorage, currentAccountId, nowIso } = await storageClient();
+    const { DEVICE_ONLY_SETTINGS_FIELDS } = await import("@/lib/sync/settings");
     const storage = getStorage();
     const next = await storage.transaction(async (tx) => {
-      const merged: Settings = { ...(await tx.settings()), ...patch };
+      const existing = await tx.settings();
+      const merged: Settings = { ...existing, ...patch };
+      // Stamped only when signed in: a guest's syncFieldUpdatedAt stays undefined, matching the
+      // schema's own "guests never populate this" comment (packages/storage/src/schema.ts).
+      if (currentAccountId() !== undefined) {
+        const at = nowIso();
+        const times = { ...existing?.syncFieldUpdatedAt };
+        for (const key of Object.keys(patch)) if (!DEVICE_ONLY_SETTINGS_FIELDS.has(key)) times[key] = at;
+        merged.syncFieldUpdatedAt = times;
+      }
       await tx.putSettings(merged);
       return merged;
     });
