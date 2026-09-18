@@ -73,6 +73,11 @@ export function activeStorageName(): string {
   return dbNameFor(activeAccountId);
 }
 
+/** The signed-in account id storage is currently namespaced by, or undefined for a guest. The sync engine uses this to decide whether there's anything to sync at all. */
+export function currentAccountId(): string | undefined {
+  return activeAccountId;
+}
+
 /** Returns true if this actually switched the active account (so the caller knows whether a reload is needed), false for a no-op call with the account unchanged. */
 export function setActiveAccount(accountId: string | undefined): boolean {
   if (accountId === activeAccountId) return false;

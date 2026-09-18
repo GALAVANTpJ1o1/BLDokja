@@ -3,7 +3,8 @@
 import { DrillAttemptEventSchema, type AppEvent, type DrillAttemptEvent, type Settings } from "@bld/storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
-import { getStorage } from "./storage-client";
+import { currentAccountId, getStorage } from "./storage-client";
+import { nowIso } from "./ids";
 
 /**
  * The settings in force when an attempt was made (BRIEF §8: "settings snapshot"): the difficulty
@@ -43,8 +44,15 @@ export function useEvents(): { events: readonly AppEvent[] | undefined; append: 
   }, []);
   const append = useCallback(async (added: readonly AppEvent[]) => {
     const withSettings = added.map((e) => (e.type === "drill.attempt" && e.settings === undefined ? { ...e, settings: settingsSnapshot(latest.current) } : e));
-    await getStorage().appendEvents(withSettings);
+    const storage = getStorage();
+    await storage.appendEvents(withSettings);
     setEvents((current) => [...(current ?? []), ...withSettings]);
+    // Queued for the sync engine to push, only when signed in -- a guest's events never leave the
+    // device, so there's nothing to enqueue (v2 §D: guest data stays local-only by default).
+    if (currentAccountId() !== undefined) {
+      const queuedAt = nowIso();
+      await Promise.all(withSettings.map((e) => storage.enqueueOutbox({ id: `event:${e.id}`, kind: "event", recordId: e.id, queuedAt })));
+    }
   }, []);
   return { events, append };
 }
