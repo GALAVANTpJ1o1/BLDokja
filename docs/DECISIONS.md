@@ -1605,4 +1605,11 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Fix.** The post-auth state now lives in `AccountView`, above the swap, and takes precedence over the signed-in view.
 - **How it was found.** `e2e/accounts.spec.ts` on the owner's machine: every test signed up successfully (the page snapshot showed "Signed in as e2e-...") and then waited 30 seconds for a dialog that never rendered. The first attempt had failed for an unrelated reason (the dev server had no Supabase variables), which is why the spec now checks that accounts are configured in `beforeEach` and fails in 15 seconds with the reason.
 - **Regression test.** `apps/web/src/app/account/account-view.test.tsx` simulates the auth-state flip landing before sign-up returns; it fails against the old code (2 of 3) and passes with the fix.
-- **Test cleanup** now works from any state a failed test leaves behind (`cleanUp` in the spec), after one hung for four minutes trying to sign in while already signed in.
+- **Test cleanup** now works from any state a test leaves behind (`cleanUp` in the spec), after one hung for four minutes trying to sign in while already signed in.
+
+**Third run** (owner, against the fix): scenario 12 passed; 15 and 5 passed their bodies and then failed in that same cleanup, which was still wrong for a subtler reason.
+
+- **`locator.isVisible()` ignores its `timeout` option** — Playwright's own types mark it deprecated and say it "does not wait for the element to become visible and returns immediately". `cleanUp` used it to ask whether the page was signed in. The account page renders nothing until Supabase's first session check comes back, so the answer was "signed out" regardless of the truth.
+- **`getByLabel` matches substrings, case-insensitively.** Having decided wrongly that it was signed out, cleanup's `getByLabel("Username")` matched the *signed-in* view's "New username" box, typed the username into it, and then waited for an exact "Password" field that only exists on the signed-out form — burning the rest of each test's timeout (4 and 5 minutes) on a test whose assertions had all passed.
+- **Fix.** One `openAccountPage()` helper opens `/account/` and waits for whichever of the two views renders before answering; every helper starts there and asserts the state it needs, so a wrong assumption fails in seconds with a sentence instead of hanging. Every label lookup is now `exact`.
+- Throwaway `e2e-` accounts from that run were left behind and need deleting from the Supabase dashboard by hand.

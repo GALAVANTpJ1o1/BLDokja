@@ -11,11 +11,15 @@ import { expect, test, type Page } from "@playwright/test";
  * Every account is named `e2e-...`. A test that fails halfway can leave one behind; delete leftovers
  * from the Supabase dashboard (Authentication > Users) by that prefix.
  *
- * First run (owner): all three timed out because the dev server had no Supabase variables, so the
- * account page said accounts were unavailable; the check in beforeEach now reports that directly.
- * Not yet run against a correctly configured app. Scenarios that are covered by unit
- * tests instead (events dedupe, offline queue, conflicts, deletions, RLS) live in apps/web/src/lib/sync
- * and supabase/ -- see docs/DECISIONS.md D-060 to D-065.
+ * Runs so far, on the owner's machine (D-070):
+ *   1. All three timed out: the dev server had no Supabase variables, so the account page said
+ *      accounts were unavailable. beforeEach now reports that in 15 seconds instead.
+ *   2. All three timed out waiting for the recovery-code dialog -- a real bug in the app, fixed.
+ *   3. Scenario 12 passed; 15 and 5 passed their bodies and then hung in cleanup, which had misread
+ *      a not-yet-rendered account page as signed out (see openAccountPage below). Leftover accounts
+ *      from that run need deleting by hand.
+ * Scenarios covered by unit tests instead (events dedupe, offline queue, conflicts, deletions, RLS)
+ * live in apps/web/src/lib/sync and supabase/ -- see docs/DECISIONS.md D-060 to D-065.
  */
 
 test.skip(process.env.BLD_E2E_ACCOUNTS !== "1", "set BLD_E2E_ACCOUNTS=1 to run tests that create real (throwaway) accounts");
@@ -39,6 +43,27 @@ function newUsername(): string {
   return `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/**
+ * Open /account/ and wait until it has decided which of its two views to show.
+ *
+ * Nothing renders there until Supabase's first session check comes back, and `locator.isVisible()`
+ * never waits -- its `timeout` option is documented as ignored. Reading the page straight after
+ * `goto` therefore sees an empty page and answers "not signed in" whatever the truth is. That is how
+ * the second real run wasted two full test timeouts: cleanup decided it was signed out, and
+ * `getByLabel("Username")` (a case-insensitive substring match) then found the signed-in view's
+ * "New username" box, typed the username into it, and waited out the test for a "Password" field
+ * that only exists on the signed-out form. Every label match below is `exact` for the same reason.
+ */
+type AccountPageState = "signed-in" | "signed-out";
+
+async function openAccountPage(page: Page): Promise<AccountPageState> {
+  await page.goto("/account/");
+  const signedIn = page.getByText("Signed in as");
+  const signedOut = page.getByRole("button", { name: "Need an account? Create one" });
+  await expect(signedIn.or(signedOut)).toBeVisible({ timeout: 30_000 });
+  return (await signedIn.isVisible()) ? "signed-in" : "signed-out";
+}
+
 async function finishPostAuth(page: Page): Promise<void> {
   // If this browser holds guest data the migration prompt appears first; these tests always skip it
   // unless they are exercising it on purpose.
@@ -50,9 +75,9 @@ async function finishPostAuth(page: Page): Promise<void> {
 }
 
 async function signUp(page: Page, username: string): Promise<string> {
-  await page.goto("/account/");
+  expect(await openAccountPage(page), "signUp() was called while already signed in").toBe("signed-out");
   await page.getByRole("button", { name: "Need an account? Create one" }).click();
-  await page.getByLabel("Username").fill(username);
+  await page.getByLabel("Username", { exact: true }).fill(username);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByRole("button", { name: "Create account", exact: true }).click();
 
@@ -65,43 +90,42 @@ async function signUp(page: Page, username: string): Promise<string> {
 }
 
 async function signIn(page: Page, username: string, password = PASSWORD): Promise<void> {
-  await page.goto("/account/");
-  await page.getByLabel("Username").fill(username);
+  expect(await openAccountPage(page), "signIn() was called while already signed in").toBe("signed-out");
+  await page.getByLabel("Username", { exact: true }).fill(username);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
 }
 
 async function signOut(page: Page): Promise<void> {
-  await page.goto("/account/");
+  expect(await openAccountPage(page), "signOut() was called while not signed in").toBe("signed-in");
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible({ timeout: 30_000 });
 }
 
 async function deleteAccount(page: Page): Promise<void> {
-  await page.goto("/account/");
+  expect(await openAccountPage(page), "deleteAccount() was called while not signed in").toBe("signed-in");
   await page.getByRole("button", { name: "Delete account", exact: true }).first().click();
   await page.getByLabel("Type DELETE to confirm").fill("DELETE");
   await page.getByRole("button", { name: "Delete account", exact: true }).last().click();
   await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible({ timeout: 30_000 });
 }
 
-async function deleteIfSignedIn(page: Page): Promise<void> {
-  await page.goto("/account/");
-  if (await page.getByText("Signed in as").isVisible({ timeout: 5000 }).catch(() => false)) await deleteAccount(page);
-}
-
-// Cleanup that works from whatever state a failed test left the page in: signed in already (delete),
-// signed out (sign in, skip any migration prompt, delete), or the account never got created (nothing to do).
+// Cleanup that works from whatever state a test left the page in -- signed in (delete), signed out
+// (sign in, skip any migration prompt, delete), or the account never created / already deleted
+// (nothing to do) -- and that fails within its own waits instead of running the test's clock out.
 async function cleanUp(page: Page, username: string): Promise<void> {
-  await page.goto("/account/");
-  if (await page.getByText("Signed in as").isVisible({ timeout: 5000 }).catch(() => false)) {
+  if ((await openAccountPage(page)) === "signed-in") {
     await deleteAccount(page);
     return;
   }
-  if (!(await page.getByLabel("Username").isVisible({ timeout: 5000 }).catch(() => false))) return;
   await signIn(page, username);
-  await finishPostAuth(page).catch(() => undefined);
-  await deleteIfSignedIn(page);
+  const signedIn = page.getByText("Signed in as");
+  const migrationPrompt = page.getByRole("button", { name: "Skip for now" });
+  const rejected = page.getByText("Wrong username or password");
+  await expect(signedIn.or(migrationPrompt).or(rejected)).toBeVisible({ timeout: 30_000 });
+  if (await rejected.isVisible()) return; // there is no such account: nothing to clean up
+  await finishPostAuth(page);
+  await deleteAccount(page);
 }
 
 test("sign up, sign out, reject a wrong password, sign back in, delete, and the username is free again (scenario 15)", async ({ page }) => {
