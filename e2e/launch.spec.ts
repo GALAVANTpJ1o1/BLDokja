@@ -60,7 +60,8 @@ test("an unknown route shows the custom 404 page, not a framework default", asyn
   await page.goto("/definitely-not-a-page/");
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Go home" })).toBeVisible();
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+  // Next adds its own noindex for not-found pages and so does this page's metadata: two identical tags.
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute("content", /noindex/);
 });
 
 test("pages carry their own canonical URL and meta description, not the site-wide ones", async ({ page }) => {
