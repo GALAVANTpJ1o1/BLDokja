@@ -84,12 +84,37 @@ export async function signUp(username: string, password: string): Promise<SignUp
   // regenerated later from account settings, so this is surfaced but not thrown.
   if (recoveryError) console.error("set_recovery_code failed after sign-up", recoveryError);
 
+  // profiles.timezone defaults to 'UTC' (supabase/migrations/20260918100000_profiles.sql); without
+  // this, every account's server-side streak leaderboard (leaderboard_streaks(), D-060) would
+  // silently bucket days in UTC regardless of where the user actually is. Best-effort: a failure
+  // here isn't worth blocking sign-up over, and the account still works correctly in every other
+  // respect with the UTC default until this succeeds (on a later sign-in, say).
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const { error: tzError } = await supabase.from("profiles").update({ timezone }).eq("id", userId);
+    if (tzError) console.error("setting profiles.timezone failed after sign-up", tzError);
+  } catch (err) {
+    console.error("detecting the local timezone failed after sign-up", err);
+  }
+
   return { userId, recoveryCode };
 }
 
 export async function signIn(username: string, password: string): Promise<void> {
-  const { error } = await getSupabase().auth.signInWithPassword({ email: usernameToEmail(username), password });
+  const supabase = getSupabase();
+  const { data, error } = await supabase.auth.signInWithPassword({ email: usernameToEmail(username), password });
   if (error) throw mapAuthError(error);
+
+  // Kept in step on every sign-in, not just at sign-up: there is no manual "change timezone" UI yet
+  // (a documented gap, not an oversight), so there is nothing a user-chosen value could be clobbering
+  // by refreshing this automatically. Reconsider re-detecting unconditionally if that UI is ever
+  // built -- at that point this should only fill in a *missing* value, not override a chosen one.
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    await supabase.from("profiles").update({ timezone }).eq("id", data.user.id);
+  } catch {
+    // Best-effort: sign-in itself already succeeded and must not fail because of this.
+  }
 }
 
 export async function signOut(): Promise<void> {
