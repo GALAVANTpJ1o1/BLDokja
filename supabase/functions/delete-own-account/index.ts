@@ -50,8 +50,13 @@ Deno.serve(async (req) => {
   if (authHeader === null) return jsonResponse({ ok: false, error: "not-authenticated" }, 401, origin);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
+  // Confirmed live on the real project (2026-09-18, docs/DECISIONS.md D-063): both the legacy names
+  // (SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY) and the newer plural ones
+  // (SUPABASE_PUBLISHABLE_KEYS, SUPABASE_SECRET_KEYS) are auto-provisioned simultaneously. The legacy
+  // names are checked first since they're what this project actually has; the plural fallbacks are
+  // defensive in case that ever changes.
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEYS") ?? "";
 
   // Verifies the caller's JWT via GoTrue itself (a real network round trip, not a local decode),
   // exactly as the comment at the top of this file explains.

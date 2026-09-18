@@ -9,10 +9,14 @@
 // session invalidation, which the admin API is the documented, supported way to avoid.
 // Verified against current Supabase docs (2026-09-18): supabase.com/docs/reference/javascript/auth-admin-updateuserbyid.
 //
-// UNTESTED end-to-end: no live Supabase project was available in this environment to
-// deploy and exercise this against. Review before relying on it -- especially the exact
-// service-role env var name Supabase provisions on a fresh project (see the fallback
-// below) and the CORS origin list.
+// Deployed to the real project on 2026-09-18 with --no-verify-jwt: this must be callable
+// with no session at all (that's the whole point -- someone locked out is trying to get
+// back in), and this project's anon/publishable key is not a JWT (docs/DECISIONS.md D-063),
+// so Supabase's platform-level JWT check would otherwise reject the call before it ever
+// reached this code. delete-own-account keeps the default (JWT required), since it's
+// always called with a real signed-in session's access token. Still not exercised
+// end-to-end with an actual wrong/right recovery code through this deployed copy --
+// verify that once the sign-up/forgot-password UI can drive it for real.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = (Deno.env.get("SITE_ORIGINS") ?? "http://localhost:3000,https://bldokja.pages.dev")
@@ -88,9 +92,10 @@ Deno.serve(async (req) => {
   const { username, recoveryCode, newPassword } = parsed;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  // Supabase has offered more than one name for this secret across project generations;
-  // check whichever the deployed project actually provisions before relying on this.
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
+  // Confirmed live on the real project (2026-09-18, docs/DECISIONS.md D-063): both the legacy
+  // SUPABASE_SERVICE_ROLE_KEY and the newer, plural SUPABASE_SECRET_KEYS are auto-provisioned
+  // simultaneously. The legacy name is checked first since it's what this project actually has.
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEYS") ?? "";
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
   const { data: profile } = await supabaseAdmin.from("profiles").select("id").eq("username", username).maybeSingle();
