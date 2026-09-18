@@ -1,6 +1,6 @@
 "use client";
 
-import { attemptsOf, heatCells, legacyMemoSummary, LOOKUP_KINDS, MIN_SAMPLES, traceDiagnostics, trend, type Attempt, type LegacyMemoLike } from "@bld/analytics";
+import { activityDays, attemptsOf, heatCells, legacyMemoSummary, LOOKUP_KINDS, MIN_SAMPLES, streaks, traceDiagnostics, trend, type Attempt, type LegacyMemoLike } from "@bld/analytics";
 import { useMemo, useState } from "react";
 import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/charts/charts";
 import { Segmented } from "@/components/trainer/trainer-shell";
@@ -62,6 +62,8 @@ export function ProgressView() {
         </p>
         {all.length === 0 ? <p className="t-body text-quiet">{en.analytics.empty}</p> : null}
       </div>
+
+      <ActivityCalendar attempts={all} />
 
       <div className="progress-insights"><Diagnostics attempts={attempts} />
 
@@ -130,6 +132,79 @@ export function ProgressView() {
         <TransitionLink href="/settings/" className="t-body">{en.analytics.dataLink}</TransitionLink>
       </section>
     </div>
+  );
+}
+
+/** DESIGN.md "states without colour" (mastery.tsx's RAMP): one lightness/opacity ramp, plus a size mark, never colour hue alone -- the classic GitHub calendar's green scale is exactly the pattern this project's own guardrails rule out. */
+const INTENSITY_RAMP = [0, 0.35, 0.55, 0.75, 1] as const;
+const WEEKS_SHOWN = 12;
+
+function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
+  // Date.now() can't be called during render (react-hooks/purity), but a useState lazy initializer
+  // runs exactly once at mount and is exempt -- the same pattern session-report.tsx already uses.
+  const [now] = useState(() => Date.now());
+
+  const days = useMemo(() => activityDays(attempts, { dayOf: localDay }), [attempts]);
+  const today = useMemo(() => localDay(now), [now]);
+  const streak = useMemo(() => streaks(attempts, { dayOf: localDay, today }), [attempts, today]);
+  const [focused, setFocused] = useState<{ day: string; count: number } | undefined>(undefined);
+
+  const byDay = useMemo(() => new Map(days.map((d) => [d.day, d.attempts])), [days]);
+  const weeks = useMemo(() => {
+    const cells: { day: string; count: number }[] = [];
+    const totalDays = WEEKS_SHOWN * 7;
+    for (let i = totalDays - 1; i >= 0; i--) {
+      const day = localDay(now - i * 86_400_000);
+      cells.push({ day, count: byDay.get(day) ?? 0 });
+    }
+    const out: { day: string; count: number }[][] = [];
+    for (let i = 0; i < cells.length; i += 7) out.push(cells.slice(i, i + 7));
+    return out;
+  }, [byDay, now]);
+  const maxCount = Math.max(1, ...weeks.flat().map((c) => c.count));
+  const levelOf = (n: number): 0 | 1 | 2 | 3 | 4 => (n === 0 ? 0 : n >= maxCount * 0.75 ? 4 : n >= maxCount * 0.5 ? 3 : n >= maxCount * 0.25 ? 2 : 1);
+
+  return (
+    <section className="flex flex-col gap-3 border-t border-rule pt-6">
+      <h2 className="t-heading">{en.analytics.activityTitle}</h2>
+      <p className="t-body">{en.analytics.streakSummary(streak.current, streak.longest)}</p>
+      {days.length === 0 ? (
+        <p className="t-body text-quiet">{en.analytics.calendarEmpty}</p>
+      ) : (
+        <>
+          <div className="flex gap-1 overflow-x-auto py-1" role="img" aria-label={en.analytics.calendarLabel(days.length, streak.current)}>
+            {weeks.map((week, weekIndex) => (
+              <div key={week[0]?.day ?? `week-${weekIndex}`} className="flex flex-col gap-1">
+                {week.map((cell) => {
+                  const level = levelOf(cell.count);
+                  return (
+                    <button
+                      key={cell.day}
+                      type="button"
+                      className="grid place-items-center rounded-[4px] border border-rule"
+                      style={{ width: 14, height: 14, background: level === 0 ? "transparent" : `color-mix(in srgb, var(--text) ${Math.round(INTENSITY_RAMP[level] * 100)}%, transparent)` }}
+                      onFocus={() => { setFocused({ day: cell.day, count: cell.count }); }}
+                      onMouseEnter={() => { setFocused({ day: cell.day, count: cell.count }); }}
+                    >
+                      {cell.count > 0 ? <span aria-hidden style={{ width: 3 + level, height: 3 + level, borderRadius: 999, background: "var(--ground)" }} /> : null}
+                      <span className="sr-only">{en.analytics.dayDetail(cell.day, cell.count)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+          <p className="t-meta text-quiet" aria-live="polite">{focused !== undefined ? en.analytics.dayDetail(focused.day, focused.count) : en.analytics.dayDetailNone}</p>
+          <div className="flex items-center gap-1 t-meta text-quiet">
+            <span>{en.analytics.legendLess}</span>
+            {INTENSITY_RAMP.map((opacity, level) => (
+              <span key={level} aria-hidden className="rounded-[4px] border border-rule" style={{ width: 12, height: 12, background: level === 0 ? "transparent" : `color-mix(in srgb, var(--text) ${Math.round(opacity * 100)}%, transparent)` }} />
+            ))}
+            <span>{en.analytics.legendMore}</span>
+          </div>
+        </>
+      )}
+    </section>
   );
 }
 
