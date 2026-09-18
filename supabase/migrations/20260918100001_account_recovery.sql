@@ -42,4 +42,8 @@ begin
 end;
 $$;
 
+-- Postgres grants EXECUTE on a new function to PUBLIC by default. The auth.uid() check above already
+-- makes an anon call harmless, but revoking first is the same explicit-grants-only discipline used
+-- everywhere else in this schema, not a fix for an actual hole.
+revoke all on function public.set_recovery_code(text) from public;
 grant execute on function public.set_recovery_code(text) to authenticated;

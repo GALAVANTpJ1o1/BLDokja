@@ -82,4 +82,7 @@ begin
 end;
 $$;
 
+-- See the matching note in 20260918100001_account_recovery.sql: PUBLIC gets EXECUTE by default, so
+-- this is explicit for consistency, not because the auth.uid() check above needed the help.
+revoke all on function public.merge_settings(jsonb, jsonb) from public;
 grant execute on function public.merge_settings(jsonb, jsonb) to authenticated;
