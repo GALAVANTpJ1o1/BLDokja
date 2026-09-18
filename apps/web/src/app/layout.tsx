@@ -16,10 +16,21 @@ import { en } from "@/i18n/en";
 // Line endings are normalised: a browser hashes the script with LF newlines, whatever the file on disk has.
 const APPEARANCE_BOOT = readFileSync(join(process.cwd(), "public", "appearance-boot.js"), "utf8").replace(/\r\n?/g, "\n");
 
+// The Cloudflare Pages target confirmed in docs/DEPLOY.md, ahead of the domain actually existing
+// (M8): needed so relative canonical/OG URLs resolve to something real once deployed, and harmless
+// in local dev either way since nothing here is fetched at runtime.
+const SITE_URL = "https://bldokja.pages.dev";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: en.site.name, template: `%s · ${en.site.name}` },
   description: en.site.tagline,
   icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }], apple: "/apple-touch-icon.png" },
+  // No canonical here: it would inherit onto every page that doesn't set its own (Next merges
+  // unset metadata keys from the parent segment), wrongly telling search engines every route is a
+  // duplicate of "/". Each page sets its own instead.
+  openGraph: { type: "website", siteName: en.site.name, title: en.site.name, description: en.site.tagline, locale: "en_GB" },
+  twitter: { card: "summary_large_image", title: en.site.name, description: en.site.tagline },
 };
 
 export const viewport: Viewport = {

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { en } from "@/i18n/en";
 import { ProgressLoader } from "./loader";
 
-export const metadata: Metadata = { title: en.progress.title };
+export const metadata: Metadata = { title: en.progress.title, description: en.analytics.intro, alternates: { canonical: "/progress/" } };
 
 export default function ProgressPage() {
   return (

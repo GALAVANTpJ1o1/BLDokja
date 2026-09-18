@@ -4,6 +4,7 @@
  * than through the merged `en` dictionary.
  */
 export const account = {
+  metaDescription: "Create a free username-and-password account to back up your progress and sync it across devices. No email required; guest mode never needs one at all.",
   guestBanner: "You're continuing as a guest. Progress is saved on this browser only and won't sync across devices. Create an account to back it up and sync.",
   guestCreateAccount: "Create an account",
   notConfigured: "Accounts aren't available in this build yet.",

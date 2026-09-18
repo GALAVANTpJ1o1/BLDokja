@@ -8,6 +8,9 @@ const config: NextConfig = {
   transpilePackages: ["@bld/cube-engine", "@bld/storage"],
   reactStrictMode: true,
   agentRules: false,
+  // Already Next's default, but explicit per the launch checklist: nobody should be able to read
+  // unminified source or comments from a production deploy.
+  productionBrowserSourceMaps: false,
 };
 
 export default config;

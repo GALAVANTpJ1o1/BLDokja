@@ -16,7 +16,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ lesson: string }> }): Promise<Metadata> {
   const { lesson } = await params;
   const source = findLesson(lesson);
-  return { title: source?.frontmatter.title ?? lesson, ...(source === undefined ? {} : { description: source.frontmatter.objectives.join(" ") }) };
+  return { title: source?.frontmatter.title ?? lesson, alternates: { canonical: `/learn/${lesson}/` }, ...(source === undefined ? {} : { description: source.frontmatter.objectives.join(" ") }) };
 }
 
 /**

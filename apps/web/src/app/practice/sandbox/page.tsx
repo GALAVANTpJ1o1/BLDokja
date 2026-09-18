@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { en } from "@/i18n/en";
 import { SandboxLoader } from "./loader";
 
-export const metadata: Metadata = { title: en.sandbox.title };
+export const metadata: Metadata = { title: en.sandbox.title, description: en.sandbox.intro, alternates: { canonical: "/practice/sandbox/" } };
 
 export default function SandboxPage() {
   return (

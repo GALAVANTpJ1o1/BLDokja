@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { en } from "@/i18n/en";
 import { DifficultyLoader } from "./loader";
 
-export const metadata: Metadata = { title: en.difficulty.title };
+export const metadata: Metadata = { title: en.difficulty.title, description: en.difficulty.intro, alternates: { canonical: "/practice/difficulty/" } };
 
 export default function DifficultyPage() {
   return (

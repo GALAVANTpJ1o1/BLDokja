@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { en } from "@/i18n/en";
 import { LetteringLoader } from "./loader";
 
-export const metadata: Metadata = { title: en.scheme.title };
+export const metadata: Metadata = { title: en.scheme.title, description: en.scheme.intro, alternates: { canonical: "/settings/lettering/" } };
 
 export default function LetteringPage() {
   return (

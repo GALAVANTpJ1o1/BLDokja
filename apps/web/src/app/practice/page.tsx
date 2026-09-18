@@ -5,7 +5,7 @@ import { polish } from "@/i18n/polish";
 import { speffz } from "@/i18n/speffz";
 import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon, CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 
-export const metadata: Metadata = { title: en.practice.title };
+export const metadata: Metadata = { title: en.practice.title, description: en.practice.intro, alternates: { canonical: "/practice/" } };
 
 const TRAINERS = [
   { href: "/practice/speffz/", name: speffz.title, blurb: speffz.intro },

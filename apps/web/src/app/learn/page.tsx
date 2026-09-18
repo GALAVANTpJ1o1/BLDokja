@@ -5,7 +5,7 @@ import { workspaces } from "@/i18n/workspaces";
 import { Cube } from "@/components/cube/cube";
 import { LearningPath } from "./learning-path";
 
-export const metadata: Metadata = { title: en.learn.title };
+export const metadata: Metadata = { title: en.learn.title, description: en.learn.intro, alternates: { canonical: "/learn/" } };
 
 export default function LearnPage() {
   const lessons = loadLessons().map((l) => ({
