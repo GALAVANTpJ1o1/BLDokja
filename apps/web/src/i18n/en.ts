@@ -19,6 +19,13 @@ export const en = {
     tagline: "Learn blindfolded cubing, one sticker at a time.",
     skipToContent: "Skip to content",
   },
+  notFound: {
+    title: "Page not found",
+    body: "That page doesn't exist, or the link is out of date. Nothing saved on this device is affected.",
+    home: "Go home",
+    learn: "Browse lessons",
+    practice: "Go to practice",
+  },
   nav: {
     label: "Main",
     learn: "Learn",
