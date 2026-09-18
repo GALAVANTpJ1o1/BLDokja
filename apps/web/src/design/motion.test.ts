@@ -58,6 +58,29 @@ describe("page transitions", () => {
     }
   });
 
+  it("still navigates, and leaves nothing unhandled, when the browser skips the animation", async () => {
+    // A hidden tab is the usual case: the update callback still runs and `finished` still resolves,
+    // but `ready` rejects with InvalidStateError. Vitest fails the run on an unhandled rejection, so
+    // nobody handling that rejection shows up here rather than as noise in a reader's console.
+    const dataset: DOMStringMap = {};
+    const doc: TransitionDocument = {
+      documentElement: { dataset },
+      startViewTransition: (update: () => Promise<void> | void) => ({
+        ready: Promise.reject(new DOMException("Transition was aborted because of invalid state", "InvalidStateError")),
+        finished: Promise.resolve(update()),
+      }),
+    };
+    let navigations = 0;
+    const kind = await runPageTransition(doc, false, () => {
+      navigations++;
+      return Promise.resolve();
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20)); // let a stray rejection surface
+    expect(kind).toBe("travel");
+    expect(navigations).toBe(1);
+    expect(dataset.transition).toBeUndefined();
+  });
+
   it("keeps the travel effect small and short, in code and in the stylesheet", () => {
     expect(TRAVEL_MAX_SCALE).toBeLessThan(1.1);
     expect(TRAVEL_DURATION_MS).toBeLessThan(400);

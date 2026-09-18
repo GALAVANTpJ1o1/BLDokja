@@ -11,7 +11,7 @@
 export type TransitionKind = "travel" | "fade" | "none";
 
 export interface TransitionDocument {
-  startViewTransition?: (update: () => Promise<void> | void) => { finished: Promise<void> };
+  startViewTransition?: (update: () => Promise<void> | void) => { finished: Promise<void>; ready?: Promise<void> };
   readonly documentElement: { dataset: DOMStringMap };
 }
 
@@ -37,7 +37,12 @@ export async function runPageTransition(doc: TransitionDocument, reducedMotion: 
   }
   doc.documentElement.dataset.transition = kind;
   try {
-    await start.call(doc, update).finished;
+    const transition = start.call(doc, update);
+    // `ready` rejects with InvalidStateError whenever the browser skips the animation (a hidden tab,
+    // say) while the navigation still runs and `finished` still resolves. Nothing else listens to it,
+    // so it would otherwise surface as an unhandled rejection in the reader's console.
+    transition.ready?.catch(() => undefined);
+    await transition.finished;
   } finally {
     delete doc.documentElement.dataset.transition;
   }
