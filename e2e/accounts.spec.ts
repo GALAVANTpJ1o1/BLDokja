@@ -11,13 +11,16 @@ import { expect, test, type Page } from "@playwright/test";
  * Every account is named `e2e-...`. A test that fails halfway can leave one behind; delete leftovers
  * from the Supabase dashboard (Authentication > Users) by that prefix.
  *
- * Runs so far, on the owner's machine (D-070):
+ * Runs so far, on the owner's machine (D-070, D-071):
  *   1. All three timed out: the dev server had no Supabase variables, so the account page said
  *      accounts were unavailable. beforeEach now reports that in 15 seconds instead.
  *   2. All three timed out waiting for the recovery-code dialog -- a real bug in the app, fixed.
  *   3. Scenario 12 passed; 15 and 5 passed their bodies and then hung in cleanup, which had misread
  *      a not-yet-rendered account page as signed out (see openAccountPage below). Leftover accounts
  *      from that run need deleting by hand.
+ *   4. All three reached deletion and were blocked by the Edge Function's CORS list -- another real
+ *      bug, fixed and redeployed.
+ *   5. 12 and 5 passed in seconds. 15 hit the post-auth reload mid-navigation (see gotoStable).
  * Scenarios covered by unit tests instead (events dedupe, offline queue, conflicts, deletions, RLS)
  * live in apps/web/src/lib/sync and supabase/ -- see docs/DECISIONS.md D-060 to D-065.
  */
@@ -32,7 +35,7 @@ test.beforeEach(async ({ browserName, page }) => {
   // Fail fast and say why: without the Supabase variables the account page shows "Accounts aren't
   // available in this build yet." and every step below would wait out its full timeout for a button
   // that can never appear.
-  await page.goto("/account/");
+  await gotoStable(page, "/account/");
   await expect(
     page.getByRole("button", { name: "Need an account? Create one" }),
     "accounts are not configured in this build: apps/web/.env.local needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, and `pnpm dev` must be restarted after editing it",
@@ -41,6 +44,28 @@ test.beforeEach(async ({ browserName, page }) => {
 
 function newUsername(): string {
   return `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+const NAVIGATION_ATTEMPTS = 3;
+
+/**
+ * `page.goto` that survives the app reloading itself underneath it. AccountProvider reloads the page
+ * whenever the active account changes, because local storage is namespaced per account, and a reload
+ * that lands mid-navigation aborts it with net::ERR_ABORTED. That is the app working as designed --
+ * it took scenario 15 down on the step right after the post-auth flow, which ends in exactly such a
+ * reload -- so go again instead of failing.
+ */
+async function gotoStable(page: Page, path: string): Promise<void> {
+  for (let attempt = 1; attempt <= NAVIGATION_ATTEMPTS; attempt++) {
+    try {
+      await page.goto(path);
+      return;
+    } catch (error) {
+      const aborted = error instanceof Error && error.message.includes("net::ERR_ABORTED");
+      if (!aborted || attempt === NAVIGATION_ATTEMPTS) throw error;
+      await page.waitForTimeout(500);
+    }
+  }
 }
 
 /**
@@ -57,7 +82,7 @@ function newUsername(): string {
 type AccountPageState = "signed-in" | "signed-out";
 
 async function openAccountPage(page: Page): Promise<AccountPageState> {
-  await page.goto("/account/");
+  await gotoStable(page, "/account/");
   const signedIn = page.getByText("Signed in as");
   const signedOut = page.getByRole("button", { name: "Need an account? Create one" });
   await expect(signedIn.or(signedOut)).toBeVisible({ timeout: 30_000 });
@@ -166,7 +191,7 @@ test("a signed-in account never sees the guest's data, and signing out brings th
   const goal = page.getByLabel("Set a daily practice goal");
   try {
     // As a guest: turn the daily goal on and confirm it stuck.
-    await page.goto("/settings/");
+    await gotoStable(page, "/settings/");
     await goal.check();
     await page.waitForTimeout(1000);
     await expect
@@ -180,13 +205,13 @@ test("a signed-in account never sees the guest's data, and signing out brings th
     // A new account is a separate local database: the guest's goal is not there (the migration
     // prompt was skipped by finishPostAuth, so nothing was copied over either).
     await signUp(page, username);
-    await page.goto("/settings/");
+    await gotoStable(page, "/settings/");
     await page.waitForTimeout(1500); // settings load from storage after first paint; an unchecked box before then proves nothing
     await expect(goal).not.toBeChecked();
 
     // Signing out returns to the guest database, untouched.
     await signOut(page);
-    await page.goto("/settings/");
+    await gotoStable(page, "/settings/");
     await expect.poll(() => goal.isChecked(), { timeout: 15_000 }).toBe(true);
   } finally {
     await cleanUp(page, username);
@@ -200,13 +225,13 @@ test("the same account syncs a setting across two browser contexts (scenario 5)"
   const other = await second.newPage();
   try {
     await signUp(page, username);
-    await page.goto("/settings/");
+    await gotoStable(page, "/settings/");
     await page.getByLabel("Set a daily practice goal").check();
     await page.getByLabel("Graded attempts per day").fill("35");
     await page.waitForTimeout(1000);
 
     // Push now rather than waiting for the 60-second timer.
-    await page.goto("/account/");
+    await gotoStable(page, "/account/");
     await page.getByRole("button", { name: "Sync now" }).click();
     await page.waitForTimeout(3000);
 
@@ -215,7 +240,7 @@ test("the same account syncs a setting across two browser contexts (scenario 5)"
     await finishPostAuth(other);
     await expect
       .poll(async () => {
-        await other.goto("/settings/");
+        await gotoStable(other, "/settings/");
         await other.waitForTimeout(1500);
         return other.getByLabel("Set a daily practice goal").isChecked();
       }, { timeout: 150_000, intervals: [3000] })

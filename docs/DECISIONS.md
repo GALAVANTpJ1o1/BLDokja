@@ -1628,3 +1628,5 @@ All three scenarios failed at the same line, waiting for the sign-in heading aft
 - **The spec** now surfaces the dialog's own error text instead of timing out in silence.
 
 Found by reading the trace's console log and network entries out of `.artifacts/playwright-results/*/trace.zip`, which is worth remembering: the run's artifacts carry the browser console, every request and its status, and the full page snapshot, so a failure on the owner's machine can be diagnosed here without a reachable server.
+
+**Fifth run** (after redeploying both functions): scenarios 12 and 5 passed, in 13 and 15 seconds. 15 failed on `net::ERR_ABORTED` navigating to `/account/` immediately after the post-auth flow, which ends in `window.location.reload()` — the reload landed mid-navigation and cancelled it. Nothing is wrong when that happens, so every navigation in the spec now goes through `gotoStable`, which retries an aborted one. The reload itself is deliberate (local storage is namespaced per account and has to be reopened), so this is the spec's problem to absorb, not the app's.
