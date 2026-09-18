@@ -14,9 +14,11 @@ The full specification is in `BRIEF.md`. Read it before any non-trivial work. Th
 
 ## Current phase
 
-**Phase 1 — cube engine.** Build `cube-engine` with its full test suite per `BRIEF.md` §5. No UI. Checkpoint: all golden fixtures pass and the alg dataset is verified.
+**v2 — accounts, cross-device sync and launch polish** (branch `v2/accounts-sync`, plan milestones M1–M8). v1 (engine, lessons, trainers, local-only storage) is complete and live on `master`. M1–M6 are done (Supabase schema, auth, sync, activity/leaderboards, loader and SEO/launch pages); M7 (regression, security, load and browser inspection) is partly done — see `docs/DECISIONS.md` D-068 — and M8 (owner-approved launch to `bldokja.pages.dev`) has not started. Decisions since v1 are D-053 onward.
 
-Phase 0 (audit) was confirmed complete on 2026-09-13. Its decisions are in `docs/AUDIT.md` §6.
+The `Don't add accounts, auth, or a backend` rule below applied to v1; v2 deliberately adds an optional Supabase backend (`docs/DECISIONS.md` D-053 to D-056), and guest mode must keep working exactly as in v1.
+
+Earlier phases: Phase 0 (audit) was confirmed complete on 2026-09-13 (`docs/AUDIT.md` §6); the engine phase and later v1 phases were completed after that.
 
 Update this line when I confirm a phase is done. Never advance a phase on your own.
 
