@@ -34,6 +34,9 @@ export default defineConfig([
         projectService: {
           defaultProject: "tsconfig.tools.json",
           allowDefaultProject: ["eslint.config.js", "playwright.config.ts", "e2e/*.ts"],
+          // The e2e specs outgrew the default limit of 8. Sixteen is a small, bounded set (one config
+          // plus the spec files), so the slowdown the option's name warns about is negligible here.
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 16,
         },
         tsconfigRootDir: import.meta.dirname,
       },

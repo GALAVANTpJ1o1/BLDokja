@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/learn/", "/learn/notation/", "/learn/parity/", "/learn/cfop-two-look-oll/", "/learn/cfop-pairing-extraction/", "/learn/oh-fundamentals-grip/", "/practice/", "/practice/speffz/", "/practice/trace/", "/practice/pairs/", "/practice/algorithms/", "/practice/3style/", "/practice/m2op/", "/practice/weak/", "/practice/levels/", "/practice/first-solve/", "/practice/memory/", "/practice/reference/", "/practice/sandbox/", "/practice/debug/", "/practice/4bld/", "/practice/big-cubes/", "/practice/difficulty/", "/progress/", "/settings/", "/settings/lettering/", "/lab/"];
+const routes = ["/", "/learn/", "/learn/notation/", "/learn/parity/", "/learn/cfop-two-look-oll/", "/learn/cfop-pairing-extraction/", "/learn/oh-fundamentals-grip/", "/practice/", "/practice/speffz/", "/practice/trace/", "/practice/pairs/", "/practice/algorithms/", "/practice/3style/", "/practice/m2op/", "/practice/weak/", "/practice/levels/", "/practice/first-solve/", "/practice/memory/", "/practice/reference/", "/practice/sandbox/", "/practice/debug/", "/practice/4bld/", "/practice/big-cubes/", "/practice/difficulty/", "/progress/", "/settings/", "/settings/lettering/", "/lab/", "/contact/", "/privacy/", "/leaderboard/"];
 
 test("every major redesigned route fits the viewport without console errors", async ({ page }, info) => {
   test.setTimeout(180_000);

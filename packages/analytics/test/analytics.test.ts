@@ -207,6 +207,49 @@ describe("streaks", () => {
   });
 });
 
+describe("local-day bucketing across midnight, timezones and daylight-saving changes (v2 §K scenario 16)", () => {
+  const inZone = (timeZone: string) => (time: number) => new Date(time).toLocaleDateString("en-CA", { timeZone });
+  const NY = inZone("America/New_York");
+  const at = (iso: string) => attempt("pairs", iso, true, 900, Date.parse(iso));
+
+  it("two attempts an hour apart straddling local midnight are two days in that zone, but one in UTC", () => {
+    // 2026-09-18T03:30Z is 23:30 on the 17th in New York (EDT, UTC-4); 04:30Z is 00:30 on the 18th.
+    const attempts = attemptsOf([at("2026-09-18T03:30:00Z"), at("2026-09-18T04:30:00Z")]);
+    expect(activityDays(attempts, { dayOf: NY }).map((d) => d.day)).toEqual(["2026-09-17", "2026-09-18"]);
+    expect(streaks(attempts, { dayOf: NY, today: "2026-09-18" })).toEqual({ current: 2, longest: 2 });
+    expect(activityDays(attempts).map((d) => d.day)).toEqual(["2026-09-18"]);
+  });
+
+  it("the 23-hour spring-forward day (2026-03-08 in New York) neither drops out of nor splits a run", () => {
+    const attempts = attemptsOf([at("2026-03-07T17:00:00Z"), at("2026-03-08T16:00:00Z"), at("2026-03-09T16:00:00Z")]);
+    expect(activityDays(attempts, { dayOf: NY }).map((d) => d.day)).toEqual(["2026-03-07", "2026-03-08", "2026-03-09"]);
+    expect(streaks(attempts, { dayOf: NY, today: "2026-03-09" })).toEqual({ current: 3, longest: 3 });
+  });
+
+  it("the 25-hour fall-back day (2026-11-01 in New York) counts once even with attempts in its repeated hour", () => {
+    // 05:30Z is 01:30 EDT and 06:30Z is 01:30 EST: the same wall-clock hour, twice.
+    const attempts = attemptsOf([at("2026-10-31T16:00:00Z"), at("2026-11-01T05:30:00Z"), at("2026-11-01T06:30:00Z"), at("2026-11-02T17:00:00Z")]);
+    expect(activityDays(attempts, { dayOf: NY })).toEqual([
+      { day: "2026-10-31", attempts: 1 },
+      { day: "2026-11-01", attempts: 2 },
+      { day: "2026-11-02", attempts: 1 },
+    ]);
+    expect(streaks(attempts, { dayOf: NY, today: "2026-11-02" })).toEqual({ current: 3, longest: 3 });
+  });
+
+  it("a zone east of UTC buckets a late-evening UTC attempt into the next local day", () => {
+    // 2026-09-17T20:00Z is 01:30 on the 18th in Kolkata (UTC+5:30).
+    const attempts = attemptsOf([at("2026-09-17T20:00:00Z")]);
+    expect(activityDays(attempts, { dayOf: inZone("Asia/Kolkata") }).map((d) => d.day)).toEqual(["2026-09-18"]);
+  });
+
+  it("today is judged in the reader's own zone: an attempt late yesterday locally still keeps the streak current", () => {
+    const attempts = attemptsOf([at("2026-09-18T03:30:00Z")]); // 23:30 on the 17th in New York
+    expect(streaks(attempts, { dayOf: NY, today: "2026-09-18" })).toEqual({ current: 1, longest: 1 });
+    expect(streaks(attempts, { dayOf: NY, today: "2026-09-19" })).toEqual({ current: 0, longest: 1 });
+  });
+});
+
 describe("legacy memo attempts", () => {
   it("are summarised apart, oldest first, and never counted as drill attempts", () => {
     const legacy = (at: string, correct: number, total: number) => ({ type: "legacy.memoAttempt", at, legacy: { difficulty: "easy" }, derived: { correctLetters: correct, totalLetters: total } });
