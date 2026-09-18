@@ -11,6 +11,7 @@ import type { LetterPairConflict } from "@/lib/sync/pairs";
 import { account } from "@/i18n/account";
 import { contact } from "@/i18n/contact";
 import { en } from "@/i18n/en";
+import { leaderboard } from "@/i18n/leaderboard";
 
 function errorText(code: AccountErrorCode): string {
   if (code === "invalid-credentials") return account.errors.invalidCredentials;
@@ -350,6 +351,7 @@ function SignedInView() {
           {leaderboardStatus !== undefined ? <p className="t-body">{leaderboardStatus}</p> : null}
           <button type="submit" className="btn btn-strong">{account.account.leaderboards.title}</button>
         </form>
+        <TransitionLink href="/leaderboard/" className="text-link self-start">{leaderboard.viewLink}</TransitionLink>
       </Section>
 
       <Section title={account.account.deleteAccount.title}>
