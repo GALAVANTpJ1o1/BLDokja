@@ -55,7 +55,7 @@ function importErrorText(error: ImportDataError): string {
 }
 
 export function SettingsView() {
-  const { settings, update, ready, request3D } = useSettings();
+  const { settings, stored, update, ready, request3D } = useSettings();
   // Checked in the browser: the server doesn't know whether this device has a voice.
   const speech = useSpeechAvailable();
   const [status, setStatus] = useState<string | undefined>(undefined);
@@ -66,6 +66,14 @@ export function SettingsView() {
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState<number | undefined>(undefined);
   const [persistentBackend, setPersistentBackend] = useState<boolean | undefined>(undefined);
+  // Overrides the loaded value only once the user actually touches a control -- binding these
+  // controls straight to `stored` would make typing feel laggy (every keystroke round-trips through
+  // an async Dexie write before the input's value updates), but seeding local state from `stored` via
+  // an effect would need a synchronous setState there (react-hooks/set-state-in-effect).
+  const [goalEnabledOverride, setGoalEnabledOverride] = useState<boolean | undefined>(undefined);
+  const [goalAttemptsOverride, setGoalAttemptsOverride] = useState<number | undefined>(undefined);
+  const goalEnabled = goalEnabledOverride ?? stored?.dailyGoal?.enabled ?? false;
+  const goalAttempts = goalAttemptsOverride ?? stored?.dailyGoal?.attempts ?? 20;
 
   useEffect(() => {
     void storageClient().then(async ({ getStorage, storageIsPersistent }) => {
@@ -127,6 +135,17 @@ export function SettingsView() {
     }
   }
 
+  function toggleGoal(enabled: boolean) {
+    setGoalEnabledOverride(enabled);
+    void update({ dailyGoal: { enabled, attempts: goalAttempts } });
+  }
+
+  function changeGoalAttempts(raw: string) {
+    const attempts = Math.min(500, Math.max(1, Math.round(Number(raw)) || 1));
+    setGoalAttemptsOverride(attempts);
+    void update({ dailyGoal: { enabled: goalEnabled, attempts } });
+  }
+
   async function deleteAll() {
     if (confirmText !== en.settings.deleteWord) return;
     const { getStorage } = await storageClient();
@@ -164,6 +183,17 @@ export function SettingsView() {
           <TransitionLink href="/settings/lettering/" className="t-ui font-[650]">{en.scheme.link}</TransitionLink>
           <span className="t-body text-quiet">{en.scheme.linkHint}</span>
         </p>
+      </Section>
+
+      <Section title={en.analytics.dailyGoal.title} className="settings-daily-goal">
+        <label className="flex items-center gap-2"><input type="checkbox" checked={goalEnabled} onChange={(e) => { toggleGoal(e.target.checked); }} />{en.analytics.dailyGoal.enable}</label>
+        {goalEnabled ? (
+          <label className="flex flex-col gap-2 max-w-48">
+            {en.analytics.dailyGoal.countLabel}
+            <input type="number" className="field" min={1} max={500} value={goalAttempts} onChange={(e) => { changeGoalAttempts(e.target.value); }} />
+          </label>
+        ) : null}
+        <p className="t-meta text-quiet">{en.analytics.dailyGoal.hint}</p>
       </Section>
 
       <Section title={en.settings.data} className="settings-data">
