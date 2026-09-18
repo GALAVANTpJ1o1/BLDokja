@@ -1,0 +1,211 @@
+// @vitest-environment jsdom
+import { canonicalJson, type LetterPair } from "@bld/storage";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { sha256Hex } from "@/lib/hash";
+import type { PairsSyncClient } from "./pairs";
+
+interface FakeRow {
+  id: string;
+  rev: number;
+  data: unknown;
+  deleted_at: string | null;
+}
+
+/** A fake server table for sync_letter_pairs, wide enough to satisfy PairsSyncClient's chain. */
+function fakeClient(initialRows: FakeRow[] = []) {
+  const rows = new Map(initialRows.map((r) => [r.id, { ...r }]));
+  let failNextFetch = false;
+
+  const client: PairsSyncClient = {
+    from: () => ({
+      select: () => {
+        if (failNextFetch) return Promise.resolve({ data: null, error: { message: "boom" } });
+        return Promise.resolve({ data: [...rows.values()], error: null });
+      },
+      insert: (row) => ({
+        select: () => {
+          if (rows.has(row.id)) return Promise.resolve({ data: null, error: { message: "duplicate" } });
+          rows.set(row.id, { id: row.id, rev: 1, data: row.data, deleted_at: null });
+          return Promise.resolve({ data: [{ rev: 1 }], error: null });
+        },
+      }),
+      update: (patch) => ({
+        eq: (_col1: string, id: string) => ({
+          eq: (_col2: string, expectedRev: number) => ({
+            select: () => {
+              const existing = rows.get(id);
+              if (existing === undefined || existing.rev !== expectedRev) return Promise.resolve({ data: [], error: null });
+              const updated: FakeRow = { ...existing, rev: existing.rev + 1, data: patch.data ?? existing.data, deleted_at: patch.deleted_at ?? existing.deleted_at };
+              rows.set(id, updated);
+              return Promise.resolve({ data: [{ rev: updated.rev }], error: null });
+            },
+          }),
+        }),
+      }),
+    }),
+  };
+
+  return { client, rows, failNextFetchOnce: () => { failNextFetch = true; } };
+}
+
+const pair = (id: string, notes: string): LetterPair => ({ id, first: id[0] ?? "", second: id[1] ?? "", images: [], notes });
+
+describe("reconcileLetterPairs", () => {
+  let setActiveAccount: typeof import("@/lib/storage-client").setActiveAccount;
+  let getStorage: typeof import("@/lib/storage-client").getStorage;
+  let reconcileLetterPairs: typeof import("./pairs").reconcileLetterPairs;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    localStorage.clear();
+    ({ setActiveAccount, getStorage } = await import("@/lib/storage-client"));
+    ({ reconcileLetterPairs } = await import("./pairs"));
+    setActiveAccount("acct-pairs-1");
+  });
+
+  it("does nothing for a guest", async () => {
+    setActiveAccount(undefined);
+    const { client, rows } = fakeClient();
+    const result = await reconcileLetterPairs(client);
+    expect(result).toEqual({ pushed: 0, pulled: 0, failed: false, conflicts: [] });
+    expect(rows.size).toBe(0);
+  });
+
+  it("pushes a new local pair as an insert", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result).toEqual({ pushed: 1, pulled: 0, failed: false, conflicts: [] });
+    expect(rows.get("AB")?.data).toEqual(pair("AB", "first"));
+  });
+
+  it("a second reconciliation with no changes pushes and pulls nothing", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    const second = await reconcileLetterPairs(client);
+    expect(second).toEqual({ pushed: 0, pulled: 0, failed: false, conflicts: [] });
+  });
+
+  it("pushes an edit made after a prior sync, using optimistic concurrency", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    await getStorage().putLetterPair(pair("AB", "edited"));
+    const result = await reconcileLetterPairs(client);
+
+    expect(result).toEqual({ pushed: 1, pulled: 0, failed: false, conflicts: [] });
+    expect(rows.get("AB")?.data).toEqual(pair("AB", "edited"));
+    expect(rows.get("AB")?.rev).toBe(2);
+  });
+
+  it("pulls a pair that exists remotely but not locally", async () => {
+    const remote = pair("CD", "from another device");
+    const { client } = fakeClient([{ id: "CD", rev: 1, data: remote, deleted_at: null }]);
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result).toEqual({ pushed: 0, pulled: 1, failed: false, conflicts: [] });
+    expect(await getStorage().letterPair("CD")).toEqual(remote);
+  });
+
+  it("a conflicting edit on both sides is reported, and the local edit is never overwritten", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    // Another device edits it (bumping the server rev independently of this device).
+    const remoteEdit = pair("AB", "changed elsewhere");
+    const existing = rows.get("AB");
+    if (existing !== undefined) rows.set("AB", { ...existing, rev: existing.rev + 1, data: remoteEdit });
+
+    // This device also edits it locally, unaware of the remote change.
+    await getStorage().putLetterPair(pair("AB", "changed here"));
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result.failed).toBe(false);
+    expect(result.conflicts).toEqual([{ id: "AB", local: pair("AB", "changed here"), remote: remoteEdit }]);
+    // The local copy is untouched -- never silently overwritten by the remote edit.
+    expect(await getStorage().letterPair("AB")).toEqual(pair("AB", "changed here"));
+    // And the conflicting local edit was not pushed over the remote one either.
+    expect(rows.get("AB")?.data).toEqual(remoteEdit);
+  });
+
+  it("a local deletion is pushed as a soft delete", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    await getStorage().deleteLetterPair("AB", "2026-09-18T00:00:00Z");
+    const result = await reconcileLetterPairs(client);
+
+    expect(result).toEqual({ pushed: 1, pulled: 0, failed: false, conflicts: [] });
+    expect(rows.get("AB")?.deleted_at).not.toBeNull();
+  });
+
+  it("a remote deletion with no local changes is applied locally", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    const existing = rows.get("AB");
+    if (existing !== undefined) rows.set("AB", { ...existing, rev: existing.rev + 1, deleted_at: "2026-09-18T00:00:00Z" });
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result.pulled).toBe(1);
+    expect(await getStorage().letterPair("AB")).toBeUndefined();
+  });
+
+  it("a remote deletion while this device has an unsynced local edit is a conflict, not a silent resurrection or a silent delete", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, rows } = fakeClient();
+    await reconcileLetterPairs(client);
+
+    const existing = rows.get("AB");
+    if (existing !== undefined) rows.set("AB", { ...existing, rev: existing.rev + 1, deleted_at: "2026-09-18T00:00:00Z" });
+    await getStorage().putLetterPair(pair("AB", "edited after the other device deleted it"));
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result.conflicts).toHaveLength(1);
+    expect(result.conflicts[0]?.id).toBe("AB");
+    // Not deleted locally, and not resurrected server-side either -- left for the user to resolve.
+    expect(await getStorage().letterPair("AB")).toEqual(pair("AB", "edited after the other device deleted it"));
+  });
+
+  it("skips a corrupt remote row instead of crashing the whole reconciliation", async () => {
+    const good = pair("EF", "fine");
+    const { client } = fakeClient([
+      { id: "BAD", rev: 1, data: { not: "a letter pair" }, deleted_at: null },
+      { id: "EF", rev: 1, data: good, deleted_at: null },
+    ]);
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result.failed).toBe(false);
+    expect(await getStorage().letterPair("EF")).toEqual(good);
+    expect(await getStorage().letterPair("BAD")).toBeUndefined();
+  });
+
+  it("reports failure when the initial fetch errors, touching nothing", async () => {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    const { client, failNextFetchOnce } = fakeClient();
+    failNextFetchOnce();
+
+    const result = await reconcileLetterPairs(client);
+
+    expect(result).toEqual({ pushed: 0, pulled: 0, failed: true, conflicts: [] });
+  });
+
+  it("content hashing is stable via canonicalJson regardless of key order", async () => {
+    const a = { id: "AB", first: "A", second: "B", images: [], notes: "x" };
+    const b = { notes: "x", images: [], second: "B", first: "A", id: "AB" };
+    expect(await sha256Hex(canonicalJson(a))).toBe(await sha256Hex(canonicalJson(b)));
+  });
+});

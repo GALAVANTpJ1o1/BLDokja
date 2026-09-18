@@ -1,4 +1,7 @@
+import { sha256Hex } from "./hash";
 import { getSupabase } from "./supabase-client";
+
+export { sha256Hex };
 
 /**
  * Account operations (v2 §D). Sign-in is by username, not email -- there is no email-delivery
@@ -38,10 +41,6 @@ export function generateRecoveryCode(): string {
   return Array.from(bytes, (b) => RECOVERY_CODE_ALPHABET[b % RECOVERY_CODE_ALPHABET.length]).join("");
 }
 
-export async function sha256Hex(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-}
 
 /**
  * Maps a Supabase error to a typed code the UI can show copy for. The exact shape of "duplicate
