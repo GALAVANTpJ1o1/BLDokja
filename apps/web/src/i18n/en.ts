@@ -25,6 +25,7 @@ export const en = {
     practice: "Practice",
     progress: "Progress",
     settings: "Settings",
+    account: "Account",
     home: "Home",
     cube: "Navigation cube",
     cubeHint: "Change the cube pattern",

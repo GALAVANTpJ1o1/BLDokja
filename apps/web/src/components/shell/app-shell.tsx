@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { ArrowLeftIcon, BookOpenIcon, CubeIcon, SlidersHorizontalIcon, ChartLineIcon, TargetIcon } from "@phosphor-icons/react";
+import { ArrowLeftIcon, BookOpenIcon, CubeIcon, SlidersHorizontalIcon, ChartLineIcon, TargetIcon, UserCircleIcon } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { TransitionLink as Link } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
@@ -17,6 +17,7 @@ const SECTIONS = [
 ] as const;
 
 const SETTINGS = { href: "/settings/", label: en.nav.settings, match: "/settings", icon: SlidersHorizontalIcon } as const;
+const ACCOUNT = { href: "/account/", label: en.nav.account, match: "/account", icon: UserCircleIcon } as const;
 
 function isCurrent(pathname: string, match: string): boolean {
   return pathname === match || pathname.startsWith(`${match}/`);
@@ -28,7 +29,7 @@ function isCurrent(pathname: string, match: string): boolean {
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const links = [...SECTIONS, SETTINGS].map((s) => <Link key={s.href} href={s.href} aria-current={isCurrent(pathname, s.match) ? "page" : undefined}><s.icon size={20} weight="regular" aria-hidden /><span>{s.label}</span></Link>);
+  const links = [...SECTIONS, SETTINGS, ACCOUNT].map((s) => <Link key={s.href} href={s.href} aria-current={isCurrent(pathname, s.match) ? "page" : undefined}><s.icon size={20} weight="regular" aria-hidden /><span>{s.label}</span></Link>);
   return (
     <div className="app-room">
       <div className="room-image" aria-hidden />

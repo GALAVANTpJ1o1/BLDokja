@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { AppShell } from "@/components/shell/app-shell";
+import { AccountProvider } from "@/components/account/account-provider";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker";
 import { SettingsProvider } from "@/components/settings/settings-provider";
 import { Starfield } from "@/components/starfield/starfield";
@@ -45,11 +46,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <ServiceWorkerRegistration />
         <Starfield />
-        <SettingsProvider>
-          <PageTransitions>
-            <AppShell>{children}</AppShell>
-          </PageTransitions>
-        </SettingsProvider>
+        <AccountProvider>
+          <SettingsProvider>
+            <PageTransitions>
+              <AppShell>{children}</AppShell>
+            </PageTransitions>
+          </SettingsProvider>
+        </AccountProvider>
       </body>
     </html>
   );
