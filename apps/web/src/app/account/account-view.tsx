@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { useAccount } from "@/components/account/account-provider";
+import { deferNextAccountReload, useAccount } from "@/components/account/account-provider";
+import { PostAuthFlow } from "@/components/account/post-auth-flow";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { AccountError, type AccountErrorCode } from "@/lib/account";
@@ -64,14 +65,17 @@ function SignedOutView() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<string | undefined>(undefined);
-  const [revealCode, setRevealCode] = useState<string | undefined>(undefined);
+  const [postAuth, setPostAuth] = useState<{ recoveryCode?: string } | undefined>(undefined);
 
   async function submitSignIn() {
     setBusy(true);
     setError(undefined);
     try {
+      // Defers AccountProvider's own SIGNED_IN reload so PostAuthFlow's migration prompt (if this
+      // browser has guest data) gets to run and be seen first; PostAuthFlow itself reloads once done.
+      deferNextAccountReload();
       await signIn(username, password);
-      // AccountProvider's auth-state listener reloads the page once the session lands.
+      setPostAuth({});
     } catch (err) {
       setError(messageFor(err));
     } finally {
@@ -83,8 +87,9 @@ function SignedOutView() {
     setBusy(true);
     setError(undefined);
     try {
+      deferNextAccountReload(); // Same reasoning as submitSignIn, plus the recovery-code reveal itself.
       const result = await signUp(username, password);
-      setRevealCode(result.recoveryCode);
+      setPostAuth({ recoveryCode: result.recoveryCode });
     } catch (err) {
       setError(messageFor(err));
     } finally {
@@ -114,7 +119,7 @@ function SignedOutView() {
     }
   }
 
-  if (revealCode !== undefined) return <RecoveryCodeReveal code={revealCode} onDone={() => { setRevealCode(undefined); }} />;
+  if (postAuth !== undefined) return <PostAuthFlow recoveryCode={postAuth.recoveryCode} />;
 
   return (
     <Section title={mode === "sign-up" ? account.signUp.title : mode === "forgot" ? account.forgotPassword.title : account.signIn.title}>

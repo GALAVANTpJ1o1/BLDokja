@@ -32,6 +32,19 @@ interface AccountContextValue {
 
 const AccountContext = createContext<AccountContextValue | undefined>(undefined);
 
+/**
+ * Sign-up needs to show the user their one-time recovery code (and, if they had guest data, a
+ * migration summary) before the page reloads out from under that UI -- both happen in direct
+ * response to the same sign-up call that also triggers this provider's own SIGNED_IN reload, so
+ * without this, whichever finishes first wins, and losing that race would mean silently never
+ * showing a recovery code the user can never see again. One-shot: consumed by the very next reload
+ * decision, whichever event that ends up being.
+ */
+let deferReloadOnce = false;
+export function deferNextAccountReload(): void {
+  deferReloadOnce = true;
+}
+
 function extractSession(session: Session | null): { userId: string | undefined; username: string | undefined } {
   if (session === null) return { userId: undefined, username: undefined };
   const meta = session.user.user_metadata as { username?: unknown } | undefined;
@@ -62,7 +75,12 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       // token refresh), so calling it on every event rather than filtering by event type is safe --
       // it only ever reloads when the account genuinely switched.
       void storageClient().then((m) => {
-        if (m.setActiveAccount(id)) window.location.reload();
+        if (!m.setActiveAccount(id)) return;
+        if (deferReloadOnce) {
+          deferReloadOnce = false;
+          return;
+        }
+        window.location.reload();
       });
     });
 
