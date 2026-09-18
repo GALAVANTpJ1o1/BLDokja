@@ -3,6 +3,7 @@ import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
 import { speffz } from "@/i18n/speffz";
+import { workspaces } from "@/i18n/workspaces";
 import { BookOpenIcon, TargetIcon, CubeIcon, BrainIcon, WrenchIcon, TableIcon, FilePdfIcon, StepsIcon, CaretRightIcon } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = { title: en.practice.title, description: en.practice.intro, alternates: { canonical: "/practice/" } };
@@ -19,13 +20,13 @@ const TRAINERS = [
   { href: "/practice/difficulty/", name: en.difficulty.link, blurb: en.difficulty.blurb },
 ] as const;
 const TOOLS = [
-  { href: "/practice/first-solve/", name: polish.home.first, blurb: polish.home.firstIntro, icon: BookOpenIcon },
-  { href: "/practice/levels/", name: polish.practice.levels, blurb: polish.practice.levelsIntro, icon: StepsIcon },
-  { href: "/practice/debug/", name: polish.practice.debugger, blurb: polish.practice.debuggerIntro, icon: WrenchIcon },
-  { href: "/practice/algorithms/", name: polish.practice.library, blurb: polish.practice.libraryIntro, icon: TableIcon },
-  { href: "/practice/memory/", name: polish.practice.memory, blurb: polish.practice.memoryIntro, icon: BrainIcon },
-  { href: "/practice/reference/", name: polish.practice.reference, blurb: polish.practice.referenceIntro, icon: FilePdfIcon },
-  { href: "/practice/big-cubes/", name: polish.practice.big, blurb: polish.practice.bigIntro, icon: CubeIcon },
+  { href: "/practice/first-solve/", name: polish.home.first, blurb: polish.home.firstIntro, icon: BookOpenIcon, inProgress: false },
+  { href: "/practice/levels/", name: polish.practice.levels, blurb: polish.practice.levelsIntro, icon: StepsIcon, inProgress: false },
+  { href: "/practice/debug/", name: polish.practice.debugger, blurb: polish.practice.debuggerIntro, icon: WrenchIcon, inProgress: false },
+  { href: "/practice/algorithms/", name: polish.practice.library, blurb: polish.practice.libraryIntro, icon: TableIcon, inProgress: false },
+  { href: "/practice/memory/", name: polish.practice.memory, blurb: polish.practice.memoryIntro, icon: BrainIcon, inProgress: false },
+  { href: "/practice/reference/", name: polish.practice.reference, blurb: polish.practice.referenceIntro, icon: FilePdfIcon, inProgress: false },
+  { href: "/practice/big-cubes/", name: polish.practice.big, blurb: polish.practice.bigIntro, icon: CubeIcon, inProgress: true },
 ];
 
 export default function PracticePage() {
@@ -41,7 +42,7 @@ export default function PracticePage() {
         ))}
       </ul>
       </section>
-      <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.tools}</h2><div className="tool-grid">{TOOLS.map((t) => <TransitionLink href={t.href} key={t.href} className="tool-link"><t.icon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}</h3><p>{t.blurb}</p></TransitionLink>)}</div></section>
+      <section className="flex flex-col gap-5"><h2 className="t-heading">{polish.practice.tools}</h2><div className="tool-grid">{TOOLS.map((t) => <TransitionLink href={t.href} key={t.href} className="tool-link"><t.icon className="tool-icon" weight="light" aria-hidden /><h3>{t.name}{t.inProgress ? <span className="t-meta text-quiet"> · {workspaces.big.buildingLabel}</span> : null}</h3><p>{t.blurb}</p></TransitionLink>)}</div></section>
     </div>
   );
 }

@@ -27,9 +27,9 @@ export function BigCubes() {
       <Link className="text-link self-start" href="/learn/4x4-what-changes/">{copy.big.open}</Link>
     </section>
     <section className="flex flex-col gap-5 border-t border-rule pt-6" aria-label={copy.big.five}><h2 className="t-heading">{copy.big.five}</h2>
+      <p className="status-line t-meta" role="note"><strong className="font-[650]">{copy.big.buildingLabel}:</strong> {copy.big.noSolve}</p>
       <nav className="step-track" aria-label={copy.big.family}>{families.map((value,position) => <button className="btn" type="button" key={value} aria-pressed={stage === position} onClick={() => { setStage(position); setOpened(false); }}>{copy.big.families[value]}</button>)}</nav>
       <h3 className="t-heading">{copy.big.families[family]}</h3><p className="t-body max-w-[65ch]">{copy.big.familyDescriptions[family]}</p>
-      <p className="status-line t-meta">{copy.big.noSolve}</p>
       <div className="control-row"><button type="button" className="btn" disabled={stage === 0} onClick={() => { setStage((value) => value - 1); setOpened(false); }}>{copy.big.previous}</button><button type="button" className="btn" disabled={stage === families.length - 1} onClick={() => { setStage((value) => value + 1); setOpened(false); }}>{copy.big.next}</button></div>
       <div className="control-row"><button className="btn" aria-pressed={mode === "recognition"} type="button" onClick={() => { setMode("recognition"); setOpened(true); }}>{copy.big.recognition}</button><button className="btn btn-strong" aria-pressed={mode === "trace"} type="button" onClick={() => { setMode("trace"); setOpened(true); }}>{copy.big.trace}</button></div>
       {opened ? <FamilyDrill key={`${family}:${mode}:${index}`} family={family} mode={mode} index={index} next={() => { setIndex((value) => value + 1); }} /> : <Cube puzzleId="5x5x5" label={copy.big.families[family]} />}
