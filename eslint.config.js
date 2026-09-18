@@ -22,7 +22,10 @@ const browserGlobals = [
 export default defineConfig([
   globalIgnores(["**/node_modules/", "**/dist/", "legacy/", "**/coverage/", "**/.next/", "**/out/", "**/next-env.d.ts",
     // Plain same-origin scripts served as written (ES5, no modules); covered by their own tests.
-    "apps/web/public/", ".artifacts/"]),
+    "apps/web/public/", ".artifacts/",
+    // Deno Edge Functions: a different runtime (Deno globals, jsr: imports), not part of this
+    // pnpm/Node/tsc project. Lint these with `deno lint`/`deno check` instead, not this config.
+    "supabase/functions/"]),
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   {
