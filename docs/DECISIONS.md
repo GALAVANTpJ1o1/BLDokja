@@ -1569,3 +1569,29 @@ Short records of choices that would be expensive to reverse, or where sources di
 - **Not done, and cannot be from this environment:** the ~20-concurrent-user load check (needs a reachable backend), desktop/mobile screenshots of the rendered pages, and the browser check of the loading cube.
 - **Scenarios covered by unit tests rather than a browser** (v2 §K): 1, 7, 8, 9 (`lib/sync/*.test.ts`, `migration.test.ts`), 14 (live RLS checks, D-060), 15's server side (D-063). Scenarios 6, 10, 11 and 13 have unit coverage of the mechanism only, no end-to-end run.
 - `eslint.config.js`: the default-project file limit was raised from 8 to 16 because the e2e specs outgrew it.
+
+## D-069 · Code-only security review of the v2 schema, Edge Functions and sync client
+
+**Status:** review done and fixes written (2026-09-18). The SQL migration and the two Edge Function changes are **not yet applied or deployed**, and none of the three could be run in the authoring environment (no network); the CSP fix and copy corrections were built and checked. Reviewed: all nine migrations, both Edge Functions, `lib/sync/*`, the CSP/header build scripts, and the storage schema's handling of pulled data.
+
+**Fixed:**
+- **Production CSP blocked every Supabase call (launch blocker).** `scripts/csp.mjs` wrote `connect-src 'self'` into every page, so a production build could not reach auth, REST, Storage or the Edge Functions. `next dev` has no CSP meta tag, which is why every live test passed. The Supabase origin is now read from `NEXT_PUBLIC_SUPABASE_URL` at build time (it must be https; unset means guest-only and stays `'self'`). Verified in a built page: `connect-src 'self' https://dlqphprfgsqyfbpsfvqd.supabase.co`. **The build must run with that variable set**, or the deployed site will silently have no accounts.
+- **One user could break the streak leaderboard for everyone.** `profiles.timezone` was unvalidated text passed to `AT TIME ZONE`, and users may update their own profile. A trigger now rejects names Postgres doesn't know (`20260918130000_security_hardening.sql`).
+- **Opting in published the login username.** `display_name` defaulted to the username. New accounts now start as `solver-xxxxxx`, and existing accounts still using their username are switched. The privacy page's claim ("never your login username") was false before this.
+- **The leaderboard page claimed rankings never depend on what a browser reports.** They do: events (and their timestamps) are inserted by the client, so points, active days and streaks can be forged. Copy on the leaderboard and privacy pages now says self-reported and unverified. Making them tamper-resistant would need server-side validation of real practice, which the local-first design doesn't have.
+- **Recovery-code attempt limit was bypassable with parallel requests.** The attempt count was read, compared, then incremented, so N concurrent requests all saw the same count. Each attempt now claims its count with a compare-and-swap before the code is checked.
+- **Account deletion could report success and leave images behind.** Storage list/remove errors were ignored. They now abort before the account is deleted.
+- Generous size ceilings (`NOT VALID`, so existing rows are untouched) on the three sync tables.
+
+**Reviewed and fine:** RLS on every private table (select/insert/update scoped to `auth.uid()`, no client delete on the event log, `WITH CHECK` blocks reassigning ownership); `account_recovery` unreachable by any client role; both `security definer` RPCs set `search_path`; the Storage bucket is private, owner-scoped by path, raster types only; pulled letter-pair data is Zod-validated and images are restricted to png/jpeg/webp data URLs; no `dangerouslySetInnerHTML` on user input (only two static scripts); the service worker ignores cross-origin requests.
+
+**Known and accepted, not fixed:**
+- **Sign-up is open with no captcha or per-account row cap.** A script can create accounts and fill the free-tier database. Size ceilings bound each row, not the count. Turnstile (never built, D-054) is the real answer if abuse appears.
+- Recovery-code hashes are unsalted SHA-256 of ~50 bits. Only reachable with service-role access, but an offline attack there would be feasible; a longer code or a server-side pepper would fix it.
+- Regenerating a recovery code or changing the password needs an active session but not the current password, so a stolen session can plant a recovery code that outlives a password change.
+- Five wrong recovery attempts lock recovery for that username until the owner regenerates a code while signed in (or asks for a manual reset): anyone who knows a username can trigger that.
+- Usernames are enumerable (sign-up, `username_available`, differing recovery errors); inherent to open username sign-ups.
+- `sync_events.id` is a global primary key, not per user. Ids are random UUIDs so a collision or pre-emption is not practical, but a non-UUID fallback id could be.
+- A deleted account's still-valid access token (up to an hour) can upload orphaned objects under its own folder; database writes fail on the foreign key.
+
+**To apply:** `supabase db push`, then `supabase functions deploy redeem-recovery-code --no-verify-jwt` and `supabase functions deploy delete-own-account`, then re-run the account flow once (sign up, forgot-password with the code, delete).

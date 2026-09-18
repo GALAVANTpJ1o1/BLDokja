@@ -14,12 +14,10 @@
 // Postgres FKs don't reach into Storage -- so this function also removes the caller's
 // letter-pair-images folder explicitly before deleting the user.
 //
-// UNTESTED: no live project deployment of this function was exercised in this environment (unlike
-// redeem-recovery-code, which shares the same service-role-client pattern). The recursive listing
-// below assumes Storage's list() marks folder-like entries with `id: null` (the documented way to
-// tell a folder from a file in a list response) and that the path convention nests exactly two
-// levels deep (<user_id>/<pairId>/<imageId>, per D-056) -- both should be confirmed once this is
-// actually deployed and exercised with a real uploaded image.
+// Deployed and exercised live on 2026-09-18 (docs/DECISIONS.md D-063, D-065), including against a real
+// uploaded image. The listing assumes Storage's list() marks folder-like entries with `id: null` and that
+// paths nest exactly two levels deep (<user_id>/<pairId>/<imageId>, per D-056). Storage errors abort the
+// deletion (added after that live run, in the D-069 security review) and have not been exercised live.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = (Deno.env.get("SITE_ORIGINS") ?? "http://localhost:3000,https://bldokja.pages.dev")
@@ -67,19 +65,28 @@ Deno.serve(async (req) => {
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
+  // A failed listing or removal must stop here, before the account is deleted: carrying on would
+  // report success ("everything deleted, everywhere") while leaving the user's images behind, with
+  // nothing left to authenticate a retry against. Failing leaves the account intact so they can retry.
+  const bucket = admin.storage.from("letter-pair-images");
   const objectPaths: string[] = [];
-  const { data: topLevel } = await admin.storage.from("letter-pair-images").list(userId, { limit: 1000 });
-  for (const entry of topLevel ?? []) {
+  const { data: topLevel, error: listError } = await bucket.list(userId, { limit: 1000 });
+  if (listError) return jsonResponse({ ok: false, error: "storage-cleanup-failed" }, 500, origin);
+  for (const entry of topLevel) {
     const entryPath = `${userId}/${entry.name}`;
     if (entry.id === null) {
       // A folder (a pairId), not a file -- one more level down reaches the actual images.
-      const { data: nested } = await admin.storage.from("letter-pair-images").list(entryPath, { limit: 1000 });
-      for (const file of nested ?? []) objectPaths.push(`${entryPath}/${file.name}`);
+      const { data: nested, error: nestedError } = await bucket.list(entryPath, { limit: 1000 });
+      if (nestedError) return jsonResponse({ ok: false, error: "storage-cleanup-failed" }, 500, origin);
+      for (const file of nested) objectPaths.push(`${entryPath}/${file.name}`);
     } else {
       objectPaths.push(entryPath);
     }
   }
-  if (objectPaths.length > 0) await admin.storage.from("letter-pair-images").remove(objectPaths);
+  if (objectPaths.length > 0) {
+    const { error: removeError } = await bucket.remove(objectPaths);
+    if (removeError) return jsonResponse({ ok: false, error: "storage-cleanup-failed" }, 500, origin);
+  }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
   if (deleteError) return jsonResponse({ ok: false, error: "delete-failed" }, 500, origin);

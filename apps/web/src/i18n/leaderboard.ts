@@ -6,7 +6,8 @@
 export const leaderboard = {
   title: "Leaderboards",
   viewLink: "See the leaderboards",
-  intro: "Opt-in and read-only: rankings are computed on the server from graded practice, never from anything a browser reports about itself. Viewable without an account.",
+  metaDescription: "Opt-in practice leaderboards: current streak, active days and points, with a monthly hall of fame. Self-reported, so friendly rather than verified.",
+  intro: "Opt-in and read-only, and viewable without an account. Rankings are added up on the server from the practice records each account syncs, but those records come from each person's own browser and aren't independently checked, so treat the boards as friendly rather than verified.",
   notConfigured: "Leaderboards aren't available in this build yet.",
   optInHint: "Opt in, or set a public display name, from your account.",
   loading: "Loading…",

@@ -119,11 +119,20 @@ Deno.serve(async (req) => {
     return jsonResponse({ ok: false, error: recovery !== null && recovery.failed_attempts >= MAX_FAILED_ATTEMPTS ? "locked" : "invalid" }, 400, origin);
   }
 
+  // Every attempt is counted BEFORE the code is compared, and only one concurrent request can claim
+  // each count (the update matches only while failed_attempts still holds the value this request read).
+  // Read-then-increment-after-a-wrong-guess let N parallel requests all read the same count and all get
+  // checked, so the attempt limit did not actually bound guesses; a request that loses the claim is
+  // rejected without ever looking at its code.
+  const { data: claimed } = await supabaseAdmin
+    .from("account_recovery")
+    .update({ failed_attempts: recovery.failed_attempts + 1 })
+    .eq("user_id", profile.id)
+    .eq("failed_attempts", recovery.failed_attempts)
+    .select("user_id");
+  if (claimed === null || claimed.length === 0) return jsonResponse({ ok: false, error: "invalid" }, 400, origin);
+
   if (!timingSafeEqual(providedHash, recovery.code_hash)) {
-    await supabaseAdmin
-      .from("account_recovery")
-      .update({ failed_attempts: recovery.failed_attempts + 1 })
-      .eq("user_id", profile.id);
     return jsonResponse({ ok: false, error: "invalid" }, 400, origin);
   }
 

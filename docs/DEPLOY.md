@@ -18,7 +18,7 @@ pnpm build
 | Step | What it does |
 |---|---|
 | `scripts/segments.mjs` | copies Next's route payloads to the flat names its client asks for, so client-side navigation works on a static host |
-| `scripts/csp.mjs` | writes a Content Security Policy `<meta>` into every page, allowing each page's own inline scripts by hash |
+| `scripts/csp.mjs` | writes a Content Security Policy `<meta>` into every page, allowing each page's own inline scripts by hash and (when `NEXT_PUBLIC_SUPABASE_URL` is set at build time) that one Supabase origin in `connect-src` |
 | `scripts/sw.mjs` | writes `sw.js`, which precaches every file so the site works offline |
 
 Upload the contents of `apps/web/out/` to the host's root.

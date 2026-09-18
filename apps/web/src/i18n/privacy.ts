@@ -31,7 +31,7 @@ export const privacy = {
     leaderboards: {
       title: "Leaderboards",
       body: [
-        "Leaderboards are opt-in and off by default. Opting in shows a public display name you choose -- never your login username -- next to a ranking computed on the server from your graded practice.",
+        "Leaderboards are opt-in and off by default. Opting in shows a public display name -- never your login username; it starts as an anonymous name and you can change it -- next to a ranking added up on the server from the practice records your account syncs. Those records come from your own browser and aren't independently verified.",
         "Opting out, or deleting your account, removes you from every leaderboard immediately, including past months in the archive.",
       ],
     },

@@ -89,7 +89,7 @@ export const account = {
       title: "Leaderboards",
       optIn: "Show my results on the public leaderboards",
       displayName: "Public display name",
-      displayNameHint: "Shown on leaderboards instead of your username.",
+      displayNameHint: "Shown on leaderboards instead of your username. New accounts start with an anonymous name like solver-a1b2c3; leave this blank to keep your current one.",
     },
     exportFirst: "Export a backup before deleting your account or its local data.",
     localDataIsSeparate: "This only deletes your account and synced data. To clear what's saved in this browser instead, use the delete option in Settings.",

@@ -12,10 +12,29 @@
  * - worker-src allows blob:: cubing.js may start its solver worker from a blob URL.
  */
 import { createHash } from "node:crypto";
+import { URL } from "node:url";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const outDir = join(import.meta.dirname, "..", "out");
+
+// v2 accounts talk to Supabase from the browser (auth, REST, Storage, Edge Functions), all under one
+// project origin. Without it in connect-src the browser blocks every one of those calls in a
+// production build -- invisible in `next dev`, which has no CSP meta tag. The origin comes from the
+// same NEXT_PUBLIC_SUPABASE_URL that gets inlined into the bundle, so the policy and the client can't
+// disagree; with it unset (a guest-only build) connect-src stays 'self'.
+const connectSources = ["'self'"];
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+if (supabaseUrl !== undefined && supabaseUrl.length > 0) {
+  let origin;
+  try {
+    origin = new URL(supabaseUrl);
+  } catch {
+    throw new Error(`NEXT_PUBLIC_SUPABASE_URL is not a valid URL: ${supabaseUrl}`);
+  }
+  if (origin.protocol !== "https:") throw new Error(`NEXT_PUBLIC_SUPABASE_URL must be https for the CSP: ${supabaseUrl}`);
+  connectSources.push(origin.origin);
+}
 
 function htmlFiles(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -48,7 +67,7 @@ for (const file of htmlFiles(outDir)) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    `connect-src ${connectSources.join(" ")}`,
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "object-src 'none'",
