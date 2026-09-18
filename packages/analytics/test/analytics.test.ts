@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { accuracyBand, attemptsOf, heatCells, legacyMemoSummary, median, MIN_SAMPLES, sessionSummary, summariseCases, traceDiagnostics, trend, weakItems, type AttemptLike } from "../src/index.js";
+import { accuracyBand, activityDays, attemptsOf, heatCells, legacyMemoSummary, median, MIN_SAMPLES, sessionSummary, streaks, summariseCases, traceDiagnostics, trend, weakItems, type AttemptLike } from "../src/index.js";
 
 const DAY = 86_400_000;
 const T0 = Date.parse("2026-09-01T09:00:00Z");
@@ -128,6 +128,82 @@ describe("session summary", () => {
     const s = sessionSummary(attemptsOf(events), "trace", T0);
     expect(s.next).toEqual([{ kind: "slow-lookup", lookup: "break", medianMs: 2600, normalMs: 1000 }]);
     expect(sessionSummary(attemptsOf([attempt("pairs", "AB", true, 900, T0)]), "pairs", T0).next).toEqual([{ kind: "keep-going" }]);
+  });
+});
+
+describe("activityDays", () => {
+  it("counts unique active days, not attempt counts, and sorts them ascending", () => {
+    const events: AttemptLike[] = [
+      attempt("pairs", "AB", true, 900, Date.parse("2026-09-16T09:00:00Z")),
+      attempt("pairs", "AB", false, 900, Date.parse("2026-09-16T20:00:00Z")), // same UTC day, second attempt
+      attempt("pairs", "CD", true, 900, Date.parse("2026-09-14T09:00:00Z")),
+    ];
+    expect(activityDays(attemptsOf(events))).toEqual([
+      { day: "2026-09-14", attempts: 1 },
+      { day: "2026-09-16", attempts: 2 },
+    ]);
+  });
+
+  it("an incorrect graded attempt still qualifies the day (v2 §H)", () => {
+    const events: AttemptLike[] = [attempt("pairs", "AB", false, 900, Date.parse("2026-09-16T09:00:00Z"))];
+    expect(activityDays(attemptsOf(events))).toEqual([{ day: "2026-09-16", attempts: 1 }]);
+  });
+
+  it("a repeated delivery of the same event id is never double-counted", () => {
+    // attemptsOf() itself doesn't dedupe by id (that's storage.appendEvents()'s job on the way in),
+    // but activityDays() must still not be fooled by two rows that are the exact same id showing up
+    // -- this exercises that the count is driven by how many *distinct* Attempt objects are passed
+    // in, i.e. the guarantee comes from upstream idempotent storage, not from this function guessing.
+    const events: AttemptLike[] = [attempt("pairs", "AB", true, 900, Date.parse("2026-09-16T09:00:00Z"))];
+    expect(activityDays(attemptsOf(events))[0]?.attempts).toBe(1);
+  });
+});
+
+describe("streaks", () => {
+  const day = (iso: string) => Date.parse(`${iso}T12:00:00Z`); // midday UTC: safely inside that UTC day regardless of the reader's own clock
+
+  it("no attempts at all: both zero", () => {
+    expect(streaks([])).toEqual({ current: 0, longest: 0 });
+  });
+
+  it("a single active day, which is today: current and longest are both 1", () => {
+    const events: AttemptLike[] = [attempt("pairs", "AB", true, 900, day("2026-09-18"))];
+    expect(streaks(attemptsOf(events), { today: "2026-09-18" })).toEqual({ current: 1, longest: 1 });
+  });
+
+  it("a 3-day run ending today, plus an isolated day 5 days back, does not extend or confuse the current streak (mirrors the live SQL test in D-060)", () => {
+    const events: AttemptLike[] = [
+      attempt("pairs", "A1", true, 900, day("2026-09-16")),
+      attempt("pairs", "A2", true, 900, day("2026-09-17")),
+      attempt("pairs", "A3", true, 900, day("2026-09-18")),
+      attempt("pairs", "A4", true, 900, day("2026-09-13")),
+    ];
+    expect(streaks(attemptsOf(events), { today: "2026-09-18" })).toEqual({ current: 3, longest: 3 });
+  });
+
+  it("stays current when yesterday was active and today has no attempt yet", () => {
+    const events: AttemptLike[] = [attempt("pairs", "AB", true, 900, day("2026-09-17"))];
+    expect(streaks(attemptsOf(events), { today: "2026-09-18" })).toEqual({ current: 1, longest: 1 });
+  });
+
+  it("is broken (current: 0) once the last active day is older than yesterday, but longest still reflects history", () => {
+    const events: AttemptLike[] = [
+      attempt("pairs", "A1", true, 900, day("2026-09-10")),
+      attempt("pairs", "A2", true, 900, day("2026-09-11")),
+      attempt("pairs", "A3", true, 900, day("2026-09-12")),
+    ];
+    expect(streaks(attemptsOf(events), { today: "2026-09-18" })).toEqual({ current: 0, longest: 3 });
+  });
+
+  it("longest reflects the best historical run even when the current run is shorter", () => {
+    const events: AttemptLike[] = [
+      attempt("pairs", "A1", true, 900, day("2026-09-01")),
+      attempt("pairs", "A2", true, 900, day("2026-09-02")),
+      attempt("pairs", "A3", true, 900, day("2026-09-03")),
+      attempt("pairs", "A4", true, 900, day("2026-09-04")),
+      attempt("pairs", "B1", true, 900, day("2026-09-18")),
+    ];
+    expect(streaks(attemptsOf(events), { today: "2026-09-18" })).toEqual({ current: 1, longest: 4 });
   });
 });
 

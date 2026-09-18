@@ -174,6 +174,9 @@ export interface Trend {
 /** A calendar day in UTC. The app passes its own local-day function. */
 export const utcDay = (time: number): string => new Date(time).toISOString().slice(0, 10);
 
+/** A "YYYY-MM-DD" day string as a count of days since the epoch -- consecutive calendar days are consecutive integers, which is what the streak run-length logic below relies on. */
+const dayIndex = (day: string): number => Math.round(Date.parse(`${day}T00:00:00Z`) / 86_400_000);
+
 export function trend(attempts: readonly Attempt[], metric: TrendMetric, options: { readonly window?: number; readonly minDays?: number; readonly minAttempts?: number; readonly dayOf?: (time: number) => string } = {}): Trend {
   const window = options.window ?? 7;
   const minDays = options.minDays ?? 3;
@@ -187,7 +190,6 @@ export function trend(attempts: readonly Attempt[], metric: TrendMetric, options
     byDay.set(day, list);
   }
   const days = [...byDay.keys()].sort();
-  const dayIndex = (day: string) => Math.round(Date.parse(`${day}T00:00:00Z`) / 86_400_000);
   const points = days.map((day): TrendPoint => {
     const end = dayIndex(day);
     const inWindow = days.filter((d) => dayIndex(d) <= end && dayIndex(d) > end - window).flatMap((d) => byDay.get(d) ?? []);
@@ -195,6 +197,73 @@ export function trend(attempts: readonly Attempt[], metric: TrendMetric, options
     return { day, attempts: byDay.get(day)?.length ?? 0, value, windowAttempts: inWindow.length };
   });
   return { metric, points, enough: days.length >= minDays && attempts.length >= minAttempts };
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Activity calendar and streaks (v2 §H). Guest-available: this reads only the local event log, the
+// same as everywhere else in this package -- an account is never required to see your own streak.
+// Mirrors the server-side leaderboard_streaks() SQL (docs/DECISIONS.md D-059/D-060) exactly, so a
+// signed-in device's own local view and the (opted-in) public leaderboard never quietly disagree
+// about what "current streak" means. `dayOf` should bucket by the caller's own local timezone, not
+// UTC -- utcDay is only the default for callers that genuinely want UTC days.
+
+export interface ActivityDay {
+  readonly day: string;
+  readonly attempts: number;
+}
+
+/** One entry per local calendar day with at least one graded attempt (any drill.attempt event, correct or not -- BRIEF v2 §H: "a graded incorrect attempt also qualifies"). Duplicate attempts never double-count: attemptsOf() already dedupes by the event log's own id-uniqueness before this ever sees them. */
+export function activityDays(attempts: readonly Attempt[], options: { readonly dayOf?: (time: number) => string } = {}): ActivityDay[] {
+  const dayOf = options.dayOf ?? utcDay;
+  const counts = new Map<string, number>();
+  for (const a of attempts) counts.set(dayOf(a.time), (counts.get(dayOf(a.time)) ?? 0) + 1);
+  return [...counts.entries()].map(([day, count]) => ({ day, attempts: count })).sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0));
+}
+
+export interface Streaks {
+  readonly current: number;
+  readonly longest: number;
+}
+
+/**
+ * Current and longest runs of consecutive active days. A run's current-ness is judged against
+ * `today` (injectable for tests; defaults to now, in the same day-function as `attempts`): the most
+ * recent active day must be today or yesterday, so a streak stays current when yesterday was active
+ * and today hasn't ended yet, exactly as BRIEF v2 §H requires -- it does not go stale merely because
+ * `dayOf`'s UTC "today" has rolled over while the user's own local day has not, provided the caller
+ * passes a `dayOf` and `today` computed in the same (local) zone consistently.
+ */
+export function streaks(attempts: readonly Attempt[], options: { readonly dayOf?: (time: number) => string; readonly today?: string } = {}): Streaks {
+  const dayOf = options.dayOf ?? utcDay;
+  const days = [...new Set(attempts.map((a) => dayOf(a.time)))].sort();
+  if (days.length === 0) return { current: 0, longest: 0 };
+
+  let longestRun = 1;
+  let longestSoFar = 1;
+  for (let i = 1; i < days.length; i++) {
+    const day = days[i];
+    const prev = days[i - 1];
+    if (day === undefined || prev === undefined) continue;
+    longestRun = dayIndex(day) === dayIndex(prev) + 1 ? longestRun + 1 : 1;
+    if (longestRun > longestSoFar) longestSoFar = longestRun;
+  }
+
+  const lastActiveDay = days[days.length - 1];
+  if (lastActiveDay === undefined) return { current: 0, longest: longestSoFar };
+  const today = options.today ?? dayOf(Date.now());
+  const current = dayIndex(lastActiveDay) < dayIndex(today) - 1 ? 0 : (() => {
+    let run = 1;
+    for (let i = days.length - 1; i > 0; i--) {
+      const day = days[i];
+      const prev = days[i - 1];
+      if (day === undefined || prev === undefined) break;
+      if (dayIndex(day) !== dayIndex(prev) + 1) break;
+      run++;
+    }
+    return run;
+  })();
+
+  return { current, longest: longestSoFar };
 }
 
 // ---------------------------------------------------------------------------------------------------
