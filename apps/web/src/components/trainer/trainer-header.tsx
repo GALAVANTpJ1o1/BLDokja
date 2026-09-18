@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingCube } from "@/components/cube/loading-cube";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
 
@@ -49,7 +50,10 @@ export function TrainerLoading({ message, ...heading }: TrainerHeading & { reado
   return (
     <div className="flex max-w-5xl flex-col gap-6">
       <TrainerHeader {...heading} />
-      <p className="t-meta text-quiet min-h-[24rem]">{message}</p>
+      <div className="flex min-h-[24rem] flex-col items-center justify-center gap-4">
+        <LoadingCube />
+        <p className="t-meta text-quiet" role="status">{message}</p>
+      </div>
     </div>
   );
 }
