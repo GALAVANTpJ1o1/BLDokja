@@ -7,6 +7,7 @@ import { AppShell } from "@/components/shell/app-shell";
 import { AccountProvider } from "@/components/account/account-provider";
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker";
 import { SettingsProvider } from "@/components/settings/settings-provider";
+import { SyncProvider } from "@/components/sync/sync-provider";
 import { Starfield } from "@/components/starfield/starfield";
 import { PageTransitions } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
@@ -47,11 +48,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ServiceWorkerRegistration />
         <Starfield />
         <AccountProvider>
-          <SettingsProvider>
-            <PageTransitions>
-              <AppShell>{children}</AppShell>
-            </PageTransitions>
-          </SettingsProvider>
+          <SyncProvider>
+            <SettingsProvider>
+              <PageTransitions>
+                <AppShell>{children}</AppShell>
+              </PageTransitions>
+            </SettingsProvider>
+          </SyncProvider>
         </AccountProvider>
       </body>
     </html>
