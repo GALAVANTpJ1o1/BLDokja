@@ -76,6 +76,7 @@ Netlify and Cloudflare Pages read; other hosts need the same values in their own
 | `/sw.js` | `Cache-Control: no-cache` | so a new deploy is noticed |
 | `/_next/static/*` | `Cache-Control: public, max-age=31536000, immutable` | those file names carry a content hash |
 | `/manifest.webmanifest` | `Cache-Control: public, max-age=3600` | |
+| `/opengraph-image` | `Content-Type: image/png` | the share card is exported with no file extension, so the host can't infer its type (D-073) |
 
 Serve `404.html` for unknown paths. Keep the trailing slashes: pages are exported as `learn/index.html`
 and the app links to `/learn/`.

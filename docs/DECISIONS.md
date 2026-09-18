@@ -1648,3 +1648,15 @@ Found by reading the trace's console log and network entries out of `.artifacts/
 **Not exercised on the live origin:** sign-up, sign-in, sync and deletion against production. They ran against the owner's dev server and the same Supabase project (D-070, D-071), but the production CSP and origin have only been checked through the requests above. `BLD_E2E_ACCOUNTS=1 BLD_TEST_URL=https://bldokja.pages.dev pnpm exec playwright test accounts --project=chromium` covers it and is safe to run (throwaway `e2e-` accounts, deleted by the test).
 
 **Still open, owner's side:** Supabase dashboard → Authentication → URL Configuration → Site URL `https://bldokja.pages.dev` (low urgency, D-054: no email link is ever sent); deleting leftover `e2e-` users from earlier failed runs; the known-and-accepted risks in D-069 (open sign-up without a captcha is the one to watch once the site has visitors).
+
+## D-073 · The share-card image was served as application/octet-stream
+
+**Status:** fixed in the repo and redeployed (2026-09-19).
+
+The owner ran `launch.spec.ts` and `accounts.spec.ts` against the live site: 13 of 14 passed, including account scenarios 5, 12 and 15 against production. The failure was the spec's own check that the Open Graph image is a PNG: `/opengraph-image` came back as `application/octet-stream`.
+
+- **Cause.** Next exports the share card as a file named `opengraph-image`, with no extension, so Cloudflare Pages had nothing to infer a type from. Every other file type on the site checked out live (`.webmanifest`, `.woff2`, `.svg`, `.png`, `.xml`, `.txt`, `.js`, `.html`); this was the only extensionless asset.
+- **Why it matters.** Link-preview crawlers can reject an image with the wrong type, and with `X-Content-Type-Options: nosniff` on, a browser will not draw an octet-stream response as an image.
+- **Fix.** `scripts/headers.mjs` writes a `Content-Type: image/png` rule for `/opengraph-image` (the file's magic bytes were checked first). The header table in `docs/DEPLOY.md` lists it.
+- **Why the local runs missed it.** The dev server sets the type itself. Only the production host's inference showed the gap, which is the argument for keeping `BLD_TEST_URL=<live site>` runs of `launch.spec.ts` after every deploy.
+- **Deploy note.** The first rebuild attempt failed with a pnpm recursive-run error whose cause I did not capture; an immediate rerun with identical inputs succeeded, and the output was verified before upload (630 files, one CSP meta with the Supabase origin on all 76 pages, no source maps, no JWT-shaped strings). The repo sits under OneDrive, so a transient file lock during `out/` cleanup is the likely cause. If it recurs, capture the full output and consider building from a non-synced path.
