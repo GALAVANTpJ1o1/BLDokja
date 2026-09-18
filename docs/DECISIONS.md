@@ -1596,3 +1596,13 @@ Short records of choices that would be expensive to reverse, or where sources di
 - A deleted account's still-valid access token (up to an hour) can upload orphaned objects under its own folder; database writes fail on the foreign key.
 
 **To apply:** `supabase db push`, then `supabase functions deploy redeem-recovery-code --no-verify-jwt` and `supabase functions deploy delete-own-account`, then re-run the account flow once (sign up, forgot-password with the code, delete).
+
+## D-070 · First real run of the accounts e2e: the recovery code was never shown to new users
+
+**Status:** fixed (2026-09-18); the regression test is unit-level, the end-to-end confirmation is still owed.
+
+- **Bug.** A successful sign-up sets `signedIn` before the sign-up call returns to the form, which made `AccountView` swap `SignedOutView` for `SignedInView`. The recovery-code reveal and the guest-data migration prompt (`PostAuthFlow`) lived in state inside `SignedOutView`, so the swap threw them away: a new user landed on the signed-in page and was never shown the one code that can reset their password. Sign-in had the same flaw for the migration prompt. `deferNextAccountReload()` only stopped the page reload racing the flow; it did nothing about the view swap. D-062 had already flagged this UI as never exercised live.
+- **Fix.** The post-auth state now lives in `AccountView`, above the swap, and takes precedence over the signed-in view.
+- **How it was found.** `e2e/accounts.spec.ts` on the owner's machine: every test signed up successfully (the page snapshot showed "Signed in as e2e-...") and then waited 30 seconds for a dialog that never rendered. The first attempt had failed for an unrelated reason (the dev server had no Supabase variables), which is why the spec now checks that accounts are configured in `beforeEach` and fails in 15 seconds with the reason.
+- **Regression test.** `apps/web/src/app/account/account-view.test.tsx` simulates the auth-state flip landing before sign-up returns; it fails against the old code (2 of 3) and passes with the fix.
+- **Test cleanup** now works from any state a failed test leaves behind (`cleanUp` in the spec), after one hung for four minutes trying to sign in while already signed in.

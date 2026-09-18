@@ -13,6 +13,10 @@ import { contact } from "@/i18n/contact";
 import { en } from "@/i18n/en";
 import { leaderboard } from "@/i18n/leaderboard";
 
+interface PostAuthState {
+  readonly recoveryCode?: string;
+}
+
 function errorText(code: AccountErrorCode): string {
   if (code === "invalid-credentials") return account.errors.invalidCredentials;
   if (code === "username-taken") return account.errors.usernameTaken;
@@ -58,7 +62,7 @@ function RecoveryCodeReveal({ code, onDone }: { code: string; onDone: () => void
   );
 }
 
-function SignedOutView() {
+function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthState) => void }) {
   const { signUp, signIn, redeemRecoveryCode } = useAccount();
   const [mode, setMode] = useState<"sign-in" | "sign-up" | "forgot">("sign-in");
   const [username, setUsername] = useState("");
@@ -68,7 +72,6 @@ function SignedOutView() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<string | undefined>(undefined);
-  const [postAuth, setPostAuth] = useState<{ recoveryCode?: string } | undefined>(undefined);
 
   async function submitSignIn() {
     setBusy(true);
@@ -78,7 +81,7 @@ function SignedOutView() {
       // browser has guest data) gets to run and be seen first; PostAuthFlow itself reloads once done.
       deferNextAccountReload();
       await signIn(username, password);
-      setPostAuth({});
+      onAuthenticated({});
     } catch (err) {
       setError(messageFor(err));
     } finally {
@@ -92,7 +95,7 @@ function SignedOutView() {
     try {
       deferNextAccountReload(); // Same reasoning as submitSignIn, plus the recovery-code reveal itself.
       const result = await signUp(username, password);
-      setPostAuth({ recoveryCode: result.recoveryCode });
+      onAuthenticated({ recoveryCode: result.recoveryCode });
     } catch (err) {
       setError(messageFor(err));
     } finally {
@@ -121,8 +124,6 @@ function SignedOutView() {
       setBusy(false);
     }
   }
-
-  if (postAuth !== undefined) return <PostAuthFlow recoveryCode={postAuth.recoveryCode} />;
 
   return (
     <Section title={mode === "sign-up" ? account.signUp.title : mode === "forgot" ? account.forgotPassword.title : account.signIn.title}>
@@ -384,7 +385,12 @@ function SignedInView() {
 
 export function AccountView() {
   const { ready, configured, signedIn } = useAccount();
+  // Held here, not in SignedOutView: a successful sign-up flips `signedIn` before the recovery code
+  // and migration prompt have been seen, which swaps SignedOutView for SignedInView. State kept in the
+  // component being swapped out was thrown away with it, so the one-time recovery code never appeared.
+  const [postAuth, setPostAuth] = useState<PostAuthState | undefined>(undefined);
   if (!configured) return <Section title={account.account.title}><p className="t-body">{account.notConfigured}</p></Section>;
   if (!ready) return null;
-  return signedIn ? <SignedInView /> : <SignedOutView />;
+  if (postAuth !== undefined) return <PostAuthFlow recoveryCode={postAuth.recoveryCode} />;
+  return signedIn ? <SignedInView /> : <SignedOutView onAuthenticated={setPostAuth} />;
 }

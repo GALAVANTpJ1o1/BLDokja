@@ -90,6 +90,20 @@ async function deleteIfSignedIn(page: Page): Promise<void> {
   if (await page.getByText("Signed in as").isVisible({ timeout: 5000 }).catch(() => false)) await deleteAccount(page);
 }
 
+// Cleanup that works from whatever state a failed test left the page in: signed in already (delete),
+// signed out (sign in, skip any migration prompt, delete), or the account never got created (nothing to do).
+async function cleanUp(page: Page, username: string): Promise<void> {
+  await page.goto("/account/");
+  if (await page.getByText("Signed in as").isVisible({ timeout: 5000 }).catch(() => false)) {
+    await deleteAccount(page);
+    return;
+  }
+  if (!(await page.getByLabel("Username").isVisible({ timeout: 5000 }).catch(() => false))) return;
+  await signIn(page, username);
+  await finishPostAuth(page).catch(() => undefined);
+  await deleteIfSignedIn(page);
+}
+
 test("sign up, sign out, reject a wrong password, sign back in, delete, and the username is free again (scenario 15)", async ({ page }) => {
   test.setTimeout(240_000);
   const username = newUsername();
@@ -113,7 +127,7 @@ test("sign up, sign out, reject a wrong password, sign back in, delete, and the 
     expect(again).toMatch(RECOVERY_CODE);
     expect(again).not.toBe(code);
   } finally {
-    await deleteIfSignedIn(page);
+    await cleanUp(page, username);
   }
 });
 
@@ -146,10 +160,7 @@ test("a signed-in account never sees the guest's data, and signing out brings th
     await page.goto("/settings/");
     await expect.poll(() => goal.isChecked(), { timeout: 15_000 }).toBe(true);
   } finally {
-    // Sign back in to be able to delete the throwaway account (this skips the migration prompt).
-    await signIn(page, username);
-    await finishPostAuth(page).catch(() => undefined);
-    await deleteIfSignedIn(page);
+    await cleanUp(page, username);
   }
 });
 
@@ -183,6 +194,6 @@ test("the same account syncs a setting across two browser contexts (scenario 5)"
     await expect(other.getByLabel("Graded attempts per day")).toHaveValue("35");
   } finally {
     await second.close();
-    await deleteIfSignedIn(page);
+    await cleanUp(page, username);
   }
 });
