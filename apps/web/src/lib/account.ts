@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { sha256Hex } from "./hash";
 import { getSupabase } from "./supabase-client";
 
@@ -189,6 +190,32 @@ export async function redeemRecoveryCode(username: string, recoveryCode: string,
   } catch {
     return { ok: false, error: "network" };
   }
+}
+
+export interface LeaderboardSettings {
+  readonly optIn: boolean;
+  readonly displayName: string;
+}
+
+const LeaderboardSettingsRowSchema = z.object({ leaderboard_opt_in: z.boolean(), display_name: z.string() });
+
+/** The one place a `profiles` row becomes {@link LeaderboardSettings}; undefined when it isn't the shape the schema promises. */
+export function parseLeaderboardSettings(row: unknown): LeaderboardSettings | undefined {
+  const parsed = LeaderboardSettingsRowSchema.safeParse(row);
+  return parsed.success ? { optIn: parsed.data.leaderboard_opt_in, displayName: parsed.data.display_name } : undefined;
+}
+
+/**
+ * What the account's leaderboard settings currently are, so the form can show them before offering to
+ * change them. undefined means "couldn't tell" (signed out, offline, unexpected shape) -- a form must
+ * not fall back to guessing defaults, because saving guessed values overwrites the real ones.
+ */
+export async function getLeaderboardSettings(): Promise<LeaderboardSettings | undefined> {
+  const userId = await currentUserId();
+  if (userId === undefined) return undefined;
+  const { data, error } = await getSupabase().from("profiles").select("leaderboard_opt_in, display_name").eq("id", userId).maybeSingle();
+  if (error) return undefined;
+  return parseLeaderboardSettings(data);
 }
 
 export async function setLeaderboardOptIn(optIn: boolean, displayName?: string): Promise<void> {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AccountError, generateRecoveryCode, sha256Hex, USERNAME_INPUT_PATTERN, USERNAME_PATTERN, usernameToEmail } from "./account";
+import { AccountError, generateRecoveryCode, parseLeaderboardSettings, sha256Hex, USERNAME_INPUT_PATTERN, USERNAME_PATTERN, usernameToEmail } from "./account";
 
 describe("username format", () => {
   it("accepts 3-24 lowercase letters, digits, underscores and hyphens", () => {
@@ -71,5 +71,20 @@ describe("AccountError", () => {
     expect(error.code).toBe("username-taken");
     expect(error.message).toBe("already exists");
     expect(error).toBeInstanceOf(Error);
+  });
+});
+
+describe("parseLeaderboardSettings", () => {
+  it("reads a profiles row into the shape the settings form uses", () => {
+    expect(parseLeaderboardSettings({ leaderboard_opt_in: true, display_name: "fast-hands" })).toEqual({ optIn: true, displayName: "fast-hands" });
+    expect(parseLeaderboardSettings({ leaderboard_opt_in: false, display_name: "solver-a1b2c3" })).toEqual({ optIn: false, displayName: "solver-a1b2c3" });
+  });
+
+  it("says undefined, never a default, when the row is missing or the wrong shape", () => {
+    // maybeSingle() yields null when no row is visible; a default here would be saved over the real values.
+    expect(parseLeaderboardSettings(null)).toBeUndefined();
+    expect(parseLeaderboardSettings({})).toBeUndefined();
+    expect(parseLeaderboardSettings({ leaderboard_opt_in: "true", display_name: "x" })).toBeUndefined();
+    expect(parseLeaderboardSettings({ leaderboard_opt_in: true })).toBeUndefined();
   });
 });

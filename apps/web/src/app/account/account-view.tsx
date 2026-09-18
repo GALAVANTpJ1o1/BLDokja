@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { deferNextAccountReload, useAccount } from "@/components/account/account-provider";
 import { PostAuthFlow } from "@/components/account/post-auth-flow";
 import { useSync } from "@/components/sync/sync-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
-import { AccountError, USERNAME_INPUT_PATTERN, type AccountErrorCode } from "@/lib/account";
+import { AccountError, USERNAME_INPUT_PATTERN, type AccountErrorCode, type LeaderboardSettings } from "@/lib/account";
 import type { LetterPairConflict } from "@/lib/sync/pairs";
 import { account } from "@/i18n/account";
 import { contact } from "@/i18n/contact";
@@ -232,8 +232,78 @@ function SyncStatusSection() {
   );
 }
 
+/**
+ * Opt-in and public display name. The form shows what is stored before it lets anyone change it: it
+ * used to start unchecked and blank whatever the account said, so pressing save on a page you had
+ * only opened would opt an opted-in person back out (docs/DECISIONS.md D-074).
+ */
+function LeaderboardSection() {
+  const { getLeaderboardSettings, setLeaderboardOptIn } = useAccount();
+  // undefined: still loading. "unavailable": couldn't read it, so nothing here may be saved.
+  const [loaded, setLoaded] = useState<LeaderboardSettings | "unavailable" | undefined>(undefined);
+  // What has been typed since; undefined means untouched, so the stored value shows through.
+  const [optInEdit, setOptInEdit] = useState<boolean | undefined>(undefined);
+  const [nameEdit, setNameEdit] = useState<string | undefined>(undefined);
+  const [notice, setNotice] = useState<{ readonly text: string; readonly isError: boolean } | undefined>(undefined);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getLeaderboardSettings().then(
+      (settings) => { if (!cancelled) setLoaded(settings ?? "unavailable"); },
+      () => { if (!cancelled) setLoaded("unavailable"); },
+    );
+    return () => { cancelled = true; };
+  }, [getLeaderboardSettings]);
+
+  const stored = loaded === undefined || loaded === "unavailable" ? undefined : loaded;
+  const optIn = optInEdit ?? stored?.optIn ?? false;
+  const displayName = nameEdit ?? stored?.displayName ?? "";
+  const locked = stored === undefined || busy;
+
+  async function submit() {
+    if (stored === undefined) return;
+    setBusy(true);
+    setNotice(undefined);
+    const typedName = displayName.trim();
+    try {
+      // A blank name means "keep the current one", not "set it to nothing".
+      await setLeaderboardOptIn(optIn, typedName.length > 0 ? typedName : undefined);
+      setLoaded({ optIn, displayName: typedName.length > 0 ? typedName : stored.displayName });
+      setOptInEdit(undefined);
+      setNameEdit(undefined);
+      setNotice({ text: account.account.leaderboards.saved, isError: false });
+    } catch (err) {
+      setNotice({ text: messageFor(err), isError: true });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Section title={account.account.leaderboards.title}>
+      {loaded === undefined ? <p className="t-body" role="status">{account.account.leaderboards.loading}</p> : null}
+      {loaded === "unavailable" ? <p className="t-body" role="alert">{account.account.leaderboards.loadFailed}</p> : null}
+      <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={optIn} disabled={locked} onChange={(e) => { setOptInEdit(e.target.checked); }} />
+          {account.account.leaderboards.optIn}
+        </label>
+        <label className="flex flex-col gap-2">
+          {account.account.leaderboards.displayName}
+          <input className="field" value={displayName} disabled={locked} onChange={(e) => { setNameEdit(e.target.value); }} maxLength={32} />
+        </label>
+        <p className="t-meta text-quiet">{account.account.leaderboards.displayNameHint}</p>
+        {notice !== undefined ? <p className="t-body" role={notice.isError ? "alert" : "status"}>{notice.text}</p> : null}
+        <button type="submit" className="btn btn-strong" disabled={locked}>{account.account.leaderboards.submit}</button>
+      </form>
+      <TransitionLink href="/leaderboard/" className="text-link self-start">{leaderboard.viewLink}</TransitionLink>
+    </Section>
+  );
+}
+
 function SignedInView() {
-  const { username, signOut, changeUsername, changePassword, regenerateRecoveryCode, setLeaderboardOptIn, deleteAccount } = useAccount();
+  const { username, signOut, changeUsername, changePassword, regenerateRecoveryCode, deleteAccount } = useAccount();
 
   const [newUsername, setNewUsername] = useState("");
   const [usernameBusy, setUsernameBusy] = useState(false);
@@ -246,10 +316,6 @@ function SignedInView() {
   const [revealCode, setRevealCode] = useState<string | undefined>(undefined);
   const [recoveryBusy, setRecoveryBusy] = useState(false);
   const [recoveryError, setRecoveryError] = useState<string | undefined>(undefined);
-
-  const [optIn, setOptIn] = useState(false);
-  const [displayName, setDisplayName] = useState("");
-  const [leaderboardStatus, setLeaderboardStatus] = useState<string | undefined>(undefined);
 
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -293,15 +359,6 @@ function SignedInView() {
       setRecoveryError(messageFor(err)); // same reasoning as doDeleteAccount below
     } finally {
       setRecoveryBusy(false);
-    }
-  }
-
-  async function submitLeaderboard() {
-    try {
-      await setLeaderboardOptIn(optIn, displayName.length > 0 ? displayName : undefined);
-      setLeaderboardStatus(account.account.title);
-    } catch (err) {
-      setLeaderboardStatus(messageFor(err));
     }
   }
 
@@ -353,19 +410,7 @@ function SignedInView() {
         <button type="button" className="btn" disabled={recoveryBusy} onClick={() => void doRegenerateRecoveryCode()}>{account.account.recoveryCode.regenerate}</button>
       </Section>
 
-      <Section title={account.account.leaderboards.title}>
-        <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void submitLeaderboard(); }}>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={optIn} onChange={(e) => { setOptIn(e.target.checked); }} />{account.account.leaderboards.optIn}</label>
-          <label className="flex flex-col gap-2">
-            {account.account.leaderboards.displayName}
-            <input className="field" value={displayName} onChange={(e) => { setDisplayName(e.target.value); }} maxLength={32} />
-          </label>
-          <p className="t-meta text-quiet">{account.account.leaderboards.displayNameHint}</p>
-          {leaderboardStatus !== undefined ? <p className="t-body">{leaderboardStatus}</p> : null}
-          <button type="submit" className="btn btn-strong">{account.account.leaderboards.title}</button>
-        </form>
-        <TransitionLink href="/leaderboard/" className="text-link self-start">{leaderboard.viewLink}</TransitionLink>
-      </Section>
+      <LeaderboardSection />
 
       <Section title={account.account.deleteAccount.title}>
         <p className="t-body">{account.account.exportFirst}</p>

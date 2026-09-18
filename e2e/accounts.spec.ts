@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Account, isolation and cross-context sync checks (plan §K scenarios 5, 12 and 15).
+ * Account, isolation and cross-context sync checks (plan §K scenarios 5, 12 and 15), plus the
+ * leaderboard-settings round trip (D-074).
  *
  * These talk to the REAL Supabase project the build was configured with (NEXT_PUBLIC_SUPABASE_URL /
  * _ANON_KEY), creating and then deleting throwaway accounts, so they only run when asked for:
@@ -248,6 +249,42 @@ test("the same account syncs a setting across two browser contexts (scenario 5)"
     await expect(other.getByLabel("Graded attempts per day")).toHaveValue("35");
   } finally {
     await second.close();
+    await cleanUp(page, username);
+  }
+});
+
+test("leaderboard settings are read from the account, saved, and still there after a reload (D-074)", async ({ page }) => {
+  test.setTimeout(240_000);
+  const username = newUsername();
+  try {
+    await signUp(page, username);
+    const optIn = page.getByLabel("Show my results on the public leaderboards", { exact: true });
+    const name = page.getByLabel("Public display name", { exact: true });
+
+    // The form loads the stored values before it allows edits; a new account is not opted in and starts
+    // with an anonymous name, never the login username.
+    await expect(optIn).toBeEnabled({ timeout: 30_000 });
+    await expect(optIn).not.toBeChecked();
+    await expect(name).toHaveValue(/^solver-[0-9a-f]{6}$/);
+
+    await optIn.check();
+    await name.fill("e2e-fast-hands");
+    await page.getByRole("button", { name: "Save leaderboard settings", exact: true }).click();
+    await expect(page.getByText("Leaderboard settings saved.")).toBeVisible({ timeout: 30_000 });
+
+    // Reload: what comes back must be what the server holds, not the form's defaults.
+    await page.reload();
+    await expect(optIn).toBeEnabled({ timeout: 30_000 });
+    await expect(optIn).toBeChecked();
+    await expect(name).toHaveValue("e2e-fast-hands");
+
+    // Saving without touching anything must not undo it (the bug this test exists for).
+    await page.getByRole("button", { name: "Save leaderboard settings", exact: true }).click();
+    await expect(page.getByText("Leaderboard settings saved.")).toBeVisible({ timeout: 30_000 });
+    await page.reload();
+    await expect(optIn).toBeEnabled({ timeout: 30_000 });
+    await expect(optIn).toBeChecked();
+  } finally {
     await cleanUp(page, username);
   }
 });

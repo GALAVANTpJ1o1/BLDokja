@@ -11,6 +11,9 @@ import { AccountView } from "./account-view";
  * e2e run, docs/DECISIONS.md D-070).
  */
 let signedIn = false;
+// What the account's profile says, and what the form tried to write back; both reset after each test.
+let storedLeaderboard: { optIn: boolean; displayName: string } | undefined = { optIn: false, displayName: "solver-000000" };
+const leaderboardSaves: [boolean, string | undefined][] = [];
 const rerenders = new Set<() => void>();
 
 vi.mock("@/components/account/account-provider", () => ({
@@ -35,7 +38,11 @@ vi.mock("@/components/account/account-provider", () => ({
     changePassword: () => Promise.resolve(),
     regenerateRecoveryCode: () => Promise.resolve("X"),
     redeemRecoveryCode: () => Promise.resolve({ ok: true }),
-    setLeaderboardOptIn: () => Promise.resolve(),
+    getLeaderboardSettings: () => Promise.resolve(storedLeaderboard),
+    setLeaderboardOptIn: (optIn: boolean, displayName?: string) => {
+      leaderboardSaves.push([optIn, displayName]);
+      return Promise.resolve();
+    },
     deleteAccount: () => Promise.resolve(),
   }),
 }));
@@ -59,6 +66,8 @@ function Harness() {
 afterEach(() => {
   cleanup();
   signedIn = false;
+  storedLeaderboard = { optIn: false, displayName: "solver-000000" };
+  leaderboardSaves.length = 0;
 });
 
 describe("AccountView post-auth flow", () => {
@@ -87,5 +96,65 @@ describe("AccountView post-auth flow", () => {
     signedIn = true;
     render(<Harness />);
     expect(screen.getByText("Sync status")).toBeTruthy();
+  });
+});
+
+/**
+ * Regression (docs/DECISIONS.md D-074): the leaderboard form used to start unchecked and blank whatever
+ * the account said, so pressing save on a page you had only opened opted an opted-in person back out.
+ */
+describe("leaderboard settings", () => {
+  const OPT_IN = "Show my results on the public leaderboards";
+  const NAME = "Public display name";
+  const SAVE = "Save leaderboard settings";
+
+  it("shows the stored opt-in and display name, and saving them untouched keeps both", async () => {
+    signedIn = true;
+    storedLeaderboard = { optIn: true, displayName: "fast-hands" };
+    render(<Harness />);
+
+    await waitFor(() => { expect(screen.getByLabelText<HTMLInputElement>(OPT_IN).checked).toBe(true); });
+    expect(screen.getByLabelText<HTMLInputElement>(NAME).value).toBe("fast-hands");
+
+    fireEvent.click(screen.getByRole("button", { name: SAVE }));
+    await waitFor(() => { expect(screen.getByText("Leaderboard settings saved.")).toBeTruthy(); });
+    expect(leaderboardSaves).toEqual([[true, "fast-hands"]]);
+  });
+
+  it("changing only the name leaves the opt-in as it was", async () => {
+    signedIn = true;
+    storedLeaderboard = { optIn: true, displayName: "fast-hands" };
+    render(<Harness />);
+    await waitFor(() => { expect(screen.getByLabelText<HTMLInputElement>(OPT_IN).checked).toBe(true); });
+
+    fireEvent.change(screen.getByLabelText(NAME), { target: { value: "  quick-fingers " } });
+    fireEvent.click(screen.getByRole("button", { name: SAVE }));
+
+    await waitFor(() => { expect(leaderboardSaves).toEqual([[true, "quick-fingers"]]); });
+  });
+
+  it("a blank name means keep the current one, not set it to nothing", async () => {
+    signedIn = true;
+    storedLeaderboard = { optIn: false, displayName: "solver-a1b2c3" };
+    render(<Harness />);
+    await waitFor(() => { expect(screen.getByLabelText<HTMLInputElement>(NAME).value).toBe("solver-a1b2c3"); });
+
+    fireEvent.click(screen.getByLabelText(OPT_IN));
+    fireEvent.change(screen.getByLabelText(NAME), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: SAVE }));
+
+    await waitFor(() => { expect(leaderboardSaves).toEqual([[true, undefined]]); });
+  });
+
+  it("cannot be saved while the stored settings are unknown, rather than saving guesses over them", async () => {
+    signedIn = true;
+    storedLeaderboard = undefined;
+    render(<Harness />);
+
+    await waitFor(() => { expect(screen.getByText(/Couldn't load your leaderboard settings/)).toBeTruthy(); });
+    const save = screen.getByRole<HTMLButtonElement>("button", { name: SAVE });
+    expect(save.disabled).toBe(true);
+    fireEvent.click(save);
+    expect(leaderboardSaves).toEqual([]);
   });
 });

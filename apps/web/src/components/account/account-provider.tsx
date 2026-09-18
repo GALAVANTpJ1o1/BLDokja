@@ -27,6 +27,7 @@ interface AccountContextValue {
   readonly regenerateRecoveryCode: typeof accountLib.regenerateRecoveryCode;
   readonly redeemRecoveryCode: typeof accountLib.redeemRecoveryCode;
   readonly setLeaderboardOptIn: typeof accountLib.setLeaderboardOptIn;
+  readonly getLeaderboardSettings: typeof accountLib.getLeaderboardSettings;
   readonly deleteAccount: () => Promise<void>;
 }
 
@@ -105,6 +106,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       regenerateRecoveryCode: accountLib.regenerateRecoveryCode,
       redeemRecoveryCode: accountLib.redeemRecoveryCode,
       setLeaderboardOptIn: accountLib.setLeaderboardOptIn,
+      getLeaderboardSettings: accountLib.getLeaderboardSettings,
       deleteAccount: accountLib.deleteAccount,
     }),
     [ready, configured, userId, username],
