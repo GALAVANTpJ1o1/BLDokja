@@ -6,6 +6,7 @@ import { VOICES } from "@bld/storage/options";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
@@ -94,9 +95,8 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
       <LessonVoiceContext.Provider value={chosen}>
         <article className="lesson-article flex flex-col gap-8">
           <header className="lesson-header flex flex-col gap-3">
-            <p className="t-meta text-quiet">
-              <TransitionLink href="/learn/">{en.lesson.backToPath}</TransitionLink> · {frontmatter.order}. · {en.lesson.minutes(frontmatter.estimatedMinutes)}
-            </p>
+            <Breadcrumbs trail={[{ label: en.nav.learn, href: "/learn/" }, { label: frontmatter.title, href: `/learn/${frontmatter.id}/` }]} />
+            <p className="t-meta text-quiet">{frontmatter.order}. · {en.lesson.minutes(frontmatter.estimatedMinutes)}</p>
             <h1 className="t-title">{frontmatter.title}</h1>
             {stored?.lessonPositions?.[frontmatter.id] !== undefined ? <a className="text-link self-start t-meta" href={`#${stored.lessonPositions[frontmatter.id]}`}>{polish.lesson.resume}</a> : null}
             {available.length > 1 ? (

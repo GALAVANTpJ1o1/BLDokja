@@ -162,7 +162,6 @@ export const en = {
     done: "Done",
     prerequisiteDone: "done",
     prerequisiteNotDone: "not finished yet",
-    backToPath: "Back to the learning path",
     nextLesson: "Next lesson",
     reset: "Start over",
     undoMove: "Previous move",
