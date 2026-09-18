@@ -11,8 +11,9 @@ import { expect, test, type Page } from "@playwright/test";
  * Every account is named `e2e-...`. A test that fails halfway can leave one behind; delete leftovers
  * from the Supabase dashboard (Authentication > Users) by that prefix.
  *
- * NOT YET RUN: written without a browser available (the authoring session could not reach
- * localhost). Expect to fix selectors or timings on first run. Scenarios that are covered by unit
+ * First run (owner): all three timed out because the dev server had no Supabase variables, so the
+ * account page said accounts were unavailable; the check in beforeEach now reports that directly.
+ * Not yet run against a correctly configured app. Scenarios that are covered by unit
  * tests instead (events dedupe, offline queue, conflicts, deletions, RLS) live in apps/web/src/lib/sync
  * and supabase/ -- see docs/DECISIONS.md D-060 to D-065.
  */
@@ -22,8 +23,16 @@ test.skip(process.env.BLD_E2E_ACCOUNTS !== "1", "set BLD_E2E_ACCOUNTS=1 to run t
 const PASSWORD = "e2e-Password-1234";
 const RECOVERY_CODE = /^[2-9A-HJKMNP-Z]{10}$/;
 
-test.beforeEach(({ browserName }) => {
+test.beforeEach(async ({ browserName, page }) => {
   test.skip(browserName !== "chromium", "account flows run on one desktop browser only");
+  // Fail fast and say why: without the Supabase variables the account page shows "Accounts aren't
+  // available in this build yet." and every step below would wait out its full timeout for a button
+  // that can never appear.
+  await page.goto("/account/");
+  await expect(
+    page.getByRole("button", { name: "Need an account? Create one" }),
+    "accounts are not configured in this build: apps/web/.env.local needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, and `pnpm dev` must be restarted after editing it",
+  ).toBeVisible({ timeout: 15_000 });
 });
 
 function newUsername(): string {
