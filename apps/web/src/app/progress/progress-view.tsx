@@ -3,9 +3,11 @@
 import { activityDays, attemptsOf, heatCells, legacyMemoSummary, LOOKUP_KINDS, MIN_SAMPLES, streaks, traceDiagnostics, trend, type Attempt, type LegacyMemoLike } from "@bld/analytics";
 import { useMemo, useState } from "react";
 import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/charts/charts";
+import { useSettings } from "@/components/settings/settings-provider";
 import { Segmented } from "@/components/trainer/trainer-shell";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { en } from "@/i18n/en";
+import { leaderboard } from "@/i18n/leaderboard";
 import { polish } from "@/i18n/polish";
 import { workspaces } from "@/i18n/workspaces";
 import { itemLabel } from "@/lib/item-labels";
@@ -143,6 +145,8 @@ function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
   // Date.now() can't be called during render (react-hooks/purity), but a useState lazy initializer
   // runs exactly once at mount and is exempt -- the same pattern session-report.tsx already uses.
   const [now] = useState(() => Date.now());
+  const { stored } = useSettings();
+  const goal = stored?.dailyGoal;
 
   const days = useMemo(() => activityDays(attempts, { dayOf: localDay }), [attempts]);
   const today = useMemo(() => localDay(now), [now]);
@@ -150,6 +154,7 @@ function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
   const [focused, setFocused] = useState<{ day: string; count: number } | undefined>(undefined);
 
   const byDay = useMemo(() => new Map(days.map((d) => [d.day, d.attempts])), [days]);
+  const todayCount = byDay.get(today) ?? 0;
   const weeks = useMemo(() => {
     const cells: { day: string; count: number }[] = [];
     const totalDays = WEEKS_SHOWN * 7;
@@ -168,6 +173,9 @@ function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
     <section className="flex flex-col gap-3 border-t border-rule pt-6">
       <h2 className="t-heading">{en.analytics.activityTitle}</h2>
       <p className="t-body">{en.analytics.streakSummary(streak.current, streak.longest)}</p>
+      {goal?.enabled === true ? (
+        <p className="t-body">{todayCount >= goal.attempts ? en.analytics.dailyGoal.metToday(goal.attempts) : en.analytics.dailyGoal.progressToday(todayCount, goal.attempts)}</p>
+      ) : null}
       {days.length === 0 ? (
         <p className="t-body text-quiet">{en.analytics.calendarEmpty}</p>
       ) : (
@@ -204,6 +212,7 @@ function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
           </div>
         </>
       )}
+      <TransitionLink href="/leaderboard/" className="text-link self-start">{leaderboard.viewLink}</TransitionLink>
     </section>
   );
 }
