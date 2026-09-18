@@ -84,7 +84,7 @@ describe("runSyncCycle", () => {
 
   it("surfaces letter-pair conflicts through to the caller", async () => {
     setActiveAccount("acct-orch-4");
-    const conflict = { id: "AB", local: { id: "AB", first: "A", second: "B", images: [] }, remote: { id: "AB", first: "A", second: "B", images: [], notes: "x" } };
+    const conflict = { id: "AB", local: { id: "AB", first: "A", second: "B", images: [] }, remote: { id: "AB", first: "A", second: "B", images: [], notes: "x" }, remoteRev: 2 };
     reconcileLetterPairs.mockResolvedValue({ pushed: 0, pulled: 0, failed: false, conflicts: [conflict] });
     const { runSyncCycle } = await import("./orchestrator");
 

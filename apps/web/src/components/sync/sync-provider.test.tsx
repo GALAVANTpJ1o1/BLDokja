@@ -70,7 +70,7 @@ describe("SyncProvider when signed in", () => {
   });
 
   it("collects conflicts across cycles without duplicating an id already seen", async () => {
-    const conflict = { id: "AB", local: { id: "AB", first: "A", second: "B", images: [] }, remote: { id: "AB", first: "A", second: "B", images: [], notes: "x" } };
+    const conflict = { id: "AB", local: { id: "AB", first: "A", second: "B", images: [] }, remote: { id: "AB", first: "A", second: "B", images: [], notes: "x" }, remoteRev: 2 };
     runSyncCycleCoordinated.mockResolvedValue({ ...SYNCED, pairConflicts: [conflict] });
     const { result } = renderHook(() => useSync(), { wrapper: SyncProvider });
 

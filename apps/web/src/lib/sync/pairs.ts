@@ -33,6 +33,8 @@ export interface LetterPairConflict {
   readonly id: string;
   readonly local: LetterPair;
   readonly remote: LetterPair;
+  /** The server's rev for `remote` at detection time -- resolveLetterPairConflict() needs this as the expected rev for its own optimistic-concurrency update. */
+  readonly remoteRev: number;
 }
 
 export interface ReconcileLetterPairsResult {
@@ -83,7 +85,7 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
 
     if (row.deleted_at !== null) {
       if (local !== undefined && locallyChanged) {
-        conflicts.push({ id: row.id, local, remote: row.data as LetterPair });
+        conflicts.push({ id: row.id, local, remote: row.data as LetterPair, remoteRev: row.rev });
         conflictIds.add(row.id);
       } else if (local !== undefined) {
         await storage.deleteLetterPair(row.id, row.deleted_at);
@@ -94,7 +96,7 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
     }
 
     if (locallyChanged && local !== undefined) {
-      conflicts.push({ id: row.id, local, remote: row.data as LetterPair });
+      conflicts.push({ id: row.id, local, remote: row.data as LetterPair, remoteRev: row.rev });
       conflictIds.add(row.id);
       continue;
     }
@@ -127,7 +129,7 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
     if (error) { failed = true; continue; }
     if (data === null || data.length === 0) {
       const remote = remoteById.get(pair.id);
-      if (remote !== undefined) { conflicts.push({ id: pair.id, local: pair, remote: remote.data as LetterPair }); conflictIds.add(pair.id); }
+      if (remote !== undefined) { conflicts.push({ id: pair.id, local: pair, remote: remote.data as LetterPair, remoteRev: remote.rev }); conflictIds.add(pair.id); }
       continue;
     }
     const rev = data[0]?.rev;
@@ -147,6 +149,42 @@ export async function reconcileLetterPairs(client: PairsSyncClient = getSupabase
 
   setPairTracking(nextTracking);
   return { pushed, pulled, failed, conflicts };
+}
+
+export interface ResolveConflictResult {
+  readonly ok: boolean;
+  /** True if someone else changed the pair again between detecting this conflict and resolving it -- rare, but possible with more than two devices. The caller should re-run reconcileLetterPairs() to see the fresh state rather than retry blindly. */
+  readonly staleAgain: boolean;
+}
+
+/**
+ * Resolves a reported conflict by picking one side outright -- there is no field-level merge UI,
+ * matching how far this pass of the sync engine goes (see docs/DECISIONS.md). "local" pushes the
+ * user's local edit over the server's version, using the rev captured at detection time as the
+ * expected rev; "remote" applies the server's version locally and updates tracking to match, so the
+ * next reconciliation stops re-reporting this pair.
+ */
+export async function resolveLetterPairConflict(conflict: LetterPairConflict, choice: "local" | "remote", client: PairsSyncClient = getSupabase()): Promise<ResolveConflictResult> {
+  const accountId = currentAccountId();
+  if (accountId === undefined) return { ok: false, staleAgain: false };
+  const storage = getStorage();
+  const tracking = getPairTracking();
+
+  if (choice === "remote") {
+    await storage.putLetterPair(conflict.remote);
+    const hash = await sha256Hex(canonicalJson(conflict.remote));
+    setPairTracking({ ...tracking, [conflict.id]: { rev: conflict.remoteRev, hash, deleted: false } });
+    return { ok: true, staleAgain: false };
+  }
+
+  const { data, error } = await client.from("sync_letter_pairs").update({ data: conflict.local }).eq("id", conflict.id).eq("rev", conflict.remoteRev).select("rev");
+  if (error) return { ok: false, staleAgain: false };
+  if (data === null || data.length === 0) return { ok: false, staleAgain: true };
+  const rev = data[0]?.rev;
+  if (rev === undefined) return { ok: false, staleAgain: false };
+  const hash = await sha256Hex(canonicalJson(conflict.local));
+  setPairTracking({ ...tracking, [conflict.id]: { rev, hash, deleted: false } });
+  return { ok: true, staleAgain: false };
 }
 
 export type { PairTracking };

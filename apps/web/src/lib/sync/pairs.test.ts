@@ -129,7 +129,7 @@ describe("reconcileLetterPairs", () => {
     const result = await reconcileLetterPairs(client);
 
     expect(result.failed).toBe(false);
-    expect(result.conflicts).toEqual([{ id: "AB", local: pair("AB", "changed here"), remote: remoteEdit }]);
+    expect(result.conflicts).toEqual([{ id: "AB", local: pair("AB", "changed here"), remote: remoteEdit, remoteRev: 2 }]);
     // The local copy is untouched -- never silently overwritten by the remote edit.
     expect(await getStorage().letterPair("AB")).toEqual(pair("AB", "changed here"));
     // And the conflicting local edit was not pushed over the remote one either.
@@ -207,5 +207,78 @@ describe("reconcileLetterPairs", () => {
     const a = { id: "AB", first: "A", second: "B", images: [], notes: "x" };
     const b = { notes: "x", images: [], second: "B", first: "A", id: "AB" };
     expect(await sha256Hex(canonicalJson(a))).toBe(await sha256Hex(canonicalJson(b)));
+  });
+});
+
+describe("resolveLetterPairConflict", () => {
+  let setActiveAccount: typeof import("@/lib/storage-client").setActiveAccount;
+  let getStorage: typeof import("@/lib/storage-client").getStorage;
+  let reconcileLetterPairs: typeof import("./pairs").reconcileLetterPairs;
+  let resolveLetterPairConflict: typeof import("./pairs").resolveLetterPairConflict;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    localStorage.clear();
+    ({ setActiveAccount, getStorage } = await import("@/lib/storage-client"));
+    ({ reconcileLetterPairs, resolveLetterPairConflict } = await import("./pairs"));
+    setActiveAccount("acct-resolve-1");
+  });
+
+  async function setUpConflict(client: ReturnType<typeof fakeClient>["client"], rows: ReturnType<typeof fakeClient>["rows"]) {
+    await getStorage().putLetterPair(pair("AB", "first"));
+    await reconcileLetterPairs(client);
+    const existing = rows.get("AB");
+    if (existing !== undefined) rows.set("AB", { ...existing, rev: existing.rev + 1, data: pair("AB", "changed elsewhere") });
+    await getStorage().putLetterPair(pair("AB", "changed here"));
+    const result = await reconcileLetterPairs(client);
+    const conflict = result.conflicts[0];
+    if (conflict === undefined) throw new Error("expected a conflict to be set up");
+    return conflict;
+  }
+
+  it("'remote' applies the server's version locally and stops the pair from being reported again", async () => {
+    const { client, rows } = fakeClient();
+    const conflict = await setUpConflict(client, rows);
+
+    const outcome = await resolveLetterPairConflict(conflict, "remote", client);
+
+    expect(outcome).toEqual({ ok: true, staleAgain: false });
+    expect(await getStorage().letterPair("AB")).toEqual(pair("AB", "changed elsewhere"));
+    const again = await reconcileLetterPairs(client);
+    expect(again.conflicts).toEqual([]);
+  });
+
+  it("'local' pushes the local edit over the server's version, using the rev captured at detection time", async () => {
+    const { client, rows } = fakeClient();
+    const conflict = await setUpConflict(client, rows);
+
+    const outcome = await resolveLetterPairConflict(conflict, "local", client);
+
+    expect(outcome).toEqual({ ok: true, staleAgain: false });
+    expect(rows.get("AB")?.data).toEqual(pair("AB", "changed here"));
+    // Local storage already had the local edit (never touched during the conflict); resolving
+    // "local" doesn't need to write it again, only to make the server and tracking agree with it.
+    expect(await getStorage().letterPair("AB")).toEqual(pair("AB", "changed here"));
+    const again = await reconcileLetterPairs(client);
+    expect(again.conflicts).toEqual([]);
+    expect(again.pushed).toBe(0); // already in sync -- nothing left to push
+  });
+
+  it("reports staleAgain when a third change landed between detecting and resolving the conflict", async () => {
+    const { client, rows } = fakeClient();
+    const conflict = await setUpConflict(client, rows);
+    const existing = rows.get("AB");
+    if (existing !== undefined) rows.set("AB", { ...existing, rev: existing.rev + 1, data: pair("AB", "yet another change") });
+
+    const outcome = await resolveLetterPairConflict(conflict, "local", client);
+
+    expect(outcome).toEqual({ ok: false, staleAgain: true });
+  });
+
+  it("does nothing for a guest", async () => {
+    setActiveAccount(undefined);
+    const { client } = fakeClient();
+    const outcome = await resolveLetterPairConflict({ id: "AB", local: pair("AB", "x"), remote: pair("AB", "y"), remoteRev: 1 }, "local", client);
+    expect(outcome).toEqual({ ok: false, staleAgain: false });
   });
 });
