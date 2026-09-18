@@ -3,9 +3,11 @@
 import { useState, type ReactNode } from "react";
 import { deferNextAccountReload, useAccount } from "@/components/account/account-provider";
 import { PostAuthFlow } from "@/components/account/post-auth-flow";
+import { useSync } from "@/components/sync/sync-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { AccountError, type AccountErrorCode } from "@/lib/account";
+import type { LetterPairConflict } from "@/lib/sync/pairs";
 import { account } from "@/i18n/account";
 import { contact } from "@/i18n/contact";
 import { en } from "@/i18n/en";
@@ -163,6 +165,71 @@ function SignedOutView() {
   );
 }
 
+function statusText(status: ReturnType<typeof useSync>["status"]): string {
+  if (status === "idle") return account.sync.savedLocally;
+  if (status === "sign-in-required") return account.sync.signInToResume;
+  if (status === "offline") return account.sync.offlineQueued;
+  if (status === "syncing") return account.sync.syncing;
+  if (status === "synced") return account.sync.synced;
+  if (status === "image-upload-blocked") return account.sync.uploadBlocked;
+  return account.sync.syncFailed;
+}
+
+function ConflictRow({ conflict, onResolved }: { conflict: LetterPairConflict; onResolved: (id: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | undefined>(undefined);
+
+  async function resolve(choice: "local" | "remote") {
+    setBusy(true);
+    setNotice(undefined);
+    try {
+      const { resolveLetterPairConflict } = await import("@/lib/sync/pairs");
+      const outcome = await resolveLetterPairConflict(conflict, choice);
+      if (outcome.ok) onResolved(conflict.id);
+      else if (outcome.staleAgain) setNotice(account.sync.conflicts.staleAgain);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="settings-section">
+      <p className="t-body font-[650]">{conflict.id}</p>
+      <p className="t-meta text-quiet">{account.sync.conflicts.yourVersion} — {account.sync.conflicts.notesLabel}: {conflict.local.notes ?? account.sync.conflicts.noNotes}</p>
+      <p className="t-meta text-quiet">{account.sync.conflicts.syncedVersion} — {account.sync.conflicts.notesLabel}: {conflict.remote.notes ?? account.sync.conflicts.noNotes}</p>
+      {notice !== undefined ? <p className="t-body">{notice}</p> : null}
+      <div className="flex gap-2">
+        <button type="button" className="btn" disabled={busy} onClick={() => void resolve("local")}>{account.sync.conflicts.keepMine}</button>
+        <button type="button" className="btn" disabled={busy} onClick={() => void resolve("remote")}>{account.sync.conflicts.useSynced}</button>
+      </div>
+    </div>
+  );
+}
+
+function SyncStatusSection() {
+  const { status, lastSyncedAt, conflicts, syncNow } = useSync();
+  const [resolvedIds, setResolvedIds] = useState<ReadonlySet<string>>(new Set());
+  const pending = conflicts.filter((c) => !resolvedIds.has(c.id));
+
+  return (
+    <Section title={account.sync.title}>
+      <p className="t-body" role="status">{statusText(status)}</p>
+      <p className="t-meta text-quiet">{lastSyncedAt !== undefined ? account.sync.lastSynced(new Date(lastSyncedAt).toLocaleTimeString("en-GB")) : account.sync.neverSynced}</p>
+      <button type="button" className="btn" onClick={syncNow}>{status === "failed" ? account.sync.retry : account.sync.syncNow}</button>
+
+      {pending.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <h3 className="t-subheading">{account.sync.conflicts.title}</h3>
+          <p className="t-body">{account.sync.conflicts.body}</p>
+          {pending.map((c) => (
+            <ConflictRow key={c.id} conflict={c} onResolved={(id) => { setResolvedIds((current) => new Set(current).add(id)); }} />
+          ))}
+        </div>
+      ) : null}
+    </Section>
+  );
+}
+
 function SignedInView() {
   const { username, signOut, changeUsername, changePassword, regenerateRecoveryCode, setLeaderboardOptIn, deleteAccount } = useAccount();
 
@@ -248,6 +315,8 @@ function SignedInView() {
         <p className="t-body">{account.account.signedInAs} <strong>{username}</strong></p>
         <button type="button" className="btn" onClick={() => void signOut()}>{account.account.signOut}</button>
       </Section>
+
+      <SyncStatusSection />
 
       <Section title={account.account.changeUsername.title}>
         <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void submitUsername(); }}>
