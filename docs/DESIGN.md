@@ -573,6 +573,15 @@ Appearance and guide persistence fields are optional, additive extensions to the
 - **Don't** present an image comp, concept seed, font workaround or iOS approval that was never established.
 - **Don't** infer physical-cube or real-device verification from emulated browser tests.
 
+### CFOP pages: case cards, hubs and trainers (polishing pass)
+
+- **Case card** (`components/cfop/case-card.tsx`) is one component for OLL, PLL, F2L and the two-look sheets: a static SVG diagram (recognition view for the last layer, isometric for F2L), the case name and clue, then the algorithm in the learner's execution style with the alternative behind a disclosure, and status controls. Cards sit in a continuous responsive grid (`--case-min: 17rem`) rather than a table, so a 21- or 57-case sheet reads as one page. The 3D cube loads only on "Watch it solve".
+- **Orientation profile.** BLD shows white on top; CFOP and OH show yellow on top with a white cross. The change is only the `--face-*` colours, applied by `ProfileScope`, and the screen-reader description uses the same colours.
+- **Hubs.** Learn opens on three path cards (BLD, CFOP, one-handed) and then the lessons of the chosen path; Practice is grouped by skill; Progress gains a CFOP section. Path cards use the same panel surface and radius tokens as everything else, with no numbering, because they are not a sequence.
+- **Trainers.** The last-layer trainer and F2L practice share one shell: a mode list, the cube, one answer field, teaching feedback ("It looked like X because...") and a session review. Feedback animation uses `--duration-ui` and `--ease-settle` only, and is removed under reduced motion.
+- **Motion tokens.** `MOTION_MS` in `design/motion.ts` (fast 120, ui 180, layer 240 ms) equals the `--duration-*` variables; a test keeps them in step.
+- **Figma.** A file was created but is empty: the Starter plan's MCP call limit stopped the first write (D-085). This document and the CSS tokens remain the source of truth.
+
 ### Verification record and remaining limits
 
 This persistence pass checked the maintained product and UX records, actual theme/data mirrors, shared CSS, font declarations, scenery controller/model/count logic, native appearance choices, guide/copy/modal and optional settings schema. It changes only `docs/DESIGN.md` and `.impeccable/design.json`; it does not certify untouched product flows.

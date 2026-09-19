@@ -169,3 +169,16 @@ Algorithm verification is stage-specific, without weakening the BLD exact-effect
 `data/last-layer-match.ts` returns a case ID plus frame correction and pre-/post-AUF moves. A null ID means the stage needs at most its AUF; undefined means an unmet prerequisite, unsolved F2L or unsupported puzzle. Independent post-AUF relabels piece values, whereas pre-AUF shifts slots; confusing them produces wrong physical paths. Tests apply matcher paths across all 288 legal PLL states and rotated OLL states, and test OLL on all 216 legal orientation combinations with non-identity permutation.
 
 `pnpm cfop:generate` regenerates the six files through cubing.js's solver and verifies them before writing. `pnpm cfop:generate --check` checks fresh generation against committed data. No solver or filesystem dependency enters the pure recognition/validation module.
+
+## Curated CFOP data, F2L and the last-layer trainer (D-080 to D-084)
+
+The app reads only `content/algs/cfop/curated/*.json`. Each OLL/PLL case is a state (co/eo/cp/ep) plus algorithms per execution style (`2H`, `OH`), each with pre-AUF, post-AUF, an optional ending rotation, an HTM move count and a source. `styleMoves` is the full turn sequence for a style: pre-AUF, algorithm, ending rotation, post-AUF. `verifyCuratedSet` applies every algorithm and checks the stage predicate and that the first two layers are intact.
+
+- `classify.ts` — `solveStage` recognises a stage from the state by trying every case with every pre- and post-AUF. `stageSatisfied`, `matchAnswer` and `normaliseAnswer` grade typed answers (aliases included).
+- `ll-trainer.ts` — `generateChain` builds a chain of stages for one of seven modes by working backwards from inverse algorithms; `validateChain` replays it; `stageAt` emits the next stage, including AUF-only stages marked `autoAdvance`.
+- `trainer-core.ts` — `gradeStage` and `summarise`, shared by the last-layer trainer and the F2L practice page.
+- `f2l.ts` — enumerates the 41 F2L cases, searches reference solutions (U, R, L, F only), and generates practice states at levels 1 to 4 (one to four unsolved slots).
+- `orientation.ts` and `render-modes.ts` — profiles (a colour relabel only) and per-mode render plans.
+- `recognition.ts` — top view and recognition features used by the static SVG diagrams.
+
+Regenerate with the `build-cfop-curated.ts`, `build-f2l-curated.ts` and `build-cfop-views.ts` scripts in `packages/cube-engine/scripts`; each takes `--check`. The engine stays pure: no React or DOM, and the schema module is importable on its own as `@bld/cube-engine/cfop-data`.

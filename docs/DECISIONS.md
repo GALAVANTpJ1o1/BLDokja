@@ -1716,3 +1716,37 @@ Found on the live site while checking client-side navigation from the built-in b
 **Verified on the live site** (built-in browser, on the deployment's own hostname so no cached service worker): on lesson 7's corner trace with the reported scramble, the net has nine cells at full strength (the buffer corner's yellow, green and red plus the six centres), forty-five faded and one ring; the 3D player's scene has exactly one corner piece with all three facelets lit (yellow, green, red), all 24 centre facelets lit, and no edge lit, the same `{CORNERS: 3, EDGES: 0, CENTERS: 24}` the e2e asserts. The prompt names the face ("Take its sticker on the Up face…"). A wrong letter answers "Not quite: you typed Z, it's K. Type K to go on." A wrong checkpoint memo of ten letters against a six-target answer produced two tables (targets 1 to 6 and 7 to 10), a cross on every typed letter, "no target" where the right answer had ended, and the first-difference sentence; at 320px the page has no sideways overflow.
 
 **Two things worth knowing about checking the live site from the built-in browser** (neither is an app fault; the same flow behaves identically on the previous deployment): a lesson's checkpoint and every 3D cube build only when they intersect the viewport, and a hidden pane delivers no intersection callbacks until a real scroll or click, so use the pane's own scroll and click actions rather than script `.click()`; and a fresh hostname shows the lesson voice picker, a modal that blocks everything until answered.
+
+## D-080 · One curated CFOP dataset, transcribed from the owner's tables and verified in the engine
+
+The polishing pass replaced the solver-generated CFOP reference (D-046) as the thing learners see. `content/algs/cfop/curated/{eo,co,cp,ep,oll,pll,f2l,views}.json` is now the only source the app reads. The OLL (57), PLL (21) and two-look tables were transcribed from the owner's screenshots, each with a two-handed and a one-handed algorithm, pre- and post-AUF, and an ending rotation where the algorithm leaves one.
+
+- The case state is read off the primary algorithm's own start state (`algStartState`, `stageStartState`), never typed in. The EP cases use a leading AUF so the corners are solved.
+- `verifyCuratedSet` applies every algorithm in the engine and asserts the stage predicate and that the first two layers survive. Two independently transcribed tables (2H and OH) must agree per case number. A transcription error found this way: OH Nb and Y (re-read from an enlarged crop).
+- OH OLL 43 had no row in the first source, so it was recorded in `missing[]` and shown as "no one-handed algorithm yet", not invented. The owner then supplied it (P shape, `F' U' L' U L F`, the same as the two-handed one), and the engine verified it; the `missing[]` mechanism stays for any future gap.
+- The solver-generated JSON files in `content/algs/cfop/` stay as engine test fixtures only. The app does not import them, and `test/data/datasets.test.ts` skips the `curated/` directory.
+- Rebuild with the `build-*` scripts in `packages/cube-engine/scripts`; `--check` compares a fresh build against the committed files, and `test/cfop/generated.test.ts` runs that.
+
+## D-081 · F2L reference solutions are engine-searched and numbered by first principles
+
+There was no owner table for the 41 F2L cases, and CLAUDE.md forbids writing algorithms from memory. So `enumerateF2L` derives the 41 cases (24 both pieces in the top layer, 6 corner up with the edge in the slot, 6 corner in the slot with the edge up, 5 both in the slot) and `searchF2LSolutions` finds the shortest solution restricted to U, R, L, F turns, ranked by an ergonomic cost. Practice states are built from the inverse of the reference solution, conjugated by `y` turns for the other slots, so each is legal by construction. Numbering follows the community order only where the case is unambiguous; otherwise the case keeps its enumeration index, and the page says so.
+
+Limit: these are correct, short, hand-friendly solutions, not a curated sheet of "the" preferred algorithm per case. A curated table can replace `f2l.json` without touching the app (same schema).
+
+## D-082 · Orientation profiles are a colour relabel, applied with CSS variables
+
+BLD keeps white on top and green in front. CFOP and OH show yellow on top with a white cross (the `z2` relabel: U and D swap, R and L swap). Nothing about a case's state changes with the profile. The profile is applied as `--face-*` variables: on `<html>` for the 3D player, and on a `display: contents` wrapper (`ProfileScope`) so the server-rendered SVG is right on first paint. The screen-reader description of a cube takes the same colour map, so text and picture agree.
+
+`content/algs/cfop/curated/views.json` holds per-case setup, top-view strings and recognition features (edge sides, corner places, bars, headlights) plus the F2L isometric strings, so the reference grids are static SVG and the 3D cube loads only on "Watch it solve". The pure schema module is exported as `@bld/cube-engine/cfop-data` so the reference pages do not pull in the cube engine.
+
+## D-083 · Case statistics come from drill events; a hand-set status always wins
+
+Per-case stats are folded from `drill.attempt` events for the `ll-recognition` and `f2l-practice` trainers (`lib/cfop-stats.ts`). Status is inferred (learned = five correct in a row at a median of 6 s or less) but a status the learner sets by hand, stored in `settings.caseStatus`, always overrides the inference. Settings also gained `executionStyle` ("2H" | "OH"). The CFOP trainers are excluded from the blindfolded Weak 20 (`lib/weak.ts`), since a recognition time is not a memo weakness. Local schema change only; forward-compatible with the existing versioned migrations.
+
+## D-084 · One trainer engine for every last-layer mode
+
+`ll-trainer.ts` builds a chain of stages for each of seven modes (two-look OLL, two-look PLL, two-look last layer, one-look OLL, one-look PLL and two mixed modes). Chains are built backwards from inverse algorithms, so they are legal by construction; the forward run recognises each stage from the cube's state (`solveStage` tries every case with every pre- and post-AUF), so a symmetric case solved from a different AUF than planned is still marked correct. Only the first stage is asserted against the plan in tests. A stage that needs nothing but an AUF becomes its own `autoAdvance` stage instead of being skipped silently. Grading and summaries live in `trainer-core.ts`, which the F2L practice page also uses.
+
+## D-085 · Reduced scope of the design tool step
+
+A Figma file was created for the pass ("BLDokja CFOP polish", key `mPZvV9yjYQdCZUbaX4LPCY`) but the Starter plan's MCP call limit was reached on the first write, so the file is empty. The design source of truth remains `docs/DESIGN.md` and the CSS tokens. `MOTION_MS` in `design/motion.ts` now mirrors the `--duration-*` variables and a test keeps them equal.
