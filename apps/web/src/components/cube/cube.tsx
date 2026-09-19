@@ -1,13 +1,13 @@
 "use client";
 
-import { expandNodes, faceletsOf, formatMoves, parseAlg, stickerName, stickeringMask, type FaceletMask, type PuzzleId, type SlotView } from "@bld/cube-engine";
+import { expandNodes, faceletsOf, formatMoves, parseAlg, stickerName, type PuzzleId } from "@bld/cube-engine";
 import type { TwistyPlayer } from "cubing/twisty";
 import { ArrowCounterClockwiseIcon, CaretLeftIcon, CaretRightIcon, PauseIcon, PlayIcon } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { en } from "@/i18n/en";
 import { polish } from "@/i18n/polish";
-import { describeCube, netCells, patternFor } from "./cube-state";
+import { describeCube, netCells, patternFor, playerMask, revealedCells } from "./cube-state";
 import { installPlayerPalette } from "./player-palette";
 import { StickerNet } from "./sticker-net";
 import { usePuzzle } from "./use-puzzle";
@@ -24,11 +24,16 @@ export interface CubeProps {
   /** The moves to animate. */
   readonly alg?: string;
   /**
-   * Slots to show at full strength, by sticker name ("UFR", "FU"); everything else is dimmed. Slots
-   * are read in the setup state, and the mask follows those stickers while the alg plays.
+   * Slots to point at, by sticker name ("UFR", "FU"). They and the rest of their pieces are shown at full
+   * strength: naming one sticker of a corner lights all three, because one colour fits four positions and
+   * only all of a piece's colours say which piece it is. The fixed centres always keep their colour.
+   * Everything else is dimmed. Slots are read in the setup state, and the mask follows those stickers
+   * while the alg plays. In the net the named stickers also carry a ring, so which one is being asked
+   * about doesn't rest on colour alone; the 3D player has no ring, so a prompt that asks about one
+   * sticker of a lit piece should say which face it is on.
    */
   readonly highlight?: readonly string[];
-  /** Guided recognition: fixed centres remain visible; other pieces have no colour hints. */
+  /** Guided recognition: the fixed centres and the highlighted pieces are shown; other pieces have no colour hints. */
   readonly revealOnly?: boolean;
   /**
    * How the rest of the cube is shown when `highlight` is set. `strong` (the default) greys it out;
@@ -114,21 +119,22 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
   const netHighlight = useMemo(() => {
     if (puzzle === undefined || setupPattern === undefined || replayPattern === undefined || highlightKey === "") return undefined;
     const names = new Set(highlightKey.split(","));
-    if (revealOnly && puzzle.size === 3) for (const face of ["U", "L", "F", "R", "B", "D"]) names.add(face);
     const initial = faceletsOf(puzzle, setupPattern);
     const selected = new Set(puzzle.geometry.stickers.filter((sticker) => names.has(stickerName(puzzle.geometry, sticker.index))).map((sticker) => initial[sticker.index]));
     const current = faceletsOf(puzzle, replayPattern);
     return new Set(puzzle.geometry.stickers.filter((sticker) => selected.has(current[sticker.index])).map((sticker) => sticker.index));
-  }, [puzzle, setupPattern, replayPattern, highlightKey, revealOnly]);
+  }, [puzzle, setupPattern, replayPattern, highlightKey]);
   const finalPattern = useMemo(() => (puzzle === undefined ? undefined : patternFor(puzzle, `${setup} ${alg}`)), [puzzle, setup, alg]);
-  const description = useMemo(() => (puzzle === undefined || replayPattern === undefined ? [] : describeCube(netCells(puzzle, replayPattern), revealOnly ? netHighlight : undefined)), [puzzle, replayPattern, revealOnly, netHighlight]);
+  const revealedNames = useMemo(() => {
+    if (puzzle === undefined || replayPattern === undefined || !revealOnly || netHighlight === undefined) return undefined;
+    return revealedCells(netCells(puzzle, replayPattern), puzzle.size, netHighlight);
+  }, [puzzle, replayPattern, revealOnly, netHighlight]);
+  const description = useMemo(() => (puzzle === undefined || replayPattern === undefined ? [] : describeCube(netCells(puzzle, replayPattern), revealedNames)), [puzzle, replayPattern, revealedNames]);
   // With no highlight, every facelet is regular: setting this mask clears an earlier highlight on a live player.
   const mask = useMemo(() => {
     if (puzzle === undefined || setupPattern === undefined) return undefined;
-    const chosen = new Set(highlightKey === "" ? [] : highlightKey.split(","));
-    if (revealOnly && puzzle.size === 3) for (const face of ["U", "L", "F", "R", "B", "D"]) chosen.add(face);
-    return stickeringMask(puzzle, setupPattern, (v: SlotView): FaceletMask => (chosen.size === 0 || chosen.has(v.slot) ? "regular" : dim === "soft" ? "dim" : "ignored"));
-  }, [puzzle, setupPattern, highlightKey, dim, revealOnly]);
+    return playerMask(puzzle, setupPattern, new Set(highlightKey === "" ? [] : highlightKey.split(",")), dim);
+  }, [puzzle, setupPattern, highlightKey, dim]);
   const maskRef = useRef(mask);
   useEffect(() => {
     maskRef.current = mask;
@@ -212,7 +218,7 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg = "", highlight, reve
           </p>
         )}
         <div className="flex flex-col gap-1 t-body">
-          {(ready && replayPattern !== undefined ? describeCube(netCells(puzzle, replayPattern), revealOnly ? netHighlight : undefined) : [en.cube.loading]).map((line) => (
+          {(ready && replayPattern !== undefined ? describeCube(netCells(puzzle, replayPattern), revealedNames) : [en.cube.loading]).map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>

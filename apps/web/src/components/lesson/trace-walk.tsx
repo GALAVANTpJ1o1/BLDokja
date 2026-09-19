@@ -44,7 +44,7 @@ export function TraceWalk({ scramble, pieces, method = "op", mode = "guided", la
   const done = step === undefined;
   const bufferSticker = traced.buffer.sticker;
   const highlight = done ? [bufferSticker] : [...new Set([bufferSticker, step.look])];
-  const explanation = step === undefined ? undefined : step.chosen ? (step.kind === "orientationTarget" ? voiced.traceTwist[voice]() : voiced.traceBreak[voice]()) : voiced.traceLook[voice]();
+  const explanation = step === undefined ? undefined : step.chosen ? (step.kind === "orientationTarget" ? voiced.traceTwist[voice]() : voiced.traceBreak[voice]()) : voiced.traceLook[voice](en.cube.faceNames[reader.faceOf(step.look)]);
 
   const advance = () => {
     setIndex((i) => i + 1);

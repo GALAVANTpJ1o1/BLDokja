@@ -2,7 +2,7 @@ import { cube3x3x3 } from "cubing/puzzles";
 import { describe, expect, it } from "vitest";
 import { geometryAlgPermutation } from "../../src/core/geometry-moves.js";
 import { loadPuzzle } from "../../src/core/puzzle.js";
-import { stickerName } from "../../src/pieces/names.js";
+import { pieceOfSticker, stickerName } from "../../src/pieces/names.js";
 import { createRng } from "../../src/random/prng.js";
 import { randomMoveSequence } from "../../src/random/random-state.js";
 import { verifiedMoves } from "../../src/core/puzzle.js";
@@ -89,5 +89,53 @@ describe("player stickering masks", () => {
         });
       }
     }
+  });
+});
+
+describe("slot views name the piece each slot is part of", () => {
+  it("groups the slots of a corner or edge whatever is sitting in them, and a piece's stickers never separate", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const rng = createRng("slot view pieces");
+    const moves = verifiedMoves("3x3x3").filter((m) => /^[UDRLFB]/.test(m));
+    const slotsOfPiece = new Map<string, string[]>();
+    puzzle.geometry.stickers.forEach((sticker) => {
+      const piece = pieceOfSticker(puzzle.geometry, sticker.index);
+      slotsOfPiece.set(piece, [...(slotsOfPiece.get(piece) ?? []), stickerName(puzzle.geometry, sticker.index)]);
+    });
+    for (let run = 0; run < 25; run++) {
+      const alg = randomMoveSequence(rng, moves, 25).join(" ");
+      const views = slotViews(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(alg));
+      const grouped = new Map<string, typeof views>();
+      for (const view of views) grouped.set(view.piece, [...(grouped.get(view.piece) ?? []), view]);
+      expect(grouped.size).toBe(26);
+      for (const [piece, group] of grouped) {
+        // The slots of a piece are fixed by the geometry, not by the scramble...
+        expect(group.map((v) => v.slot).sort(), `${alg}: ${piece}`).toEqual((slotsOfPiece.get(piece) ?? []).sort());
+        // ...and the stickers sitting in them are always one piece's stickers, together: that is what
+        // lets a display light "the rest of the piece" by position.
+        const identities = new Set(group.map((v) => stickerName(puzzle.geometry, puzzle.geometry.stickers.find((s) => stickerName(puzzle.geometry, s.index) === v.sticker)?.index ?? -1)).map((name) => Array.from(name).sort().join("")));
+        expect(identities.size, `${alg}: ${piece} holds stickers of more than one piece`).toBe(1);
+      }
+    }
+  });
+
+  it("on a 4x4x4 gives each x-centre its own position even though same-coloured ones are interchangeable", async () => {
+    const puzzle = await loadPuzzle("4x4x4");
+    const views = slotViews(puzzle, puzzle.kpuzzle.defaultPattern());
+    const xCentres = views.filter((v) => /^[A-Z][a-z]{2}$/.test(v.slot));
+    expect(xCentres).toHaveLength(24);
+    expect(new Set(xCentres.map((v) => v.piece)).size).toBe(24);
+  });
+
+  it("hands the piece to the mask callback, so a mask can light the rest of a piece", async () => {
+    const puzzle = await loadPuzzle("3x3x3");
+    const pattern = puzzle.kpuzzle.defaultPattern().applyAlg("R U R' U'");
+    const seen: string[] = [];
+    stickeringMask(puzzle, pattern, (view) => {
+      seen.push(view.piece);
+      return "regular";
+    });
+    expect(seen).toHaveLength(54);
+    expect(new Set(seen).size).toBe(26);
   });
 });

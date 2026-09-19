@@ -41,3 +41,14 @@ export function stickerName(geometry: StickerGeometry, stickerIndex: number): st
   const piece = pieceName(geometry.size, sticker.cubie);
   return sticker.face + piece.replace(sticker.face, "");
 }
+
+/**
+ * The piece a sticker slot is part of: "UFR" for each of the slots UFR, FUR and RUF; "U" for the U centre
+ * of a 3x3x3. A display that lights one sticker needs this to light the rest of its piece as well:
+ * one colour of a corner fits four positions, and only all of its colours say which piece it is.
+ * It names the position, not the piece that happens to sit there: a corner's stickers never separate,
+ * and interchangeable pieces (a 4x4x4's x-centres of one colour) share an identity but not a position.
+ */
+export function pieceOfSticker(geometry: StickerGeometry, stickerIndex: number): string {
+  return pieceName(geometry.size, geometry.sticker(stickerIndex).cubie);
+}

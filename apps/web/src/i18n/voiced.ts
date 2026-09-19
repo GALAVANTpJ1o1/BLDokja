@@ -35,12 +35,14 @@ export const voiced = {
     casual: (letter: string) => `Close-ish, but it's ${letter}. Type ${letter} and we roll on.`,
     roast: (letter: string) => `Nope. It's ${letter}. Type ${letter}, and maybe look at the highlighted sticker instead of vibes.`,
   } satisfies Voiced<[string]>,
+  // The whole piece is lit, because one colour of a corner fits four positions; the sticker to place is
+  // named by its face, which also picks it out in the 3D view, where nothing can be ringed.
   traceLook: {
-    plain: () => "Look at the highlighted sticker. Where does it belong? Type that spot's letter.",
-    tsundere: () => "Look at the highlighted sticker, obviously. Where does it go? Type that letter. Hmph.",
-    casual: () => "Peep the highlighted sticker. Where does it live? Drop that letter.",
-    roast: () => "The highlighted sticker. The one glowing at you. Where does it belong? Type the letter.",
-  } satisfies Voiced,
+    plain: (face: string) => `Look at the highlighted piece. Take its sticker on the ${face} face: where does that sticker belong? Type that spot's letter.`,
+    tsundere: (face: string) => `Look at the highlighted piece, obviously. Its sticker on the ${face} face: where does that one go? Type that letter. Hmph.`,
+    casual: (face: string) => `Peep the highlighted piece. Its sticker on the ${face} face: where does that one live? Drop that letter.`,
+    roast: (face: string) => `The highlighted piece. The one glowing at you. Take its sticker on the ${face} face: where does it belong? Type the letter.`,
+  } satisfies Voiced<[string]>,
   traceBreak: {
     plain: () => "The buffer's piece is home, so this cycle is closed. Start a new one: pick the lowest-lettered sticker that isn't solved (it's highlighted).",
     tsundere: () => "The buffer piece is already home, so the cycle's done. Start a new one at the lowest-lettered unsolved sticker. It's highlighted, since you clearly need the help.",

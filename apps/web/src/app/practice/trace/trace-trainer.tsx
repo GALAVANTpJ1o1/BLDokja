@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Cube } from "@/components/cube/cube";
 import { PieceColours } from "@/components/cube/piece-colours";
-import { piecesOf } from "@/lib/cube-highlights";
 import { explore } from "@/i18n/explore";
 import { LetterNotch } from "@/components/letters/letters";
 import { useVoice } from "@/components/lesson/use-voice";
@@ -234,9 +233,9 @@ export function TraceTrainer() {
 
   const reviewing = reviewPosition !== undefined;
   const shown = reviewPosition === undefined ? current : flat[reviewPosition];
-  const highlight = reader === undefined || shown === undefined || (!reviewing && ramp.level >= 3) ? undefined : piecesOf(reader, [reviewing || ramp.level === 1 ? shown.step.look : shown.buffer]);
+  const highlight = reader === undefined || shown === undefined || (!reviewing && ramp.level >= 3) ? undefined : [reviewing || ramp.level === 1 ? shown.step.look : shown.buffer];
   const kind = current === undefined ? undefined : lookupKind(current.step);
-  const explanation = current !== undefined && kind !== undefined && explanationWanted(kind, correctSoFar, forceExplain) ? (current.step.chosen ? (kind === "twist" ? voiced.traceTwist[voice]() : voiced.traceBreak[voice]()) : voiced.traceLook[voice]()) : undefined;
+  const explanation = reader !== undefined && current !== undefined && kind !== undefined && explanationWanted(kind, correctSoFar, forceExplain) ? (current.step.chosen ? (kind === "twist" ? voiced.traceTwist[voice]() : voiced.traceBreak[voice]()) : voiced.traceLook[voice](en.cube.faceNames[reader.faceOf(current.step.look)])) : undefined;
   const memoSoFar = flat.slice(0, done ? flat.length : position);
 
   const settings = (

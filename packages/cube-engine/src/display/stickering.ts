@@ -1,7 +1,7 @@
 import type { KPattern } from "cubing/kpuzzle";
 import { at } from "../core/arrays.js";
 import { faceletsOf, type Puzzle } from "../core/puzzle.js";
-import { stickerName } from "../pieces/names.js";
+import { pieceOfSticker, stickerName } from "../pieces/names.js";
 
 /**
  * Stickering masks for cubing.js's 3D player (BRIEF §3: "everything dim except the buffer and the
@@ -25,15 +25,20 @@ export interface PlayerStickeringMask {
   readonly orbits: Record<string, { readonly pieces: { readonly facelets: FaceletMask[] }[] }>;
 }
 
-/** For each slot (geometry sticker index), the name of the slot and of the sticker showing there. */
+/**
+ * For each slot (geometry sticker index), the name of the slot, of the sticker showing there, and of
+ * the piece the slot is part of ("UFR" for each of the slots UFR, FUR and RUF). The piece is what a mask
+ * needs to show the rest of a highlighted piece: every slot of it, whatever is sitting there.
+ */
 export interface SlotView {
   readonly slot: string;
   readonly sticker: string;
+  readonly piece: string;
 }
 
 export function slotViews(puzzle: Puzzle, pattern: KPattern): SlotView[] {
   const facelets = faceletsOf(puzzle, pattern);
-  return Array.from(facelets, (home, slot) => ({ slot: stickerName(puzzle.geometry, slot), sticker: stickerName(puzzle.geometry, home) }));
+  return Array.from(facelets, (home, slot) => ({ slot: stickerName(puzzle.geometry, slot), sticker: stickerName(puzzle.geometry, home), piece: pieceOfSticker(puzzle.geometry, slot) }));
 }
 
 export function stickeringMask(puzzle: Puzzle, pattern: KPattern, maskFor: (view: SlotView) => FaceletMask): PlayerStickeringMask {
@@ -52,7 +57,7 @@ export function stickeringMask(puzzle: Puzzle, pattern: KPattern, maskFor: (view
     const pieces = orbits[orbit.orbit]?.pieces;
     const piece = pieces?.[where.position];
     if (pieces === undefined || piece === undefined) throw new Error(`no mask entry for ${orbit.orbit} ${where.position}`);
-    const mask = maskFor({ slot: stickerName(puzzle.geometry, slot), sticker: stickerName(puzzle.geometry, home) });
+    const mask = maskFor({ slot: stickerName(puzzle.geometry, slot), sticker: stickerName(puzzle.geometry, home), piece: pieceOfSticker(puzzle.geometry, slot) });
     if (orbit.stickersPerPiece !== 1) {
       piece.facelets[where.label] = mask;
       return;

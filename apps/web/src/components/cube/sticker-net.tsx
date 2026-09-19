@@ -1,6 +1,6 @@
 "use client";
 
-import type { NetCell } from "./cube-state";
+import { isFixedCentre, pieceContext, type NetCell } from "./cube-state";
 
 /** Net layout: U on top, then L F R B, D below (the engine's FACES order and Speffz's). */
 const ORIGIN: Record<NetCell["slotFace"], readonly [number, number]> = { U: [1, 0], L: [0, 1], F: [1, 1], R: [2, 1], B: [3, 1], D: [1, 2] };
@@ -8,8 +8,14 @@ const ORIGIN: Record<NetCell["slotFace"], readonly [number, number]> = { U: [1, 
 export interface StickerNetProps {
   readonly cells: readonly NetCell[];
   readonly size?: number;
-  /** Slot indices drawn at full strength; the rest are dimmed. Omit to show every sticker normally. */
+  /**
+   * Slot indices being pointed at: full strength, with a ring, so the mark doesn't depend on colour.
+   * The rest of each pointed-at piece is drawn in full colour as well (a corner's one colour fits four
+   * positions; all its colours say which piece it is), the fixed centres never fade, and everything
+   * else fades. Omit to show every sticker normally.
+   */
   readonly highlight?: ReadonlySet<number>;
+  /** Draw faded stickers as blanks instead of faint colour, for drills that must not give colours away. */
   readonly hideUnrevealed?: boolean;
   /** Letters to print on slots, by slot index. */
   readonly letters?: ReadonlyMap<number, string>;
@@ -27,23 +33,36 @@ export function StickerNet({ cells, size = 3, highlight, hideUnrevealed = false,
   const facePx = size * cell;
   const width = facePx * 4 + gap * 3;
   const height = facePx * 3 + gap * 2;
+  const context = highlight === undefined ? undefined : pieceContext(cells, highlight);
+  const position = (c: NetCell) => {
+    const [fx, fy] = ORIGIN[c.slotFace];
+    return { x: fx * (facePx + gap) + c.col * cell, y: fy * (facePx + gap) + c.row * cell };
+  };
   return (
     <svg role="img" aria-label={label} viewBox={`-2 -2 ${width + 4} ${height + 4}`} className={className}>
       {cells.map((c) => {
-        const [fx, fy] = ORIGIN[c.slotFace];
-        const x = fx * (facePx + gap) + c.col * cell;
-        const y = fy * (facePx + gap) + c.row * cell;
-        const dim = highlight !== undefined && !highlight.has(c.index);
+        const { x, y } = position(c);
+        const faded = highlight !== undefined && !highlight.has(c.index) && context?.has(c.index) !== true && !isFixedCentre(c, size);
         const letter = letters?.get(c.index);
         return (
           <g key={c.index}>
             <rect x={x} y={y} width={cell} height={cell} fill="var(--cube-body)" />
-            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={dim && hideUnrevealed ? "var(--rule)" : `var(--face-${c.colour.toLowerCase()})`} opacity={dim ? 0.28 : 1} />
+            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={faded && hideUnrevealed ? "var(--rule)" : `var(--face-${c.colour.toLowerCase()})`} opacity={faded ? 0.28 : 1} />
             {letter !== undefined ? (
               <text x={x + cell / 2} y={y + cell / 2 + 2.2} textAnchor="middle" fontSize={6} fontWeight={700} fill="var(--cube-body)" style={{ fontVariationSettings: '"CASL" 1' }}>
                 {letter}
               </text>
             ) : null}
+          </g>
+        );
+      })}
+      {/* Rings go on last so no neighbouring sticker paints over them. Dark inside light: one of the two shows on any sticker colour. */}
+      {highlight === undefined ? null : cells.filter((c) => highlight.has(c.index)).map((c) => {
+        const { x, y } = position(c);
+        return (
+          <g key={`ring-${String(c.index)}`} data-ring="true" aria-hidden>
+            <rect x={x + 1.5} y={y + 1.5} width={cell - 3} height={cell - 3} rx={0.8} fill="none" stroke="var(--cube-body)" strokeWidth={1} />
+            <rect x={x + 2.4} y={y + 2.4} width={cell - 4.8} height={cell - 4.8} rx={0.4} fill="none" stroke="var(--face-u)" strokeWidth={0.7} />
           </g>
         );
       })}
