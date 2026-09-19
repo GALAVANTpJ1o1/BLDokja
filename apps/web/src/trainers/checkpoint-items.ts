@@ -116,6 +116,41 @@ export function gradeLetters(expected: readonly string[] | string, typed: string
   return normalise(Array.isArray(expected) ? expected.join("") : (expected as string)) === normalise(typed);
 }
 
+/** One target of a typed memo set against the right one. */
+export interface LetterPair {
+  /** 1-based target number. */
+  readonly position: number;
+  /** What was typed for this target; undefined when the answer stopped before it. */
+  readonly typed: string | undefined;
+  /** What is right for this target; undefined when the right answer ended before it. */
+  readonly right: string | undefined;
+  readonly match: boolean;
+}
+
+export interface LetterComparison {
+  readonly pairs: readonly LetterPair[];
+  /** The first target that differs, which is where the memo went wrong; undefined when every letter matches. */
+  readonly firstDifference: LetterPair | undefined;
+}
+
+/**
+ * A typed memo set against the right one, target by target, so a wrong answer can show where it went
+ * wrong and not only what was right. Read the same way `gradeLetters` reads it (spaces and commas
+ * ignored, case ignored, one letter per target), so the two can never disagree about what was typed:
+ * there is a difference here exactly when `gradeLetters` says the answer is wrong.
+ */
+export function compareLetters(expected: readonly string[] | string, typed: string): LetterComparison {
+  const right = Array.from(normalise(Array.isArray(expected) ? expected.join("") : (expected as string)));
+  const given = Array.from(normalise(typed));
+  const pairs = Array.from({ length: Math.max(right.length, given.length) }, (_, index): LetterPair => ({
+    position: index + 1,
+    typed: given[index],
+    right: right[index],
+    match: given[index] !== undefined && given[index] === right[index],
+  }));
+  return { pairs, firstDifference: pairs.find((pair) => !pair.match) };
+}
+
 /**
  * A setup answer is right if it's legal for the method, not only if it matches the table: it must bring
  * the target to the swap sticker and leave the buffer and the swap's side effect alone, which the

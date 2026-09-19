@@ -2,7 +2,7 @@ import { loadPuzzle, OpSetupsDatasetSchema, speffzScheme, trace } from "@bld/cub
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkpointRng, gradeLetters, gradeSetup, letterItems, parityItems, scrambleFor, setupItems, traceItems, type ItemContext } from "./checkpoint-items";
+import { checkpointRng, compareLetters, gradeLetters, gradeSetup, letterItems, parityItems, scrambleFor, setupItems, traceItems, type ItemContext } from "./checkpoint-items";
 
 const dataset = (name: string) => OpSetupsDatasetSchema.parse(JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "..", "content", "algs", "3x3", name), "utf8")));
 
@@ -80,5 +80,40 @@ describe("checkpoint items", () => {
     expect(gradeLetters(["A", "B", "C"], "a b, c")).toBe(true);
     expect(gradeLetters("M", " m ")).toBe(true);
     expect(gradeLetters(["A", "B"], "BA")).toBe(false);
+  });
+});
+
+describe("compareLetters", () => {
+  it("sets typed letters against the right ones target by target and finds where it first went wrong", () => {
+    const comparison = compareLetters(["A", "P", "X", "V", "F", "D"], "a p x c f d");
+    expect(comparison.pairs.map((pair) => pair.match)).toEqual([true, true, true, false, true, true]);
+    expect(comparison.firstDifference).toEqual({ position: 4, typed: "C", right: "V", match: false });
+  });
+
+  it("reads spaces, commas and case the way grading does", () => {
+    expect(compareLetters(["A", "P", "X"], "A,p  X").firstDifference).toBeUndefined();
+    expect(compareLetters("K", " k ").firstDifference).toBeUndefined();
+  });
+
+  it("shows targets you never typed, and letters typed past the end", () => {
+    const short = compareLetters(["A", "P", "X"], "AP");
+    expect(short.firstDifference).toEqual({ position: 3, typed: undefined, right: "X", match: false });
+    const long = compareLetters(["A", "P"], "APX");
+    expect(long.firstDifference).toEqual({ position: 3, typed: "X", right: undefined, match: false });
+    expect(long.pairs).toHaveLength(3);
+  });
+
+  it("finds a difference exactly when gradeLetters says the answer is wrong", () => {
+    const rng = checkpointRng("compare letters", "trace", 0);
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWX";
+    for (let run = 0; run < 300; run++) {
+      const length = 1 + rng.int(9);
+      const expected = Array.from({ length }, () => alphabet.charAt(rng.int(alphabet.length)));
+      let typed = expected.join(rng.int(2) === 0 ? "" : " ");
+      if (rng.int(3) === 0) typed = typed.replace(/[A-X]/, alphabet.charAt(rng.int(alphabet.length)));
+      if (rng.int(4) === 0) typed = typed.slice(0, Math.max(1, typed.length - 1));
+      if (rng.int(5) === 0) typed += alphabet.charAt(rng.int(alphabet.length));
+      expect(compareLetters(expected, typed).firstDifference === undefined, `${expected.join("")} vs ${typed}`).toBe(gradeLetters(expected, typed));
+    }
   });
 });

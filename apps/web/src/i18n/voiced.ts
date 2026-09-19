@@ -30,11 +30,11 @@ export const voiced = {
     roast: (letter: string) => `${letter}. Correct, which honestly surprised both of us.`,
   } satisfies Voiced<[string]>,
   traceWrong: {
-    plain: (letter: string) => `Not quite: it's ${letter}. Type ${letter} to go on.`,
-    tsundere: (letter: string) => `Wrong, dummy. It's ${letter}. Type ${letter} and pay attention this time, damn it.`,
-    casual: (letter: string) => `Close-ish, but it's ${letter}. Type ${letter} and we roll on.`,
-    roast: (letter: string) => `Nope. It's ${letter}. Type ${letter}, and maybe look at the highlighted sticker instead of vibes.`,
-  } satisfies Voiced<[string]>,
+    plain: (letter: string, typed: string) => `Not quite: you typed ${typed}, it's ${letter}. Type ${letter} to go on.`,
+    tsundere: (letter: string, typed: string) => `Wrong, dummy. You typed ${typed}; it's ${letter}. Type ${letter} and pay attention this time, damn it.`,
+    casual: (letter: string, typed: string) => `Close-ish: you typed ${typed}, but it's ${letter}. Type ${letter} and we roll on.`,
+    roast: (letter: string, typed: string) => `Nope. You typed ${typed}. It's ${letter}. Type ${letter}, and maybe look at the highlighted piece instead of vibes.`,
+  } satisfies Voiced<[string, string]>,
   // The whole piece is lit, because one colour of a corner fits four positions; the sticker to place is
   // named by its face, which also picks it out in the 3D view, where nothing can be ringed.
   traceLook: {

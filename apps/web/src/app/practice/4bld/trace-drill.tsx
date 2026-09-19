@@ -142,7 +142,7 @@ function TraceRun({ reader, events, append, settings, mode, pieces, help, seed, 
       setFeedback({ ok: true, text: `${en.fourBld.right(letter)}${prompt.letters.length > 1 ? ` ${en.fourBld.anyOf(choices)}` : ""}` });
       accept(letter, sticker);
     } else {
-      setFeedback({ ok: false, text: en.fourBld.wrong(prompt.letters.length > 1 ? en.fourBld.anyOf(choices) : `${en.fourBld.retype(choices)}.`) });
+      setFeedback({ ok: false, text: en.fourBld.wrong(prompt.letters.length > 1 ? en.fourBld.anyOf(choices) : `${en.fourBld.retype(choices)}.`, answer) });
       setRetyping(true);
     }
   };

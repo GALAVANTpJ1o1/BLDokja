@@ -12,10 +12,11 @@ import { useReader, type Reader } from "@/lib/reader";
 import { FOUR_BLD_PIECES, useReader4x4, type FourBldPieces, type Reader4x4 } from "@/lib/reader-4x4";
 import { newId, nowIso } from "@/lib/ids";
 import { loadStorage } from "@/lib/storage-lazy";
-import { checkpointRng, gradeLetters, gradeSetup, letterItems, parityItems, setupItems, traceItems, type CheckpointItem, type PieceKind, type TraceRequirement } from "@/trainers/checkpoint-items";
+import { checkpointRng, compareLetters, gradeLetters, gradeSetup, letterItems, parityItems, setupItems, traceItems, type CheckpointItem, type LetterComparison as Comparison, type PieceKind, type TraceRequirement } from "@/trainers/checkpoint-items";
 import { gradeSwapSetup } from "@/trainers/effects";
 import { commBuildItems, commCaseItems, commExpandItems, gradeCommBuild, gradeExpansion, m2SetupItems, m2SpecialItems, MISTAKES, mistakeItems, type LessonItem, type MistakeKind } from "@/trainers/lesson-items";
 import { fourLetterItems, fourParityItems, fourSetupItems, fourTraceItems, gradeFourMemo, type FourCheckpointItem } from "@/trainers/four-bld-checkpoints";
+import { LetterComparison, differenceText } from "./letter-comparison";
 import { LessonMetaContext } from "./lesson-meta";
 import { useVoice } from "./use-voice";
 
@@ -178,7 +179,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const [position, setPosition] = useState(0);
   const [results, setResults] = useState<boolean[]>([]);
   const [typed, setTyped] = useState("");
-  const [last, setLast] = useState<{ ok: boolean; answer: string } | undefined>(undefined);
+  const [last, setLast] = useState<{ ok: boolean; answer: string; typed: string; comparison?: Comparison } | undefined>(undefined);
   const [quiz, setQuiz] = useState<Record<string, boolean>>({});
   const [quizRevealed, setQuizRevealed] = useState(false);
   const [recorded, setRecorded] = useState(false);
@@ -275,7 +276,9 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       answer = dataset.records.find((r) => r.target === item.target)?.setup ?? "";
     }
     setResults((r) => [...r, ok]);
-    setLast({ ok, answer });
+    // A wrong memo is set against the right one, target by target, so it shows where it went wrong.
+    const rightLetters = ok ? undefined : letterAnswer(item);
+    setLast({ ok, answer, typed: typedText(item, typed), ...(rightLetters === undefined ? {} : { comparison: compareLetters(rightLetters, typed) }) });
     setTyped("");
     setPosition((p) => p + 1);
   };
@@ -348,10 +351,13 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       ) : null}
 
       {last !== undefined && !finished ? (
-        <p className="t-body" role="status">
-          <span aria-hidden className="mr-2 font-[700]">{last.ok ? "✓" : "✗"}</span>
-          {last.ok ? en.lesson.itemRight : en.lesson.itemWrong(last.answer)}
-        </p>
+        <div className="flex flex-col gap-3">
+          <p className="t-body" role="status">
+            <span aria-hidden className="mr-2 font-[700]">{last.ok ? "✓" : "✗"}</span>
+            {last.ok ? en.lesson.itemRight : (last.comparison === undefined ? undefined : differenceText(last.comparison)) ?? en.lesson.itemWrong(last.typed, last.answer)}
+          </p>
+          {last.comparison !== undefined && last.comparison.pairs.length > 1 ? <LetterComparison comparison={last.comparison} /> : null}
+        </div>
       ) : null}
 
       {finished ? (
@@ -363,6 +369,28 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
       ) : null}
     </section>
   );
+}
+
+/**
+ * The right letters of an item whose answer is a memo to compare target by target, or undefined when a
+ * comparison would mislead: 4x4x4 x-centres accept any walk that solves them, so there is no one
+ * sequence to line a typed answer up against.
+ */
+function letterAnswer(item: Item): readonly string[] | string | undefined {
+  if (item.kind === "letter" || item.kind === "four-letter" || item.kind === "trace" || item.kind === "comm-case") return item.answer;
+  if (item.kind === "four-trace" && item.pieces !== "xcenters") return item.answer;
+  return undefined;
+}
+
+/** What was typed, in words a reader would recognise: the radio choices are keys, not text. */
+function typedText(item: Item, typed: string): string {
+  if (item.kind === "mistake" && isMistake(typed)) return en.lessonExtra.mistakeNames[typed];
+  if (item.kind === "parity" || item.kind === "four-parity") return typed === "yes" ? en.lesson.yes : en.lesson.no;
+  return typed.trim();
+}
+
+function isMistake(value: string): value is MistakeKind {
+  return (MISTAKES as readonly string[]).includes(value);
 }
 
 function isFourItem(item: Item): item is FourCheckpointItem {

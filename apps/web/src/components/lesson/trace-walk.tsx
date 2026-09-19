@@ -68,7 +68,7 @@ export function TraceWalk({ scramble, pieces, method = "op", mode = "guided", la
       setFeedback({ ok: true, text: voiced.traceCorrect[voice](step.letter) });
       advance();
     } else {
-      setFeedback({ ok: false, text: voiced.traceWrong[voice](step.letter) });
+      setFeedback({ ok: false, text: voiced.traceWrong[voice](step.letter, answer) });
       setMustRetype(step.letter);
       setTyped("");
     }

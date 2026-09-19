@@ -226,7 +226,7 @@ export function TraceTrainer() {
       setForceExplain(false);
       setPosition((p) => p + 1);
     } else {
-      setFeedback({ ok: false, text: verdict === "timed-out" ? `${en.difficulty.timedOut} ${en.trace.retype(current.step.letter)}` : voiced.traceWrong[voice](current.step.letter) });
+      setFeedback({ ok: false, text: verdict === "timed-out" ? `${en.difficulty.timedOut} ${en.trace.retype(current.step.letter)}` : voiced.traceWrong[voice](current.step.letter, answer) });
       setMustRetype(current.step.letter);
     }
   };

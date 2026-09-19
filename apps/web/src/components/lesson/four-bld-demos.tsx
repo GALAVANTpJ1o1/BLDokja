@@ -140,7 +140,7 @@ export function FourTrace({ scramble, pieces, mode = "guided", label }: { scramb
     const sticker = step.accepted[at];
     const letter = step.letters[at];
     if (sticker === undefined || letter === undefined) {
-      if (!retype) setFeedback({ ok: false, text: copy.wrong(step.letters.length > 1 ? copy.anyOf(step.letters.join(", ")) : `${copy.retype(step.letters.join(""))}.`) });
+      if (!retype) setFeedback({ ok: false, text: copy.wrong(step.letters.length > 1 ? copy.anyOf(step.letters.join(", ")) : `${copy.retype(step.letters.join(""))}.`, answer) });
       setRetype(true);
       setTyped("");
       return;
