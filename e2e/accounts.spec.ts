@@ -22,6 +22,10 @@ import { expect, test, type Page } from "@playwright/test";
  *   4. All three reached deletion and were blocked by the Edge Function's CORS list -- another real
  *      bug, fixed and redeployed.
  *   5. 12 and 5 passed in seconds. 15 hit the post-auth reload mid-navigation (see gotoStable).
+ *   6. Against the live site: 13 of 14 passed; the one failure was the share image's content type (D-073).
+ *   7. Live again: 3 of 4; scenario 12's cleanup raced the signed-in page flashing before the migration
+ *      dialog (D-076, fixed in the app and in finishPostAuth).
+ *   8. Live, all four scenarios (including the leaderboard round trip, D-074): 4 of 4 passed.
  * Scenarios covered by unit tests instead (events dedupe, offline queue, conflicts, deletions, RLS)
  * live in apps/web/src/lib/sync and supabase/ -- see docs/DECISIONS.md D-060 to D-065.
  */

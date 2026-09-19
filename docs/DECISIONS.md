@@ -1665,7 +1665,7 @@ The owner ran `launch.spec.ts` and `accounts.spec.ts` against the live site: 13 
 
 ## D-074 · The leaderboard form showed defaults instead of the account's settings
 
-**Status:** fixed in the repo (2026-09-19); unit-tested; the end-to-end test was added but has not been run yet.
+**Status:** fixed and deployed (2026-09-19); unit-tested, and the new end-to-end scenario passed against the live site and the real database (`accounts.spec.ts`, 4 of 4, 47.8 s).
 
 Found while fixing the account page for D-071 and left unfixed at launch because it needed a read path.
 
@@ -1685,7 +1685,7 @@ Found on the live site while checking client-side navigation from the built-in b
 
 ## D-076 · The signed-in page flashed before the sign-in and sign-up dialogs
 
-**Status:** fixed (2026-09-19). Found by the fourth live run of `accounts.spec.ts`: three passed and scenario 12 failed in its cleanup.
+**Status:** fixed and deployed (2026-09-19); confirmed by the next live run of `accounts.spec.ts`, 4 of 4 passing. Found by the fourth live run: three passed and scenario 12 failed in its cleanup.
 
 - **What the trace showed.** The cleanup signed the throwaway account back in; because that browser held guest data, the "Bring over your guest progress?" dialog appeared, as designed. The helper had seen the page a moment earlier, then asked `skip.isVisible()` and got false, so it never clicked Skip and waited 30 seconds beside a dialog nobody clicked.
 - **Cause, in the app.** `signIn()` and `signUp()` do not return until after the auth state has changed, and they keep working after it (set the recovery code, update the time zone: a network round trip). Throughout that stretch `signedIn` was true and `AccountView` rendered the signed-in page, which was then replaced by the recovery-code or migration dialog when the call returned. Readers saw the account page flash for a fraction of a second, and a test asking "am I signed in?" got a true answer that was not yet the end of the flow. This is D-070's ordering problem seen from the other side: D-070 stopped the dialog being lost; this stops the page underneath it appearing first.
