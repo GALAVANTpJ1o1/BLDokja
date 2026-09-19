@@ -1,0 +1,128 @@
+{
+ "format": "bld-platform/curated-cases",
+ "version": 1,
+ "stage": "ep",
+ "provenance": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine",
+ "cases": [
+  {
+   "id": "ep_h",
+   "name": "H",
+   "group": "Edge permutation",
+   "aliases": [
+    "H",
+    "H perm"
+   ],
+   "state": {
+    "ep": [
+     2,
+     3,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "M2 U M2 U2 M2 U M2",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "ep_ua",
+   "name": "Ua",
+   "group": "Edge permutation",
+   "aliases": [
+    "Ua",
+    "Ua perm"
+   ],
+   "state": {
+    "ep": [
+     1,
+     3,
+     2,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U' R U R U R U' R' U' R2",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "ep_ub",
+   "name": "Ub",
+   "group": "Edge permutation",
+   "aliases": [
+    "Ub",
+    "Ub perm"
+   ],
+   "state": {
+    "ep": [
+     3,
+     0,
+     2,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 U R U R' U' R' U' R' U R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "ep_z",
+   "name": "Z",
+   "group": "Edge permutation",
+   "aliases": [
+    "Z",
+    "Z perm"
+   ],
+   "state": {
+    "ep": [
+     3,
+     2,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "M' U M2 U M2 U M' U2 M2",
+     "preAuf": "",
+     "postAuf": "U'",
+     "moves": 14,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  }
+ ]
+}

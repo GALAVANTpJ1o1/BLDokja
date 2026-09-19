@@ -1,0 +1,2466 @@
+{
+ "format": "bld-platform/curated-cases",
+ "version": 1,
+ "stage": "oll",
+ "provenance": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine",
+ "cases": [
+  {
+   "id": "oll_01",
+   "number": 1,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 1",
+    "1"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R2 F R F' U2 R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R2 F R F' U2 R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_02",
+   "number": 2,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 2",
+    "2"
+   ],
+   "state": {
+    "co": [
+     1,
+     1,
+     2,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U r' U2 r U2 R' U2 R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U r' U2 r U2 R' U2 R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_03",
+   "number": 3,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 3",
+    "3"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r' R2 U R' U r U2 r' U M'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' R2 U R' U r U2 r' U R' r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_04",
+   "number": 4,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 4",
+    "4"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "M U' r U2 r' U' R U' R' M'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' R U' r U2 r' U' R U' R2 r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_05",
+   "number": 5,
+   "name": "Square Shape",
+   "group": "Square Shape",
+   "aliases": [
+    "oll 5",
+    "5"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     0,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "l' U2 L U L' U l",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' U2 R U R' U r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_06",
+   "number": 6,
+   "name": "Square Shape",
+   "group": "Square Shape",
+   "aliases": [
+    "oll 6",
+    "6"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U2 R' U' R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U2 R' U' R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_07",
+   "number": 7,
+   "name": "Small Lightning Bolt",
+   "group": "Small Lightning Bolt",
+   "aliases": [
+    "oll 7",
+    "7"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U R U2 r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U R U2 r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_08",
+   "number": 8,
+   "name": "Small Lightning Bolt",
+   "group": "Small Lightning Bolt",
+   "aliases": [
+    "oll 8",
+    "8"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "l' U' L U' L' U2 l",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' U' R U' R' U2 r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_09",
+   "number": 9,
+   "name": "Fish Shape",
+   "group": "Fish Shape",
+   "aliases": [
+    "oll 9",
+    "9"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U' R' F R2 U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U' R' F R2 U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_10",
+   "number": 10,
+   "name": "Fish Shape",
+   "group": "Fish Shape",
+   "aliases": [
+    "oll 10",
+    "10"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     2,
+     2
+    ],
+    "eo": [
+     0,
+     1,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R' F R F' R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U R U' R' U' r' R U R U' R'",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 14,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_11",
+   "number": 11,
+   "name": "Small Lightning Bolt",
+   "group": "Small Lightning Bolt",
+   "aliases": [
+    "oll 11",
+    "11"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     2,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U R' F R F' R U2 r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' R2 U R' U R U2 R' U R' r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_12",
+   "number": 12,
+   "name": "Small Lightning Bolt",
+   "group": "Small Lightning Bolt",
+   "aliases": [
+    "oll 12",
+    "12"
+   ],
+   "state": {
+    "co": [
+     1,
+     1,
+     0,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "M' R' U' R U' R' U2 R U' R r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r R2 U' R U' R' U2 R U' r' R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_13",
+   "number": 13,
+   "name": "Knight Move Shape",
+   "group": "Knight Move Shape",
+   "aliases": [
+    "oll 13",
+    "13"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F U R U' R2 F' R U R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F U R U' R2 F' R U R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_14",
+   "number": 14,
+   "name": "Knight Move Shape",
+   "group": "Knight Move Shape",
+   "aliases": [
+    "oll 14",
+    "14"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' F R U R' F' R F U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' F R U R' F' R y' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "y",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_15",
+   "number": 15,
+   "name": "Knight Move Shape",
+   "group": "Knight Move Shape",
+   "aliases": [
+    "oll 15",
+    "15"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     0,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "l' U' l L' U' L U l' U l",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' U' R' r U' R U r' U r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_16",
+   "number": 16,
+   "name": "Knight Move Shape",
+   "group": "Knight Move Shape",
+   "aliases": [
+    "oll 16",
+    "16"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     1,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U r' R U R' U' r U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U r' R U R' U' r U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_17",
+   "number": 17,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 17",
+    "17"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     0,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R' F' R2 r' U R U' R' U' M'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F R' F' R2 r' U R U' R' U' R' r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_18",
+   "number": 18,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 18",
+    "18"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     0,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U R U2 r2 U' R U' R' U2 r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U R U2 r2 U' R U' R' U2 r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_19",
+   "number": 19,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 19",
+    "19"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     0,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r' R U R U R' U' M' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U2 R' U' R U' r2 U2 R U R' U r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_20",
+   "number": 20,
+   "name": "Dot",
+   "group": "Dot",
+   "aliases": [
+    "oll 20",
+    "20"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U' M2 U R U' R' U' M'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U' r2 R2 U R U' R' U' R' r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_21",
+   "number": 21,
+   "name": "H",
+   "group": "Cross",
+   "aliases": [
+    "oll 21",
+    "21",
+    "H"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     2,
+     1
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R' U' R U R' U' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R' U' R U R' U' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_22",
+   "number": 22,
+   "name": "Pi",
+   "group": "Cross",
+   "aliases": [
+    "oll 22",
+    "22",
+    "Pi"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     1,
+     2
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R2 U' R2 U' R2 U2 R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R2 U' R2 U' R2 U2 R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_23",
+   "number": 23,
+   "name": "U",
+   "group": "Cross",
+   "aliases": [
+    "oll 23",
+    "23",
+    "U"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     2,
+     0
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 D' R U2 R' D R U2 R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U R U2 R2 U' R U' R' U2 R",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_24",
+   "number": 24,
+   "name": "T",
+   "group": "Cross",
+   "aliases": [
+    "oll 24",
+    "24",
+    "T"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     2,
+     1
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U' r' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U' r' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_25",
+   "number": 25,
+   "name": "L",
+   "group": "Cross",
+   "aliases": [
+    "oll 25",
+    "25",
+    "L"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     1,
+     0
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F' r U R' U' r' F R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F R' F' r U R U' r'",
+     "preAuf": "U'",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_26",
+   "number": 26,
+   "name": "Anti-Sune",
+   "group": "Cross",
+   "aliases": [
+    "oll 26",
+    "26",
+    "Anti-Sune"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     1,
+     1
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R' U' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R' U' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_27",
+   "number": 27,
+   "name": "Sune",
+   "group": "Cross",
+   "aliases": [
+    "oll 27",
+    "27",
+    "Sune"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     2,
+     0
+    ],
+    "eo": [
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_28",
+   "number": 28,
+   "name": "Corners Oriented",
+   "group": "Corners Oriented",
+   "aliases": [
+    "oll 28",
+    "28"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U' r' R U R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U R' U' r' R U R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_29",
+   "number": 29,
+   "name": "Awkward Shape",
+   "group": "Awkward Shape",
+   "aliases": [
+    "oll 29",
+    "29"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U' R U' R' F' U' F R U R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U' R U' R' F' U' F R U R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_30",
+   "number": 30,
+   "name": "Awkward Shape",
+   "group": "Awkward Shape",
+   "aliases": [
+    "oll 30",
+    "30"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     1,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R' F R2 U' R' U' R U R' F2",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F U R U2 R' U' R U2 R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_31",
+   "number": 31,
+   "name": "P Shape",
+   "group": "P Shape",
+   "aliases": [
+    "oll 31",
+    "31"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' F U R U' R' F' R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' U' F U R U' R' F' R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_32",
+   "number": 32,
+   "name": "P Shape",
+   "group": "P Shape",
+   "aliases": [
+    "oll 32",
+    "32"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     0,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "L U F' U' L' U L F L'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "L U F' U' L' U L F L'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_33",
+   "number": 33,
+   "name": "T Shape",
+   "group": "T Shape",
+   "aliases": [
+    "oll 33",
+    "33"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_34",
+   "number": 34,
+   "name": "C Shape",
+   "group": "C Shape",
+   "aliases": [
+    "oll 34",
+    "34"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     1,
+     0
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R2 U' R' F R U R U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R2 U' R' F R U R U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_35",
+   "number": 35,
+   "name": "Fish Shape",
+   "group": "Fish Shape",
+   "aliases": [
+    "oll 35",
+    "35"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     0,
+     1
+    ],
+    "eo": [
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R2 F R F' R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R2 F R F' R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_36",
+   "number": 36,
+   "name": "W Shape",
+   "group": "W Shape",
+   "aliases": [
+    "oll 36",
+    "36"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     0,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "L' U' L U' L' U L U L F' L' F",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' U' R U' R' U R U x' R U' R' U",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "x",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_37",
+   "number": 37,
+   "name": "Fish Shape",
+   "group": "Fish Shape",
+   "aliases": [
+    "oll 37",
+    "37"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     0,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R' F' R U R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F R U' R' U' R U R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_38",
+   "number": 38,
+   "name": "W Shape",
+   "group": "W Shape",
+   "aliases": [
+    "oll 38",
+    "38"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U' R' U' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U R U' R' U' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_39",
+   "number": 39,
+   "name": "Big Lightning Bolt",
+   "group": "Big Lightning Bolt",
+   "aliases": [
+    "oll 39",
+    "39"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "L F' L' U' L U F U' L'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U' r' U' r y R U R' f'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "y'",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_40",
+   "number": 40,
+   "name": "Big Lightning Bolt",
+   "group": "Big Lightning Bolt",
+   "aliases": [
+    "oll 40",
+    "40"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     0,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' F R U R' U' F' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' F R U R' U' F' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_41",
+   "number": 41,
+   "name": "Awkward Shape",
+   "group": "Awkward Shape",
+   "aliases": [
+    "oll 41",
+    "41"
+   ],
+   "state": {
+    "co": [
+     0,
+     1,
+     2,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U2 R' F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U R U2 R' F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_42",
+   "number": 42,
+   "name": "Awkward Shape",
+   "group": "Awkward Shape",
+   "aliases": [
+    "oll 42",
+    "42"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     0,
+     1
+    ],
+    "eo": [
+     0,
+     1,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R U' R' U2 R F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' U' R U' R' U2 R F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 13,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_43",
+   "number": 43,
+   "name": "P Shape",
+   "group": "P Shape",
+   "aliases": [
+    "oll 43",
+    "43"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F' U' L' U L F",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F' U' L' U L F",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_44",
+   "number": 44,
+   "name": "P Shape",
+   "group": "P Shape",
+   "aliases": [
+    "oll 44",
+    "44"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     0,
+     0
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F U R U' R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F U R U' R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_45",
+   "number": 45,
+   "name": "T Shape",
+   "group": "T Shape",
+   "aliases": [
+    "oll 45",
+    "45"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_46",
+   "number": 46,
+   "name": "C Shape",
+   "group": "C Shape",
+   "aliases": [
+    "oll 46",
+    "46"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     0,
+     0
+    ],
+    "eo": [
+     0,
+     1,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R' F R F' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' U' R' F R F' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_47",
+   "number": 47,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 47",
+    "47"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R' F R F' R' F R F' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R' U' x R' U R U' R' U R U' x' U R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_48",
+   "number": 48,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 48",
+    "48"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R U R' U' R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F R U R' U' R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_49",
+   "number": 49,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 49",
+    "49"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U' r2 U r2 U r2 U' r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R x' U' z u2 R u2 R u2 R' u",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "z'",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_50",
+   "number": 50,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 50",
+    "50"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     1,
+     2
+    ],
+    "eo": [
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r' U r2 U' r2 U' r2 U r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' U r2 U' r2 U' r2 U r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_51",
+   "number": 51,
+   "name": "I Shape",
+   "group": "I Shape",
+   "aliases": [
+    "oll 51",
+    "51"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F U R U' R' U R U' R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "F U R U' R' U R U' R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_52",
+   "number": 52,
+   "name": "I Shape",
+   "group": "I Shape",
+   "aliases": [
+    "oll 52",
+    "52"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     2,
+     1
+    ],
+    "eo": [
+     0,
+     1,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U' B U' B' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U R U' y R U' R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "y'",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_53",
+   "number": 53,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 53",
+    "53"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "l' U2 L U L' U' L U L' U l",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r' U2 R U R' U' R U R' U r",
+     "preAuf": "U2",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_54",
+   "number": 54,
+   "name": "Small L Shape",
+   "group": "Small L Shape",
+   "aliases": [
+    "oll 54",
+    "54"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     1,
+     0,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U2 R' U' R U R' U' R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U2 R' U' R U R' U' R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_55",
+   "number": 55,
+   "name": "I Shape",
+   "group": "I Shape",
+   "aliases": [
+    "oll 55",
+    "55"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     2,
+     1
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' F R U R U' R2 F' R2 U' R' U R U R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 15,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U2 R2 U' R U' R' U2 F R F'",
+     "preAuf": "U",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_56",
+   "number": 56,
+   "name": "I Shape",
+   "group": "I Shape",
+   "aliases": [
+    "oll 56",
+    "56"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     1,
+     2
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r' U' r U' R' U R U' R' U R r' U r",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 14,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "r U r' U R U' R' U R U' R' r U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 14,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  },
+  {
+   "id": "oll_57",
+   "number": 57,
+   "name": "Corners Oriented",
+   "group": "Corners Oriented",
+   "aliases": [
+    "oll 57",
+    "57"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U' M' U R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    },
+    "OH": {
+     "alg": "R U R' U' R' r U R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 10,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": []
+  }
+ ]
+}

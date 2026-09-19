@@ -1,0 +1,1073 @@
+{
+ "format": "bld-platform/curated-f2l",
+ "version": 1,
+ "provenance": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table.",
+ "cases": [
+  {
+   "id": "f2l_01",
+   "number": 1,
+   "name": "F2L 1",
+   "family": "both-slot",
+   "aliases": [
+    "f2l 1",
+    "1"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 0,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 U2 F R2 F' U2 R' U R'",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_02",
+   "number": 2,
+   "name": "F2L 2",
+   "family": "both-slot",
+   "aliases": [
+    "f2l 2",
+    "2"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 1,
+    "edgePlace": 8,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 U2 R' U' R U' R' U2 R'",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_03",
+   "number": 3,
+   "name": "F2L 3",
+   "family": "both-slot",
+   "aliases": [
+    "f2l 3",
+    "3"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 1,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R F U R U' R' F' U' R'",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_04",
+   "number": 4,
+   "name": "F2L 4",
+   "family": "both-slot",
+   "aliases": [
+    "f2l 4",
+    "4"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 2,
+    "edgePlace": 8,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R U R' U R U2 R2",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_05",
+   "number": 5,
+   "name": "F2L 5",
+   "family": "both-slot",
+   "aliases": [
+    "f2l 5",
+    "5"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 2,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U F R U R' U' F' R'",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_06",
+   "number": 6,
+   "name": "F2L 6",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 6",
+    "6"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 8,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 U R2 U R2 U2 R2",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_07",
+   "number": 7,
+   "name": "F2L 7",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 7",
+    "7"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "F' U F R U2 R'",
+     "moves": 6,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_08",
+   "number": 8,
+   "name": "F2L 8",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 8",
+    "8"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 8,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U R U R' U2 R U R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_09",
+   "number": 9,
+   "name": "F2L 9",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 9",
+    "9"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U F' U' F U' R U R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_10",
+   "number": 10,
+   "name": "F2L 10",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 10",
+    "10"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 8,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U' R' U' R U2 R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_11",
+   "number": 11,
+   "name": "F2L 11",
+   "family": "corner-top-edge-slot",
+   "aliases": [
+    "f2l 11",
+    "11"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 8,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U R' U F' U' F",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_12",
+   "number": 12,
+   "name": "F2L 12",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 12",
+    "12"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 0,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R' U' R2 U R U R",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_13",
+   "number": 13,
+   "name": "F2L 13",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 13",
+    "13"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 0,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R F' R' U R F",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_14",
+   "number": 14,
+   "name": "F2L 14",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 14",
+    "14"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 1,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U' R' U R U' R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_15",
+   "number": 15,
+   "name": "F2L 15",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 15",
+    "15"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 1,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U2 R U' R' F' U' F",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_16",
+   "number": 16,
+   "name": "F2L 16",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 16",
+    "16"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 2,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U R' U' R U R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_17",
+   "number": 17,
+   "name": "F2L 17",
+   "family": "corner-slot-edge-top",
+   "aliases": [
+    "f2l 17",
+    "17"
+   ],
+   "placement": {
+    "cornerPlace": 4,
+    "cornerTwist": 2,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R' F' U2 F",
+     "moves": 6,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_18",
+   "number": 18,
+   "name": "F2L 18",
+   "family": "both-top",
+   "aliases": [
+    "f2l 18",
+    "18"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U2 R2 U2 R' U' R U' R2",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_19",
+   "number": 19,
+   "name": "F2L 19",
+   "family": "both-top",
+   "aliases": [
+    "f2l 19",
+    "19"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 1,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R' U' R U R'",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_20",
+   "number": 20,
+   "name": "F2L 20",
+   "family": "both-top",
+   "aliases": [
+    "f2l 20",
+    "20"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 2,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U R U2 R' U R U' R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_21",
+   "number": 21,
+   "name": "F2L 21",
+   "family": "both-top",
+   "aliases": [
+    "f2l 21",
+    "21"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 3,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U' R' U2 R U R'",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_22",
+   "number": 22,
+   "name": "F2L 22",
+   "family": "both-top",
+   "aliases": [
+    "f2l 22",
+    "22"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "F' U2 F U F' U' F",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_23",
+   "number": 23,
+   "name": "F2L 23",
+   "family": "both-top",
+   "aliases": [
+    "f2l 23",
+    "23"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 1,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U2 F2 U2 F U F' U F2",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_24",
+   "number": 24,
+   "name": "F2L 24",
+   "family": "both-top",
+   "aliases": [
+    "f2l 24",
+    "24"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 2,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U2 R U R' F' U' F",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_25",
+   "number": 25,
+   "name": "F2L 25",
+   "family": "both-top",
+   "aliases": [
+    "f2l 25",
+    "25"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 0,
+    "edgePlace": 3,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' F' U2 F2 R' F' R",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_26",
+   "number": 26,
+   "name": "F2L 26",
+   "family": "both-top",
+   "aliases": [
+    "f2l 26",
+    "26"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U2 R2 U R2 U R",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_27",
+   "number": 27,
+   "name": "F2L 27",
+   "family": "both-top",
+   "aliases": [
+    "f2l 27",
+    "27"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 1,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U' R' U R U R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_28",
+   "number": 28,
+   "name": "F2L 28",
+   "family": "both-top",
+   "aliases": [
+    "f2l 28",
+    "28"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 2,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R'",
+     "moves": 3,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_29",
+   "number": 29,
+   "name": "F2L 29",
+   "family": "both-top",
+   "aliases": [
+    "f2l 29",
+    "29"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 3,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U R' U R U R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_30",
+   "number": 30,
+   "name": "F2L 30",
+   "family": "both-top",
+   "aliases": [
+    "f2l 30",
+    "30"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' F' U F",
+     "moves": 4,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_31",
+   "number": 31,
+   "name": "F2L 31",
+   "family": "both-top",
+   "aliases": [
+    "f2l 31",
+    "31"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 1,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U' R' U2 F' U' F",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_32",
+   "number": 32,
+   "name": "F2L 32",
+   "family": "both-top",
+   "aliases": [
+    "f2l 32",
+    "32"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 2,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 U2 F R2 F' U2 R2",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_33",
+   "number": 33,
+   "name": "F2L 33",
+   "family": "both-top",
+   "aliases": [
+    "f2l 33",
+    "33"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 1,
+    "edgePlace": 3,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "R' U' R F R' F' U R",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_34",
+   "number": 34,
+   "name": "F2L 34",
+   "family": "both-top",
+   "aliases": [
+    "f2l 34",
+    "34"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 0,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U' R U2 R2 U' R2 U' R2",
+     "moves": 9,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_35",
+   "number": 35,
+   "name": "F2L 35",
+   "family": "both-top",
+   "aliases": [
+    "f2l 35",
+    "35"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 1,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U R U' R'",
+     "moves": 4,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_36",
+   "number": 36,
+   "name": "F2L 36",
+   "family": "both-top",
+   "aliases": [
+    "f2l 36",
+    "36"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 2,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U R' U' R U2 R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_37",
+   "number": 37,
+   "name": "F2L 37",
+   "family": "both-top",
+   "aliases": [
+    "f2l 37",
+    "37"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 3,
+    "edgeFlip": 0
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U2 R' U' R U2 R'",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_38",
+   "number": 38,
+   "name": "F2L 38",
+   "family": "both-top",
+   "aliases": [
+    "f2l 38",
+    "38"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 0,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U F' U F U' F' U' F",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_39",
+   "number": 39,
+   "name": "F2L 39",
+   "family": "both-top",
+   "aliases": [
+    "f2l 39",
+    "39"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 1,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "F U2 F2 U' F2 U' F'",
+     "moves": 7,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_40",
+   "number": 40,
+   "name": "F2L 40",
+   "family": "both-top",
+   "aliases": [
+    "f2l 40",
+    "40"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 2,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "U' R U' R' U F' U' F",
+     "moves": 8,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "f2l_41",
+   "number": 41,
+   "name": "F2L 41",
+   "family": "both-top",
+   "aliases": [
+    "f2l 41",
+    "41"
+   ],
+   "placement": {
+    "cornerPlace": 0,
+    "cornerTwist": 2,
+    "edgePlace": 3,
+    "edgeFlip": 1
+   },
+   "algs": {
+    "2H": {
+     "alg": "F' U' F",
+     "moves": 3,
+     "source": "Engine search: shortest sequence in R and U (then R, U and F) that solves the pair and keeps the cross, ranked by a fixed ergonomic rule. Not a curated speedsolving table."
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  }
+ ]
+}

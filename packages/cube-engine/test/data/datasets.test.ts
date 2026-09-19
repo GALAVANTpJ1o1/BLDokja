@@ -32,7 +32,8 @@ const contentDir = join(import.meta.dirname, "..", "..", "..", "..", "content", 
 function datasetFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return datasetFiles(path);
+    // The curated CFOP sets (D-080) have their own schema and their own suite: test/cfop/.
+    if (entry.isDirectory()) return entry.name === "curated" ? [] : datasetFiles(path);
     return entry.name.endsWith(".json") ? [path] : [];
   });
 }

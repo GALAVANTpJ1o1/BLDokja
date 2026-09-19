@@ -325,6 +325,13 @@ export const SettingsSchema = z
     algPreferences: z.record(z.string(), AlgPreferenceSchema).optional(),
     physicalChecks: z.record(z.string(), isoInstant).optional(),
     /**
+     * CFOP: which way the reader executes algorithms (two-handed or one-handed) and, per case id ("oll_27", "pll_t",
+     * "f2l_12"), a status the reader has set by hand. A case with no entry is judged from practice (D-083): a
+     * hand-set status always wins until it is cleared.
+     */
+    executionStyle: z.enum(["2H", "OH"]).optional(),
+    caseStatus: z.record(z.string().max(40), z.enum(["unlearned", "learning", "learned"])).refine((value) => Object.keys(value).length <= 400, "too many case statuses").optional(),
+    /**
      * IANA time zone name (e.g. "Asia/Kolkata"), used to bucket the activity calendar and streaks
      * into local days. Not format-checked here (IANA names don't fit a simple regex); the client only
      * ever writes a value it read from `Intl.supportedValuesOf("timeZone")` or the same picker.

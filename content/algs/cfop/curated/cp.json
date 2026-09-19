@@ -1,0 +1,76 @@
+{
+ "format": "bld-platform/curated-cases",
+ "version": 1,
+ "stage": "cp",
+ "provenance": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine",
+ "cases": [
+  {
+   "id": "cp_diagonal",
+   "name": "Diagonal",
+   "group": "Corner permutation",
+   "aliases": [
+    "diagonal",
+    "diagonal swap",
+    "diag",
+    "y",
+    "y perm",
+    "no headlights"
+   ],
+   "state": {
+    "cp": [
+     2,
+     1,
+     0,
+     3
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 17,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "cp_headlights",
+   "name": "Headlights",
+   "group": "Corner permutation",
+   "aliases": [
+    "headlights",
+    "headlight",
+    "adjacent",
+    "adjacent swap",
+    "t",
+    "t perm"
+   ],
+   "state": {
+    "cp": [
+     1,
+     0,
+     2,
+     3
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U' R' F R2 U' R' U' R U R' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 14,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  }
+ ]
+}

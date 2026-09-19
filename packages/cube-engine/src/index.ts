@@ -364,3 +364,24 @@ export {
 export { slotViews, stickeringMask, type FaceletMask, type PlayerStickeringMask, type SlotView } from "./display/stickering.js";
 export { pieceOfSticker, stickerName } from "./pieces/names.js";
 export { faceletsOf } from "./core/puzzle.js";
+
+// CFOP: curated last-layer sets, F2L cases, recognition, orientation profiles and the trainer engine (D-080 to D-085).
+export {
+  algFor, algStartState, casePattern, caseSetup, CaseStateSchema, combineAuf, CURATED_STAGES, CuratedCaseSchema, CuratedSetSchema, EXECUTION_STYLES,
+  endingRotationOf, findAufs, firstTwoLayersIntact, STAGE_KIND, stageStartState, stateFromStart, styleMoves, verifyCuratedSet,
+  type CaseState, type CuratedAlg, type CuratedCase, type CuratedProblem, type CuratedSet, type CuratedStage, type ExecutionStyle,
+} from "./cfop/curated.js";
+export { executableMoves, matchAnswer, normaliseAnswer, solveStage, stageSatisfied, type StageSolution } from "./cfop/classify.js";
+export { CUBE_RENDER_MODES, F2L_PAIRS, F2L_SLOT, renderPlan, unsolvedPairs, type CubeRenderMode, type RenderPlan, type StickerVisibility } from "./cfop/render-modes.js";
+export { ORIENTATION_PROFILES, profileColours, profileForTrack, type FaceLetter, type OrientationProfile } from "./cfop/orientation.js";
+export { orientationFeatures, permutationFeatures, topView, type Colour, type OrientationFeatures, type PermutationFeatures, type Side, type TopView } from "./cfop/recognition.js";
+export {
+  emptySession, gradeStage, recordStage, summarise,
+  type Grade, type Hint, type SessionState, type SessionSummary, type StageRecord, type TrainerResponse, type TrainerStage, type TrainerTarget, type TrainerTransition,
+} from "./cfop/trainer-core.js";
+export { firstStage, generateChain, LL_MODES, MODE_STAGES, STAGE_DISPLAY, validateChain, type ChainOptions, type LlChain, type LlMode, type LlSets, type PlanStep } from "./cfop/ll-trainer.js";
+export {
+  allPlacements, classifyF2L, crossSolved, ergonomicCost, F2L_LEVELS, F2LSetSchema, f2lCases, f2lPattern, f2lSolved, generateF2LPractice, isSolvedPlacement, mirrorAlg,
+  otherPiecesSolved, placementOf, searchF2LSolutions, turnedPlacement, unsolvedPairCount, verifyF2LSet,
+  type F2LCase, type F2LCuratedCase, type F2LLevel, type F2LPlacement, type F2LPractice, type F2LSet, type F2LSolution,
+} from "./cfop/f2l.js";

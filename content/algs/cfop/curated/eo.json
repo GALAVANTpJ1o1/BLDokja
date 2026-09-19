@@ -1,0 +1,100 @@
+{
+ "format": "bld-platform/curated-cases",
+ "version": 1,
+ "stage": "eo",
+ "provenance": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine",
+ "cases": [
+  {
+   "id": "eo_dot",
+   "name": "Dot",
+   "group": "Edge orientation",
+   "aliases": [
+    "dot",
+    "dot shape"
+   ],
+   "state": {
+    "eo": [
+     1,
+     1,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R U R' U' F' f R U R' U' f'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 12,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "eo_line",
+   "name": "Line",
+   "group": "Edge orientation",
+   "aliases": [
+    "line",
+    "i",
+    "i shape",
+    "bar"
+   ],
+   "state": {
+    "eo": [
+     1,
+     0,
+     1,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R U R' U' F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "eo_l",
+   "name": "L-shape",
+   "group": "Edge orientation",
+   "aliases": [
+    "l",
+    "l shape"
+   ],
+   "state": {
+    "eo": [
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "f R U R' U' f'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 6,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  }
+ ]
+}

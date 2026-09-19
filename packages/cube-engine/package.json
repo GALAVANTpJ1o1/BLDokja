@@ -12,6 +12,10 @@
     "./prng": {
       "types": "./dist/random/prng.d.ts",
       "import": "./dist/random/prng.js"
+    },
+    "./cfop-data": {
+      "types": "./dist/cfop/schema.d.ts",
+      "import": "./dist/cfop/schema.js"
     }
   },
   "files": [

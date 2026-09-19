@@ -1,0 +1,218 @@
+{
+ "format": "bld-platform/curated-cases",
+ "version": 1,
+ "stage": "co",
+ "provenance": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine",
+ "cases": [
+  {
+   "id": "co_antisune",
+   "name": "Anti-Sune",
+   "group": "Corner orientation",
+   "aliases": [
+    "Anti-Sune",
+    "antisune"
+   ],
+   "state": {
+    "co": [
+     1,
+     0,
+     1,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R' U' R U' R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_h",
+   "name": "H",
+   "group": "Corner orientation",
+   "aliases": [
+    "H",
+    "h"
+   ],
+   "state": {
+    "co": [
+     1,
+     2,
+     1,
+     2
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U' R' U R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 11,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_l",
+   "name": "L",
+   "group": "Corner orientation",
+   "aliases": [
+    "L",
+    "l"
+   ],
+   "state": {
+    "co": [
+     0,
+     2,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "F R' F' r U R U' r'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_pi",
+   "name": "Pi",
+   "group": "Corner orientation",
+   "aliases": [
+    "Pi",
+    "pi"
+   ],
+   "state": {
+    "co": [
+     2,
+     1,
+     1,
+     2
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U2 R2 U' R2 U' R2 U2 R",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_sune",
+   "name": "Sune",
+   "group": "Corner orientation",
+   "aliases": [
+    "Sune",
+    "sune"
+   ],
+   "state": {
+    "co": [
+     2,
+     2,
+     2,
+     0
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R U R' U R U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 7,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_t",
+   "name": "T",
+   "group": "Corner orientation",
+   "aliases": [
+    "T",
+    "t"
+   ],
+   "state": {
+    "co": [
+     0,
+     0,
+     2,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "r U R' U' r' F R F'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 8,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  },
+  {
+   "id": "co_u",
+   "name": "U",
+   "group": "Corner orientation",
+   "aliases": [
+    "U",
+    "u"
+   ],
+   "state": {
+    "co": [
+     2,
+     0,
+     0,
+     1
+    ]
+   },
+   "algs": {
+    "2H": {
+     "alg": "R2 D R' U2 R D' R' U2 R'",
+     "preAuf": "",
+     "postAuf": "",
+     "moves": 9,
+     "endingRotation": "",
+     "source": "Owner-supplied algorithm table (BLDokja polishing brief, 2026-09-19), transcribed and verified against the cube engine"
+    }
+   },
+   "missing": [
+    "OH"
+   ]
+  }
+ ]
+}
