@@ -17,8 +17,18 @@ const LESSON = "/learn/cycle-breaks/";
 /** The lesson scramble that showed one lone green sticker and grey centres. */
 const NET_NAME = /Trace the corners through a break\. Scramble: R' B2 R U2 B2 U2 R/;
 
+/**
+ * Opens a lesson the way a first-time reader meets it: the lesson asks how it should talk, in a modal
+ * that blocks the page until answered (it is remembered per browser, so a fresh test context sees it).
+ */
+async function openLesson(page: Page, path: string): Promise<void> {
+  await page.goto(path);
+  const plain = page.getByRole("dialog").getByRole("button", { name: /^Plain and precise/ });
+  if (await plain.waitFor({ state: "visible", timeout: 10_000 }).then(() => true, () => false)) await plain.click();
+}
+
 async function figureFor(page: Page) {
-  await page.goto(LESSON);
+  await openLesson(page, LESSON);
   const net = page.getByRole("img", { name: NET_NAME });
   await expect(net).toBeVisible();
   return { net, figure: page.locator("figure", { has: net }) };
@@ -64,7 +74,7 @@ test("the 3D player lights the same nine stickers: the buffer corner's three and
 });
 
 test("a wrong letter in the guided trace says what was typed as well as what was right", async ({ page }) => {
-  await page.goto(LESSON);
+  await openLesson(page, LESSON);
   const input = page.getByLabel("Target 1").first();
   await input.fill("z");
   await input.press("Enter");
@@ -72,8 +82,10 @@ test("a wrong letter in the guided trace says what was typed as well as what was
 });
 
 test("a wrong memo at the checkpoint is set against the right letters, target by target", async ({ page }) => {
-  await page.goto("/learn/memo-time/");
+  await openLesson(page, "/learn/memo-time/");
   const checkpoint = page.getByRole("region", { name: /Checkpoint: / }).first();
+  // A checkpoint builds its questions only once it is near the screen, so bring it there first.
+  await checkpoint.scrollIntoViewIfNeeded();
   const input = checkpoint.getByLabel("Letters");
   await input.fill("zzz");
   await checkpoint.getByRole("button", { name: "Check", exact: true }).click();

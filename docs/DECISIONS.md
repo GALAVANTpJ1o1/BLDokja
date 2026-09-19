@@ -1694,7 +1694,7 @@ Found on the live site while checking client-side navigation from the built-in b
 
 ## D-077 · A highlighted piece shows all its colours, centres never fade, and a wrong memo shows what was typed
 
-**Status:** fixed and deployed (2026-09-19); unit tests and a new e2e spec (`e2e/highlight-and-memo.spec.ts`) written; the spec has not been run by the owner yet.
+**Status:** fixed and deployed (2026-09-19, deployment `e1e8c563`); unit tests, and a new e2e spec (`e2e/highlight-and-memo.spec.ts`) that the owner has not run yet. Verified by hand on the live site instead: see the end of this entry.
 
 **Reported.** On the "Tracing a cycle" lesson (scramble `R' B2 R U2 B2 U2 R`, buffer UBL) the cube showed one lone green sticker on an otherwise grey cube, centres included, and asked where it belongs. One colour of a corner fits four positions (green alone could be I, J, K or L); only all of its colours say which piece it is. The owner asked for every centre to stay coloured, every highlighted corner or edge to show all its colours, and for this to hold everywhere, not only in lessons.
 
@@ -1712,3 +1712,7 @@ Found on the live site while checking client-side navigation from the built-in b
 - `compareLetters` sits beside `gradeLetters` and reads the typed text identically; a randomised test checks it finds a difference exactly when grading says the answer is wrong.
 - The per-target guided messages (lesson walk-through, practice trace trainer, 4-BLD trace drill and its lesson) now name the letter you typed: "Not quite: you typed J, it's K."
 - Not compared target by target: 4x4x4 x-centre traces, which accept any walk that solves them, so there is no one sequence to line up against. They show what was typed and one right answer.
+
+**Verified on the live site** (built-in browser, on the deployment's own hostname so no cached service worker): on lesson 7's corner trace with the reported scramble, the net has nine cells at full strength (the buffer corner's yellow, green and red plus the six centres), forty-five faded and one ring; the 3D player's scene has exactly one corner piece with all three facelets lit (yellow, green, red), all 24 centre facelets lit, and no edge lit, the same `{CORNERS: 3, EDGES: 0, CENTERS: 24}` the e2e asserts. The prompt names the face ("Take its sticker on the Up face…"). A wrong letter answers "Not quite: you typed Z, it's K. Type K to go on." A wrong checkpoint memo of ten letters against a six-target answer produced two tables (targets 1 to 6 and 7 to 10), a cross on every typed letter, "no target" where the right answer had ended, and the first-difference sentence; at 320px the page has no sideways overflow.
+
+**Two things worth knowing about checking the live site from the built-in browser** (neither is an app fault; the same flow behaves identically on the previous deployment): a lesson's checkpoint and every 3D cube build only when they intersect the viewport, and a hidden pane delivers no intersection callbacks until a real scroll or click, so use the pane's own scroll and click actions rather than script `.click()`; and a fresh hostname shows the lesson voice picker, a modal that blocks everything until answered.
