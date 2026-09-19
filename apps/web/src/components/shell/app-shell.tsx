@@ -8,7 +8,8 @@ import { contact } from "@/i18n/contact";
 import { en } from "@/i18n/en";
 import { explore } from "@/i18n/explore";
 import { privacy } from "@/i18n/privacy";
-import { SiteGuide } from "./site-guide";
+import { GuideButton } from "@/components/guide/guide-button";
+import { PageGuide } from "@/components/guide/page-guide";
 import { NavigationCube } from "@/components/cube/navigation-cube";
 import { redesign } from "@/i18n/redesign";
 
@@ -43,19 +44,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="shell-identity"><NavigationCube signal={pathname} /><Link href="/" className="shell-brand">
           <span>{en.site.name}</span>
         </Link></div>
-        <div className="shell-actions"><nav className="shell-nav" aria-label={en.nav.label}>{links}</nav><SiteGuide /></div>
+        <div className="shell-actions"><nav className="shell-nav" aria-label={en.nav.label} data-guide="nav">{links}</nav><GuideButton /></div>
       </header>
 
       <main id="content" className="page-content shell-main">
         {pathname !== "/" ? <Link className="shell-back" href={pathname.startsWith("/practice/") && pathname !== "/practice/" ? "/practice/" : pathname.startsWith("/learn/") && pathname !== "/learn/" ? "/learn/" : "/"}><ArrowLeftIcon size={15} aria-hidden />{pathname.startsWith("/practice/") && pathname !== "/practice/" ? explore.backPractice : pathname.startsWith("/learn/") && pathname !== "/learn/" ? explore.backLearn : explore.backHome}</Link> : null}
         {children}
-        <SiteGuide invitation />
         <footer className="shell-footer"><span><CubeIcon size={18} weight="light" aria-hidden />{redesign.footer}</span><span>{redesign.footerNote}</span><span><Link href="/contact/">{contact.title}</Link>{" · "}<Link href="/privacy/">{privacy.title}</Link></span></footer>
       </main>
 
-      <nav aria-label={en.nav.label} className="shell-bottom">
+      <nav aria-label={en.nav.label} className="shell-bottom" data-guide="nav">
         {links}
       </nav>
+      <PageGuide />
     </div>
   );
 }

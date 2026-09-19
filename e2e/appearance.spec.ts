@@ -39,41 +39,6 @@ test("colourways, scenery and compact layout persist independently of sticker co
   expect(errors).toEqual([]);
 });
 
-test("guide saves its step, handles Back and Escape, and can be replayed", async ({ page }, info) => {
-  const errors: string[] = []; page.on("pageerror", e => errors.push(e.message));
-  page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
-  await page.goto("/practice/");
-  const trigger = page.getByRole("button", { name: "Site guide", exact: true });
-  await expect(trigger).toHaveAttribute("autocomplete", "off");
-  await trigger.click();
-  const dialog = page.getByRole("dialog", { name: "Site guide", exact: true });
-  await expect(dialog.getByText("Step 1 of 6", { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "Next", exact: true }).click();
-  await expect(dialog.getByText("Step 2 of 6", { exact: true })).toBeVisible();
-  expect((await dialog.getByRole("button", { name: "Restart guide", exact: true }).boundingBox())?.height).toBeGreaterThanOrEqual(44);
-  await dialog.getByRole("button", { name: "Next", exact: true }).click();
-  await expect(dialog.getByText("Step 3 of 6", { exact: true })).toBeVisible();
-  await page.evaluate(async () => { await document.fonts.ready; });
-  const panel = dialog.locator(".transmission-panel");
-  expect(await panel.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  await dialog.getByRole("button", { name: "Close guide", exact: true }).scrollIntoViewIfNeeded();
-  await expect(dialog.getByRole("button", { name: "Close guide", exact: true })).toBeInViewport({ ratio: 1 });
-  await panel.evaluate(node => { node.scrollTop = 0; });
-  await page.screenshot({ path: `.artifacts/guide-${info.project.name}.png`, scale: "css", animations: "disabled" });
-  await dialog.getByRole("button", { name: "Previous", exact: true }).click();
-  await expect(dialog.getByText("Step 2 of 6", { exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(dialog).not.toBeVisible(); await expect(trigger).toBeFocused();
-  await page.reload(); await trigger.click();
-  await expect(dialog.getByText("Step 2 of 6", { exact: true })).toBeVisible();
-  await dialog.getByRole("button", { name: "Restart guide", exact: true }).click();
-  await expect(dialog.getByText("Step 1 of 6", { exact: true })).toBeVisible();
-  await dialog.getByRole("link", { name: "Open the learning path", exact: true }).click();
-  await expect(page).toHaveURL(/\/learn\/$/); await expect(dialog).not.toBeVisible();
-  expect(errors).toEqual([]);
-});
-
 test("reduced-motion scenery remains still on scroll", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/settings/");

@@ -1,0 +1,115 @@
+/*
+ * The page guide (docs/DECISIONS.md D-078): a full-screen modal <dialog> that fades the page back, cuts a
+ * ring around one area, and puts a card beside it. Designed in Figma ("BLDokja page guide") from the site's
+ * own tokens, so it follows every colour theme and both light and dark.
+ *
+ * No entrance animation: it appears in response to you opening it, and moving between steps is an instant
+ * jump to the next area, which already shows what changed.
+ */
+@layer components {
+  .guide-layer {
+    --guide-panel: color-mix(in srgb, var(--ground) 92%, var(--text));
+    --guide-line: color-mix(in srgb, var(--text) 38%, transparent);
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    overflow: hidden;
+  }
+  .guide-layer::backdrop { background: transparent; }
+
+  /* The spotlight: the box-shadow's huge spread is the veil, so the inside stays clear. A ring, not just
+     a brightness change, marks the area for anyone who can't rely on contrast. */
+  .guide-spot {
+    position: fixed;
+    border-radius: 16px;
+    pointer-events: none;
+    box-shadow:
+      0 0 0 2px var(--text),
+      0 0 18px 2px color-mix(in srgb, var(--text) 22%, transparent),
+      0 0 0 100vmax color-mix(in srgb, var(--ground) 76%, transparent);
+  }
+
+  .guide-card {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: calc(100vw - 24px);
+    padding: 18px 20px 20px;
+    background: var(--guide-panel);
+    border: 1px solid var(--guide-line);
+    border-radius: var(--radius-panel, 12px);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
+  }
+  /* On a phone the card is a sheet along the bottom (above the home indicator), so it never covers the
+     highlighted area, which the page has been scrolled to keep above it. */
+  .guide-card[data-mode="sheet"] {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+  }
+  /* A target pinned to the bottom of the screen (the tab bar) would sit under a bottom sheet, so it docks on top. */
+  .guide-card[data-mode="sheet"][data-dock="top"] {
+    top: max(12px, env(safe-area-inset-top));
+    bottom: auto;
+  }
+
+  .guide-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .guide-step { font-size: 0.78rem; line-height: 1.55; font-weight: 500; color: var(--text-quiet); }
+  .guide-skip {
+    margin: -0.55rem -0.5rem;
+    min-height: 44px;
+    padding: 0 0.5rem;
+    border: 0;
+    background: none;
+    color: var(--text-quiet);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .guide-skip:hover { color: var(--text); }
+  .guide-skip:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+  .guide-copy { display: flex; flex-direction: column; gap: 8px; }
+  .guide-title { margin: 0; font-size: 1.125rem; line-height: 1.3; font-weight: 650; letter-spacing: -0.015em; }
+  .guide-body { margin: 0; font-size: 0.9rem; line-height: 1.6; font-weight: 420; overflow-wrap: anywhere; }
+
+  .guide-progress { display: flex; align-items: center; gap: 6px; }
+  .guide-pip { display: block; width: 6px; height: 6px; border-radius: 3px; background: var(--rule); }
+  .guide-pip[data-state="seen"] { background: var(--text-quiet); }
+  .guide-pip[data-state="current"] { width: 20px; background: var(--text); }
+
+  .guide-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* The arrow is a rotated square whose two outer borders meet at its point; its inner half sits on the
+     card, in the card's own colour, so the join looks seamless. */
+  .guide-arrow {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--guide-panel);
+    border: 1px solid var(--guide-line);
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  .guide-card[data-side="bottom"] > .guide-arrow { top: -8px; left: calc(var(--guide-arrow) - 8px); border-right-color: transparent; border-bottom-color: transparent; }
+  .guide-card[data-side="top"] > .guide-arrow { bottom: -8px; left: calc(var(--guide-arrow) - 8px); border-left-color: transparent; border-top-color: transparent; }
+  .guide-card[data-side="right"] > .guide-arrow { left: -8px; top: calc(var(--guide-arrow) - 8px); border-right-color: transparent; border-top-color: transparent; }
+  .guide-card[data-side="left"] > .guide-arrow { right: -8px; top: calc(var(--guide-arrow) - 8px); border-left-color: transparent; border-bottom-color: transparent; }
+
+  /* The header button that reopens the guide. */
+  .guide-button { gap: 0.5rem; }
+}
