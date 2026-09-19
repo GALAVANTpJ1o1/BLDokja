@@ -14,6 +14,9 @@ let signedIn = false;
 // What the account's profile says, and what the form tried to write back; both reset after each test.
 let storedLeaderboard: { optIn: boolean; displayName: string } | undefined = { optIn: false, displayName: "solver-000000" };
 const leaderboardSaves: [boolean, string | undefined][] = [];
+// When set, signUp() flips the auth state at once but only returns when the test says so, as the real
+// one does (it keeps working after the session exists: recovery code, timezone).
+const heldSignUp: { hold: boolean; release?: () => void } = { hold: false };
 const rerenders = new Set<() => void>();
 
 vi.mock("@/components/account/account-provider", () => ({
@@ -26,7 +29,9 @@ vi.mock("@/components/account/account-provider", () => ({
     signUp: () => {
       signedIn = true; // the auth state change lands before the sign-up call returns to the form
       rerenders.forEach((rerender) => { rerender(); });
-      return Promise.resolve({ userId: "u1", recoveryCode: "ABCDEFGHJK" });
+      const result = { userId: "u1", recoveryCode: "ABCDEFGHJK" };
+      if (!heldSignUp.hold) return Promise.resolve(result);
+      return new Promise<typeof result>((resolve) => { heldSignUp.release = () => { resolve(result); }; });
     },
     signIn: () => {
       signedIn = true;
@@ -68,6 +73,8 @@ afterEach(() => {
   signedIn = false;
   storedLeaderboard = { optIn: false, displayName: "solver-000000" };
   leaderboardSaves.length = 0;
+  heldSignUp.hold = false;
+  heldSignUp.release = undefined;
 });
 
 describe("AccountView post-auth flow", () => {
@@ -80,6 +87,25 @@ describe("AccountView post-auth flow", () => {
 
     await waitFor(() => { expect(screen.getByText("post-auth:ABCDEFGHJK")).toBeTruthy(); });
     // ...and not the signed-in page underneath it.
+    expect(screen.queryByText("Sync status")).toBeNull();
+  });
+
+  it("does not flash the signed-in page while sign-up is still finishing (D-076)", async () => {
+    heldSignUp.hold = true;
+    render(<Harness />);
+    fireEvent.click(screen.getByRole("button", { name: "Need an account? Create one" }));
+    fireEvent.change(screen.getByLabelText("Username"), { target: { value: "ana" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "long-enough-password" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+
+    // The session exists and the app knows it, but the sign-up call has not returned: the reader must
+    // not see the signed-in page here only to have a dialog replace it a moment later.
+    await waitFor(() => { expect(heldSignUp.release).toBeDefined(); });
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(screen.queryByText("Sync status")).toBeNull();
+
+    heldSignUp.release?.();
+    await waitFor(() => { expect(screen.getByText("post-auth:ABCDEFGHJK")).toBeTruthy(); });
     expect(screen.queryByText("Sync status")).toBeNull();
   });
 

@@ -95,9 +95,14 @@ async function finishPostAuth(page: Page): Promise<void> {
   // unless they are exercising it on purpose.
   const skip = page.getByRole("button", { name: "Skip for now" });
   const signedIn = page.getByText("Signed in as");
-  await expect(skip.or(signedIn)).toBeVisible({ timeout: 30_000 });
-  if (await skip.isVisible()) await skip.click();
-  await expect(signedIn).toBeVisible({ timeout: 30_000 });
+  // Retried as a unit, not "see the button, then check it, then click": the dialog can appear a moment
+  // after the auth call returns, and a separate isVisible() between the wait and the click sees whatever
+  // the page is showing at that instant. The fourth real run lost a cleanup to exactly that, waiting 30
+  // seconds beside a dialog nobody clicked (D-076). click() itself waits for the button.
+  await expect(async () => {
+    if (await skip.isVisible()) await skip.click();
+    await expect(signedIn).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
 }
 
 async function signUp(page: Page, username: string): Promise<string> {

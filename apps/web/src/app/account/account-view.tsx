@@ -62,7 +62,7 @@ function RecoveryCodeReveal({ code, onDone }: { code: string; onDone: () => void
   );
 }
 
-function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthState) => void }) {
+function SignedOutView({ onAuthenticating, onAuthenticated }: { onAuthenticating: (inFlight: boolean) => void; onAuthenticated: (next: PostAuthState) => void }) {
   const { signUp, signIn, redeemRecoveryCode } = useAccount();
   const [mode, setMode] = useState<"sign-in" | "sign-up" | "forgot">("sign-in");
   const [username, setUsername] = useState("");
@@ -76,6 +76,7 @@ function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthSt
   async function submitSignIn() {
     setBusy(true);
     setError(undefined);
+    onAuthenticating(true);
     try {
       // Defers AccountProvider's own SIGNED_IN reload so PostAuthFlow's migration prompt (if this
       // browser has guest data) gets to run and be seen first; PostAuthFlow itself reloads once done.
@@ -86,12 +87,14 @@ function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthSt
       setError(messageFor(err));
     } finally {
       setBusy(false);
+      onAuthenticating(false);
     }
   }
 
   async function submitSignUp() {
     setBusy(true);
     setError(undefined);
+    onAuthenticating(true);
     try {
       deferNextAccountReload(); // Same reasoning as submitSignIn, plus the recovery-code reveal itself.
       const result = await signUp(username, password);
@@ -100,6 +103,7 @@ function SignedOutView({ onAuthenticated }: { onAuthenticated: (next: PostAuthSt
       setError(messageFor(err));
     } finally {
       setBusy(false);
+      onAuthenticating(false);
     }
   }
 
@@ -447,8 +451,14 @@ export function AccountView() {
   // and migration prompt have been seen, which swaps SignedOutView for SignedInView. State kept in the
   // component being swapped out was thrown away with it, so the one-time recovery code never appeared.
   const [postAuth, setPostAuth] = useState<PostAuthState | undefined>(undefined);
+  // True from pressing Sign in / Create account until that call returns. The session exists (and
+  // `signedIn` is true) some way before then, because the call goes on to set the recovery code and the
+  // time zone; showing the signed-in page for that stretch and then replacing it with the recovery code
+  // or migration dialog made the page flash and, in the e2e run, briefly looked like a finished sign-in
+  // (docs/DECISIONS.md D-076). The form stays up, busy, until the dialog can take over.
+  const [authInFlight, setAuthInFlight] = useState(false);
   if (!configured) return <Section title={account.account.title}><p className="t-body">{account.notConfigured}</p></Section>;
   if (!ready) return null;
   if (postAuth !== undefined) return <PostAuthFlow recoveryCode={postAuth.recoveryCode} />;
-  return signedIn ? <SignedInView /> : <SignedOutView onAuthenticated={setPostAuth} />;
+  return signedIn && !authInFlight ? <SignedInView /> : <SignedOutView onAuthenticating={setAuthInFlight} onAuthenticated={setPostAuth} />;
 }
