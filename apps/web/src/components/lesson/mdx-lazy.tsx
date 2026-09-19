@@ -24,6 +24,9 @@ function deferred<P extends object>(load: () => Promise<ComponentType<P>>): (pro
 }
 
 export const Buffer = deferred(() => import("./inline").then((m) => m.Buffer));
+export const CaseCards = deferred(() => import("./cfop-demos").then((m) => m.CaseCards));
+export const F2LReference = deferred(() => import("./cfop-demos").then((m) => m.F2LReference));
+export const PracticeLink = deferred(() => import("./cfop-demos").then((m) => m.PracticeLink));
 export const Checkpoint = deferred(() => import("./checkpoint").then((m) => m.Checkpoint));
 export const CommCase = deferred(() => import("./extra-demos").then((m) => m.CommCase));
 export const CommParts = deferred(() => import("./comm-parts").then((m) => m.CommParts));
@@ -36,7 +39,6 @@ export const FourSolve = deferred(() => import("./four-bld-demos").then((m) => m
 export const FourTrace = deferred(() => import("./four-bld-demos").then((m) => m.FourTrace));
 export const IllegalSetup = deferred(() => import("./op-demos").then((m) => m.IllegalSetup));
 export const Letter = deferred(() => import("./inline").then((m) => m.Letter));
-export const LastLayerExplorer = deferred(() => import("./last-layer-explorer").then((m) => m.LastLayerExplorer));
 export const M2Shot = deferred(() => import("./extra-demos").then((m) => m.M2Shot));
 export const M2Tempting = deferred(() => import("./extra-demos").then((m) => m.M2Tempting));
 export const MoveExplorer = deferred(() => import("./move-explorer").then((m) => m.MoveExplorer));

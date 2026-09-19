@@ -6,7 +6,9 @@ import { VOICES } from "@bld/storage/options";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useSettings } from "@/components/settings/settings-provider";
 import { TransitionLink } from "@/components/transitions/transition-link";
+import { ProfileScope } from "@/components/cube/profile-scope";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { profileForTrack } from "@bld/cube-engine/cfop-data";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import type { LessonFrontmatter } from "@/content/lessons/schema";
 import { en } from "@/i18n/en";
@@ -90,17 +92,18 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
   const next = track[track.findIndex((l) => l.id === frontmatter.id) + 1];
 
   return (
+    <ProfileScope profile={profileForTrack(frontmatter.track)}>
     <ReaderOverridesContext.Provider value={overrides}>
     <LessonMetaContext.Provider value={{ lessonId: frontmatter.id, checkpoints: frontmatter.checkpoints }}>
       <LessonVoiceContext.Provider value={chosen}>
         <article className="lesson-article flex flex-col gap-8">
-          <header className="lesson-header flex flex-col gap-3">
+          <header className="lesson-header flex flex-col gap-3" data-guide="lesson-header">
             <Breadcrumbs trail={[{ label: en.nav.learn, href: "/learn/" }, { label: frontmatter.title, href: `/learn/${frontmatter.id}/` }]} />
             <p className="t-meta text-quiet">{frontmatter.order}. · {en.lesson.minutes(frontmatter.estimatedMinutes)}</p>
             <h1 className="t-title">{frontmatter.title}</h1>
             {stored?.lessonPositions?.[frontmatter.id] !== undefined ? <a className="text-link self-start t-meta" href={`#${stored.lessonPositions[frontmatter.id]}`}>{polish.lesson.resume}</a> : null}
             {available.length > 1 ? (
-              <div className="flex flex-wrap items-center gap-2" role="group" aria-label={en.lesson.voice}>
+              <div className="flex flex-wrap items-center gap-2" role="group" aria-label={en.lesson.voice} data-guide="lesson-voice">
                 <span className="t-meta text-quiet">{en.lesson.voice}</span>
                 {available.map((v) => (
                   <button key={v} type="button" className="btn min-h-9 px-3 t-meta" aria-pressed={chosen === v} onClick={() => void update({ voice: v })}>
@@ -165,13 +168,13 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
           </div>
 
           {next !== undefined ? (
-            <nav className="lesson-next" aria-label={en.lesson.nextLesson}>
+            <nav className="lesson-next" aria-label={en.lesson.nextLesson} data-guide="lesson-next">
               <span className="t-meta text-quiet">{en.lesson.nextLesson}</span><TransitionLink href={`/learn/${next.id}/`}><span>{next.title}</span><CaretRightIcon size={20} aria-hidden /></TransitionLink>
             </nav>
           ) : null}
         </article>
 
-        <TransmissionWindow open={ready && settings.voice === undefined && !pickerDismissed} title={voiced.pickerTitle} onClose={() => { setPickerDismissed(true); }}>
+        <TransmissionWindow open={ready && settings.voice === undefined && !pickerDismissed && available.length > 1} title={voiced.pickerTitle} onClose={() => { setPickerDismissed(true); }}>
           <p>{voiced.pickerIntro}</p>
           <div className="flex flex-col gap-3">
             {VOICES.map((v) => (
@@ -185,5 +188,6 @@ export function LessonView({ frontmatter, variants, lessons }: { frontmatter: Le
       </LessonVoiceContext.Provider>
     </LessonMetaContext.Provider>
     </ReaderOverridesContext.Provider>
+    </ProfileScope>
   );
 }

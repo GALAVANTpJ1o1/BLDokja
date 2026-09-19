@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent, type ReactNode } from "react";
+import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useId, useMemo, useRef, useState, type SyntheticEvent, type ReactNode } from "react";
 import { Cube } from "@/components/cube/cube";
 import { netCells } from "@/components/cube/cube-state";
 import { StickerNet } from "@/components/cube/sticker-net";
@@ -27,7 +27,7 @@ const EXTRA_KINDS: readonly string[] = ["m2-setup", "m2-special", "comm-expand",
 const isExtraKind = (kind: string): kind is ExtraKind => EXTRA_KINDS.includes(kind);
 /** The 4BLD kinds (four-bld-checkpoints.ts): letters, traces, parity and r2/U2 setups on a 4x4. */
 type FourKind = "four-letters" | "four-trace" | "four-parity" | "four-setup";
-type Kind = ThreeKind | FourKind | ExtraKind | "quiz";
+type Kind = ThreeKind | FourKind | ExtraKind | "quiz" | "f2l-exercises";
 type Item = CheckpointItem | FourCheckpointItem | LessonItem;
 type DatasetReader = typeof import("@/content/algs").algDatasets;
 const isFourKind = (kind: Kind): kind is FourKind => kind.startsWith("four-");
@@ -165,7 +165,15 @@ function questionFor(item: CheckpointItem): string {
  * engine-checked items for every attempt; `kind="quiz"` wraps <Question> blocks written in the lesson.
  * Passing records `lesson.checkpointPassed`, which marks the lesson done on the path.
  */
-export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", requires = "any", maxTargets = "8", method = "r2", children }: { id: string; kind: Kind; count?: string; pieces?: string; requires?: string; maxTargets?: string; method?: string; children?: ReactNode }) {
+type CheckpointProps = { id: string; kind: Kind; count?: string; pieces?: string; requires?: string; maxTargets?: string; method?: string; children?: ReactNode };
+const F2LExerciseCheckpoint = lazy(() => import("./cfop-demos").then((m) => ({ default: m.F2LExerciseCheckpoint })));
+
+/** The lesson checkpoint. `kind="f2l-exercises"` is the three guided F2L cube exercises; every other kind is the drill below. */
+export function Checkpoint(props: CheckpointProps) {
+  return props.kind === "f2l-exercises" ? <Suspense fallback={null}><F2LExerciseCheckpoint id={props.id} /></Suspense> : <StandardCheckpoint {...props} kind={props.kind} />;
+}
+
+function StandardCheckpoint({ id, kind, count = "8", pieces = "corners edges", requires = "any", maxTargets = "8", method = "r2", children }: { id: string; kind: Exclude<Kind, "f2l-exercises">; count?: string; pieces?: string; requires?: string; maxTargets?: string; method?: string; children?: ReactNode }) {
   const four = isFourKind(kind);
   const reader = useReader();
   const reader4 = useReader4x4(four);
@@ -287,7 +295,7 @@ export function Checkpoint({ id, kind, count = "8", pieces = "corners edges", re
   const neededText = `${Math.ceil(pass * total)} / ${total}`;
 
   return (
-    <section ref={section} className="my-8 flex flex-col gap-4 border-t-2 border-text pt-5" aria-labelledby={`${inputId}-title`}>
+    <section ref={section} className="my-8 flex flex-col gap-4 border-t-2 border-text pt-5" aria-labelledby={`${inputId}-title`} data-guide="lesson-checkpoint">
       <h2 id={`${inputId}-title`} className="t-heading">
         {en.lesson.checkpoint}: {title}
       </h2>

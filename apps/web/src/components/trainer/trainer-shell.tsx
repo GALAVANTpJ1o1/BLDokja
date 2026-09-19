@@ -61,14 +61,14 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
       />
       {readAloud && (!voiceAvailable || speechFailed) ? <p role="status" className="status-line t-meta">{speechFailed ? polish.speech.failed : polish.speech.missing}</p> : null}
       {settings !== undefined ? (
-        <details className="panel trainer-settings">
+        <details className="panel trainer-settings" data-guide="trainer-settings">
           <summary className="cursor-pointer px-4 py-3 t-ui">{en.trainer.settings}</summary>
           <div className="flex flex-col gap-4 border-t border-rule px-4 py-4">{settings}</div>
         </details>
       ) : null}
       {/* The drill keeps its space while the trainer loads, so the page doesn't jump when it arrives. */}
-      <section aria-label={en.trainer.drill} className="trainer-stage min-h-[24rem]">{children}</section>
-      {summary !== undefined ? <section aria-label={en.trainer.summary} className="border-t border-rule pt-4">{summary}</section> : null}
+      <section aria-label={en.trainer.drill} className="trainer-stage min-h-[24rem]" data-guide="trainer-stage">{children}</section>
+      {summary !== undefined ? <section aria-label={en.trainer.summary} className="border-t border-rule pt-4" data-guide="trainer-summary">{summary}</section> : null}
       <TransmissionWindow open={helpOpen} title={en.trainer.keysTitle} onClose={() => { setHelpOpen(false); }}>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
           {shortcuts.map((s) => (
@@ -90,9 +90,9 @@ export function TrainerShell({ title, intro, lesson, settings, children, summary
 }
 
 /** A labelled group of mutually exclusive buttons for trainer settings. */
-export function Segmented<T extends string>({ label, options, labels, value, onChange }: { label: string; options: readonly T[]; labels: Readonly<Record<T, string>>; value: T; onChange: (value: T) => void }) {
+export function Segmented<T extends string>({ label, options, labels, value, onChange, guide }: { label: string; options: readonly T[]; labels: Readonly<Record<T, string>>; value: T; onChange: (value: T) => void; /** The page guide step that points at this control (components/guide/guides.ts). */ guide?: string }) {
   return (
-    <div className="segmented-control" role="group" aria-label={label}>
+    <div className="segmented-control" role="group" aria-label={label} {...(guide === undefined ? {} : { "data-guide": guide })}>
       <span className="t-meta text-quiet">{label}</span>
       {options.map((option) => (
         <button key={option} type="button" className="btn min-h-10 px-3" aria-pressed={value === option} onClick={() => { onChange(option); }}>

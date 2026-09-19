@@ -28,16 +28,22 @@ export function DnfDebugger() {
       firstField.current?.focus();
     }
   };
+  const textField = (field: "scramble" | "memoEdges" | "memoCorners" | "recallEdges" | "recallCorners" | "executed" | "intended") => {
+    const id = `dnf-${field}`;
+    return <label htmlFor={id} key={field} className={`t-ui flex flex-col gap-2 ${field === "scramble" || field === "executed" || field === "intended" ? "md:col-span-2" : ""}`}>{copy.debug[field]}<textarea ref={field === "scramble" ? firstField : undefined} id={id} name={field} aria-invalid={invalid || undefined} aria-describedby={invalid ? "dnf-debug-error" : undefined} className="field mono w-full resize-none" rows={field === "executed" ? 4 : 2} value={input[field]} maxLength={10_000} onChange={(event) => { setInvalid(false); setInput({ ...input, [field]: event.target.value }); }} /></label>;
+  };
   return <div className="flex flex-col gap-8">
     <form noValidate onSubmit={submit} className="flex flex-col gap-5">
-      <label className="t-ui flex flex-col gap-2 max-w-sm">{copy.debug.method}<select className="field" value={method} onChange={(event) => { setMethod(event.target.value as typeof method); }}><option value="op">OP/OP</option><option value="m2">M2/OP</option><option value="threeStyle">3-style</option></select></label>
-      <div className="grid gap-4 md:grid-cols-2">{(["scramble", "memoEdges", "memoCorners", "recallEdges", "recallCorners", "executed", "intended"] as const).map((field) => {
-        const id = `dnf-${field}`;
-        return <label htmlFor={id} key={field} className={`t-ui flex flex-col gap-2 ${field === "scramble" || field === "executed" || field === "intended" ? "md:col-span-2" : ""}`}>{copy.debug[field]}<textarea ref={field === "scramble" ? firstField : undefined} id={id} name={field} aria-invalid={invalid || undefined} aria-describedby={invalid ? "dnf-debug-error" : undefined} className="field mono w-full resize-none" rows={field === "executed" ? 4 : 2} value={input[field]} maxLength={10_000} onChange={(event) => { setInvalid(false); setInput({ ...input, [field]: event.target.value }); }} /></label>;
-      })}</div>
-      <label className="t-body flex gap-3 items-center"><input type="checkbox" checked={input.orientation} onChange={(event) => { setInput({ ...input, orientation: event.target.checked }); }} />{copy.debug.orientation}</label>
-      <label className="t-body flex gap-3 items-center"><input type="checkbox" checked={input.parityOmitted} onChange={(event) => { setInput({ ...input, parityOmitted: event.target.checked }); }} />{copy.debug.parity}</label>
-      <button className="btn btn-strong self-start" type="submit" disabled={reader === undefined}>{copy.debug.action}</button>
+      <div className="flex flex-col gap-5" data-guide="debug-solve">
+        <label className="t-ui flex flex-col gap-2 max-w-sm">{copy.debug.method}<select className="field" value={method} onChange={(event) => { setMethod(event.target.value as typeof method); }}><option value="op">OP/OP</option><option value="m2">M2/OP</option><option value="threeStyle">3-style</option></select></label>
+        <div className="grid gap-4 md:grid-cols-2">{(["scramble", "memoEdges", "memoCorners", "recallEdges", "recallCorners"] as const).map(textField)}</div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2" data-guide="debug-moves">{(["executed", "intended"] as const).map(textField)}</div>
+      <div className="flex flex-col gap-5" data-guide="debug-check">
+        <label className="t-body flex gap-3 items-center"><input type="checkbox" checked={input.orientation} onChange={(event) => { setInput({ ...input, orientation: event.target.checked }); }} />{copy.debug.orientation}</label>
+        <label className="t-body flex gap-3 items-center"><input type="checkbox" checked={input.parityOmitted} onChange={(event) => { setInput({ ...input, parityOmitted: event.target.checked }); }} />{copy.debug.parity}</label>
+        <button className="btn btn-strong self-start" type="submit" disabled={reader === undefined}>{copy.debug.action}</button>
+      </div>
     </form>
     {invalid ? <p id="dnf-debug-error" role="alert" className="status-line">{copy.debug.invalid}</p> : null}
     {result === undefined ? null : <section className="flex flex-col gap-5" aria-label={copy.debug.evidence}>

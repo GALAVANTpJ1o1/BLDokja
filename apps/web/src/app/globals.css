@@ -10,6 +10,8 @@
 @import "../styles/learning.css";
 @import "../styles/workspaces.css";
 @import "../styles/settings.css";
+@import "../styles/guide.css";
+@import "../styles/cfop.css";
 
 @theme inline {
   --color-ground: var(--ground);

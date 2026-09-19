@@ -9,6 +9,7 @@ const STATIC_PATHS = [
   "/practice/big-cubes/", "/practice/debug/", "/practice/difficulty/", "/practice/first-solve/",
   "/practice/levels/", "/practice/m2op/", "/practice/memory/", "/practice/pairs/", "/practice/reference/",
   "/practice/sandbox/", "/practice/speffz/", "/practice/trace/", "/practice/weak/",
+  "/practice/f2l/", "/practice/last-layer/", "/reference/", "/reference/f2l/", "/reference/2look-oll/", "/reference/2look-pll/", "/reference/oll/", "/reference/pll/",
   "/progress/", "/settings/", "/settings/lettering/", "/account/", "/leaderboard/", "/contact/", "/privacy/",
 ] as const;
 

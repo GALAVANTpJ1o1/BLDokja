@@ -21,17 +21,17 @@ export function BigCubes() {
   const [index, setIndex] = useState(0);
   const family: Family = families[stage] ?? "corners";
   return <div className="flex flex-col gap-8">
-    <section className="flex flex-col gap-5"><h2 className="t-heading">{copy.big.compare}</h2>
+    <section className="flex flex-col gap-5" data-guide="big-compare"><h2 className="t-heading">{copy.big.compare}</h2>
       <div className="grid gap-5 md:grid-cols-2"><div><h3 className="t-ui mb-2">{copy.big.three}</h3><Cube label={copy.big.three} /><p className="t-body text-quiet mt-3">{copy.big.unchanged}</p></div><div><h3 className="t-ui mb-2">{copy.big.four}</h3><Cube puzzleId="4x4x4" label={copy.big.four} /><p className="t-body text-quiet mt-3">{copy.big.wings}</p></div></div>
       <div className="flex flex-col gap-3 border-t border-rule pt-4">{[copy.big.centres,copy.big.frame,copy.big.parity].map((text) => <p className="t-body" key={text}>{text}</p>)}</div>
       <Link className="text-link self-start" href="/learn/4x4-what-changes/">{copy.big.open}</Link>
     </section>
     <section className="flex flex-col gap-5 border-t border-rule pt-6" aria-label={copy.big.five}><h2 className="t-heading">{copy.big.five}</h2>
       <p className="status-line t-meta" role="note"><strong className="font-[650]">{copy.big.buildingLabel}:</strong> {copy.big.noSolve}</p>
-      <nav className="step-track" aria-label={copy.big.family}>{families.map((value,position) => <button className="btn" type="button" key={value} aria-pressed={stage === position} onClick={() => { setStage(position); setOpened(false); }}>{copy.big.families[value]}</button>)}</nav>
+      <nav className="step-track" aria-label={copy.big.family} data-guide="big-family">{families.map((value,position) => <button className="btn" type="button" key={value} aria-pressed={stage === position} onClick={() => { setStage(position); setOpened(false); }}>{copy.big.families[value]}</button>)}</nav>
       <h3 className="t-heading">{copy.big.families[family]}</h3><p className="t-body max-w-[65ch]">{copy.big.familyDescriptions[family]}</p>
       <div className="control-row"><button type="button" className="btn" disabled={stage === 0} onClick={() => { setStage((value) => value - 1); setOpened(false); }}>{copy.big.previous}</button><button type="button" className="btn" disabled={stage === families.length - 1} onClick={() => { setStage((value) => value + 1); setOpened(false); }}>{copy.big.next}</button></div>
-      <div className="control-row"><button className="btn" aria-pressed={mode === "recognition"} type="button" onClick={() => { setMode("recognition"); setOpened(true); }}>{copy.big.recognition}</button><button className="btn btn-strong" aria-pressed={mode === "trace"} type="button" onClick={() => { setMode("trace"); setOpened(true); }}>{copy.big.trace}</button></div>
+      <div className="control-row" data-guide="big-practice"><button className="btn" aria-pressed={mode === "recognition"} type="button" onClick={() => { setMode("recognition"); setOpened(true); }}>{copy.big.recognition}</button><button className="btn btn-strong" aria-pressed={mode === "trace"} type="button" onClick={() => { setMode("trace"); setOpened(true); }}>{copy.big.trace}</button></div>
       {opened ? <FamilyDrill key={`${family}:${mode}:${index}`} family={family} mode={mode} index={index} next={() => { setIndex((value) => value + 1); }} /> : <Cube puzzleId="5x5x5" label={copy.big.families[family]} />}
     </section>
   </div>;

@@ -92,7 +92,7 @@ export function SchemeEditor() {
   };
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4" data-guide="lettering-scheme">
       <h2 className="t-heading">{en.scheme.lettering}</h2>
       <p className="t-meta text-quiet">{en.scheme.current(reader.schemeSource === "custom" ? (stored?.scheme?.name ?? en.scheme.defaultName) : en.scheme.speffz)}</p>
       {reader.issues.some((i) => i.kind === "scheme") ? <p className="t-body border-l-2 border-text pl-3" role="alert">{en.scheme.storedInvalid}</p> : null}
@@ -194,7 +194,7 @@ export function BufferPicker() {
   };
 
   return (
-    <section className="flex flex-col gap-4 border-t border-rule pt-6">
+    <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="lettering-buffers">
       <h2 className="t-heading">{en.scheme.buffers}</h2>
       <p className="t-body text-quiet">{en.scheme.buffersIntro}</p>
       {reader.issues.flatMap((i) => (i.kind === "buffers" ? [i] : [])).map((i) => (

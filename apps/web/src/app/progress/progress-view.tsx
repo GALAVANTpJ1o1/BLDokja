@@ -3,6 +3,7 @@
 import { activityDays, attemptsOf, heatCells, legacyMemoSummary, LOOKUP_KINDS, MIN_SAMPLES, streaks, traceDiagnostics, trend, type Attempt, type LegacyMemoLike } from "@bld/analytics";
 import { useMemo, useState } from "react";
 import { BarRows, HeatGrid, TrendChart, type HeatDatum } from "@/components/charts/charts";
+import { CfopProgress } from "@/components/cfop/cfop-progress";
 import { useSettings } from "@/components/settings/settings-provider";
 import { Segmented } from "@/components/trainer/trainer-shell";
 import { TransitionLink } from "@/components/transitions/transition-link";
@@ -57,7 +58,7 @@ export function ProgressView() {
       <p className="t-meta text-quiet">{polish.scramble.provisional}</p>
       <TransitionLink className="text-link self-start" href="/practice/levels/">{workspaces.levels.stats}</TransitionLink>
       <div className="progress-overview flex flex-col gap-4">
-        <Segmented<Range> label={en.analytics.range} options={["30", "90", "all"]} labels={en.analytics.ranges} value={range} onChange={setRange} />
+        <Segmented<Range> guide="progress-period" label={en.analytics.range} options={["30", "90", "all"]} labels={en.analytics.ranges} value={range} onChange={setRange} />
         <p className="t-body">
           {en.analytics.attempts(attempts.length)} · {en.analytics.days(days)}
           {attempts.length > 0 ? ` · ${en.analytics.accuracy(Math.round((correct / attempts.length) * 100))}` : ""}
@@ -69,7 +70,7 @@ export function ProgressView() {
 
       <div className="progress-insights"><Diagnostics attempts={attempts} />
 
-      <section className="flex flex-col gap-4 border-t border-rule pt-6">
+      <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="progress-trends">
         <h2 className="t-heading">{en.analytics.trendsTitle}</h2>
         <p className="t-meta text-quiet">{en.analytics.trendsCaption}</p>
         <Segmented<TrainerKey> label={en.analytics.trainer} options={TRAINERS} labels={en.analytics.trainers} value={trainer} onChange={setTrainer} />
@@ -77,6 +78,7 @@ export function ProgressView() {
       </section>
 
       </div>
+      <CfopProgress events={events} />
       <section className="flex flex-col gap-4 border-t border-rule pt-6">
         <Heatmap attempts={attempts} letters={libraryLetters(reader.scheme)} />
       </section>
@@ -128,7 +130,7 @@ export function ProgressView() {
 
       <LegacyMemos events={events} />
 
-      <section className="flex flex-col gap-2 border-t border-rule pt-6">
+      <section className="flex flex-col gap-2 border-t border-rule pt-6" data-guide="progress-data">
         <h2 className="t-heading">{en.analytics.dataTitle}</h2>
         <p className="t-body text-quiet">{en.analytics.dataText}</p>
         <TransitionLink href="/settings/" className="t-body">{en.analytics.dataLink}</TransitionLink>
@@ -170,7 +172,7 @@ function ActivityCalendar({ attempts }: { attempts: readonly Attempt[] }) {
   const levelOf = (n: number): 0 | 1 | 2 | 3 | 4 => (n === 0 ? 0 : n >= maxCount * 0.75 ? 4 : n >= maxCount * 0.5 ? 3 : n >= maxCount * 0.25 ? 2 : 1);
 
   return (
-    <section className="flex flex-col gap-3 border-t border-rule pt-6">
+    <section className="flex flex-col gap-3 border-t border-rule pt-6" data-guide="progress-activity">
       <h2 className="t-heading">{en.analytics.activityTitle}</h2>
       <p className="t-body">{en.analytics.streakSummary(streak.current, streak.longest)}</p>
       {goal?.enabled === true ? (

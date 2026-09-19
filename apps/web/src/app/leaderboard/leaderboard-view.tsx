@@ -63,7 +63,7 @@ function LiveBoards() {
   const rows = loading ? undefined : result.rows;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4" data-guide="leaderboard-table">
       <Segmented<LeaderboardBoard> label={copy.board} options={BOARDS} labels={copy.boards} value={board} onChange={setBoard} />
       <p className="t-meta text-quiet">{copy.boardHints[board]}</p>
       {loading ? <p className="t-body text-quiet">{copy.loading}</p> : rows === undefined ? <p className="t-body">{copy.failed}</p> : <Table rows={rows} />}
@@ -147,7 +147,7 @@ export function LeaderboardView() {
         <h1 className="t-title">{copy.title}</h1>
         <p className="t-body">{copy.intro}</p>
       </header>
-      <Segmented<Tab> label={copy.tab} options={["live", "archive"]} labels={{ live: copy.tabLive, archive: copy.tabArchive }} value={tab} onChange={setTab} />
+      <Segmented<Tab> guide="leaderboard-controls" label={copy.tab} options={["live", "archive"]} labels={{ live: copy.tabLive, archive: copy.tabArchive }} value={tab} onChange={setTab} />
       {tab === "live" ? <LiveBoards /> : <ArchiveBoard />}
       <p className="t-meta text-quiet"><TransitionLink href="/account/" className="text-link">{copy.optInHint}</TransitionLink> · <TransitionLink href="/progress/" className="text-link">{en.nav.progress}</TransitionLink></p>
     </div>

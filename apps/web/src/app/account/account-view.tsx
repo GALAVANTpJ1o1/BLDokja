@@ -30,9 +30,9 @@ function messageFor(error: unknown): string {
   return error instanceof AccountError ? errorText(error.code) : account.errors.unknown;
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, children, guide }: { title: string; children: ReactNode; /** The page guide step that points at this section (components/guide/guides.ts). */ guide?: string }) {
   return (
-    <section className="settings-section">
+    <section className="settings-section" {...(guide === undefined ? {} : { "data-guide": guide })}>
       <h2 className="t-heading">{title}</h2>
       {children}
     </section>
@@ -130,7 +130,7 @@ function SignedOutView({ onAuthenticating, onAuthenticated }: { onAuthenticating
   }
 
   return (
-    <Section title={mode === "sign-up" ? account.signUp.title : mode === "forgot" ? account.forgotPassword.title : account.signIn.title}>
+    <Section guide="account-form" title={mode === "sign-up" ? account.signUp.title : mode === "forgot" ? account.forgotPassword.title : account.signIn.title}>
       <p className="t-body">{account.guestBanner}</p>
 
       {mode === "forgot" ? (
@@ -159,7 +159,7 @@ function SignedOutView({ onAuthenticating, onAuthenticated }: { onAuthenticating
           {error !== undefined ? <p role="alert" className="t-body">{error}</p> : null}
           {status !== undefined ? <p role="status" className="t-body">{status}</p> : null}
           <button type="submit" className="btn btn-strong" disabled={busy}>{mode === "sign-up" ? account.signUp.submit : account.signIn.submit}</button>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1" data-guide="account-switch">
             <button type="button" className="btn" onClick={() => { setMode(mode === "sign-up" ? "sign-in" : "sign-up"); setError(undefined); }}>
               {mode === "sign-up" ? account.signUp.switchToSignIn : account.signIn.switchToSignUp}
             </button>
@@ -218,7 +218,7 @@ function SyncStatusSection() {
   const pending = conflicts.filter((c) => !resolvedIds.has(c.id));
 
   return (
-    <Section title={account.sync.title}>
+    <Section guide="account-sync" title={account.sync.title}>
       <p className="t-body" role="status">{statusText(status)}</p>
       <p className="t-meta text-quiet">{lastSyncedAt !== undefined ? account.sync.lastSynced(new Date(lastSyncedAt).toLocaleTimeString("en-GB")) : account.sync.neverSynced}</p>
       <button type="button" className="btn" onClick={syncNow}>{status === "failed" ? account.sync.retry : account.sync.syncNow}</button>
@@ -285,7 +285,7 @@ function LeaderboardSection() {
   }
 
   return (
-    <Section title={account.account.leaderboards.title}>
+    <Section guide="account-leaderboards" title={account.account.leaderboards.title}>
       {loaded === undefined ? <p className="t-body" role="status">{account.account.leaderboards.loading}</p> : null}
       {loaded === "unavailable" ? <p className="t-body" role="alert">{account.account.leaderboards.loadFailed}</p> : null}
       <form className="flex flex-col gap-3" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
@@ -408,7 +408,7 @@ function SignedInView() {
         </form>
       </Section>
 
-      <Section title={account.account.recoveryCode.title}>
+      <Section guide="account-recovery" title={account.account.recoveryCode.title}>
         <p className="t-body">{account.account.recoveryCode.body}</p>
         {recoveryError !== undefined ? <p role="alert" className="t-body">{recoveryError}</p> : null}
         <button type="button" className="btn" disabled={recoveryBusy} onClick={() => void doRegenerateRecoveryCode()}>{account.account.recoveryCode.regenerate}</button>
@@ -416,7 +416,7 @@ function SignedInView() {
 
       <LeaderboardSection />
 
-      <Section title={account.account.deleteAccount.title}>
+      <Section guide="account-delete" title={account.account.deleteAccount.title}>
         <p className="t-body">{account.account.exportFirst}</p>
         <p className="t-body">{account.account.deleteAccount.body}</p>
         <p className="t-meta text-quiet">{account.account.localDataIsSeparate} <TransitionLink href="/settings/">{en.nav.settings}</TransitionLink></p>

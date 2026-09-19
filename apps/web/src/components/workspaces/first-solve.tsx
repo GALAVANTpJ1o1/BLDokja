@@ -60,11 +60,13 @@ export function FirstSolve() {
   if (!ready || puzzle === undefined || reader === undefined) return <p role="status">{copy.common.loading}</p>;
   if (run === undefined || run.completedAt !== undefined) return <div className="flex flex-col gap-6">
     {run?.completedAt !== undefined ? <p className="status-line">{copy.first.congratulations}</p> : null}
-    <div className="trainer-surface"><Cube setup={random.scramble ?? ""} label={copy.first.scramble} /><div className="flex flex-col gap-4 self-center">
+    <div className="trainer-surface" data-guide="first-intro"><Cube setup={random.scramble ?? ""} label={copy.first.scramble} /><div className="flex flex-col gap-4 self-center">
       <p>{copy.first.prerequisite}</p><Link className="text-link" href="/learn/what-is-blindfolded-solving/">{copy.first.lesson}</Link>
       <p className="t-meta text-quiet">{copy.first.convention}</p>
-      <ScrambleControls state={random} puzzle={puzzle} />
-      <button type="button" className="btn btn-strong self-start" disabled={random.scramble === undefined || busy} onClick={() => { void start(); }}>{copy.first.start}</button>
+      <div className="flex flex-col gap-4" data-guide="first-begin">
+        <ScrambleControls state={random} puzzle={puzzle} />
+        <button type="button" className="btn btn-strong self-start" disabled={random.scramble === undefined || busy} onClick={() => { void start(); }}>{copy.first.start}</button>
+      </div>
     </div></div>
     {message ? <p role="alert">{message}</p> : null}
   </div>;

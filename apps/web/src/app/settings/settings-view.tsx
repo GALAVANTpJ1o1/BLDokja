@@ -39,9 +39,9 @@ function Choice<T extends string>({ legend, hint, options, labels, value, onChan
   );
 }
 
-function Section({ title, children, className = "" }: { title: string; children: ReactNode; className?: string }) {
+function Section({ title, children, className = "", guide }: { title: string; children: ReactNode; className?: string; /** The page guide step that points at this section. */ guide?: string }) {
   return (
-    <section className={`settings-section ${className}`}>
+    <section className={`settings-section ${className}`} {...(guide === undefined ? {} : { "data-guide": guide })}>
       <h2 className="t-heading">{title}</h2>
       {children}
     </section>
@@ -160,7 +160,7 @@ export function SettingsView() {
       <header className="settings-heading"><h1 className="t-title">{redesign.settingsTitle}</h1><p className="t-body">{redesign.settingsIntro}</p></header>
       <figure className="settings-room"><img src="/images/study-room.webp" width={768} height={1024} alt={redesign.roomAlt} /></figure>
 
-      <Section title={en.settings.appearance} className="settings-appearance">
+      <Section title={en.settings.appearance} className="settings-appearance" guide="settings-appearance">
         <Choice<Theme> legend={en.settings.theme} options={THEMES} labels={en.settings.themes} value={ready ? settings.theme : undefined} onChange={(theme) => void update({ theme })} />
         <AppearanceChoices />
         <Choice<Palette> legend={en.settings.palette} hint={en.settings.paletteHint} options={PALETTES} labels={en.settings.palettes} value={ready ? settings.palette : undefined} onChange={(palette) => void update({ palette })} />
@@ -176,16 +176,16 @@ export function SettingsView() {
         />
       </Section>
 
-      <Section title={polish.offline.title} className="settings-offline"><OfflinePack /></Section>
+      <Section title={polish.offline.title} className="settings-offline" guide="settings-offline"><OfflinePack /></Section>
 
-      <Section title={en.scheme.lettering} className="settings-lettering">
+      <Section title={en.scheme.lettering} className="settings-lettering" guide="settings-lettering">
         <p className="flex flex-col gap-1">
           <TransitionLink href="/settings/lettering/" className="t-ui font-[650]">{en.scheme.link}</TransitionLink>
           <span className="t-body text-quiet">{en.scheme.linkHint}</span>
         </p>
       </Section>
 
-      <Section title={en.analytics.dailyGoal.title} className="settings-daily-goal">
+      <Section title={en.analytics.dailyGoal.title} className="settings-daily-goal" guide="settings-goal">
         <label className="flex items-center gap-2"><input type="checkbox" checked={goalEnabled} onChange={(e) => { toggleGoal(e.target.checked); }} />{en.analytics.dailyGoal.enable}</label>
         {goalEnabled ? (
           <label className="flex flex-col gap-2 max-w-48">
@@ -196,7 +196,7 @@ export function SettingsView() {
         <p className="t-meta text-quiet">{en.analytics.dailyGoal.hint}</p>
       </Section>
 
-      <Section title={en.settings.data} className="settings-data">
+      <Section title={en.settings.data} className="settings-data" guide="settings-data">
         <p className="t-body">{en.settings.dataIntro}</p>
         <p className="t-meta text-quiet">{persistence}</p>
         <div className="flex flex-col gap-2">

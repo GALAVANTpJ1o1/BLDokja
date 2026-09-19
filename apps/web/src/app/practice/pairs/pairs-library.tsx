@@ -75,6 +75,7 @@ export function PairsLibrary() {
   return shell(
     <div className="flex flex-col gap-6">
       <Segmented<Tab>
+        guide="pairs-views"
         label={en.pairs.tab}
         options={TABS}
         labels={en.pairs.tabs}

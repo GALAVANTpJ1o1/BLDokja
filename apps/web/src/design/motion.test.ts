@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runPageTransition, transitionKind, TRAVEL_DURATION_MS, TRAVEL_MAX_SCALE, type TransitionDocument } from "@/components/transitions/page-transition";
-import { prefersReducedMotion, stampMotionPreference, type MotionEnvironment } from "./motion";
+import { MOTION_MS, prefersReducedMotion, stampMotionPreference, type MotionEnvironment } from "./motion";
 
 // Normalised, so the checks don't depend on git's line-ending conversion.
 const css = readFileSync(join(import.meta.dirname, "..", "app", "globals.css"), "utf8").replaceAll("\r\n", "\n");
@@ -119,5 +119,12 @@ describe("the stylesheet collapses motion under reduced motion, by media query a
   it("the fade fallback is a cross-fade, never a hard cut", () => {
     expect(css).toMatch(/html\[data-transition="fade"\]::view-transition-old\(root\) \{ animation: plain-fade-out 160ms/);
     expect(css).toMatch(/@keyframes plain-fade-in \{\s*from \{ opacity: 0; \}\s*to \{ opacity: 1; \}\s*\}/);
+  });
+});
+
+describe("motion tokens", () => {
+  it("match the CSS duration variables", () => {
+    const tokens = readFileSync(join(import.meta.dirname, "..", "styles", "workbench-tokens.css"), "utf8");
+    for (const [name, ms] of Object.entries(MOTION_MS)) expect(tokens).toContain(`--duration-${name}: ${ms}ms;`);
   });
 });

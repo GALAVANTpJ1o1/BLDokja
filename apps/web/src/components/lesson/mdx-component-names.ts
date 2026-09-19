@@ -1,10 +1,12 @@
 /** The names lesson files may use (kept apart from the components so tests can read it without loading React or cubing.js). */
 export const MDX_COMPONENT_NAMES = [
   "Buffer",
+  "CaseCards",
   "Checkpoint",
   "CommCase",
   "CommParts",
   "Cube",
+  "F2LReference",
   "FourExplorer",
   "FourLetter",
   "FourParity",
@@ -13,7 +15,6 @@ export const MDX_COMPONENT_NAMES = [
   "FourTrace",
   "IllegalSetup",
   "Letter",
-  "LastLayerExplorer",
   "M2Shot",
   "M2Tempting",
   "Moves",
@@ -22,6 +23,7 @@ export const MDX_COMPONENT_NAMES = [
   "OpShot",
   "Option",
   "ParityAlg",
+  "PracticeLink",
   "Question",
   "SolveWalkthrough",
   "SolveMistake",
@@ -33,4 +35,4 @@ export const MDX_COMPONENT_NAMES = [
 export type MdxComponentName = (typeof MDX_COMPONENT_NAMES)[number];
 
 /** Components that put something the reader can turn, press or answer on the page (BRIEF §6: every lesson needs one). */
-export const INTERACTIVE_COMPONENTS: readonly MdxComponentName[] = ["Cube", "MoveExplorer", "LastLayerExplorer", "SpeffzExplorer", "TraceWalk", "OpShot", "IllegalSetup", "ParityAlg", "SolveWalkthrough", "Checkpoint", "FourExplorer", "FourTrace", "FourShot", "FourParity", "FourSolve", "M2Shot", "M2Tempting", "CommParts", "CommCase", "SolveMistake"];
+export const INTERACTIVE_COMPONENTS: readonly MdxComponentName[] = ["Cube", "MoveExplorer", "SpeffzExplorer", "TraceWalk", "OpShot", "IllegalSetup", "ParityAlg", "SolveWalkthrough", "Checkpoint", "CaseCards", "F2LReference", "FourExplorer", "FourTrace", "FourShot", "FourParity", "FourSolve", "M2Shot", "M2Tempting", "CommParts", "CommCase", "SolveMistake"];

@@ -20,7 +20,7 @@ export default function LearnPage() {
   }));
   return (
     <div className="workspace learning-index flex flex-col gap-10">
-      <header className="learning-intro grid gap-6 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center">
+      <header className="learning-intro grid gap-6 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-center" data-guide="learn-intro">
         <div className="flex flex-col gap-4"><h1 className="t-title">{en.learn.title}</h1><p className="t-body prose-measure">{en.learn.intro}</p><a className="text-link self-start" href="/practice/first-solve/">{workspaces.first.title}</a></div>
         <div className="max-w-sm w-full justify-self-center"><Cube setup="R U R'" label={en.learn.title} /></div>
       </header>

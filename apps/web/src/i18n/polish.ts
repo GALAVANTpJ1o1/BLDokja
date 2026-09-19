@@ -13,8 +13,8 @@ export const polish = {
     provisional: "The automatic ramp and analytics bands are practice heuristics, not calibrated skill scores. You can choose a level yourself.",
   },
   home: {
-    title: "A clear path to your first blind solve.",
-    intro: "Learn with the cube. Build a memo that sticks. Practice until every step feels familiar.",
+    title: "A clear path through blindfolded, CFOP and one-handed cubing.",
+    intro: "Learn with a cube you can turn on the page. Build a memo that sticks. Practise the exact skill you need until every step feels familiar.",
     start: "Start learning", practice: "Choose a drill", first: "First successful solve", firstIntro: "One checked step at a time. Pick up exactly where you left off.",
     cube: "An interactive cube. Drag to inspect all six faces.",
     journey: "Make the next step a small one.",

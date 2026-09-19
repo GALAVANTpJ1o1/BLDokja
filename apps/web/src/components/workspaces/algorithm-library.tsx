@@ -4,7 +4,9 @@ import type { AlgDataset } from "@bld/cube-engine";
 import type { AlgPreference } from "@bld/storage";
 import { useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { Cube } from "@/components/cube/cube";
-import { LastLayerExplorer } from "@/components/lesson/last-layer-explorer";
+import { TransitionLink } from "@/components/transitions/transition-link";
+import { REFERENCE_SHEETS } from "@/content/cfop";
+import { cfop } from "@/i18n/cfop";
 import { useSettings } from "@/components/settings/settings-provider";
 import { algDatasets } from "@/content/algs";
 import { workspaces as copy } from "@/i18n/workspaces";
@@ -22,13 +24,13 @@ export function AlgorithmLibrary() {
   const [family, setFamily] = useState<"cfop" | "comms" | "3bld-parity" | "4bld-parity">("comms");
   const puzzle = family === "4bld-parity" ? "4x4x4" : "3x3x3";
   return <div className="flex flex-col gap-6">
-    <div className="control-row">
+    <div className="control-row" data-guide="alg-filters">
       <label className="t-ui flex items-center gap-2">{copy.algs.puzzle}<output className="field">{puzzle}</output></label>
       <label className="t-ui flex items-center gap-2">{copy.algs.family}<select className="field" value={family} onChange={(event) => { setFamily(event.target.value as typeof family); }}>
         {(["cfop", "comms", "3bld-parity", "4bld-parity"] as const).map((item) => <option value={item} key={item}>{copy.algs.groups[item]}</option>)}
       </select></label>
     </div>
-    {family === "cfop" ? <LastLayerExplorer /> : family === "comms" ? <BlindAlgorithmLibrary /> : <ParityReference family={family} />}
+    {family === "cfop" ? <ul className="tool-grid" data-guide="alg-cfop-sheets">{REFERENCE_SHEETS.map((sheet) => <li key={sheet}><TransitionLink href={`/reference/${sheet}/`} className="tool-link"><h3>{cfop.sheet.title[sheet]}</h3><p>{cfop.sheet.intro[sheet]}</p></TransitionLink></li>)}</ul> : family === "comms" ? <BlindAlgorithmLibrary /> : <ParityReference family={family} />}
   </div>;
 }
 
@@ -71,14 +73,14 @@ function BlindAlgorithmLibrary() {
   };
   if (reader === undefined || dataset === undefined) return <p role={built?.ok === false ? "alert" : "status"}>{built?.ok === false ? copy.common.error : copy.common.loading}</p>;
   return <div className="algorithm-browser">
-    <div className="control-row algorithm-filters">
+    <div className="control-row algorithm-filters" data-guide="alg-search">
       <label className="t-ui flex gap-2 items-center">{copy.common.targets}<select className="field" value={pieceType} onChange={(event) => { setPieceType(event.target.value as typeof pieceType); setSelected(undefined); }}><option value="corners">{copy.common.pieces.corners}</option><option value="edges">{copy.common.pieces.edges}</option></select></label>
       <label className="t-ui flex gap-2 items-center"><input type="checkbox" checked={mine} onChange={(event) => { setMine(event.target.checked); }} />{copy.common.mine}</label>
       <button type="button" className="btn ml-auto" onClick={csv}>{copy.algs.csv}</button>
     </div>
     <label className="flex flex-col gap-2 t-ui">{copy.common.search}<span className="search-field"><input type="search" className="field w-full" value={search} onChange={(event) => { setSearch(event.target.value); setLimit(60); }} />{search !== "" ? <button className="btn search-clear" type="button" onClick={() => { setSearch(""); setLimit(60); }}>{copy.common.clear}</button> : null}</span></label>
     <p className="t-meta text-quiet">{copy.common.count(visible.length)} · {copy.common.buffer}: {dataset.buffer}</p>
-    <div className="algorithm-result-list"><div className="data-table-wrap max-h-[26rem]" tabIndex={0} data-shortcuts="off">
+    <div className="algorithm-result-list" data-guide="alg-table"><div className="data-table-wrap max-h-[26rem]" tabIndex={0} data-shortcuts="off">
       <table className="data-table" aria-label={copy.algs.title}><thead><tr>{[copy.algs.case, copy.common.targets, copy.common.preferred, copy.common.moves, copy.algs.source].map((label) => <th key={label} scope="col">{label}</th>)}</tr></thead>
         <tbody>{visible.slice(0, limit).map((item) => <tr key={item.id} aria-selected={current?.id === item.id}>
           <th scope="row"><button type="button" className="text-link mono" onClick={() => { setSelected(item.id); }}>{item.letters}</button></th><td className="mono">{item.recordId}</td><td className="t-notation max-w-[34rem] whitespace-normal">{item.algs[0]?.alg}</td><td>{item.algs[0]?.etm}</td><td className="t-meta text-quiet">{item.algs[0]?.source === "yours" ? copy.common.yours : copy.common.dataset}</td>

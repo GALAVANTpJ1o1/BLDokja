@@ -11,6 +11,9 @@ import { useSyncExternalStore } from "react";
  */
 const QUERY = "(prefers-reduced-motion: reduce)";
 
+/** Motion durations in ms; kept equal to `--duration-*` in styles/workbench-tokens.css (a test checks this). */
+export const MOTION_MS = { fast: 120, ui: 180, layer: 240 } as const;
+
 export interface MotionEnvironment {
   matchMedia(query: string): { matches: boolean; addEventListener(type: "change", listener: () => void): void; removeEventListener(type: "change", listener: () => void): void };
 }

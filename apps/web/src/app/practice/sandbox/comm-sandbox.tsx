@@ -60,7 +60,7 @@ export function CommSandbox() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4" data-guide="sandbox-input">
         <label className="flex flex-col gap-1" htmlFor="comm-sandbox-scratchpad">
           <span className="t-meta text-quiet">{en.sandbox.input}</span>
           <input className="field t-notation text-[1.125rem]" value={text} placeholder={en.sandbox.placeholder} spellCheck={false} autoComplete="off" onChange={(e) => { setText(e.target.value); }} />
@@ -104,7 +104,7 @@ export function CommSandbox() {
         ) : null}
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-rule pt-6">
+      <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="sandbox-comms">
         <h2 className="t-heading">{en.sandbox.reverse}</h2>
         <p className="t-body text-quiet">{en.sandbox.reverseHint}</p>
         <div className="flex flex-wrap gap-2" role="group" aria-label={en.scheme.pieces}>
@@ -153,7 +153,7 @@ export function CommSandbox() {
         ) : null}
       </section>
 
-      <section className="flex flex-col gap-2 border-t border-rule pt-6">
+      <section className="flex flex-col gap-2 border-t border-rule pt-6" data-guide="sandbox-scratchpad">
         <label className="flex flex-col gap-1">
           <span className="t-heading">{en.sandbox.scratchpad}</span>
           <span className="t-meta text-quiet">{en.sandbox.scratchpadHint}</span>

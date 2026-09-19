@@ -146,7 +146,7 @@ export function DifficultyEditor() {
         {summary.length === 0 ? en.difficulty.summaryNone : summary.join(" · ")}
       </p>
 
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-4" data-guide="difficulty-scrambles">
         <h2 className="t-heading">{en.difficulty.scrambles}</h2>
         <p className="t-meta text-quiet">{en.difficulty.scramblesHint}</p>
         <Segmented<Pieces> label={en.difficulty.pieces} options={["both", "edges", "corners"]} labels={en.difficulty.pieceOptions} value={difficulty.pieces ?? "both"} onChange={(v) => { void save({ ...difficulty, pieces: v }); }} />
@@ -163,7 +163,7 @@ export function DifficultyEditor() {
         <Segmented<Tri> label={en.difficulty.parity} options={["any", "force", "forbid"]} labels={en.difficulty.tri} value={parity} onChange={setParity} />
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-rule pt-6">
+      <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="difficulty-subsets">
         <h2 className="t-heading">{en.difficulty.subsets}</h2>
         <p className="t-meta text-quiet">{en.difficulty.subsetsHint}</p>
         {CASE_SUBSET_KEYS.map((key) => {
@@ -193,7 +193,7 @@ export function DifficultyEditor() {
         })}
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-rule pt-6">
+      <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="difficulty-time">
         <h2 className="t-heading">{en.difficulty.time}</h2>
         <Segmented<"none" | "soft" | "hard"> label={en.difficulty.time} options={["none", "soft", "hard"]} labels={en.difficulty.timeModes} value={timeMode} onChange={(v) => { void save({ ...difficulty, time: v === "none" ? { mode: "none" } : { mode: v, seconds } }); }} />
         {timeMode !== "none" ? (
@@ -224,7 +224,7 @@ export function DifficultyEditor() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4 border-t border-rule pt-6">
+      <section className="flex flex-col gap-4 border-t border-rule pt-6" data-guide="difficulty-presets">
         <h2 className="t-heading">{en.difficulty.presets}</h2>
         <form
           noValidate

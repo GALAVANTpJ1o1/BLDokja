@@ -18,7 +18,7 @@ export interface TrainerHeading {
  */
 export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: TrainerHeading & { readonly onKeys?: () => void; readonly readAloud?: { readonly on: boolean; readonly toggle: () => void } }) {
   return (
-    <header className="trainer-header flex flex-wrap items-end justify-between gap-3">
+    <header className="trainer-header flex flex-wrap items-end justify-between gap-3" data-guide="trainer-header">
       <div className="flex flex-col gap-1">
         <p className="t-meta text-quiet">
           <TransitionLink href="/practice/">{en.nav.practice}</TransitionLink>
@@ -32,7 +32,7 @@ export function TrainerHeader({ title, intro, lesson, onKeys, readAloud }: Train
         <h1 className="t-title">{title}</h1>
         <p className="t-body prose-measure text-quiet">{intro}</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" data-guide="trainer-tools">
         {/* Rendered disabled while loading too, so the header wraps the same way before and after. */}
         <button type="button" className="btn" aria-pressed={readAloud?.on ?? false} onClick={readAloud?.toggle} disabled={readAloud === undefined}>
           {en.trainer.readAloud}

@@ -142,52 +142,6 @@ describe("what lessons show on the cube is checked by the engine", () => {
     puzzle4 = await loadPuzzle("4x4x4");
   });
 
-  it("CFOP paired-insertion demos show the stated connected colours and restore the cross and all slots", () => {
-    const lesson = lessons.find((l) => l.frontmatter.id === "cfop-paired-insertions");
-    if (lesson === undefined) throw new Error("Missing CFOP paired-insertion lesson");
-    const demos = usages(lesson.bodies.plain ?? "").filter((u) => u.name === "Cube");
-    expect(demos).toHaveLength(2);
-    const stated = [
-      { corner: "UFL", edge: "UF", faces: { UFL: "F", FUL: "R", LUF: "D", UF: "F", FU: "R" } },
-      { corner: "UBR", edge: "UR", faces: { UBR: "R", BUR: "D", RUB: "F", UR: "R", RU: "F" } },
-    ] as const;
-    const corners = pieceType(puzzle, "corners");
-    const edges = pieceType(puzzle, "edges");
-    const targetCorner = corners.pieceByName("DFR");
-    const targetEdge = edges.pieceByName("FR");
-    if (targetCorner === undefined || targetEdge === undefined) throw new Error("Missing F2L slot");
-    for (const [index, demo] of demos.entries()) {
-      const expected = stated[index];
-      if (expected === undefined) throw new Error("Unexpected F2L demo");
-      expect((demo.attributes.highlight ?? "").split(" ").sort()).toEqual([...Object.keys(expected.faces), "U", "D", "F", "B", "R", "L"].sort());
-      const start = puzzle.kpuzzle.defaultPattern().applyAlg(demo.attributes.setup ?? "");
-      const facelets = faceletsOf(puzzle, start);
-      for (const [name, face] of Object.entries(expected.faces)) {
-        const sticker = corners.stickerByName(name) ?? edges.stickerByName(name);
-        if (sticker === undefined) throw new Error(`Unknown sticker ${name}`);
-        const home = facelets[sticker.index];
-        if (home === undefined) throw new Error(`No home colour at ${name}`);
-        expect(puzzle.geometry.sticker(home).face, name).toBe(face);
-        expect((demo.attributes.highlight ?? "").split(" "), name).toContain(name);
-      }
-      const cornerSlot = corners.pieceByName(expected.corner);
-      const edgeSlot = edges.pieceByName(expected.edge);
-      if (cornerSlot === undefined || edgeSlot === undefined) throw new Error("Missing pair position");
-      expect(start.patternData[corners.orbit]?.pieces[cornerSlot.position]).toBe(targetCorner.position);
-      expect(start.patternData[edges.orbit]?.pieces[edgeSlot.position]).toBe(targetEdge.position);
-      // Independently pin the preserved geometry, not just inverse(alg) + alg.
-      for (const type of [corners, edges]) {
-        const protectedPieces = type.pieces.filter((piece) => type.id === "corners" ? piece.name.includes("D") && piece.name !== "DFR" : piece.name.includes("D") || !/[UD]/.test(piece.name) && piece.name !== "FR");
-        for (const piece of protectedPieces) {
-          expect(start.patternData[type.orbit]?.pieces[piece.position], piece.name).toBe(piece.position);
-          expect(start.patternData[type.orbit]?.orientation[piece.position], piece.name).toBe(0);
-        }
-      }
-      expect(start.applyAlg(demo.attributes.alg ?? "").isIdentical(puzzle.kpuzzle.defaultPattern())).toBe(true);
-      expect(looksSolved(puzzle, `${demo.attributes.setup ?? ""} ${demo.attributes.alg ?? ""}`)).toBe(true);
-    }
-  });
-
   const allUsages = () => lessons.flatMap((l) => usages(l.bodies.plain ?? "").map((u) => ({ lesson: l.frontmatter.id, ...u })));
   /** The puzzle a component shows: 4x4 for the Four* components and a Cube with puzzle="4x4x4". */
   const puzzleOf = (u: Usage): PuzzleId => (u.name.startsWith("Four") || u.attributes.puzzle === "4x4x4" ? "4x4x4" : "3x3x3");

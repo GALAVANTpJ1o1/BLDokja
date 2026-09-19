@@ -1,0 +1,186 @@
+/**
+ * Copy for the CFOP and one-handed learning system: reference sheets, case cards, F2L practice, last-layer
+ * recognition, and the hub pages that link them (polish brief §10-11, §21-50, §81-87). One naming standard
+ * (§81): F2L, OLL, PLL, 2-look OLL, 2-look PLL, full OLL, full PLL, OH, BLD.
+ */
+export type Side = "front" | "right" | "back" | "left";
+export type Place = "back-left" | "back-right" | "front-right" | "front-left";
+const list = (items: readonly string[], and: string) => (items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} ${and} ${items[items.length - 1] ?? ""}`);
+
+export const cfop = {
+  sides: { front: "front", right: "right", back: "back", left: "left" } as Record<Side, string>,
+  places: { "back-left": "back-left", "back-right": "back-right", "front-right": "front-right", "front-left": "front-left" } as Record<Place, string>,
+  list,
+  style: { label: "How you turn", "2H": "Two-handed", OH: "One-handed", note: "One-handed uses your own row where one exists and says so where it does not." },
+  status: {
+    label: "Your status", unlearned: "Unlearned", learning: "Learning", learned: "Learned", auto: "Judged from practice",
+    autoNote: "A status you set by hand always wins. Clear it and the site goes back to judging from your practice: learned after five correct answers in a row, at a steady pace; learning after any attempt.",
+    setBy: (status: string) => `Set by you: ${status}`, judged: (status: string) => `From your practice: ${status}`, clear: "Use my practice instead",
+  },
+  card: {
+    watch: "Watch it solve", hide: "Hide the cube", show3d: "Open the cube", moves: (n: number) => `${n} moves`, family: "Family", hold: "How to hold it",
+    recognise: "What to look for", algorithm: "Algorithm", practise: "Practise", mirror: "Mirror (left slot)", original: "Right slot",
+    ohMissing: "No one-handed row was supplied for this case, so the two-handed algorithm is shown.",
+    source: "Source", sourceTable: "From the supplied table, checked against the cube engine.", sourceSearch: "Found by the cube engine's search: shortest in R, U and F, then ranked for comfort. Not a hand-picked speedcubing algorithm.",
+    aufBefore: (auf: string) => `Turn U first: ${auf}`, aufAfter: (auf: string) => `Then turn U to finish: ${auf}`, reorient: (rotation: string) => `The cube ends turned; hold it as before with ${rotation}.`,
+    noAuf: "No U turn needed first.", copy: "Copy", copied: "Copied", label: (name: string) => `${name} case`,
+    diagram: (name: string, description: string) => `${name}: ${description}`,
+    speed: "Playback speed", speeds: { slow: "0.6×", normal: "1×", fast: "1.5×" },
+  },
+  clue: {
+    edges: (n: number, where: readonly Side[]) => (n === 0 ? "No yellow edge on top." : `${n} yellow ${n === 1 ? "edge" : "edges"} on top (${list(where.map((s) => cfop.sides[s]), "and")}).`),
+    corners: (n: number, where: readonly Place[]) => (n === 0 ? "No yellow corner on top." : `${n} yellow ${n === 1 ? "corner" : "corners"} on top (${list(where.map((p) => cfop.places[p]), "and")}).`),
+    dot: "Only the centre is yellow among the edges: a dot.", line: "Two opposite edges are yellow: a line across the top.", lShape: "Two neighbouring edges are yellow: an L.",
+    cross: "All four edges are yellow: a cross. Read the corners.", cornersOriented: "All four corners are yellow on top. Read which two edges are not.",
+    solvedCorners: "All four corners already match their sides (headlights on every side). Only the edges are out of place.",
+    bar: (sides: readonly Side[]) => `A solved bar on the ${list(sides.map((s) => cfop.sides[s]), "and")}.`,
+    headlights: (sides: readonly Side[]) => `Headlights on the ${list(sides.map((s) => cfop.sides[s]), "and")}.`,
+    noBar: "No bar and no headlights: read how the corner colours run around the ring.",
+    hold: { yellow: "Yellow on top.", asDrawn: "Hold it exactly as drawn.", bar: (side: string) => `Put the solved bar at the ${side}.`, headlights: (side: string) => `Put the headlights at the ${side}.`, none: "Hold it as drawn." },
+  },
+  groups: {
+    "Edge orientation": "Edge orientation", "Corner orientation": "Corner orientation", "Corner permutation": "Corner permutation", "Edge permutation": "Edge permutation",
+    Dot: "Dot", "Square Shape": "Square", "Small Lightning Bolt": "Small lightning bolt", "Fish Shape": "Fish", "Knight Move Shape": "Knight move", Cross: "Cross",
+    "Corners Oriented": "Corners oriented", "Awkward Shape": "Awkward", "P Shape": "P shape", "T Shape": "T shape", "C Shape": "C shape", "W Shape": "W shape",
+    "Big Lightning Bolt": "Big lightning bolt", "Small L Shape": "Small L", "I Shape": "I shape",
+    "Adjacent Corner Swap": "Adjacent corner swap", "Diagonal Corner Swap": "Diagonal corner swap", "Edges Only": "Edges only",
+  } as Record<string, string>,
+  f2lFamilies: {
+    "both-slot": { title: "Corner and edge both in the slot", blurb: "Both pieces are down in the slot, one or both turned the wrong way. Take one out, fix it, and put them back." },
+    "corner-top-edge-slot": { title: "Corner on top, edge in the slot", blurb: "The edge sits in its slot; the corner is in the top layer. Bring the corner over and rebuild the pair." },
+    "corner-slot-edge-top": { title: "Corner in the slot, edge on top", blurb: "The corner sits in its slot; the edge is in the top layer. Lift the corner out, pair it, and put it back." },
+    "both-top": { title: "Corner and edge both on top", blurb: "Both pieces are in the top layer, so the top layer is your working space. Pair them, then insert." },
+  } as Record<string, { title: string; blurb: string }>,
+  f2lCorner: { up: "white facing up", side: "white facing a side", slot: "in the slot" },
+  f2lName: (n: number) => `F2L ${n}`,
+  f2lHold: "Cross on the bottom. The pair belongs in the front-right slot.",
+  f2lClue: (place: "top" | "slot", twist: 0 | 1 | 2, edgePlace: "top" | "slot", flip: 0 | 1) => {
+    const corner = place === "slot" ? (twist === 0 ? "corner in its slot, turned correctly" : "corner in its slot, turned") : twist === 0 ? "corner on top with its white sticker facing up" : "corner on top with its white sticker facing a side";
+    const edge = edgePlace === "slot" ? (flip === 0 ? "edge in its slot, flipped correctly" : "edge in its slot, flipped") : flip === 0 ? "edge on top, oriented" : "edge on top, flipped";
+    return `${corner[0]?.toUpperCase() ?? ""}${corner.slice(1)}; ${edge}.`;
+  },
+  sheet: {
+    title: { f2l: "F2L reference", "2look-oll": "2-look OLL reference", "2look-pll": "2-look PLL reference", oll: "Full OLL reference", pll: "Full PLL reference" },
+    intro: {
+      f2l: "All 41 pair cases, grouped by where the corner and edge are. Each card shows the case, what to look for, and an efficient solution you can play back.",
+      "2look-oll": "Orient the edges first, then the corners. Three edge pictures, then seven corner pictures.",
+      "2look-pll": "Permute the corners first, then the edges. Two corner pictures, then four edge pictures.",
+      oll: "All 57 OLL cases, grouped by the shape the yellow makes. Yellow on top; every card is drawn exactly as its algorithm expects.",
+      pll: "All 21 PLL cases, grouped by what moves. Yellow on top; look for bars and headlights.",
+    },
+    sections: { eo: "Step 1 · Orient the edges", co: "Step 2 · Orient the corners", cp: "Step 1 · Permute the corners", ep: "Step 2 · Permute the edges" } as Record<string, string>,
+    search: "Search by name, number or shape", searchHint: "Try “sune”, “27”, “fish”, “t perm” or “headlights”.", clear: "Clear",
+    filter: "Show", filterAll: "All cases", results: (n: number, total: number) => (n === total ? `${total} cases` : `${n} of ${total} cases`), none: "No case matches that. Try a number, a name, or a shape like “fish” or “bar”.",
+    learn: "Learn this step", practise: "Practise recognition", cheats: "Open the complete cheat sheet", sheetsTitle: "Cheat sheets", sheetsIntro: "The complete case sets. Each is a page you scroll, not a table you search.",
+    lastLayerPractice: "Last-layer recognition practice", f2lPractice: "Practise F2L", back: "Back to all cheat sheets",
+    filters: { all: "All", unlearned: "Unlearned", learning: "Learning", learned: "Learned" },
+    jump: "Jump to", count: (n: number) => `${n} cases`,
+  },
+  f2lPractice: {
+    title: "F2L practice", intro: "Solve real F2L cases on a cube you turn yourself. The pieces you need are lit; everything else is quiet. Any solution that solves the pair and keeps the cross counts.",
+    level: "Level", levels: { 1: "One pair", 2: "Two pairs", 3: "Three pairs", 4: "Full F2L" },
+    levelBlurb: { 1: "One unsolved pair, drawn from all 41 cases.", 2: "Two unsolved pairs together.", 3: "Three unsolved pairs.", 4: "The cross is solved; the whole first two layers are left." },
+    moves: "Your turns", turns: "Turn", undo: "Undo last turn", reset: "Reset", hint: "Hint", solution: "Show a solution", next: "Next case", newCase: "New case",
+    hints: { used: (n: number) => `${n} ${n === 1 ? "hint" : "hints"} used` },
+    solved: (moves: number, reference: number | undefined) => (reference === undefined ? `Solved in ${moves} moves.` : `Solved in ${moves} moves. An efficient solution takes ${reference}.`),
+    solvedWith: (moves: number) => `Solved in ${moves} moves. Any solution that leaves the cross and the other slots solved counts.`,
+    notYet: "Not solved yet: the cross and the other pairs must stay solved.", brokenCross: "The cross is broken. Undo a turn or reset.",
+    whichCase: (n: number) => `This is F2L case ${n}.`, allowed: "You can turn U, R, L and F. Whole-cube turns and D, B and slice turns are off, so what you see never changes under you.",
+    stats: { title: "Your F2L practice", solves: "Solves", averageMoves: "Average moves", hints: "Hints used", resets: "Resets", cases: "Cases tried", weak: "Cases to revisit", none: "No F2L practice yet.", perCase: "Per case", success: "Success" },
+    keyboard: "Keyboard: U R L F turn clockwise; hold Shift for the opposite direction.",
+    multiHint1: "Pick the pair whose two pieces are closest together, and solve that one first without breaking the cross.",
+    multiHint2: "Use the top layer as your working space: bring a corner and its edge next to each other, then insert.",
+    allCases: "Practise all 41 cases again", idea: "The reference solution pairs the two pieces in the top layer, then inserts them.", multiIdea: "The reference solves one pair at a time, using the top layer to bring each corner and edge together before inserting.",
+    error: "Could not build a practice state. Try another level.",
+    moveButtons: "Turn buttons", liveSolved: "Solved", liveMoves: (n: number) => `${n} ${n === 1 ? "turn" : "turns"}`,
+    modeNote: (n: number) => `${n} ${n === 1 ? "pair" : "pairs"} unsolved`,
+  },
+  exercises: {
+    intro: "Three guided exercises. You turn the cube yourself; it checks the state after every turn, so any solution that puts the lit pair home and leaves the cross alone counts.",
+    titles: { 1: "The pair is already joined", 2: "The pieces are apart", 3: "The corner is stuck in the slot" },
+    goals: {
+      1: "The corner and edge are joined in the top layer. Bring the pair over its slot and put it in.",
+      2: "Both pieces are in the top layer but not touching. Bring them together, then insert.",
+      3: "The corner is down in the slot, turned the wrong way, and the edge is on top. Get the corner out, pair it, then put the pair back.",
+    } as Record<number, string>,
+    joined: "The corner and the edge are already next to each other, with their matching colours touching.",
+    hint1: (clue: string) => `Look at the two lit pieces. ${clue}`,
+    hint2: { "both-top": "Turn the top layer until the corner and the edge sit next to each other with their matching colours touching.", "corner-slot-edge-top": "Get the corner up out of its slot and into the top layer beside its edge.", "corner-top-edge-slot": "Bring the corner over the slot so it and the edge can be joined.", "both-slot": "Take one piece out of the slot and turn it the right way." } as Record<string, string>,
+    hint3: (first: string) => `Try starting with ${first}.`,
+    idea: {
+      1: (moves: readonly string[]) => `The pair was already joined, so it only needed to go in: ${moves[0] ?? ""} opened the slot, ${moves[1] ?? ""} brought the pair over it and ${moves[2] ?? ""} closed it.`,
+      2: (moves: readonly string[]) => `The pieces started apart in the top layer. ${moves.slice(0, 4).join(" ")} brought them together as a joined pair, and ${moves.slice(4).join(" ")} inserted it.`,
+      3: (moves: readonly string[]) => `The corner was stuck in the slot. ${moves.slice(0, 4).join(" ")} lifted it out, ${moves[4] ?? ""} lined it up beside its edge, and ${moves.slice(5).join(" ")} inserted the pair.`,
+    } as Record<number, (moves: readonly string[]) => string>,
+  },
+  exercise: {
+    title: (n: number) => `Exercise ${n}`, goal: "Goal: solve the lit pair into its slot and keep the cross.", hint: "Hint", hintN: (n: number) => `Hint ${n}`, showSolution: "Show a solution",
+    solvedIn: (moves: number, reference: number, idea: string) => `Solved in ${moves} moves. A tidy solution takes ${reference}. ${idea}`,
+    tryAgain: "Not solved yet. The lit pair must sit in its slot with the cross and the other slots untouched.", reset: "Reset", undo: "Undo",
+    solutionIntro: "One efficient way:", loading: "Loading the cube…",
+  },
+  trainer: {
+    title: "Last-layer recognition", intro: "Recognise the case, name it, then watch the algorithm turn it into the next case. Every stage is played on the cube the last one left.",
+    mode: "Mode", modes: {
+      "2look-oll": "2-look OLL", "2look-pll": "2-look PLL", "2look-ll": "2-look last layer", "1look-oll": "1-look OLL", "1look-pll": "1-look PLL",
+      "2look-oll+1look-pll": "2-look OLL + 1-look PLL", "1look-oll+1look-pll": "1-look OLL + 1-look PLL",
+    },
+    modeBlurb: {
+      "2look-oll": "Edges, then corners.", "2look-pll": "Corners, then edges.", "2look-ll": "Edges, corners, then corners and edges again: the whole last layer.",
+      "1look-oll": "One of 57 OLL cases.", "1look-pll": "One of 21 PLL cases.", "2look-oll+1look-pll": "Edges, corners, then a full PLL.", "1look-oll+1look-pll": "A full OLL, then a full PLL.",
+    },
+    stages: { eo: "Edge orientation", co: "Corner orientation", cp: "Corner permutation", ep: "Edge permutation", oll: "OLL", pll: "PLL" } as Record<string, string>,
+    stageOf: (stage: string, i: number, total: number) => `${stage} · stage ${i} of ${total}`,
+    filter: "Cases", filters: { all: "All", learning: "Learning", weak: "Weak cases", slowest: "Slowest cases", recentlyWrong: "Recently wrong", neverSeen: "Never seen" },
+    filterEmpty: "Nothing matches that filter yet, so all cases are used.",
+    length: "Cases per session", modeChange: "Change mode", start: "Start", again: "Practise again", stop: "End session", answer: "Which case is this?", answerHint: "Type a name or number, then press Enter.", submit: "Check", suggestions: "Matching cases",
+    reveal: "Show the answer", executing: "Watch the algorithm", next: "Continue", continueAfterWrong: "Got it, continue",
+    timer: "Recognition time", seconds: (ms: number) => `${(ms / 1000).toFixed(2)} s`,
+    correct: (name: string, clue: string) => `Correct: this is ${name}. ${clue}`,
+    wrong: (chosen: string, name: string, clue: string) => `Incorrect: this is ${name}, not ${chosen}. ${clue}`,
+    wrongUnknown: (typed: string, name: string, clue: string) => `“${typed}” is not a case in this stage. This is ${name}. ${clue}`,
+    missed: "What to look for", algorithm: "Algorithm", aufNote: (moves: string) => `Turn and execute: ${moves}`, fallbackNote: "One-handed row not supplied for this case; two-handed shown.",
+    finished: "The last layer is solved.", stageDone: "Stage done. Here is the cube the algorithm left.",
+    autoAuf: "Already in place. Turn U to line it up.",
+    session: { title: "Session review", cases: (n: number) => `${n} ${n === 1 ? "case" : "cases"}`, correct: (n: number, total: number) => `${n} of ${total} correct`, accuracy: (pct: number) => `${pct}% accuracy`, average: (s: string) => `${s} average recognition`, weakest: "Weakest cases", slowest: "Slowest cases", confused: "Most confused", practiseWeak: "Practise weak cases", none: "Nothing to show yet." },
+    stats: { title: "Your recognition record", attempts: "Attempts", accuracy: "Accuracy", average: "Average time", best: "Best time", recent: "Recent", trend: "Trend", wrongWith: "Most often mistaken for", confusedWith: "Confused with", status: "Status", none: "No recognition practice yet.", faster: "Getting faster", slower: "Slowing down", steady: "Steady", sortBy: "Sort by", cases: "Cases" },
+    hintTitle: "Hints", hintN: (n: number) => `Hint ${n}`, hint1: (stage: string) => `Look at the ${stage.toLowerCase()} picture: count what is lit, and where.`, hint2: (clue: string) => clue, hint3: (name: string) => `It is ${name}.`,
+    view3d: "Show the cube", viewDiagram: "Show the diagram",
+    style: "Executing", quiet: "Timed practice is quiet: explanations appear after you answer.",
+    error: "This session could not be built. Try another mode.",
+    live: { timerStopped: (s: string) => `Answered in ${s}.` },
+  },
+  hubs: {
+    learn: {
+      paths: "Choose a path", pathsIntro: "Three ways to solve a cube, each its own path. Start where you are.",
+      bld: { title: "Blindfolded", blurb: "Learn to solve a cube from memory: stickers, tracing, buffers and commutators." },
+      cfop: { title: "CFOP", blurb: "The most common speedsolving method: cross, F2L, OLL and PLL." },
+      oh: { title: "One-handed", blurb: "The same solves with one hand: grip, finger tricks and one-handed algorithms." },
+      start: "Start", continue: "Continue", lessons: (n: number) => `${n} lessons`,
+      cfopOrder: "Follow this order. Each part builds on the one before, so you never meet an advanced topic first.", cfopGroups: { foundations: "Notation", f2l: "F2L", twoLook: "2-look last layer", advanced: "Advanced F2L", full: "Full OLL and PLL" },
+    },
+    practice: {
+      groups: {
+        f2l: { title: "F2L", blurb: "Solve pairs with your own turns." },
+        lastLayer: { title: "Last layer", blurb: "Recognise OLL and PLL cases and watch them resolve." },
+        blind: { title: "Blindfolded", blurb: "Memo, tracing and execution drills." },
+        memory: { title: "Memory and recognition", blurb: "Letter pairs, images and stickers." },
+        reference: { title: "Reference", blurb: "Complete case sheets and personal tools." },
+      },
+      f2l: "F2L practice", f2lBlurb: "Four levels, from one pair to the whole first two layers.", lastLayer: "Last-layer recognition", lastLayerBlurb: "Seven modes, timed recognition, and stats per case.",
+      sheets: "Cheat sheets", sheetsBlurb: "Every F2L, 2-look and full OLL and PLL case as a card.",
+    },
+    home: {
+      pathsTitle: "Pick a path", pathsIntro: "The site teaches three methods and a training centre that serves them.",
+      bld: "Blindfolded", cfop: "CFOP", oh: "One-handed", practice: "Practice",
+      bldBlurb: "From your first sticker to a full blind solve.", cfopBlurb: "Cross, F2L, OLL and PLL, with a cube you can turn on the page.",
+      ohBlurb: "Grip, finger tricks and dedicated one-handed algorithms.", practiceBlurb: "F2L, last-layer recognition, memory and blind drills in one place.",
+    },
+  },
+  progress: {
+    title: "CFOP progress", intro: "F2L practice and last-layer recognition, folded from your attempts.", f2lTitle: "F2L", llTitle: "Last-layer recognition", byStage: "Cases by stage", tried: "Tried", styleSplit: (two: number, one: number) => `Two-handed answers: ${two}. One-handed answers: ${one}.`, casesOf: (n: number, total: number) => `${n} of ${total} cases tried`, f2lSolves: "F2L solves", f2lSuccess: "F2L success", recognition: "Recognition accuracy", speed: "Recognition speed",
+    learned: (n: number, total: number) => `${n} of ${total} learned`, learning: (n: number) => `${n} learning`, weakOlls: "Weakest OLLs", weakPlls: "Weakest PLLs",
+    none: "No CFOP practice yet.", style: "Style", ohFamiliar: "One-handed cases practised", twoHFamiliar: "Two-handed cases practised", open: "Open the recognition trainer",
+    stageLabel: { oll: "OLL", pll: "PLL", eo: "Edge orientation", co: "Corner orientation", cp: "Corner permutation", ep: "Edge permutation", f2l: "F2L" } as Record<string, string>,
+  },
+} as const;

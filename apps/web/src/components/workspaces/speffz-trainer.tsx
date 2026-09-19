@@ -74,7 +74,7 @@ export function SpeffzTrainer() {
   };
   if (reader === undefined) return <p role="status">{copy.loading}</p>;
   return <div className="speffz-workspace">
-    {run === undefined || done ? <div className="speffz-preflight flex flex-col gap-4">
+    {run === undefined || done ? <div className="speffz-preflight flex flex-col gap-4" data-guide="speffz-setup">
       <Segmented label={copy.family} options={["edges", "corners"]} labels={{ edges: copy.edges, corners: copy.corners }} value={family} onChange={setFamily} />
       <Segmented label={copy.count} options={["10", "20", "30", "50"]} labels={{ "10": "10", "20": "20", "30": "30", "50": "50" }} value={count} onChange={setCount} />
       <p className="t-meta text-quiet">{copy.ready}</p><button className="btn btn-strong self-start" type="button" onClick={start}>{done ? copy.restart : copy.start}</button>
@@ -99,6 +99,6 @@ export function SpeffzTrainer() {
         <div className="flex flex-wrap gap-2"><button type="button" className="btn btn-strong" disabled={!readyNext || busy || failedEvent !== undefined} onClick={next}>{copy.next}</button><button type="button" className="btn" disabled={busy || failedEvent !== undefined} onClick={() => { setRun(undefined); setMessage(copy.ended); }}>{copy.pause}</button></div>
       </div>
     </div> : done ? <section className="panel p-5 flex flex-col gap-3" aria-label={copy.complete}><h2 className="t-heading">{copy.complete}</h2><p className="t-notation">{copy.elapsed(score.elapsed)}</p><p>{copy.perPiece(score.elapsed / queue.length)}</p><p>{copy.accuracy(score.correct, score.total)}</p><p className="t-meta text-quiet">{copy.saved}</p></section> : <p role="status">{message}</p>}
-    <section className="border-t border-rule pt-5"><h2 className="t-heading">{copy.history}</h2><p className="t-meta text-quiet mt-2">{history.length === 0 ? copy.noHistory : copy.accuracy(history.filter(e => e.correct).length, history.length)}</p>{typical === undefined ? null : <p className="t-notation mt-2">{copy.typical(typical)}</p>}</section>
+    <section className="border-t border-rule pt-5" data-guide="speffz-history"><h2 className="t-heading">{copy.history}</h2><p className="t-meta text-quiet mt-2">{history.length === 0 ? copy.noHistory : copy.accuracy(history.filter(e => e.correct).length, history.length)}</p>{typical === undefined ? null : <p className="t-notation mt-2">{copy.typical(typical)}</p>}</section>
   </div>;
 }

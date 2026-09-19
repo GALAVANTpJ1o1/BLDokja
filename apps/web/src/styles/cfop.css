@@ -1,0 +1,89 @@
+/*
+ * The CFOP learning system: case cards, reference pages, F2L practice and last-layer recognition (polish brief §10-11, §37,
+ * §68). Motion appears only in response to a press and only to show what changed (a card opening, a stage advancing), using
+ * the shared tokens: --duration-fast / -ui / -layer and --ease-settle. Everything here reads the site's own colour tokens.
+ */
+:root { --sticker-off: color-mix(in srgb, var(--text) 26%, var(--stage)); --case-min: 17rem; }
+.profile-scope { display: contents; }
+
+@layer components {
+  /* ---- learn hub: the path cards replace the old side navigation, so the path is one column ---- */
+  .learning-path { grid-template-columns: minmax(0, 1fr); column-gap: 0; }
+  .learning-path > .learning-track { grid-column: 1; }
+  .learning-path .path-grid { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+
+  /* ---- reference page ---- */
+  .case-reference-tools { display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); }
+  .case-reference-search { max-width: 34rem; }
+  .case-reference-jump { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .case-reference-jump .btn { min-height: 36px; padding: .3rem .75rem; font-size: .8rem; }
+  .case-section { scroll-margin-top: 14rem; }
+  .case-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(var(--case-min), 1fr)); align-items: start; }
+
+  /* ---- the case card ---- */
+  .case-card { display: flex; flex-direction: column; gap: .9rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); min-width: 0; }
+  .case-card[data-status="learned"] { border-left: 4px solid var(--text); }
+  .case-card[data-status="learning"] { border-left: 4px dashed var(--text-quiet); }
+  .case-card-diagram { display: grid; place-items: center; padding: .75rem; border-radius: var(--radius-control); background: var(--stage); }
+  .case-card-svg { width: min(100%, 13rem); height: auto; display: block; }
+  .case-card-body { display: flex; flex-direction: column; gap: .55rem; min-width: 0; }
+  .case-card-head { display: flex; flex-direction: column; gap: .15rem; }
+  .case-card-title { font-size: 1.1rem; font-weight: 680; letter-spacing: -.02em; line-height: 1.25; }
+  .case-card-line { font-size: .9rem; line-height: 1.5; }
+  .case-card-key { font-weight: 650; }
+  .case-card-alg { display: flex; flex-direction: column; gap: .2rem; padding: .65rem .8rem; border-radius: var(--radius-control); background: var(--stage); }
+  .case-card-alg code { font-size: 1rem; line-height: 1.7; overflow-wrap: anywhere; word-spacing: .12em; }
+  .case-card-notes { margin: 0; padding-left: 1.1rem; }
+  .case-card-note { max-width: 60ch; }
+  .case-card-actions { gap: .5rem; }
+  .case-card-actions .btn { min-height: 40px; padding: .4rem .8rem; flex: 1 1 auto; }
+  .case-card-status { display: flex; flex-direction: column; gap: .3rem; }
+  .case-card-status .field { width: 100%; min-height: 40px; }
+  /* Opening the cube: the row grows from nothing, so it is clear what the button did. */
+  .case-card-cube { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--duration-layer) var(--ease-settle); }
+  .case-card-cube[data-open="true"] { grid-template-rows: 1fr; }
+  .case-card-cube-inner { overflow: hidden; min-height: 0; }
+  html[data-motion="reduce"] .case-card-cube { transition: none; }
+
+  /* ---- shared interactive-cube surfaces (exercises, F2L practice, recognition) ---- */
+  .cfop-surface { display: grid; gap: 1.25rem; padding: 1.25rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); }
+  .cfop-surface .cube-stage { min-height: 15rem; }
+  @media (min-width: 900px) { .cfop-surface.two-up { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+  .move-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+  .move-pad .btn { min-height: 48px; font-family: var(--font-mono, ui-monospace, monospace); font-size: 1rem; }
+  .move-log { display: flex; flex-wrap: wrap; gap: .35rem; min-height: 2rem; }
+  .move-log code { padding: .1rem .45rem; border-radius: .4rem; background: var(--stage); }
+  .feedback { border-left: 3px solid var(--text); padding: .8rem 1rem; background: var(--surface-raised); border-radius: 0 var(--radius-control) var(--radius-control) 0; }
+  .feedback[data-tone="wrong"] { border-left-style: dashed; }
+  .feedback[data-tone="right"] { border-left-width: 5px; }
+  .feedback > * + * { margin-top: .4rem; }
+  /* A result appears in place with a short cue: bold border grows in, showing which way the answer went. */
+  .feedback[data-fresh="true"] { animation: feedback-in var(--duration-ui) var(--ease-settle); }
+  @keyframes feedback-in { from { border-left-width: 0; } }
+  html[data-motion="reduce"] .feedback[data-fresh="true"] { animation: none; }
+
+  /* ---- trainer ---- */
+  .recognition-stage { display: grid; gap: 1rem; justify-items: center; }
+  .recognition-stage .stage-diagram { width: min(100%, 20rem); }
+  .recognition-stage .stage-diagram svg { width: 100%; height: auto; display: block; }
+  .answer-form { display: flex; flex-wrap: wrap; gap: .6rem; width: min(100%, 30rem); }
+  .answer-form .field { flex: 1 1 12rem; }
+  .timer-readout { font-variant-numeric: tabular-nums; font-size: 1.6rem; font-weight: 650; letter-spacing: -.02em; }
+  .suggest-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .suggest-list .btn { min-height: 36px; padding: .25rem .7rem; font-size: .85rem; }
+  .mode-grid { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  .mode-grid .btn { justify-content: flex-start; flex-direction: column; align-items: flex-start; text-align: left; gap: .15rem; padding: .9rem 1rem; min-height: 64px; }
+  .mode-grid .btn .t-meta { font-weight: 450; }
+  .stat-table { width: 100%; }
+  .path-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .path-card { display: flex; flex-direction: column; gap: .6rem; padding: 1.4rem; border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--surface-raised); text-decoration: none; }
+  .path-card:hover { background: var(--surface-hover); border-color: var(--rule); }
+  .path-card h2, .path-card h3 { font-size: 1.15rem; font-weight: 680; letter-spacing: -.02em; }
+  .step-strip { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  @media (max-width: 767px) {
+    .case-reference-tools { position: static; }
+    .case-grid { grid-template-columns: 1fr; }
+    .cfop-surface { padding: .9rem; }
+    .move-pad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+}

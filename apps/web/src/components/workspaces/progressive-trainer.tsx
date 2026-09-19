@@ -88,10 +88,10 @@ export function ProgressiveTrainer() {
   const targets = level === "recognition" ? [recognition?.name ?? ""] : level === "setup" ? [op?.ok ? op.value.op.corners.buffer : "", record?.target ?? ""] : current === undefined ? [] : [current.buffer, ...current.targets];
   const answer = level === "recognition" ? recognition === undefined ? "" : reader?.letterOf(recognition.name) : level === "setup" ? record?.setup : current?.algs[0]?.moves;
   return <div className="flex flex-col gap-6">
-    <nav className="step-track" aria-label={copy.levels.select}>{levels.map((value) => <button type="button" className="btn" key={value} aria-pressed={level === value} onClick={() => { void update({ trainerLevel: value }).catch(() => { setMessage(copy.common.error); }); }}>{copy.levels.names[value]}</button>)}</nav>
+    <nav className="step-track" aria-label={copy.levels.select} data-guide="levels-choose">{levels.map((value) => <button type="button" className="btn" key={value} aria-pressed={level === value} onClick={() => { void update({ trainerLevel: value }).catch(() => { setMessage(copy.common.error); }); }}>{copy.levels.names[value]}</button>)}</nav>
     <p className="t-meta text-quiet">{copy.levels.noGate}</p>
     {level === "solves" ? <ScrambleControls state={random} {...(reader === undefined ? {} : { puzzle: reader.puzzle })} /> : null}
-    <div className="trainer-surface">
+    <div className="trainer-surface" data-guide="levels-task">
       {hidden ? <div className="hero-stage grid place-items-center min-h-80"><p className="t-ui text-quiet">{copy.levels.names.blind}</p></div> : <Cube setup={level === "recognition" ? "" : setup} {...(targets.length === 0 || level === "solves" ? {} : { highlight: targets })} label={copy.levels.names[level]} />}
       <div className="flex flex-col gap-4 self-center">
         <h2 className="t-heading">{copy.levels.names[level]}</h2><p className="t-body text-quiet">{copy.levels.descriptions[level]}</p>
@@ -111,7 +111,7 @@ export function ProgressiveTrainer() {
         {hint ? <p className="t-notation">{answer}</p> : null}
       </div>
     </div>
-    <section className="border-t border-rule pt-5 flex flex-col gap-4" aria-label={copy.levels.stats}><h2 className="t-heading">{copy.levels.stats}</h2><div className="data-table-wrap"><table className="data-table"><thead><tr><th scope="col">{copy.levels.select}</th><th scope="col">{copy.common.result}</th><th scope="col">{copy.algs.median}</th></tr></thead><tbody>{levels.map((value) => {
+    <section className="border-t border-rule pt-5 flex flex-col gap-4" aria-label={copy.levels.stats} data-guide="levels-analytics"><h2 className="t-heading">{copy.levels.stats}</h2><div className="data-table-wrap"><table className="data-table"><thead><tr><th scope="col">{copy.levels.select}</th><th scope="col">{copy.common.result}</th><th scope="col">{copy.algs.median}</th></tr></thead><tbody>{levels.map((value) => {
       const attempts = (events ?? []).flatMap((event) => event.type === "drill.attempt" && event.trainer === `level-${value}` ? [event] : []);
       const correct = attempts.filter((event) => event.correct); const ms = median(correct.map((event) => event.responseMs));
       return <tr key={value}><th scope="row">{copy.levels.names[value]}</th><td>{copy.levels.attempts(attempts.length, correct.length)}</td><td>{ms === undefined ? copy.levels.none : copy.common.seconds(ms)}</td></tr>;
