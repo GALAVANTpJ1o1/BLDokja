@@ -1,47 +1,55 @@
 ---
 id: cfop-pairing-extraction
-title: Beginner F2L — pair, extract, then insert
+title: Beginner F2L — turn an awkward pair into a familiar one
 track: cfop
 order: 3
 prerequisites:
   - cfop-paired-insertions
-estimatedMinutes: 7
+estimatedMinutes: 8
 objectives:
-  - Separate a trapped corner or edge without breaking the cross
-  - Pair pieces on U before choosing an insertion
-  - Keep one completed F2L slot protected
+  - Turn an awkward pair into a situation you already know before inserting
+  - Take a stuck corner out of its slot without losing the cross
+  - Solve three guided pairs on a cube you turn yourself
 checkpoints:
-  - id: prepare
-    title: Preparing an F2L pair
+  - id: exercises
+    title: Three guided F2L exercises
 recap:
-  - A connected pair goes into its slot by opening, moving the block, then closing.
+  - A joined pair goes in by opening the slot, bringing the pair over it and closing.
+  - A corner's white sticker faces up, the right side or the front, and each needs something different.
 ---
 
-A disconnected pair is not an insertion problem yet. First put both pieces where you can see them, then make a block on U. Keep the cross on D and use the side centres to decide the destination.
+There are 41 different F2L situations. You do not need 41 sequences. Most of them are a **short setup** away from a situation you already know. The method is always the same:
 
-<MoveExplorer moves="R U R' U' F U F'" label="F2L preparation moves: turn one move at a time" />
+**awkward situation → setup → familiar situation → insertion**
 
-## Extract before forcing
+## A corner stuck in its slot
 
-If a corner is trapped in its own slot with the matching edge above it, open that slot just enough to lift the corner to U. Turn U to keep the edge away, then close the slot. The point is not a fixed sequence: it is leaving the cross and every finished slot as you found them.
+The hardest-looking pairs have a piece sitting in the slot the wrong way. Here the corner is in its own slot with its white sticker turned, and its edge is on top. You cannot insert anything: the slot is not empty.
 
-<Cube setup="R U R'" alg="U' R U' R'" controls="true" label="A short F2L preparation sequence, shown with replay controls" />
+<Cube setup="R U' R' U R U' R' U" alg="U' R U R' U' R U R'" controls="true" highlight="FDR RDF DFR UF FU" dim="soft" label="A corner stuck in its slot, edge on top. The first four turns lift the corner out, one turn lines it up, and the last three insert the pair." />
 
-## Pair on U
+Watch it in three parts.
 
-Name the corner's D colour and its two side colours. Find the edge with those two side colours. Turn U until the stickers that must touch form matching stripes. If the pair would point straight into its slot, move it away first; this gives your opening move somewhere safe to work.
+1. **U' R U R' lifts the corner out.** U' brings the edge round to the right. R opens the slot and lifts the corner out of it (the edge goes round the back with it). U moves the corner off to the side, and R' closes the slot again. The corner is now in the top layer and the slot is empty.
+2. **U' lines the pieces up.** The corner's white sticker faces the side and the edge is behind it.
+3. **R U R' inserts.** This is the exact situation from the last lesson.
 
-Prefer a short, explainable preparation over rushing into an insertion. On a physical cube, stop after the pairing move and check both pieces; that habit prevents most accidental cross damage.
+So a stuck corner is not a new case. It is the case you know, after **getting the corner out and lining it up**.
 
-<Checkpoint id="prepare" kind="quiz">
-  <Question id="trapped" prompt="What is the first aim when one F2L piece is trapped?" answer="extract">
-    <Option id="extract">Bring it to a visible U-layer position while restoring the slot</Option>
-    <Option id="force">Repeat its insertion until it works</Option>
-    <Option id="cross">Dismantle the cross to make room</Option>
-  </Question>
-  <Question id="match" prompt="Which colours identify the edge that belongs with a corner?" answer="side">
-    <Option id="side">The corner's two side colours</Option>
-    <Option id="up">Only the colour facing U</Option>
-    <Option id="any">Any sticker that matches one side</Option>
-  </Question>
-</Checkpoint>
+## Why the cross survives
+
+Every turn that opens the slot is undone before the sequence ends: R is closed by R'. The turns in between only move pieces in the top layer, which the cross and the finished slots do not care about. When you make your own setup, check the same thing: whatever you open, close.
+
+## Your turn
+
+Below are three cubes. Each has one lit pair, a solved cross and the other three slots finished. You turn the cube with the buttons (or the keys U, R, L and F, with Shift for the opposite direction). It checks the cube after every turn, so **any** solution that puts the lit pair home and leaves the cross and the other slots alone counts, not just the one shown afterwards.
+
+If you are stuck, ask for a hint. They get stronger one at a time: what to look at, then what to aim for, then a first turn. You can also ask to see a solution.
+
+<Checkpoint id="exercises" kind="f2l-exercises" />
+
+## Next
+
+When you can say the four things about any pair (its colours, its slot, which way its white sticker faces, and where its edge is), you can work out a setup for it. Practise on real cases, one pair at a time, in F2L practice.
+
+<PracticeLink practise="f2l" sheet="f2l" />

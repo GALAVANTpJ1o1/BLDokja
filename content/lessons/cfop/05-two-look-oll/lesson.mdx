@@ -1,41 +1,66 @@
 ---
 id: cfop-two-look-oll
-title: Two-look OLL — orient edges, then corners
+title: Two-look OLL — orient the edges, then the corners
 track: cfop
 order: 5
 prerequisites:
   - cfop-last-layer-concepts
-estimatedMinutes: 7
+estimatedMinutes: 8
 objectives:
-  - Read U-layer edge orientation before corner orientation
-  - Choose a verified two-look OLL case
-  - Rehearse recognition separately from execution
+  - Read the top edges and name the pattern as a dot, a line or an L
+  - Read the top corners and name one of seven patterns, including Sune and Anti-Sune
+  - Apply the algorithm from the right starting picture
 checkpoints:
   - id: oll
     title: Two-look OLL recognition
 recap:
-  - Orientation changes sticker direction; it does not promise correct piece locations.
+  - Orientation asks whether the top sticker is yellow; permutation asks whether the piece is in the right place.
 ---
 
-For two-look OLL, first read the four U-layer edge stickers. Do not turn just because one top sticker looks unfamiliar; inspect the whole edge pattern. Once the edges are oriented, read the corners as a separate picture.
+Two-look OLL turns the top face yellow in **two looks**. First you make the four **edges** yellow on top. That gives you a yellow cross. Then you make the four **corners** yellow on top. Each look is a small picture you can name.
 
-<LastLayerExplorer kind="eo" compact="true" />
+## Look one: the edges
 
-Switch the same viewer to **orient corners** after you can identify the edge picture. Use the case list as recognition practice: say the case identifier first, then play the notation. That keeps recognition timing separate from execution timing.
+Ignore the corners completely. Only the yellow centre and the four top edges matter, so the pictures below show only those. There are only three patterns.
 
-<LastLayerExplorer kind="co" compact="true" />
+- **Dot:** no edge is yellow on top.
+- **Line:** two opposite edges are yellow, forming a line across the top.
+- **L:** two neighbouring edges are yellow, forming an L.
 
-The sequences in this project are verified against their stage, including preserved F2L. They are deliberately labelled reference notation; save a verified personal replacement in the algorithm workbench only after checking its exact effect.
+Each card is drawn the way its algorithm expects, with yellow on top. If your cube shows the same pattern turned round, turn the top layer (U) until it matches. Play the algorithm on the cube to see it turn the pattern into a cross.
+
+<CaseCards stage="eo" />
+
+Notice that the Dot algorithm is simply the Line algorithm followed by the L algorithm. Two small algorithms you know make the third.
+
+## Look two: the corners
+
+Now the four edges are yellow, so you have a yellow cross, and only the corners need turning. Count how many corners already have yellow on top, then look at where the other yellow stickers are pointing. There are seven pictures. Two of them have names you will hear all the time: **Sune** and **Anti-Sune**. They are mirror images of one another and come up most often.
+
+<CaseCards stage="co" />
+
+For all seven, the four edges stay yellow on top. The pieces may still end up in the wrong places, and that is for the next lesson.
+
+## Practise recognising before executing
+
+Recognition and execution are two different skills. In the recognition practice you see a case, name it, and only then watch its algorithm play. It runs the whole thing in order, edges then corners, on one cube: what the first algorithm leaves behind is what you see next.
 
 <Checkpoint id="oll" kind="quiz">
   <Question id="first" prompt="Which pieces do you read first in two-look OLL?" answer="edges">
-    <Option id="edges">The four U-layer edges</Option>
-    <Option id="corners">The four U-layer corners</Option>
-    <Option id="all">All pieces must be read as one full OLL case</Option>
+    <Option id="edges">The four top edges: dot, line or L</Option>
+    <Option id="corners">The four top corners</Option>
+    <Option id="all">Every top sticker at once</Option>
   </Question>
-  <Question id="second" prompt="When do you identify the corner-orientation picture?" answer="after">
-    <Option id="after">After the edge-orientation stage is complete</Option>
-    <Option id="before">Before inspecting U-layer edges</Option>
-    <Option id="pll">Only after PLL</Option>
+  <Question id="line" prompt="Two opposite edges are yellow on top. Which pattern is that?" answer="line">
+    <Option id="line">Line</Option>
+    <Option id="l">L</Option>
+    <Option id="dot">Dot</Option>
+  </Question>
+  <Question id="cross" prompt="What do you have when the edges are done?" answer="cross">
+    <Option id="cross">A yellow cross on top</Option>
+    <Option id="face">A completely yellow top</Option>
+    <Option id="solved">A solved cube</Option>
   </Question>
 </Checkpoint>
+
+<PracticeLink practise="2look-oll" sheet="2look-oll" />

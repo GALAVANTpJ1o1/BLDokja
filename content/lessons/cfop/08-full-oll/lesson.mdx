@@ -1,37 +1,63 @@
 ---
 id: cfop-full-oll
-title: Full OLL — recognise the complete orientation picture
+title: Full OLL — recognise the shape, do it in one look
 track: cfop
 order: 8
 prerequisites:
   - cfop-advanced-intuitive-f2l
-estimatedMinutes: 8
+estimatedMinutes: 7
 objectives:
-  - Recognise a full OLL picture without splitting it into two looks
-  - Find a verified case quickly in the reference
-  - Keep standard notation separate from an OH hand preference
+  - Read a full OLL case from the shape the yellow makes, corners included
+  - Find its family, then its number, on the complete reference
+  - Add cases to your set one family at a time
 checkpoints:
   - id: full-oll
-    title: Full OLL practice
+    title: Full OLL recognition
 recap:
-  - Full OLL replaces two-look recognition only; it still preserves solved F2L.
+  - Two-look OLL orients the edges, then the corners, in two algorithms.
+  - Yellow goes on top, and every card is drawn as its algorithm expects.
 ---
 
-Full OLL asks for one orientation picture. Use a repeatable scan: U edges, U corners, then the side stickers around the layer. Turn the cube mentally or physically only after you have named the pattern you are looking for.
+Full OLL does in **one algorithm** what two-look OLL does in two. There are **57 cases**, because the top can show any combination of oriented edges and corners. You are not expected to learn them all at once, and you do not have to: two-look OLL always works, and every full OLL case you add simply saves a look.
 
-<LastLayerExplorer kind="oll" />
+## Read the shape
 
-The viewer contains all 57 engine-enumerated orientation classes. Search an identifier or notation, select a row, then use reset, play, pause, stepping and playback speed to inspect the exact effect. The notation is complete and verified; ergonomic choice is personal, especially for one-handed execution.
+You read a full case as a whole picture: which stickers on top are yellow, **and** where the yellow stickers on the sides point. Unlike two-look, the corners are part of the picture, so nothing is hidden. The cases fall into **families** by the shape the yellow makes: dot, cross, square, lightning bolts, fish, knight move, P, T, C, W, I, small L, awkward shapes, and the two with all four corners already oriented. Learn a family at a time and its members start to look alike.
+
+Each case has a number (OLL 27), and some have a name you will hear at any competition. The seven cross cases below are the ones behind the two-look corner cases you already know. **OLL 27 is Sune and OLL 26 is Anti-Sune.** So Sune is a full OLL case you already know.
+
+<CaseCards stage="oll" numbers="21 22 23 24 25 26 27" />
+
+## Adding cases without losing two-look
+
+The safest way to grow is to keep two-look as your fallback, then replace it one case at a time.
+
+- Start with the families that come up most, and the cases that need only a few turns.
+- Learn a case by its **picture first**. If you can name the shape, you can look the algorithm up.
+- When a two-look finish is slower than a full algorithm you know, use the full one. Otherwise keep the two-look.
+
+The full reference shows all 57, grouped by family. You do not read it top to bottom; you go straight to the family you are learning, or search by number or name.
+
+## Hold it, then turn it
+
+Every algorithm is written for the case **as drawn**, yellow on top. If the top layer is a quarter turn away, a single U turn brings it round, and the card says so where one is needed. When an algorithm uses rotations (x, y, z) or wide turns (r, l, f, u), they are part of the notation and it will say how to hold the cube again afterwards.
 
 <Checkpoint id="full-oll" kind="quiz">
-  <Question id="full" prompt="What does full OLL replace?" answer="recognition">
-    <Option id="recognition">The two separate orientation recognition looks</Option>
-    <Option id="f2l">F2L pair building</Option>
-    <Option id="pll">All permutation work</Option>
+  <Question id="count" prompt="How many full OLL cases are there?" answer="fiftyseven">
+    <Option id="fiftyseven">57</Option>
+    <Option id="ten">10</Option>
+    <Option id="twentyone">21</Option>
   </Question>
-  <Question id="reference" prompt="What should you do before saving a different full OLL algorithm?" answer="verify">
-    <Option id="verify">Verify that it solves the exact case, then test it on your own cube</Option>
-    <Option id="copy">Assume any similarly named algorithm is interchangeable</Option>
-    <Option id="parity">Add a parity correction</Option>
+  <Question id="sune" prompt="OLL 27 is" answer="sune">
+    <Option id="sune">Sune</Option>
+    <Option id="anti">Anti-Sune</Option>
+    <Option id="t">The T permutation</Option>
+  </Question>
+  <Question id="read" prompt="What does full OLL read that two-look ignores at first?" answer="all">
+    <Option id="all">The corners and edges together, as one picture</Option>
+    <Option id="side">Only the side colours</Option>
+    <Option id="centre">The centres</Option>
   </Question>
 </Checkpoint>
+
+<PracticeLink practise="oll" sheet="oll" />

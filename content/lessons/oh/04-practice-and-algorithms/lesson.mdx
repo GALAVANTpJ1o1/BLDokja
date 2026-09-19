@@ -1,41 +1,57 @@
 ---
 id: oh-practice-and-algorithms
-title: One-handed practice — recognition, execution and personal algorithms
+title: One-handed practice — recognition, execution and your own choices
 track: oh
 order: 4
 prerequisites:
   - oh-cfop-execution
 estimatedMinutes: 7
 objectives:
-  - Build OH recognition and execution as separate skills
-  - Record a grip and finger-trick note with a verified algorithm
+  - Practise one-handed recognition and execution as separate skills
+  - Compare the one-handed and two-handed algorithm for the same case
   - Choose practice blocks that protect accuracy
 checkpoints:
   - id: plan
     title: One-handed practice plan
 recap:
-  - OH changes your execution choices while preserving CFOP recognition and cube notation.
+  - Recognition stays the same one-handed; the algorithm you execute may not.
 ---
 
-Use short blocks. Spend one block identifying cases without turning, one executing a known sequence slowly, and one doing mixed solves with a generous accuracy goal. Record drops, lockups and regrips separately from a wrong case recognition; they need different fixes.
+Use short blocks. Spend one block **naming cases without turning**, one **executing a known algorithm slowly**, and one **doing mixed solves** with a generous accuracy goal. Record drops, lockups and regrips separately from a wrong recognition: they need different fixes.
 
-<Cube alg="R U R' U' R' F R2 U' R' U' R U R' F'" controls="true" label="Longer last-layer sequence for one-handed pacing practice" />
+## Switch the style, keep the case
 
-In the algorithm workbench, open a verified case and add finger-trick notes, a regrip estimate and a comfort rating. Save only an algorithm the engine accepts for that case. Then use alternating trials to compare two choices; keep enough successful attempts before deciding that one is truly faster.
+Set the site to **one-handed** in any last-layer reference or in the recognition practice. Every case then shows and plays the dedicated one-handed algorithm. Here is one case in both styles, so you can see exactly what changes.
 
-For a standard/reference sequence, look for rotations, slice turns and where the grip resets. An **OH-friendly candidate** is a personal, verified alternative that you have shown is repeatable on your own hand and cube. It is deliberately not presented as a universal replacement.
+<CaseCards stage="pll" names="Y" style="OH" />
 
-<LastLayerExplorer kind="oll" compact="true" />
+<CaseCards stage="pll" names="Y" style="2H" />
+
+Same case, same picture, same result. Different turns, because a different hand does the work. Notice the rotations and where they fall: they are part of the algorithm, and the card says how to hold the cube again afterwards.
+
+## Compare, then decide
+
+If two algorithms solve the same case, do not pick by turn count. Do a few timed, clean repetitions of each on your own cube, alternating, and keep the one you can repeat without a regrip that catches. Your hand and your cube decide, not the notation.
+
+- Time **recognition** and **execution** separately. They improve at different speeds.
+- Count **drops and lockups** as a separate score from time.
+- Keep a **weak cases** list. The recognition practice has a filter for exactly that.
+
+## Practise
+
+The recognition practice has seven modes, from two-look OLL to full OLL followed by full PLL. In each, you name the case first, and then the algorithm plays on the same cube. Your one-handed setting decides which algorithm.
+
+<PracticeLink practise="2look-ll" sheet="oll" />
 
 <Checkpoint id="plan" kind="quiz">
-  <Question id="skills" prompt="Why time OH recognition separately from execution?" answer="different">
+  <Question id="skills" prompt="Why time one-handed recognition separately from execution?" answer="different">
     <Option id="different">They are different skills and can fail for different reasons</Option>
     <Option id="same">They always improve at exactly the same rate</Option>
     <Option id="notation">It changes the notation system</Option>
   </Question>
-  <Question id="record" prompt="Which observation is useful to record for an OH algorithm?" answer="regrip">
-    <Option id="regrip">The regrips and finger tricks that happened on your cube</Option>
-    <Option id="colour">Only the colour of the timer</Option>
-    <Option id="parity">A 3×3 parity algorithm</Option>
+  <Question id="choose" prompt="Two algorithms solve the same case. How do you choose?" answer="repeat">
+    <Option id="repeat">By clean, repeated execution on your own cube, not by turn count alone</Option>
+    <Option id="short">The shorter one, always</Option>
+    <Option id="name">The one with the shorter name</Option>
   </Question>
 </Checkpoint>

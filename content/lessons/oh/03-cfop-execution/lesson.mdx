@@ -1,41 +1,69 @@
 ---
 id: oh-cfop-execution
-title: One-handed CFOP — change execution, not recognition
+title: One-handed CFOP — recognise the same, execute differently
 track: oh
 order: 3
 prerequisites:
   - oh-turning-finger-tricks
 estimatedMinutes: 8
 objectives:
-  - Adapt F2L planning to a one-handed working slot
-  - Separate standard reference notation from OH-friendly personal choices
-  - Practise OLL and PLL recognition before execution
+  - Keep CFOP recognition and change only execution
+  - See why some two-handed algorithms are swapped for one-handed ones
+  - Use the dedicated one-handed algorithm where the site has one, and know where it does not
 checkpoints:
   - id: cfop
     title: One-handed CFOP execution
 recap:
-  - Regrips and rotations are costs to inspect, not failures to hide.
+  - Regrips and rotations are costs to notice, not failures to hide.
+  - A light, square grip leaves the index and middle fingers free to turn.
 ---
 
-CFOP recognition stays the same in OH. The useful change is choosing work that keeps the cube in a comfortable grip. During F2L, favour a visible pair whose insertion uses your confident faces and protects completed slots. Accept a short rotation when it avoids a long, unstable rescue sequence.
+**Recognition does not change.** A one-handed solver sees the same cross, the same F2L pairs, the same OLL and PLL pictures as a two-handed one, with yellow on top and white on the bottom. What changes is **how the turns are made** with one hand: which turns are comfortable, which need a regrip, and which are awkward enough to replace.
 
-<Cube setup="R U R'" alg="R U' R'" controls="true" label="Standard F2L reference insertion with one-handed replay" />
+Do not assume that the best two-handed algorithm is the best one-handed algorithm. They are different problems.
 
-The displayed notation is a **standard/reference** sequence. Its OH-friendly alternative is not assumed from the letters alone: a personal alternative must be verified for the same case before it is saved. The workbench ranks verified alternatives by move count, rotations, slices, regrips and your own comfort rating, then lets you compare two in alternating timed trials.
+## F2L with one hand
 
-For last layer, run recognition and execution separately. First identify the picture without turning. Then replay its verified sequence slowly, marking each regrip you need. Only combine the two when each part is dependable.
+F2L is mostly R and U turns, which suit one hand. The advice from the last lesson matters even more here: choose the pair that needs the fewest regrips, keep the cube from rotating, and prefer solutions that keep your grip where it is. The F2L reference on this site has one solution per case; it does not have separate one-handed rows, and it says so. Use it to compare, and keep your own notes on what your hand finds smooth.
 
-<LastLayerExplorer kind="pll" compact="true" />
+<PracticeLink practise="f2l" sheet="f2l" />
+
+## Last layer: where the algorithms differ
+
+For OLL and PLL the site has **dedicated one-handed algorithms** next to the two-handed ones, supplied and checked against the cube engine. Many are different:
+
+- Middle-slice turns (M) need a full-hand movement one-handed. The two-handed **H, Ua, Ub and Z** permutations use them, and the one-handed versions are written with R, L and U turns instead.
+- Wide turns and rotations are placed differently, so the algorithm runs on the faces that are comfortable for your hand.
+- A few algorithms, such as **T** and the four **G** perms, are the same in both styles because they already suit one hand.
+
+The cards below show the **one-handed** version. Switch the reference to two-handed to compare the same case.
+
+<CaseCards stage="pll" names="H Ua Ub Z" style="OH" />
+
+For an OLL, the cards work the same way. Some cases use the same algorithm in both styles. OLL 43 is one: `F' U' L' U L F` is already comfortable one-handed, since it only uses the left-hand turns F, U and L.
+
+<CaseCards stage="oll" numbers="4 5 43" style="OH" />
+
+## Recognise first, then execute
+
+Run recognition and execution as two skills. First name the case without turning. Then execute the algorithm slowly, marking each regrip you make. Only combine the two when each part is reliable. The recognition practice has a one-handed setting, so the algorithm that plays after your answer is the one-handed version.
+
+<PracticeLink practise="pll" sheet="pll" />
 
 <Checkpoint id="cfop" kind="quiz">
-  <Question id="recognition" prompt="What changes about CFOP recognition in OH?" answer="same">
-    <Option id="same">The cube recognition is the same; execution choices change</Option>
-    <Option id="letters">All case notation uses different letters</Option>
-    <Option id="none">F2L is skipped</Option>
+  <Question id="same" prompt="What stays the same when you solve one-handed?" answer="recognition">
+    <Option id="recognition">Recognising the case from its picture</Option>
+    <Option id="algorithms">Every algorithm</Option>
+    <Option id="grip">Your grip</Option>
   </Question>
-  <Question id="alternative" prompt="When is an OH personal alternative safe to save?" answer="verified">
-    <Option id="verified">After its effect is verified for the exact case</Option>
-    <Option id="short">Whenever it has fewer written moves</Option>
-    <Option id="copied">As soon as it is copied from a list</Option>
+  <Question id="mslice" prompt="Why might a one-handed PLL avoid M turns?" answer="hand">
+    <Option id="hand">A middle-slice turn needs a whole-hand movement one-handed</Option>
+    <Option id="banned">M is not allowed in one-handed solving</Option>
+    <Option id="longer">M always makes an algorithm longer</Option>
+  </Question>
+  <Question id="missing" prompt="A case has no dedicated one-handed row. What does the site show?" answer="fallback">
+    <Option id="fallback">The two-handed algorithm, and says so</Option>
+    <Option id="invented">An algorithm it made up</Option>
+    <Option id="blank">Nothing</Option>
   </Question>
 </Checkpoint>

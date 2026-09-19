@@ -1,39 +1,67 @@
 ---
 id: cfop-full-pll
-title: Full PLL — recognise and finish the permutation
+title: Full PLL — read the ring, finish in one look
 track: cfop
 order: 9
 prerequisites:
   - cfop-full-oll
-estimatedMinutes: 8
+estimatedMinutes: 7
 objectives:
-  - Read corner and edge movement as one PLL picture
-  - Use a final U adjustment deliberately
-  - Build a personal verified PLL set without confusing it with parity
+  - Read a PLL case from the bars, headlights and blocks on the side stickers
+  - Tell mirror pairs apart, such as Ja and Jb
+  - Add PLL cases in the order that saves the most time
 checkpoints:
   - id: full-pll
     title: Full PLL practice
 recap:
-  - Full OLL leaves every last-layer sticker oriented before permutation begins.
+  - After OLL the top is all yellow, so PLL is read from the side stickers.
+  - Two-look PLL fixes the corners, then the edges.
 ---
 
-Full PLL reads all piece destinations together. Start by finding a solved block or a pair of headlights, then follow the remaining edge cycle. Before executing, predict which U adjustment will make the result solved.
+Full PLL fixes corners and edges together in **one algorithm**. There are **21 cases**. Because the top is already yellow, the whole case lives on the **ring** of side stickers around the top layer.
 
-<LastLayerExplorer kind="pll" />
+## Read the ring
 
-There are 21 computed full PLL recognition classes here. The compact list is intentionally a searchable table, not 21 repeated cards: select a case to see notation, its recognition state and an animated replay. Personal alternatives belong in the algorithm workbench, where they can be saved, rated and compared.
+Start with what stands out.
 
-An ordinary 3×3 has no separate PLL parity algorithm. If the last layer appears to have one swapped pair, stop and inspect the earlier solve or the cube assembly; do not import a 4×4 parity fix.
+- **A bar**: one side shows three matching stickers.
+- **Headlights**: one side shows matching corners with a different colour between them.
+- **Neither**: no side matches. Then read how the colours run from corner to corner round the ring.
+
+The cards below are drawn with the top face quiet and the ring loud. A solid outline marks a side with a bar, a dashed outline a side with headlights, and each sticker carries a colour letter, so you never rely on colour alone. If the case is turned, a U turn brings the bar or the headlights to the position the card shows.
+
+## Mirror pairs
+
+Many PLL cases come as a **pair**: the same picture and its reflection. Ja and Jb, Ra and Rb, Aa and Ab are examples. They are easy to confuse, and confusing them means using the wrong algorithm. Compare them side by side, and find the one feature that differs: which side the bar or the headlights are on.
+
+<CaseCards stage="pll" names="Ja Jb Ra Rb" />
+
+## In the order that saves time
+
+You already have two-look PLL. Add full cases where they save a look, and keep two-look for the rest.
+
+- Learn the cases that come up most, and the ones that are quick to execute.
+- Group by what moves: **edges only** (H, Ua, Ub, Z), **adjacent corner swaps**, and **diagonal corner swaps**. Cases in one group share features, so learning one makes the next easier.
+- Every algorithm may need a **U turn before** to bring the case to its picture, and one **after** to line the layer up with the centres. The card says which.
+
+A standard 3×3 has no separate PLL parity: if the last layer looks as though one pair is swapped, check the earlier solve or the assembly. Do not import a fix from a bigger cube.
 
 <Checkpoint id="full-pll" kind="quiz">
-  <Question id="scan" prompt="What can a solved block or headlights help you do?" answer="recognise">
-    <Option id="recognise">Recognise the full permutation picture</Option>
-    <Option id="orient">Orient an unsolved last layer</Option>
-    <Option id="parity">Choose a 3×3 parity algorithm</Option>
+  <Question id="count" prompt="How many PLL cases are there?" answer="twentyone">
+    <Option id="twentyone">21</Option>
+    <Option id="fiftyseven">57</Option>
+    <Option id="four">4</Option>
   </Question>
-  <Question id="auf" prompt="What is a final U adjustment used for?" answer="align">
-    <Option id="align">Align the solved permutation with the fixed centres</Option>
-    <Option id="f2l">Extract an F2L corner</Option>
-    <Option id="memo">Create a letter pair</Option>
+  <Question id="ring" prompt="After OLL, where is the PLL case?" answer="sides">
+    <Option id="sides">On the side stickers of the top layer</Option>
+    <Option id="top">On the top face</Option>
+    <Option id="bottom">On the bottom layer</Option>
+  </Question>
+  <Question id="pair" prompt="What is the danger of a mirror pair such as Ja and Jb?" answer="wrong">
+    <Option id="wrong">Confusing them and using the wrong algorithm</Option>
+    <Option id="slow">They are always slow</Option>
+    <Option id="same">They are the same algorithm</Option>
   </Question>
 </Checkpoint>
+
+<PracticeLink practise="pll" sheet="pll" />

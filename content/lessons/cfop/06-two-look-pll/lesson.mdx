@@ -1,41 +1,73 @@
 ---
 id: cfop-two-look-pll
-title: Two-look PLL — permute corners, then edges
+title: Two-look PLL — permute the corners, then the edges
 track: cfop
 order: 6
 prerequisites:
   - cfop-two-look-oll
-estimatedMinutes: 7
+estimatedMinutes: 8
 objectives:
-  - Check that orientation is complete before PLL
-  - Recognise corner and edge permutation stages separately
-  - Finish with any required U adjustment
+  - Find bars and headlights on the side stickers
+  - Choose the corner algorithm, then one of the four edge algorithms
+  - Line the layer up with a final turn of U
 checkpoints:
   - id: pll
     title: Two-look PLL recognition
 recap:
-  - Two-look OLL leaves the U-layer stickers oriented before any permutation step.
+  - After OLL the whole top is yellow, so the top face no longer helps.
+  - Two-look OLL leaves a last layer that needs only permutation.
 ---
 
-PLL moves pieces without changing the solved orientation. Check the top stickers first: if they are not oriented, return to OLL instead of trying to diagnose permutation colours.
+After OLL the top is all yellow, so **the top face cannot help you any more**. Everything you need is on the **sides of the top layer**: the three stickers each side face shows along its top row. Two-look PLL reads them in two looks: **corners first, then edges**.
 
-In two-look PLL, follow the corners to their home slots, then follow the edges. A final U adjustment is a normal part of recognising the finished state, not evidence that the algorithm failed.
+## What to look for
 
-<LastLayerExplorer kind="corner-perm" compact="true" />
+- **Headlights:** the two corners on one side show the **same colour** on that side. Two matching stickers with a different colour between them, like a car's lights.
+- **A bar:** all **three** stickers on one side match. A solved bar.
 
-<LastLayerExplorer kind="edge-perm" compact="true" />
+Both are drawn on the cards below, with an outline around the side that carries them (solid for a bar, dashed for headlights), so you can find them without relying on colour. Each sticker also carries the first letter of its colour.
 
-Only bigger cubes have the piece-family parity algorithms in this site’s reference data. An ordinary 3×3 PLL case is not labelled parity; its corner and edge permutations are constrained together by the cube.
+## Look one: the corners
+
+The corners are permuted when every corner shows its own colours on both sides. There are two starting pictures.
+
+- **Headlights:** two corners already match on one side; the other two do not.
+- **Diagonal:** no side has headlights.
+
+<CaseCards stage="cp" />
+
+These two algorithms also move the edges, and that is fine. Once the corners are in place, only the edges are left.
+
+## Look two: the edges
+
+With the corners solved, every side shows headlights. Only the edges are out of place, and there are four pictures: **H**, **Z** and two three-edge cycles, **Ua** and **Ub**.
+
+<CaseCards stage="ep" />
+
+## The last turn
+
+The layer can end up a quarter turn out. After the corners, and again at the very end, turn **U** until the corner colours line up with the centres. It is easy to forget, and it is a whole extra step if you do: the cards say when one is needed.
+
+## Recognise before you turn
+
+In the practice you see a case, name it, and then the algorithm plays on the same cube, so what the corner algorithm leaves behind is the edge picture you see next. Timed recognition and execution are separate skills, so they are kept separate.
 
 <Checkpoint id="pll" kind="quiz">
-  <Question id="oriented" prompt="What should be true before starting PLL?" answer="orientation">
-    <Option id="orientation">The last-layer stickers are already oriented</Option>
-    <Option id="cross">Every F2L pair is still on U</Option>
-    <Option id="parity">A 3×3 parity algorithm has been used</Option>
+  <Question id="headlights" prompt="What are headlights?" answer="pair">
+    <Option id="pair">Two corners on one side showing the same colour on that side</Option>
+    <Option id="bar">Three matching stickers on one side</Option>
+    <Option id="yellow">Two yellow corners on top</Option>
   </Question>
-  <Question id="order" prompt="What is the two-look PLL order here?" answer="corners">
-    <Option id="corners">Corners first, then edges</Option>
-    <Option id="edges">Edges first, then corners</Option>
-    <Option id="full">All pieces at once only</Option>
+  <Question id="first" prompt="Which do you permute first in two-look PLL?" answer="corners">
+    <Option id="corners">The corners</Option>
+    <Option id="edges">The edges</Option>
+    <Option id="either">Whichever looks easier</Option>
+  </Question>
+  <Question id="after" prompt="The corners are solved. What does every side show?" answer="lights">
+    <Option id="lights">Headlights on every side</Option>
+    <Option id="mixed">A different mix each time</Option>
+    <Option id="bar">A bar on every side</Option>
   </Question>
 </Checkpoint>
+
+<PracticeLink practise="2look-pll" sheet="2look-pll" />

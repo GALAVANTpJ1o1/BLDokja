@@ -1,41 +1,80 @@
 ---
 id: cfop-advanced-intuitive-f2l
-title: Advanced intuitive F2L — protect, pair, insert
+title: Advanced F2L — solve pairs efficiently
 track: cfop
 order: 7
 prerequisites:
   - cfop-two-look-pll
-estimatedMinutes: 7
+estimatedMinutes: 8
 objectives:
-  - Choose a working slot before turning
-  - Preserve completed pairs while building the next one
-  - Explain an efficient F2L choice instead of memorising a long list
+  - Choose the slot to work in, and when to insert into a back slot
+  - Tell a solution that is short from one that is fast
+  - Use the 41-case reference to compare solutions, not to memorise a list
 checkpoints:
   - id: choices
     title: Advanced F2L choices
 recap:
-  - Two-look last layer is a complete finish; F2L speed comes from cleaner preparation.
+  - Most F2L situations are a short setup away from one you already know.
+  - A two-look last layer already finishes the cube; F2L is where the time is.
 ---
 
-Advanced intuitive F2L is not a different set of cube rules. It is a tighter decision loop: scan all four slots, choose a visible pair, keep solved slots out of the working face, then pair before inserting.
+Beginner F2L is about getting each pair in. Advanced F2L is about **how**: fewer turns you have to think about, no rotations, and the next pair already in view. It is the same cube and the same slots. What changes is what you look for.
 
-<Cube setup="U R U' R'" alg="R U R'" controls="true" label="F2L pairing and insertion demonstration with move controls" />
+## Look at all four pairs before you turn
 
-Before each turn, say what it is protecting and what it is moving. If a move sends a completed pair into the working layer, choose a different slot or rotate your plan rather than repairing after every pair.
+At the start of F2L, do not pick a pair and dive in. Scan for the pair whose pieces are **easiest to bring together without touching anything you have finished**. A pair that is already joined, or that needs one setup, is a good choice. A corner stuck in a slot beside a finished pair is a bad first choice: solving it may disturb a slot you would have to redo.
 
-<MoveExplorer moves="U U' R R' F F' L L'" label="Advanced F2L planning moves" />
+- **Keep finished pairs out of the way.** Turn the face that holds a finished slot only when the sequence closes it again.
+- **Use an empty slot as working space.** An unsolved slot has nothing to protect, so it is the safest place to open, lift and drop pieces.
+- **Pick the slot that comes to you.** You do not have to insert into the slot nearest your right hand; you insert into the slot the pair belongs to, and you choose which pair to do next.
 
-Speed appears when recognition and execution are clean independently: time your decision while the cube is visible, then time the prepared sequence without searching mid-execution.
+## Front slots and back slots
+
+A pair whose slot is at the **back** is harder to see, because the slot faces away. The reflex is to rotate the whole cube so it comes round to the front, and that costs time. Two habits fix it. First, solve **back slots first**, while they are empty and easy to reach; leave the front slots, which are easier to see, for later, when the cube is fuller. Second, learn to recognise a pair's relationship in the top layer by the colours alone, so you rarely have to look at the slot at all.
+
+## Same length, different quality
+
+Here is one situation solved two different ways. Both solutions are **four turns**.
+
+<Cube setup="R U R' U'" alg="U R U' R'" controls="true" highlight="UFR FUR RUF UR RU" dim="soft" label="A joined pair, solved with R and U turns only" />
+
+<Cube setup="R U R' U'" alg="R' F R F'" controls="true" highlight="UFR FUR RUF UR RU" dim="soft" label="The same pair, solved with the sledgehammer trigger R prime F R F prime" />
+
+The first uses only R and U turns, which are the two easiest faces for the right hand. The second is a well-known trigger, R' F R F', often called the **sledgehammer**. It has exactly the same length, but it puts a different finger on a different face. Try each, slowly and then quickly, on a real cube. The count of turns says they are equal; your hand may not.
+
+That is the whole lesson in one comparison. **The shortest solution is not always the fastest**, because speed depends on:
+
+- **Rotations and regrips.** Every time you rotate the cube or shift your grip you lose time, even if the turn count is small.
+- **Ergonomics.** Some turns are done with one finger flick, others need a wrist movement.
+- **Visibility.** A solution that keeps the next pair in view saves the pause you would otherwise take to look for it.
+- **Lookahead.** The best solution for this pair may quietly set up the next one, joining two pieces or moving a corner nearer its edge while it inserts the current one.
+
+## Solving without rotating
+
+Most of the 41 cases can be solved with turns of R, U, F and L alone, without rotating the cube. That is what the reference below shows. Rotationless solving is not about being clever; it is about noticing that the front-right slot and the front-left slot are mirror images. A case in the front-left slot uses the mirror of the front-right solution, so you already know both.
+
+## The 41 cases as a reference
+
+You do not memorise 41 algorithms. You use the reference to **compare**: look at a case you keep fumbling, read what the solution does, and try it. The complete reference is at the bottom of this page. Every card shows the pair in the front-right slot, with the corner and edge lit and a solution you can watch, and a mirror image for the front-left slot. Each solution is found and checked by the cube engine (the shortest in R, U and F, ranked for comfort); it is not copied from a speedcubing list. Your own preferred solution, when you find a better one, belongs to you.
+
+<PracticeLink practise="f2l" sheet="f2l" />
 
 <Checkpoint id="choices" kind="quiz">
-  <Question id="scan" prompt="What should you do before committing to an F2L sequence?" answer="scan">
-    <Option id="scan">Scan for a visible pair and a slot you can protect</Option>
-    <Option id="force">Repeat the last insertion faster</Option>
-    <Option id="last">Start last layer before all pairs are solved</Option>
+  <Question id="scan" prompt="What should you do at the start of F2L?" answer="scan">
+    <Option id="scan">Look at all four pairs and choose the one that is easiest to bring together</Option>
+    <Option id="front">Always start with the front-right pair</Option>
+    <Option id="rotate">Rotate the cube so every slot is at the front</Option>
   </Question>
-  <Question id="reason" prompt="Why name the purpose of each turn while learning?" answer="effect">
-    <Option id="effect">It exposes whether the turn pairs, protects or inserts</Option>
-    <Option id="memory">It replaces all recognition practice</Option>
-    <Option id="notation">It makes notation unnecessary</Option>
+  <Question id="same" prompt="Two solutions are both four turns long. What can still make one faster?" answer="hands">
+    <Option id="hands">Ergonomics, rotations, regrips and lookahead</Option>
+    <Option id="nothing">Nothing, four turns is four turns</Option>
+    <Option id="colour">The colour of the pieces</Option>
+  </Question>
+  <Question id="back" prompt="A pair belongs in a back slot. A good habit is to" answer="early">
+    <Option id="early">Solve back slots early, while they are empty and easy to reach</Option>
+    <Option id="last">Always leave back slots until last</Option>
+    <Option id="never">Never insert into a back slot</Option>
   </Question>
 </Checkpoint>
+
+<F2LReference />
