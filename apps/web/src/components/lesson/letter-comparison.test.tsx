@@ -24,15 +24,15 @@ describe("LetterComparison", () => {
     expect(right.textContent).toContain("F");
   });
 
-  it("wraps a long memo onto further tables of eight targets, keeping the numbering", () => {
+  it("wraps a long memo onto further tables of six targets, keeping the numbering", () => {
     render(<LetterComparison comparison={compareLetters(RIGHT, "A P X V F D C K K S")} />);
     const tables = screen.getAllByRole("table");
     expect(tables).toHaveLength(2);
-    expect(tables[0]?.getAttribute("aria-label")).toMatch(/targets 1 to 8/);
-    expect(tables[1]?.getAttribute("aria-label")).toMatch(/targets 9 to 10/);
+    expect(tables[0]?.getAttribute("aria-label")).toMatch(/targets 1 to 6/);
+    expect(tables[1]?.getAttribute("aria-label")).toMatch(/targets 7 to 10/);
     const second = tables[1];
     if (second === undefined) throw new Error("no second table");
-    expect(within(second).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["Target", "9", "10"]);
+    expect(within(second).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["Target", "7", "8", "9", "10"]);
   });
 
   it("shows a dash for targets never typed and for letters typed past the end", () => {

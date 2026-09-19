@@ -1,8 +1,12 @@
 import { en } from "@/i18n/en";
 import type { LetterComparison as Comparison, LetterPair } from "@/trainers/checkpoint-items";
 
-/** Targets per table: eight two-em columns and the row labels fit a 380px screen. */
-const PER_TABLE = 8;
+/**
+ * Targets per table. Measured on the live page: six fit a 320px phone's content width (about 300px with
+ * the row labels), and eight only fit from about 375px. The wrapper below scrolls the table, never the
+ * page, if a narrower screen or a wider letter still doesn't fit.
+ */
+const PER_TABLE = 6;
 
 /** The sentence that says where a wrong memo went wrong; undefined when nothing differs. */
 export function differenceText(comparison: Comparison): string | undefined {
@@ -32,7 +36,7 @@ function RightCell({ pair }: { pair: LetterPair }) {
 /**
  * A typed memo set against the right one, target by target: what you typed on one row, what was right
  * on the next, a cross on every letter that differs. Long sets wrap onto further tables so it stays
- * readable without scrolling sideways.
+ * readable without scrolling sideways on a phone.
  */
 export function LetterComparison({ comparison }: { comparison: Comparison }) {
   const t = en.lesson.compare;
@@ -44,24 +48,26 @@ export function LetterComparison({ comparison }: { comparison: Comparison }) {
         const first = row[0]?.position ?? 1;
         const last = row[row.length - 1]?.position ?? first;
         return (
-          <table key={first} className="w-fit border-collapse text-center" aria-label={`${t.caption} (${t.targets(first, last)})`}>
-            <thead>
-              <tr>
-                <th scope="col" className="pr-3 text-left t-meta font-normal text-quiet">{t.target}</th>
-                {row.map((pair) => <th key={pair.position} scope="col" className="min-w-9 px-1 t-meta font-normal text-quiet">{pair.position}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row" className="pr-3 text-left t-meta font-normal">{t.youTyped}</th>
-                {row.map((pair) => <TypedCell key={pair.position} pair={pair} />)}
-              </tr>
-              <tr>
-                <th scope="row" className="pr-3 text-left t-meta font-normal">{t.rightAnswer}</th>
-                {row.map((pair) => <RightCell key={pair.position} pair={pair} />)}
-              </tr>
-            </tbody>
-          </table>
+          <div key={first} className="max-w-full overflow-x-auto">
+            <table className="w-fit border-collapse text-center" aria-label={`${t.caption} (${t.targets(first, last)})`}>
+              <thead>
+                <tr>
+                  <th scope="col" className="pr-3 text-left t-meta font-normal text-quiet">{t.target}</th>
+                  {row.map((pair) => <th key={pair.position} scope="col" className="min-w-9 px-1 t-meta font-normal text-quiet">{pair.position}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" className="pr-3 text-left t-meta font-normal">{t.youTyped}</th>
+                  {row.map((pair) => <TypedCell key={pair.position} pair={pair} />)}
+                </tr>
+                <tr>
+                  <th scope="row" className="pr-3 text-left t-meta font-normal">{t.rightAnswer}</th>
+                  {row.map((pair) => <RightCell key={pair.position} pair={pair} />)}
+                </tr>
+              </tbody>
+            </table>
+          </div>
         );
       })}
     </div>
