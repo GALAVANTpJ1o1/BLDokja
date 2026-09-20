@@ -3,6 +3,7 @@
 import type { CaseSchedule } from "@bld/srs";
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { caseStatus, masteryOpacity, MasteryMark } from "@/components/trainer/mastery";
+import { useDragScroll } from "@/components/ui/use-drag-scroll";
 import { en } from "@/i18n/en";
 import type { Reader } from "@/lib/reader";
 import type { CommCase } from "@/trainers/three-style";
@@ -16,6 +17,8 @@ export function CaseGrid({ reader, cases, stickers, schedules, now, current, onP
   const byTargets = useMemo(() => new Map(cases.map((c) => [`${c.targets[0]}-${c.targets[1]}`, c])), [cases]);
   const [row, setRow] = useState(stickers[0] ?? "");
   const table = useRef<HTMLTableElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  useDragScroll(scroller);
   const pieceType = cases[0]?.pieceType ?? "corners";
   const letter = (s: string) => reader.letterOf(s) ?? "?";
 
@@ -46,7 +49,7 @@ export function CaseGrid({ reader, cases, stickers, schedules, now, current, onP
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="hidden overflow-x-auto md:block">
+      <div ref={scroller} className="drag-scroll hidden overflow-x-auto md:block">
         <table ref={table} className="border-collapse" aria-label={en.threeStyle.gridLabel(en.threeStyle.pieceTypes[pieceType])} onKeyDown={onKeyDown}>
           <thead>
             <tr>
