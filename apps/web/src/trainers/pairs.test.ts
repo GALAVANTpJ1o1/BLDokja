@@ -11,6 +11,7 @@ import {
   csvRows,
   didYouMean,
   drillWeights,
+  emptyPair,
   expectedOccurrence,
   findImages,
   libraryHealth,
@@ -29,6 +30,7 @@ import {
   samePair,
   seenPairs,
   sentenceMemo,
+  withPicture,
 } from "./pairs";
 
 const AT = "2026-09-16T04:00:00Z";
@@ -219,5 +221,36 @@ describe("letter-pair library", () => {
     const memo = sentenceMemo(puzzle, scheme, "sentence", 3, buffers);
     const traces = scrambleTraces(puzzle, scheme, sessionScramble("sentence", 3), "both", buffers);
     expect(memo.pieces.map((p) => p.pairs.join("").slice(0, traces.find((t) => t.pieceType === p.pieceType)?.steps.length))).toEqual(traces.map((t) => t.steps.map((s) => s.letter).join("")));
+  });
+});
+
+describe("pictures on pair images", () => {
+  const PNG = "data:image/png;base64,iVBORw0KGgo=";
+  const at = "2026-09-20T10:00:00.000Z";
+  const base = (): LetterPair => {
+    const empty = emptyPair("A", "B", at);
+    const one = addImage(empty, "apple", "i1", at).pair;
+    return addImage(one, "arrow", "i2", at).pair;
+  };
+
+  it("attaches a picture to one image and removes it again, leaving the rest alone", () => {
+    const withIt = withPicture(base(), "i1", PNG, at);
+    expect(withIt.images.find((i) => i.id === "i1")?.asset).toBe(PNG);
+    expect(withIt.images.find((i) => i.id === "i2")?.asset).toBeUndefined();
+    expect(LetterPairSchema.safeParse(withIt).success).toBe(true);
+    const without = withPicture(withIt, "i1", undefined, at);
+    expect(without.images.find((i) => i.id === "i1")).not.toHaveProperty("asset");
+  });
+
+  it("keeps a picture when two words are merged, from whichever word had one", () => {
+    const pair = withPicture(base(), "i2", PNG, at);
+    // Rename i1 ("apple") to "arrow": the two merge into the existing "arrow", which carries the picture.
+    const merged = renameOrMerge(pair, "i1", "arrow", at);
+    expect(merged.images).toHaveLength(1);
+    expect(merged.images[0]?.asset).toBe(PNG);
+    // And the other way round: the renamed word has the picture, the kept word does not.
+    const reverse = renameOrMerge(withPicture(base(), "i1", PNG, at), "i1", "arrow", at);
+    expect(reverse.images).toHaveLength(1);
+    expect(reverse.images[0]?.asset).toBe(PNG);
   });
 });

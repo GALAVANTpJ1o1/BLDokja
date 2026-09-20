@@ -2,6 +2,7 @@
 
 import { useRef, useState, type KeyboardEvent } from "react";
 import { en } from "@/i18n/en";
+import { useDragScroll } from "@/components/ui/use-drag-scroll";
 import { mainImage } from "@/trainers/pairs";
 import { masteryOpacity, MasteryMark, pairStatus, type LibraryContext } from "./pair-ui";
 
@@ -12,6 +13,8 @@ import { masteryOpacity, MasteryMark, pairStatus, type LibraryContext } from "./
  */
 export function PairGrid({ ctx }: { ctx: LibraryContext }) {
   const [focus, setFocus] = useState<[number, number]>([0, 1]);
+  const scroller = useRef<HTMLDivElement>(null);
+  useDragScroll(scroller);
   const [row, setRow] = useState(ctx.letters[0] ?? "");
   const table = useRef<HTMLTableElement>(null);
   const size = ctx.letters.length;
@@ -40,7 +43,7 @@ export function PairGrid({ ctx }: { ctx: LibraryContext }) {
   return (
     <div className="flex flex-col gap-4">
       <p className="t-meta text-quiet">{en.pairs.keyboard}</p>
-      <div className="hidden overflow-x-auto md:block">
+      <div ref={scroller} className="drag-scroll hidden overflow-x-auto md:block">
         <table ref={table} className="border-collapse" aria-label={en.pairs.gridLabel} onKeyDown={onKeyDown}>
           <thead>
             <tr>
@@ -61,6 +64,7 @@ export function PairGrid({ ctx }: { ctx: LibraryContext }) {
                 {ctx.letters.map((second, c) => {
                   const info = cell(first, second);
                   const diagonal = first === second;
+                  const picture = mainImage(ctx.byId.get(info.id))?.asset;
                   return (
                     <td key={second} className="p-[1px]">
                       <button
@@ -77,7 +81,10 @@ export function PairGrid({ ctx }: { ctx: LibraryContext }) {
                           <span className="mono text-[0.625rem] leading-none text-quiet">{info.id}</span>
                           <MasteryMark status={info.status} />
                         </span>
-                        <span className={`truncate text-[0.75rem] leading-tight ${info.word === undefined ? "text-quiet" : ""}`}>{info.word ?? (info.placeholder ? en.pairs.placeholder : "")}</span>
+                        <span className="flex min-w-0 items-center gap-1">
+                          {picture === undefined ? null : <img src={picture} alt="" className="h-3.5 w-3.5 shrink-0 rounded-[2px] object-cover" />}
+                          <span className={`truncate text-[0.75rem] leading-tight ${info.word === undefined ? "text-quiet" : ""}`}>{info.word ?? (info.placeholder ? en.pairs.placeholder : "")}</span>
+                        </span>
                         <span aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-text" style={{ opacity: masteryOpacity(info.schedule) }} />
                       </button>
                     </td>

@@ -5,7 +5,8 @@ import { useMemo, useState } from "react";
 import { TransmissionWindow } from "@/components/ui/transmission-window";
 import { en } from "@/i18n/en";
 import { newId, nowIso } from "@/lib/storage-client";
-import { addImage, didYouMean, emptyPair, isPlaceholder, makeMain, removeImage, renameOrMerge, withDetails } from "@/trainers/pairs";
+import { readRaster } from "@/trainers/memory-workspace";
+import { addImage, didYouMean, emptyPair, isPlaceholder, makeMain, removeImage, renameOrMerge, withDetails, withPicture } from "@/trainers/pairs";
 import { lettersOf, MasteryMark, pairStatus, type LibraryContext } from "./pair-ui";
 
 /**
@@ -39,6 +40,19 @@ export function PairEditor({ ctx, id, onClose }: { ctx: LibraryContext; id: stri
     }
     setAdding("");
     setKeptMine(undefined);
+  };
+
+  /** A picture goes on the draft like any other change and is written with Save. Rejected files say why and change nothing. */
+  const attachPicture = async (imageId: string, file: File | undefined) => {
+    if (file === undefined) return;
+    try {
+      const asset = await readRaster(file);
+      if (asset === undefined) { setMessage(en.pairs.pictureRejected); return; }
+      setDraft((d) => withPicture(d, imageId, asset, nowIso()));
+      setMessage(undefined);
+    } catch {
+      setMessage(en.pairs.pictureUnreadable);
+    }
   };
 
   const save = async () => {
@@ -113,6 +127,21 @@ export function PairEditor({ ctx, id, onClose }: { ctx: LibraryContext; id: stri
               >
                 {confirmRemove === image.id ? en.pairs.removeConfirm : en.pairs.remove}
               </button>
+              <div className="flex w-full flex-wrap items-center gap-2">
+                {image.asset === undefined ? null : <img src={image.asset} alt={en.pairs.pictureAlt(texts[image.id] ?? image.text)} className="h-14 w-14 rounded-lg object-contain" />}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="field min-w-0 max-w-full flex-1 py-2"
+                  aria-label={image.asset === undefined ? en.pairs.addPicture(texts[image.id] ?? image.text) : en.pairs.changePicture(texts[image.id] ?? image.text)}
+                  onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void attachPicture(image.id, file); }}
+                />
+                {image.asset === undefined ? null : (
+                  <button type="button" className="btn min-h-10 px-2" aria-label={`${en.pairs.removePicture}: ${texts[image.id] ?? image.text}`} onClick={() => { setDraft((d) => withPicture(d, image.id, undefined, nowIso())); }}>
+                    {en.pairs.removePicture}
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

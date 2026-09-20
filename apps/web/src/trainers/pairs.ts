@@ -263,8 +263,20 @@ export function renameOrMerge(pair: LetterPair, imageId: string, text: string, a
   if (from === undefined || into === undefined || text.trim() === "") return renameImage(pair, imageId, text, at);
   const legacy = [...(into.legacy ?? []), ...(from.legacy ?? [])];
   const { flags: _flags, legacy: _legacy, ...base } = into;
-  const merged: PairImage = { ...base, uses: into.uses + from.uses, ...(isPlaceholder(into) && isPlaceholder(from) ? { flags: ["placeholder" as const] } : {}), ...(legacy.length === 0 ? {} : { legacy }) };
+  // Merging two words must not throw a picture away: keep the one already on the kept word, else the other's.
+  const asset = into.asset ?? from.asset;
+  const merged: PairImage = { ...base, uses: into.uses + from.uses, ...(isPlaceholder(into) && isPlaceholder(from) ? { flags: ["placeholder" as const] } : {}), ...(legacy.length === 0 ? {} : { legacy }), ...(asset === undefined ? {} : { asset }) };
   return { ...pair, images: ordered(pair.images.filter((i) => i.id !== imageId).map((i) => (i.id === into.id ? merged : i))), updatedAt: at };
+}
+
+/** Attaches a picture (a validated raster data URL) to an image, or removes it when `asset` is undefined. */
+export function withPicture(pair: LetterPair, imageId: string, asset: string | undefined, at: string): LetterPair {
+  const images = pair.images.map((image) => {
+    if (image.id !== imageId) return image;
+    const { asset: _old, ...rest } = image;
+    return asset === undefined ? rest : { ...rest, asset };
+  });
+  return { ...pair, images, updatedAt: at };
 }
 
 export function withDetails(pair: LetterPair, details: { readonly notes: string; readonly category: string }, at: string): LetterPair {
