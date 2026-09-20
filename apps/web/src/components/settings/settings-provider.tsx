@@ -26,6 +26,8 @@ export interface ResolvedSettings {
   readonly persistentStorage: Settings["persistentStorage"];
 }
 
+export type SettingsPatch = Partial<Settings> | ((current: Settings | undefined) => Partial<Settings>);
+
 interface SettingsContextValue {
   /** Session-only consent to load 3D on teaching/practice pages. */
   readonly threeDRequested: boolean;
@@ -34,7 +36,11 @@ interface SettingsContextValue {
   /** Everything stored, for the settings that have no default here (scheme, buffers, algs, difficulty). */
   readonly stored: Settings | undefined;
   readonly ready: boolean;
-  readonly update: (patch: Partial<Settings>) => Promise<void>;
+  /**
+   * Saves a change. Pass a function to build the patch from the settings as they are when the write happens, so
+   * two quick changes to the same field (both buffers, say) cannot overwrite each other with a stale copy.
+   */
+  readonly update: (patch: SettingsPatch) => Promise<void>;
 }
 
 const DEFAULTS: ResolvedSettings = { theme: "system", palette: "standard", colourway: "slate", environment: "galaxy", compactLayout: false, cubeView: "3d", readAloud: false, voice: undefined, lastBackupAt: undefined, persistentStorage: undefined };
@@ -103,13 +109,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (ready) applyAppearance(settings);
   }, [ready, settings]);
 
-  const update = useCallback((patch: Partial<Settings>): Promise<void> => {
+  const update = useCallback((change: SettingsPatch): Promise<void> => {
     const save = async () => {
     const { getStorage, requestPersistentStorage, currentAccountId, nowIso } = await storageClient();
     const { DEVICE_ONLY_SETTINGS_FIELDS } = await import("@/lib/sync/settings");
     const storage = getStorage();
     const next = await storage.transaction(async (tx) => {
       const existing = await tx.settings();
+      const patch = typeof change === "function" ? change(existing) : change;
       const merged: Settings = { ...existing, ...patch };
       // Stamped only when signed in: a guest's syncFieldUpdatedAt stays undefined, matching the
       // schema's own "guests never populate this" comment (packages/storage/src/schema.ts).

@@ -188,8 +188,9 @@ export function BufferPicker() {
     `${en.scheme.pair(pair.corners, letters.letterOf(pair.corners) ?? "?", pair.edges, letters.letterOf(pair.edges) ?? "?")}${pair.corners === GATE_B_BUFFERS[method].corners && pair.edges === GATE_B_BUFFERS[method].edges ? ` · ${en.scheme.standard}` : ""}`;
   const reference = (typeId: Pieces) => pieceType(reader.puzzle, typeId).pieces.map((p) => (p.stickers.find((s) => s.isOrientationReference) ?? p.stickers[0])?.name ?? p.name);
 
-  const save = async (method: Method, pair: BufferPair) => {
-    await update({ buffers: { ...(stored?.buffers ?? {}), [method]: pair } });
+  // Built from the settings as they are when the write happens: two quick choices (corner sticker, then edge sticker) must both stick.
+  const save = async (method: Method, change: Partial<BufferPair>) => {
+    await update((existing) => ({ buffers: { ...(existing?.buffers ?? {}), [method]: { ...(existing?.buffers?.[method] ?? reader.buffers[method]), ...change } } }));
     setMessage(en.scheme.buffersSaved);
   };
 
@@ -223,7 +224,7 @@ export function BufferPicker() {
               {(["corners", "edges"] as const).map((typeId) => (
                 <label key={typeId} className="flex flex-col gap-1">
                   <span className="t-meta text-quiet">{typeId === "corners" ? en.scheme.cornerSticker : en.scheme.edgeSticker}</span>
-                  <select className="field" value={current[typeId]} onChange={(e) => { void save(method, { ...current, [typeId]: e.target.value }); }}>
+                  <select className="field" value={current[typeId]} onChange={(e) => { void save(method, { [typeId]: e.target.value }); }}>
                     {bufferOrientations(reader.puzzle, typeId, chosenPair?.[typeId] ?? current[typeId]).map((name) => (
                       <option key={name} value={name}>{`${name} (${letters.letterOf(name) ?? "?"})${name === standard[typeId] ? ` · ${en.scheme.standard}` : ""}`}</option>
                     ))}
@@ -239,7 +240,7 @@ export function BufferPicker() {
         {(["corners", "edges"] as const).map((typeId) => (
           <label key={typeId} className="flex flex-col gap-1">
             <span className="t-meta text-quiet">{typeId === "corners" ? en.scheme.corners : en.scheme.edges}</span>
-            <select className="field" value={reader.buffers.threeStyle[typeId]} onChange={(e) => { void save("threeStyle", { ...reader.buffers.threeStyle, [typeId]: e.target.value }); }}>
+            <select className="field" value={reader.buffers.threeStyle[typeId]} onChange={(e) => { void save("threeStyle", { [typeId]: e.target.value }); }}>
               {reference(typeId).map((name) => (
                 <option key={name} value={name}>{`${name} (${letters.letterOf(name) ?? "?"})${name === GATE_B_BUFFERS.threeStyle[typeId] ? ` · ${en.scheme.standard}` : ""}`}</option>
               ))}
