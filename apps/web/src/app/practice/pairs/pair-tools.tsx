@@ -7,7 +7,8 @@ import { polish } from "@/i18n/polish";
 import { ScrambleControls, useScramble } from "@/lib/use-scramble";
 import { newId, nowIso } from "@/lib/storage-client";
 import { readPreference, writePreference } from "@/lib/use-events";
-import { addImage, applyMatches, csvRows, didYouMean, emptyPair, findImages, libraryToCsv, mainImage, mergeCsvRows, renameOrMerge, sentenceMemo, withDetails, type CsvProblem, type LibraryHealth } from "@/trainers/pairs";
+import { readRaster } from "@/trainers/memory-workspace";
+import { addImage, applyMatches, csvRows, didYouMean, emptyPair, findImages, libraryToCsv, mainImage, mergeCsvRows, normaliseWord, renameOrMerge, sentenceMemo, withDetails, withPicture, type CsvProblem, type LibraryHealth } from "@/trainers/pairs";
 import { BigPair, lettersOf, type LibraryContext } from "./pair-ui";
 
 /**
@@ -20,6 +21,10 @@ export function PairDiscover({ ctx, health }: { ctx: LibraryContext; health: Lib
   const [word, setWord] = useState("");
   const [confirming, setConfirming] = useState<{ suggestion: string; usedBy: string[] } | undefined>(undefined);
   const [message, setMessage] = useState<string | undefined>(undefined);
+  // A picture chosen here goes on the image being added; it is a file, never typed. `pickerKey` clears the chooser between pairs.
+  const [picture, setPicture] = useState<{ readonly asset: string; readonly name: string } | undefined>(undefined);
+  const [pictureError, setPictureError] = useState<string | undefined>(undefined);
+  const [pickerKey, setPickerKey] = useState(0);
 
   const queue = useMemo(() => {
     const all = ctx.letters.flatMap((a) => ctx.letters.map((b) => `${a}${b}`));
@@ -32,19 +37,46 @@ export function PairDiscover({ ctx, health }: { ctx: LibraryContext; health: Lib
     if (current !== undefined) setHandled((h) => [...h, current]);
     setWord("");
     setConfirming(undefined);
+    setPicture(undefined);
+    setPictureError(undefined);
+    setPickerKey((k) => k + 1);
+  };
+
+  const choosePicture = async (file: File | undefined) => {
+    if (file === undefined) return;
+    try {
+      const asset = await readRaster(file);
+      if (asset === undefined) { setPicture(undefined); setPictureError(en.pairs.pictureRejected); return; }
+      setPicture({ asset, name: file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim() });
+      setPictureError(undefined);
+    } catch {
+      setPictureError(en.pairs.pictureUnreadable);
+    }
   };
 
   const add = async (text: string) => {
-    if (current === undefined || text.trim() === "") return;
+    if (current === undefined) return;
+    // A picture with no word is named after its file (or the pair), and can be renamed in the editor.
+    const label = text.trim() !== "" ? text.trim() : picture !== undefined ? (picture.name !== "" ? picture.name : current) : "";
+    if (label === "") return;
     const [first, second] = lettersOf(current);
     const at = nowIso();
-    const result = addImage(ctx.byId.get(current) ?? emptyPair(first, second, at), text, newId(), at);
-    if (result.added && !(await ctx.save([result.pair]))) {
+    const base = ctx.byId.get(current) ?? emptyPair(first, second, at);
+    const imageId = newId();
+    const result = addImage(base, label, imageId, at);
+    let pair = result.pair;
+    let attached = false;
+    if (picture !== undefined) {
+      // On a word the pair already has, the picture goes onto that existing image.
+      const target = result.added ? imageId : base.images.find((i) => normaliseWord(i.text) === normaliseWord(label))?.id;
+      if (target !== undefined) { pair = withPicture(pair, target, picture.asset, at); attached = true; }
+    }
+    if ((result.added || attached) && !(await ctx.save([pair]))) {
       setMessage(en.pairs.saveFailed);
       return;
     }
-    await ctx.append([{ id: newId(), type: "pairs.discovered", at, pairId: current, word: text.trim(), added: result.added }]);
-    setMessage(result.added ? en.pairs.discoverLogged(text.trim(), current) : en.pairs.discoverAlready(text.trim(), current));
+    await ctx.append([{ id: newId(), type: "pairs.discovered", at, pairId: current, word: label, added: result.added }]);
+    setMessage(attached ? en.pairs.discoverPictureLogged(label, current) : result.added ? en.pairs.discoverLogged(label, current) : en.pairs.discoverAlready(label, current));
     next();
   };
 
@@ -61,7 +93,7 @@ export function PairDiscover({ ctx, health }: { ctx: LibraryContext; health: Lib
         className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          const suggestion = didYouMean(word, ctx.pairs);
+          const suggestion = word.trim() === "" ? undefined : didYouMean(word, ctx.pairs);
           if (suggestion !== undefined && confirming === undefined) { setConfirming(suggestion); return; }
           void add(word);
         }}
@@ -70,9 +102,28 @@ export function PairDiscover({ ctx, health }: { ctx: LibraryContext; health: Lib
           <span className="t-meta text-quiet">{en.pairs.discoverPrompt}</span>
           <input className="field" value={word} autoFocus autoComplete="off" onChange={(e) => { setWord(e.target.value); setConfirming(undefined); }} />
         </label>
-        <button type="submit" className="btn btn-strong" disabled={word.trim() === ""}>{en.pairs.discoverAdd}</button>
+        <button type="submit" className="btn btn-strong" disabled={word.trim() === "" && picture === undefined}>{en.pairs.discoverAdd}</button>
         <button type="button" className="btn" onClick={next}>{en.pairs.discoverSkip}</button>
       </form>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="t-meta text-quiet">{en.pairs.discoverPicture}</span>
+          <input
+            key={pickerKey}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="field max-w-full py-2"
+            onChange={(e) => { const file = e.target.files?.[0]; void choosePicture(file); }}
+          />
+        </label>
+        {picture === undefined ? null : (
+          <>
+            <img src={picture.asset} alt={en.pairs.pictureAlt(picture.name !== "" ? picture.name : current)} className="h-14 w-14 rounded-lg object-contain" />
+            <button type="button" className="btn min-h-10 px-2" onClick={() => { setPicture(undefined); setPickerKey((k) => k + 1); }}>{en.pairs.removePicture}</button>
+          </>
+        )}
+      </div>
+      {pictureError !== undefined ? <p className="t-meta" role="alert">{pictureError}</p> : null}
       {confirming !== undefined ? (
         <div className="flex flex-wrap items-center gap-2" role="status">
           <span className="t-meta">{en.pairs.didYouMean(confirming.suggestion, confirming.usedBy.join(", "))}</span>

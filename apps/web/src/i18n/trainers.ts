@@ -152,6 +152,8 @@ export const trainerCopy = {
     speak: "Say it again",
     speechUnavailable: "This browser can't read aloud. Use another drill mode.",
     discoverPrompt: "Type the first word that comes to mind.",
+    discoverPicture: "Or choose a picture from your device, instead of typing a word.",
+    discoverPictureLogged: (word: string, pair: string) => `Added ${word} with your picture to ${pair}.`,
     discoverAdd: "Add",
     discoverSkip: "Skip",
     discoverLogged: (word: string, pair: string) => `Added ${word} to ${pair}.`,
