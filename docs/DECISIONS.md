@@ -1750,3 +1750,20 @@ Per-case stats are folded from `drill.attempt` events for the `ll-recognition` a
 ## D-085 · Reduced scope of the design tool step
 
 A Figma file was created for the pass ("BLDokja CFOP polish", key `mPZvV9yjYQdCZUbaX4LPCY`) but the Starter plan's MCP call limit was reached on the first write, so the file is empty. The design source of truth remains `docs/DESIGN.md` and the CSS tokens. `MOTION_MS` in `design/motion.ts` now mirrors the `--duration-*` variables and a test keeps them equal.
+
+## D-086 · Nothing is dimmed: what is not the point of a cube picture is blacked out
+
+Faded colour was hard to read and looked like a different, weaker colour (cubing.js's own "dim" measures about 73% brightness, and the flat net faded stickers to 28% opacity). Everywhere the site de-emphasises a piece or sticker it now draws a solid grey instead, the same in every colourway (`--sticker-off`, in `styles/tokens.css`):
+
+- The 3D player masks everything except the lit pieces and the six fixed centres as `ignored`; the `dim` option and the "soft" mask are gone (`playerMask` no longer takes a dim argument).
+- The flat net draws non-highlighted stickers in `--sticker-off` with no opacity, so a highlighted net no longer gives faint colours away either (the old `hideUnrevealed` switch had only ever chosen between a blank and a faint colour, so it went too).
+- Recognition diagrams (PLL top face, OLL and edge recognition, the F2L isometric view) use the same grey instead of `opacity`.
+- Not changed: ordinary interface states that are not cube colours (disabled buttons, chart and progress ramps).
+
+The 3D check in `e2e/highlight-and-memo.spec.ts` still asserts that exactly the buffer corner's three stickers and the six centres are lit, and the net test now asserts nine full-colour stickers and 45 grey ones.
+
+## D-087 · OP and M2 buffers can be any sticker of the buffer piece
+
+A learner may trace from the L-face sticker of the UBL corner (`LUB`) instead of the U-face one (`UBL`), and from `RU` instead of `UR`. The engine already accepted any sticker of a buffer piece (`opSystem`, `m2OpSystem`); only the Settings pair list and the reader's validity check insisted on the reference sticker, so they now compare pieces, not sticker names, and Settings adds "Corner buffer sticker" and "Edge buffer sticker" choices under each pair (3-style already offered every sticker).
+
+This is verified, not assumed: `packages/cube-engine/test/methods/buffer-orientation.test.ts` builds and verifies the OP and M2 systems for every orientation of four OP pairs and three M2 pairs and solves 25 random cubes with each (0 failures; a separate probe of 300 solves per orientation of the default pair also had none). The pair a symmetry of (UBL, UR) reaches is still required; other pieces are refused as before. The letter-pair frequency report has no entry for a non-standard buffer, so "expected occurrence" is simply not shown for it, as with any custom buffer.
