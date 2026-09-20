@@ -6,7 +6,7 @@ import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { netCells } from "@/components/cube/cube-state";
 import { useSettings } from "@/components/settings/settings-provider";
 import { en } from "@/i18n/en";
-import { availableBuffers, checkScheme, GATE_B_BUFFERS, readerFor, useReader, type Method } from "@/lib/reader";
+import { availableBuffers, bufferOrientations, checkScheme, GATE_B_BUFFERS, readerFor, useReader, type Method } from "@/lib/reader";
 
 const ORIGIN: Record<"U" | "L" | "F" | "R" | "B" | "D", readonly [number, number]> = { U: [1, 0], L: [0, 1], F: [1, 1], R: [2, 1], B: [3, 1], D: [1, 2] };
 type Pieces = "corners" | "edges";
@@ -204,15 +204,34 @@ export function BufferPicker() {
         const pairs = options[method];
         if (pairs === "any") return null;
         const current = reader.buffers[method];
+        // The pair list names each piece by its reference sticker; the buffer you chose may be another sticker of the same piece.
+        const onSamePieces = (p: BufferPair) => bufferOrientations(reader.puzzle, "corners", p.corners).includes(current.corners) && bufferOrientations(reader.puzzle, "edges", p.edges).includes(current.edges);
+        const chosenPair = pairs.find(onSamePieces) ?? pairs[0];
+        const standard = GATE_B_BUFFERS[method];
         return (
-          <label key={method} className="flex max-w-xl flex-col gap-1">
-            <span className="t-ui font-[650]">{en.scheme.methods[method]}</span>
-            <select className="field" value={`${current.corners}/${current.edges}`} onChange={(e) => { const [corners = "", edges = ""] = e.target.value.split("/"); void save(method, { corners, edges }); }}>
-              {pairs.map((p) => (
-                <option key={`${p.corners}/${p.edges}`} value={`${p.corners}/${p.edges}`}>{label(p, method)}</option>
+          <div key={method} className="flex max-w-xl flex-col gap-2">
+            <label className="flex flex-col gap-1">
+              <span className="t-ui font-[650]">{en.scheme.methods[method]}</span>
+              <select className="field" value={chosenPair === undefined ? "" : `${chosenPair.corners}/${chosenPair.edges}`} onChange={(e) => { const [corners = "", edges = ""] = e.target.value.split("/"); void save(method, { corners, edges }); }}>
+                {pairs.map((p) => (
+                  <option key={`${p.corners}/${p.edges}`} value={`${p.corners}/${p.edges}`}>{label(p, method)}</option>
+                ))}
+              </select>
+            </label>
+            <fieldset className="flex flex-wrap gap-4">
+              <legend className="sr-only">{en.scheme.stickerGroup(en.scheme.methods[method])}</legend>
+              {(["corners", "edges"] as const).map((typeId) => (
+                <label key={typeId} className="flex flex-col gap-1">
+                  <span className="t-meta text-quiet">{typeId === "corners" ? en.scheme.cornerSticker : en.scheme.edgeSticker}</span>
+                  <select className="field" value={current[typeId]} onChange={(e) => { void save(method, { ...current, [typeId]: e.target.value }); }}>
+                    {bufferOrientations(reader.puzzle, typeId, chosenPair?.[typeId] ?? current[typeId]).map((name) => (
+                      <option key={name} value={name}>{`${name} (${letters.letterOf(name) ?? "?"})${name === standard[typeId] ? ` · ${en.scheme.standard}` : ""}`}</option>
+                    ))}
+                  </select>
+                </label>
               ))}
-            </select>
-          </label>
+            </fieldset>
+          </div>
         );
       })}
       <fieldset className="flex flex-wrap gap-4">

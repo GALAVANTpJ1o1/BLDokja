@@ -54,12 +54,27 @@ export function availableBuffers(puzzle: Puzzle): Readonly<Record<Method, readon
   return { op: opBufferPairs(puzzle), m2: m2BufferPairs(puzzle), threeStyle: "any" };
 }
 
+/**
+ * The stickers of the piece a buffer sticker belongs to, the one you trace from first among them: "UBL" gives
+ * UBL, LUB, BUL. Any of them can be the buffer (the engine builds and verifies OP and M2 from each), and which one
+ * you pick changes the letters of your memo, not the piece that is the buffer.
+ */
+export function bufferOrientations(puzzle: Puzzle, typeId: "corners" | "edges", sticker: string): readonly string[] {
+  const piece = pieceType(puzzle, typeId).pieces.find((p) => p.stickers.some((s) => s.name === sticker));
+  if (piece === undefined) return [];
+  return [sticker, ...piece.stickers.map((s) => s.name).filter((name) => name !== sticker)];
+}
+
+/** Whether a buffer pair is on the same two pieces as one the method can build, whichever sticker of each it names. */
 function bufferAllowed(puzzle: Puzzle, method: Method, pair: BufferPair): boolean {
   const corner = pieceType(puzzle, "corners").stickerByName(pair.corners);
   const edge = pieceType(puzzle, "edges").stickerByName(pair.edges);
   if (corner === undefined || edge === undefined) return false;
   const allowed = availableBuffers(puzzle)[method];
-  return allowed === "any" || allowed.some((p) => p.corners === pair.corners && p.edges === pair.edges);
+  if (allowed === "any") return true;
+  const cornerOf = (name: string) => pieceType(puzzle, "corners").stickerByName(name)?.position;
+  const edgeOf = (name: string) => pieceType(puzzle, "edges").stickerByName(name)?.position;
+  return allowed.some((p) => cornerOf(p.corners) === corner.position && edgeOf(p.edges) === edge.position);
 }
 
 export function readerFor(puzzle: Puzzle, stored: { readonly scheme?: StoredScheme | undefined; readonly buffers?: Buffers | undefined } = {}, overrides: ReaderOverrides = {}): Reader {

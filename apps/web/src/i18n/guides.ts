@@ -155,7 +155,7 @@ export const guideCopy = {
   },
   lettering: {
     scheme: { title: "Letter the stickers your way", body: "Start from Speffz or blank, choose corners or edges, select a sticker and type a letter: the next sticker is selected for you. Every sticker needs one letter, and none may repeat." },
-    buffers: { title: "Choose your buffers", body: "The buffer is where each target is shot from. OP and M2 need a pair the site can build setups for; 3-style takes any corner and edge." },
+    buffers: { title: "Choose your buffers", body: "The buffer is where each target is shot from. OP and M2 need a pair of pieces the site can build setups for; 3-style takes any corner and edge. You can also trace from another sticker of the buffer piece, LUB instead of UBL, say." },
   },
   account: {
     form: { title: "Sign in or stay a guest", body: "As a guest, everything stays on this browser. An account backs your progress up and syncs it across devices. You only need a username and password: no email." },
