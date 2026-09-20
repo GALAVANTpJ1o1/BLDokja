@@ -116,7 +116,7 @@ function ScrambleRun({ reader, drill, sighted, onGraded, onNext }: RunProps) {
         {item !== undefined && revealed ? (
           <Cube key={`${String(step)}-${String(replay)}`} setup={setupState} alg={item.moves} highlight={piecesOf(reader, item.lit)} controls autoplay={!sighted} tempo={sighted ? 0.5 : 1} label={title} />
         ) : (
-          <Cube key={`still-${String(step)}`} setup={setupState} {...(item === undefined ? {} : { highlight: piecesOf(reader, item.lit) })} dim="soft" label={title} />
+          <Cube key={`still-${String(step)}`} setup={setupState} {...(item === undefined ? {} : { highlight: piecesOf(reader, item.lit) })} label={title} />
         )}
         <div className="flex flex-col gap-4 self-center">
           <p className="t-meta">{en.m2op.stepOf(Math.min(step + 1, total), total)}</p>

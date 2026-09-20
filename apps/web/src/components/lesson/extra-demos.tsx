@@ -134,7 +134,7 @@ export function SolveMistake({ scramble, mistake }: { scramble: string; mistake:
   const { corners, edges } = misplacedPieces(reader.puzzle, shown);
   return (
     <div className="my-6 flex flex-col gap-2">
-      <Cube setup={shown} highlight={piecesOf(reader, [...corners, ...edges])} dim="soft" label={copy.mistakeLabel(copy.mistakeNames[mistake])} className="max-w-[22rem] self-center" />
+      <Cube setup={shown} highlight={piecesOf(reader, [...corners, ...edges])} label={copy.mistakeLabel(copy.mistakeNames[mistake])} className="max-w-[22rem] self-center" />
       <p className="t-meta text-center text-quiet">{copy.mistakePieces(corners.length + edges.length)}</p>
     </div>
   );

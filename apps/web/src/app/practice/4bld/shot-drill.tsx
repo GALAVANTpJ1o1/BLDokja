@@ -171,7 +171,7 @@ export function ShotDrill({ reader, events, append, settings, mode }: DrillProps
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
           {revealed && setup !== undefined ? (
-            <Cube key={`${current.id}-${String(replay)}`} puzzleId="4x4x4" setup={setup} alg={current.moves} highlight={lit} dim={method === "u2" ? "soft" : "strong"} controls autoplay label={en.fourBld.shotLabel(current.target, current.letter)} />
+            <Cube key={`${current.id}-${String(replay)}`} puzzleId="4x4x4" setup={setup} alg={current.moves} highlight={lit} controls autoplay label={en.fourBld.shotLabel(current.target, current.letter)} />
           ) : (
             <div className="grid aspect-square w-full max-w-[28rem] place-items-center self-center rounded-[4px] bg-stage">
               <div className="flex flex-col items-center gap-3">

@@ -8,7 +8,7 @@ import { Cube } from "@/components/cube/cube";
  * `puzzle="4x4x4"` for the 4BLD track. lessons.test.ts checks every alg and sticker name used this way
  * against the engine, for the puzzle named.
  */
-export function LessonCube({ puzzle, setup, alg, highlight, controls, dim, label }: { puzzle?: string; setup?: string; alg?: string; highlight?: string; controls?: string; dim?: string; label: string }) {
+export function LessonCube({ puzzle, setup, alg, highlight, controls, label }: { puzzle?: string; setup?: string; alg?: string; highlight?: string; controls?: string; label: string }) {
   return (
     <div className="my-6">
       <Cube
@@ -17,7 +17,6 @@ export function LessonCube({ puzzle, setup, alg, highlight, controls, dim, label
         alg={alg ?? ""}
         {...(highlight === undefined ? {} : { highlight: highlight.split(/\s+/).filter(Boolean) })}
         controls={controls === "true"}
-        dim={dim === "soft" ? "soft" : "strong"}
         label={label}
       />
     </div>

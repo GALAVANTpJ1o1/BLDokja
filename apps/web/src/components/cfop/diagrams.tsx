@@ -43,17 +43,17 @@ export function RecognitionDiagram({ diagram, mode, label, letters, bars = [], h
     const edge = (r + c) % 2 === 1; const centre = r === 1 && c === 1;
     const x = X0 + c * CELL; const y = X0 + r * CELL;
     if (mode === "OLL_EDGE_RECOGNITION" && !edge && !centre) {
-      cells.push(<rect key={`t${r}${c}`} x={x + 1.5} y={y + 1.5} width={CELL - 3} height={CELL - 3} rx={2} fill="none" stroke="var(--rule)" strokeWidth={1} strokeDasharray="2 2" opacity={0.7} />);
+      cells.push(<rect key={`t${r}${c}`} x={x + 1} y={y + 1} width={CELL - 2} height={CELL - 2} rx={2} fill={OFF} stroke="var(--cube-body)" strokeWidth={1} />);
       continue;
     }
-    const fill = mode === "PLL_RECOGNITION" ? "var(--face-u)" : lit(colour) ? face("U") : OFF;
-    cells.push(<rect key={`t${r}${c}`} x={x + 1} y={y + 1} width={CELL - 2} height={CELL - 2} rx={2} fill={fill} opacity={mode === "PLL_RECOGNITION" ? 0.55 : 1} stroke="var(--cube-body)" strokeWidth={1} />);
+    const fill = mode === "PLL_RECOGNITION" ? OFF : lit(colour) ? face("U") : OFF;
+    cells.push(<rect key={`t${r}${c}`} x={x + 1} y={y + 1} width={CELL - 2} height={CELL - 2} rx={2} fill={fill} stroke="var(--cube-body)" strokeWidth={1} />);
   }
   const strip = (side: Side, colours: readonly Colour[]) => colours.map((colour, i) => {
     const pos = side === "back" ? { x: X0 + i * CELL, y: PAD } : side === "front" ? { x: X0 + i * CELL, y: X0 + 3 * CELL + GAP } : side === "left" ? { x: PAD, y: X0 + i * CELL } : { x: X0 + 3 * CELL + GAP, y: X0 + i * CELL };
     const w = side === "back" || side === "front" ? CELL - 2 : STRIP; const h = side === "back" || side === "front" ? STRIP : CELL - 2;
     if (mode === "OLL_EDGE_RECOGNITION") return null;
-    if (mode === "OLL_FULL_RECOGNITION" && !lit(colour)) return <rect key={`${side}${i}`} x={pos.x + 1} y={pos.y + 1} width={w} height={h} rx={1.5} fill={OFF} opacity={0.55} />;
+    if (mode === "OLL_FULL_RECOGNITION" && !lit(colour)) return <rect key={`${side}${i}`} x={pos.x + 1} y={pos.y + 1} width={w} height={h} rx={1.5} fill={OFF} />;
     const letter = mode === "PLL_RECOGNITION" ? letters?.[colour] : undefined;
     return (
       <g key={`${side}${i}`}>
@@ -91,7 +91,7 @@ export interface IsoProps { readonly iso: IsoData; readonly label: string; reado
 
 /**
  * The cube from above and in front, three faces (top, front, right): the view an F2L pair is judged in. `h`
- * stickers (the pair) are lit and outlined, `d` stickers are dimmed, `n` are normal. Centres and the cross stay visible.
+ * stickers (the pair) are lit and outlined, `d` stickers are blacked out, `n` are normal. Centres and the cross stay visible.
  */
 export function IsoCube({ iso, label, className }: IsoProps) {
   const polys: ReactElement[] = [];
@@ -106,7 +106,7 @@ export function IsoCube({ iso, label, className }: IsoProps) {
         : f === "F" ? [on.F(col, row), on.F(col + 1, row), on.F(col + 1, row + 1), on.F(col, row + 1)]
         : [on.R(col, row), on.R(col + 1, row), on.R(col + 1, row + 1), on.R(col, row + 1)];
       polys.push(
-        <polygon key={`${f}${row}${col}`} points={pts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")} fill={face(colour)} opacity={flag === "d" ? 0.3 : 1} stroke={flag === "h" ? "var(--text)" : "var(--cube-body)"} strokeWidth={flag === "h" ? 2 : 1} strokeLinejoin="round" />,
+        <polygon key={`${f}${row}${col}`} points={pts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")} fill={flag === "d" ? OFF : face(colour)} stroke={flag === "h" ? "var(--text)" : "var(--cube-body)"} strokeWidth={flag === "h" ? 2 : 1} strokeLinejoin="round" />,
       );
     }
   });

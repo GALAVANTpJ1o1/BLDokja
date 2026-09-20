@@ -39,12 +39,12 @@ test("the tracing lesson lights all three colours of the buffer corner and never
   const painted = await net.evaluate((svg) =>
     Array.from(svg.children)
       .filter((child) => child.tagName.toLowerCase() === "g" && !child.hasAttribute("data-ring"))
-      .map((cell) => Array.from(cell.querySelectorAll("rect")).at(1)?.getAttribute("opacity")),
+      .map((cell) => Array.from(cell.querySelectorAll("rect")).at(1)?.getAttribute("fill")),
   );
   expect(painted).toHaveLength(54);
-  // Full strength: the buffer corner's three stickers and the six centres. Everything else is faded.
-  expect(painted.filter((opacity) => opacity === "1")).toHaveLength(9);
-  expect(painted.filter((opacity) => opacity === "0.28")).toHaveLength(45);
+  // Full colour: the buffer corner's three stickers and the six centres. Everything else is blacked out: a solid grey, never a dimmed colour.
+  expect(painted.filter((fill) => fill !== "var(--sticker-off)")).toHaveLength(9);
+  expect(painted.filter((fill) => fill === "var(--sticker-off)")).toHaveLength(45);
   // The sticker being asked about carries a ring, so it is marked by shape and not by colour alone.
   await expect(net.locator("[data-ring]")).toHaveCount(1);
 });
@@ -52,8 +52,11 @@ test("the tracing lesson lights all three colours of the buffer corner and never
 test("the 3D player lights the same nine stickers: the buffer corner's three and all six centres", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "3D scene inspection runs on Chromium only");
   const { figure } = await figureFor(page);
+  // The player replaces the flat net, so the figure can no longer be found by the net's image once it is asked
+  // for 3D: mark the figure first, and look for the player inside it.
+  await figure.evaluate((element) => { element.setAttribute("data-under-test", "3d"); });
   await figure.getByRole("button", { name: "Inspect in 3D" }).click();
-  const player = figure.locator("twisty-player");
+  const player = page.locator('figure[data-under-test="3d"] twisty-player');
   await expect(player).toBeVisible({ timeout: 30_000 });
 
   // cubing.js keeps one entry per (orbit, orientation, piece) with the colour it drew and the colour it

@@ -13,6 +13,8 @@
   --ink: #223744;
   --chalk: #F0F5F7;
   --cube-body: #0E0E10;
+  /* A sticker or piece that is not the point of the picture: solid grey, never a dimmed colour. Same in every colourway. */
+  --sticker-off: #4A4E54;
 
   --face-u: #F4F4F1;
   --face-f: #1FA25A;

@@ -236,7 +236,7 @@ export function FourShot({ method, target }: { method: ShotMethod; target: strin
   const lit = stickersOfPieces(reader, [data.buffer, target, ...data.lit]);
   return (
     <div className="my-6 grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <Cube puzzleId="4x4x4" setup={drill.value.scramble} alg={alg.moves} highlight={lit} dim={method === "u2" ? "soft" : "strong"} controls label={special ? copy.specialLabel(target, letter) : copy.shotLabel(target, letter)} />
+      <Cube puzzleId="4x4x4" setup={drill.value.scramble} alg={alg.moves} highlight={lit} controls label={special ? copy.specialLabel(target, letter) : copy.shotLabel(target, letter)} />
       <dl className="grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-2 self-center">
         <dt className="t-meta text-quiet">{copy.target1}</dt>
         <dd className="flex items-baseline gap-2">
@@ -277,7 +277,7 @@ export function FourParity({ pieces }: { pieces: FourBldPieces }) {
   return (
     <div className="my-6 flex flex-col gap-3">
       <p className="t-notation text-center">{alg.alg}</p>
-      <Cube puzzleId="4x4x4" setup={drill.value.scramble} alg={alg.moves} highlight={lit} dim="soft" controls label={copy.parityLabel(type)} />
+      <Cube puzzleId="4x4x4" setup={drill.value.scramble} alg={alg.moves} highlight={lit} controls label={copy.parityLabel(type)} />
     </div>
   );
 }

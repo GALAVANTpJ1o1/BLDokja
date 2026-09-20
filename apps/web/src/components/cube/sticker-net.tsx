@@ -11,12 +11,10 @@ export interface StickerNetProps {
   /**
    * Slot indices being pointed at: full strength, with a ring, so the mark doesn't depend on colour.
    * The rest of each pointed-at piece is drawn in full colour as well (a corner's one colour fits four
-   * positions; all its colours say which piece it is), the fixed centres never fade, and everything
-   * else fades. Omit to show every sticker normally.
+   * positions; all its colours say which piece it is), the fixed centres never black out, and everything
+   * else is blacked out (a solid grey sticker, never a dimmed colour, so it gives no colour away). Omit to show every sticker normally.
    */
   readonly highlight?: ReadonlySet<number>;
-  /** Draw faded stickers as blanks instead of faint colour, for drills that must not give colours away. */
-  readonly hideUnrevealed?: boolean;
   /** Letters to print on slots, by slot index. */
   readonly letters?: ReadonlyMap<number, string>;
   readonly label: string;
@@ -27,7 +25,7 @@ export interface StickerNetProps {
  * A flat sticker net in SVG, coloured from the palette tokens. Used where a 3D cube isn't needed or
  * can't load, and as the always-available fallback. The description is on the element as its label.
  */
-export function StickerNet({ cells, size = 3, highlight, hideUnrevealed = false, letters, label, className }: StickerNetProps) {
+export function StickerNet({ cells, size = 3, highlight, letters, label, className }: StickerNetProps) {
   const cell = 10;
   const gap = 1;
   const facePx = size * cell;
@@ -47,9 +45,9 @@ export function StickerNet({ cells, size = 3, highlight, hideUnrevealed = false,
         return (
           <g key={c.index}>
             <rect x={x} y={y} width={cell} height={cell} fill="var(--cube-body)" />
-            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={faded && hideUnrevealed ? "var(--rule)" : `var(--face-${c.colour.toLowerCase()})`} opacity={faded ? 0.28 : 1} />
+            <rect x={x + 0.6} y={y + 0.6} width={cell - 1.2} height={cell - 1.2} rx={1} fill={faded ? "var(--sticker-off)" : `var(--face-${c.colour.toLowerCase()})`} />
             {letter !== undefined ? (
-              <text x={x + cell / 2} y={y + cell / 2 + 2.2} textAnchor="middle" fontSize={6} fontWeight={700} fill="var(--cube-body)" style={{ fontVariationSettings: '"CASL" 1' }}>
+              <text x={x + cell / 2} y={y + cell / 2 + 2.2} textAnchor="middle" fontSize={6} fontWeight={700} fill={faded ? "var(--face-u)" : "var(--cube-body)"} style={{ fontVariationSettings: '"CASL" 1' }}>
                 {letter}
               </text>
             ) : null}

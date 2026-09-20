@@ -77,13 +77,13 @@ describe("the 3D player's mask", () => {
   const facelets = (mask: ReturnType<typeof playerMask>, orbit: string) => (mask.orbits[orbit]?.pieces ?? []).map((piece) => piece.facelets);
 
   it("shows everything when nothing is highlighted", () => {
-    const mask = playerMask(cube, cube.kpuzzle.defaultPattern().applyAlg(SCRAMBLE), new Set(), "strong");
+    const mask = playerMask(cube, cube.kpuzzle.defaultPattern().applyAlg(SCRAMBLE), new Set());
     for (const orbit of Object.keys(mask.orbits)) for (const piece of facelets(mask, orbit)) expect(new Set(piece)).toEqual(new Set(["regular"]));
   });
 
   it("lights the whole piece under one named sticker, keeps every centre coloured, and greys the rest (the reported screen)", () => {
     const pattern = cube.kpuzzle.defaultPattern().applyAlg(SCRAMBLE);
-    const mask = playerMask(cube, pattern, new Set(["UBL"]), "strong");
+    const mask = playerMask(cube, pattern, new Set(["UBL"]));
 
     // Centres: never dimmed, never hidden.
     for (const piece of facelets(mask, "CENTERS")) expect(new Set(piece)).toEqual(new Set(["regular"]));
@@ -103,23 +103,23 @@ describe("the 3D player's mask", () => {
 
   it("is the same mask whether one sticker of a piece is named or all of them", () => {
     const pattern = cube.kpuzzle.defaultPattern().applyAlg(SCRAMBLE);
-    const one = playerMask(cube, pattern, new Set(["UBL"]), "strong");
-    const all = playerMask(cube, pattern, new Set(["UBL", "LUB", "BUL"]), "strong");
+    const one = playerMask(cube, pattern, new Set(["UBL"]));
+    const all = playerMask(cube, pattern, new Set(["UBL", "LUB", "BUL"]));
     expect(one).toEqual(all);
   });
 
-  it("dims instead of greying when asked to, and still lights the piece and the centres", () => {
+  it("never dims: every sticker is either shown in full colour or blacked out", () => {
     const pattern = cube.kpuzzle.defaultPattern().applyAlg(SCRAMBLE);
-    const mask = playerMask(cube, pattern, new Set(["UBL"]), "soft");
+    const mask = playerMask(cube, pattern, new Set(["UBL"]));
     const values = ["CORNERS", "EDGES", "CENTERS"].flatMap((orbit) => facelets(mask, orbit).flat());
-    expect(new Set(values)).toEqual(new Set(["regular", "dim"]));
+    expect(new Set(values)).toEqual(new Set(["regular", "ignored"]));
     for (const piece of facelets(mask, "CENTERS")) expect(new Set(piece)).toEqual(new Set(["regular"]));
   });
 
   it("on a 4x4x4 lights a wing's other sticker; centres there are x-centres, which are pieces to memorise, so they are not forced on", () => {
     const wing = bigCube.geometry.stickers.find((s) => /^[A-Z]{2}[a-z]$/.test(stickerName(bigCube.geometry, s.index)));
     if (wing === undefined) throw new Error("no wing found");
-    const mask = playerMask(bigCube, bigCube.kpuzzle.defaultPattern(), new Set([stickerName(bigCube.geometry, wing.index)]), "strong");
+    const mask = playerMask(bigCube, bigCube.kpuzzle.defaultPattern(), new Set([stickerName(bigCube.geometry, wing.index)]));
     const lit = Object.entries(mask.orbits).flatMap(([orbit, data]) => data.pieces.flatMap((piece, position) => (piece.facelets.every((f) => f === "regular") ? [`${orbit}:${String(position)}`] : [])));
     expect(lit.filter((entry) => entry.startsWith("EDGES") || entry.startsWith("WINGS") || !entry.startsWith("CENTERS"))).toHaveLength(1);
     const xCentres = bigCube.stickerMap.orbits.find((o) => o.stickersPerPiece === 1);

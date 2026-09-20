@@ -3,7 +3,7 @@
  * §68). Motion appears only in response to a press and only to show what changed (a card opening, a stage advancing), using
  * the shared tokens: --duration-fast / -ui / -layer and --ease-settle. Everything here reads the site's own colour tokens.
  */
-:root { --sticker-off: color-mix(in srgb, var(--text) 26%, var(--stage)); --case-min: 17rem; }
+:root { --case-min: 17rem; }
 .profile-scope { display: contents; }
 
 @layer components {

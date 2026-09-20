@@ -65,18 +65,19 @@ export function pieceContext(cells: readonly NetCell[], focus: ReadonlySet<numbe
  * - the named slots and the rest of their pieces are `regular` (full colour);
  * - a fixed centre (a slot named with one face letter) is always `regular`, so the cube never loses
  *   its orientation and no one has to name the centres to keep them;
- * - everything else is `ignored` (grey), or `dim` with `dim: "soft"`.
+ * - everything else is `ignored`: a solid grey sticker with no colour. Nothing is ever shown dimmed, because a
+ *   dimmed colour is still a colour, and reads as a different, weaker one.
  *
  * "The rest of a piece" is read from the sticker in each named slot, so it follows the piece wherever
  * the pieces have moved. With nothing named, every sticker is `regular`.
  */
-export function playerMask(puzzle: Puzzle, pattern: KPattern, highlight: ReadonlySet<string>, dim: "strong" | "soft"): PlayerStickeringMask {
+export function playerMask(puzzle: Puzzle, pattern: KPattern, highlight: ReadonlySet<string>): PlayerStickeringMask {
   const views = slotViews(puzzle, pattern);
   const stickersOf = new Map<string, number>();
   for (const v of views) stickersOf.set(v.piece, (stickersOf.get(v.piece) ?? 0) + 1);
   // Only pieces with more than one sticker have a rest to light. Read by position, the same way as the net.
   const lit = new Set(views.filter((v) => highlight.has(v.slot) && (stickersOf.get(v.piece) ?? 0) > 1).map((v) => v.piece));
-  return stickeringMask(puzzle, pattern, (v: SlotView): FaceletMask => (highlight.size === 0 || v.slot.length === 1 || highlight.has(v.slot) || lit.has(v.piece) ? "regular" : dim === "soft" ? "dim" : "ignored"));
+  return stickeringMask(puzzle, pattern, (v: SlotView): FaceletMask => (highlight.size === 0 || v.slot.length === 1 || highlight.has(v.slot) || lit.has(v.piece) ? "regular" : "ignored"));
 }
 
 /** Everything a cube that hides the rest still shows: the highlighted stickers, the rest of their pieces, and the fixed centres. */

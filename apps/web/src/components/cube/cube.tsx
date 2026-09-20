@@ -28,7 +28,7 @@ export interface CubeProps {
    * Slots to point at, by sticker name ("UFR", "FU"). They and the rest of their pieces are shown at full
    * strength: naming one sticker of a corner lights all three, because one colour fits four positions and
    * only all of a piece's colours say which piece it is. The fixed centres always keep their colour.
-   * Everything else is dimmed. Slots are read in the setup state, and the mask follows those stickers
+   * Everything else is blacked out (solid grey, never a dimmed colour). Slots are read in the setup state, and the mask follows those stickers
    * while the alg plays. In the net the named stickers also carry a ring, so which one is being asked
    * about doesn't rest on colour alone; the 3D player has no ring, so a prompt that asks about one
    * sticker of a lit piece should say which face it is on.
@@ -36,12 +36,6 @@ export interface CubeProps {
   readonly highlight?: readonly string[];
   /** Guided recognition: the fixed centres and the highlighted pieces are shown; other pieces have no colour hints. */
   readonly revealOnly?: boolean;
-  /**
-   * How the rest of the cube is shown when `highlight` is set. `strong` (the default) greys it out;
-   * `soft` keeps its colours at cubing.js's dim level, which measures about 73% brightness: too subtle
-   * to direct attention on its own.
-   */
-  readonly dim?: "strong" | "soft";
   /**
    * Moves the reader is making, one at a time (an exercise, a practice cube). The 3D player animates each new move as it is
    * added and never rebuilds; a shorter list (undo, reset) jumps to the new state. The net and text views show the state after
@@ -99,7 +93,7 @@ function prefersReducedMotion(): boolean {
  * engine, sticker colours from the palette tokens, and a text description for screen readers. If the
  * 3D player can't load, the same state is shown as a flat net.
  */
-export function Cube({ puzzleId = "3x3x3", setup = "", alg: algProp = "", liveMoves, highlight, revealOnly = false, dim = "strong", controls = false, autoplay = false, eager = false, force3D = false, label, tempo = 1, className }: CubeProps) {
+export function Cube({ puzzleId = "3x3x3", setup = "", alg: algProp = "", liveMoves, highlight, revealOnly = false, controls = false, autoplay = false, eager = false, force3D = false, label, tempo = 1, className }: CubeProps) {
   const puzzle = usePuzzle(puzzleId);
   const profile = useCubeProfile();
   const shown = useMemo(() => profileColours(profile), [profile]);
@@ -144,8 +138,8 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg: algProp = "", liveMo
   // With no highlight, every facelet is regular: setting this mask clears an earlier highlight on a live player.
   const mask = useMemo(() => {
     if (puzzle === undefined || setupPattern === undefined) return undefined;
-    return playerMask(puzzle, setupPattern, new Set(highlightKey === "" ? [] : highlightKey.split(",")), dim);
-  }, [puzzle, setupPattern, highlightKey, dim]);
+    return playerMask(puzzle, setupPattern, new Set(highlightKey === "" ? [] : highlightKey.split(",")));
+  }, [puzzle, setupPattern, highlightKey]);
   const maskRef = useRef(mask);
   useEffect(() => {
     maskRef.current = mask;
@@ -256,9 +250,9 @@ export function Cube({ puzzleId = "3x3x3", setup = "", alg: algProp = "", liveMo
     <figure className={`flex flex-col gap-2 ${className ?? ""}`} data-guide="cube">
       <div ref={stage} className="cube-stage" aria-hidden={!showNet}>
         {showNet ? (
-          <StickerNet cells={netCells(puzzle, replayPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} hideUnrevealed={revealOnly} label={label} className="h-full w-full p-3" />
+          <StickerNet cells={netCells(puzzle, replayPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} label={label} className="h-full w-full p-3" />
         ) : (
-          <><div ref={host} className="h-full w-full" />{ready && loadedKey !== playerKey ? <div className="absolute inset-0 pointer-events-none"><StickerNet cells={netCells(puzzle, setupPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} hideUnrevealed={revealOnly} label={label} className="h-full w-full p-3" /></div> : null}</>
+          <><div ref={host} className="h-full w-full" />{ready && loadedKey !== playerKey ? <div className="absolute inset-0 pointer-events-none"><StickerNet cells={netCells(puzzle, setupPattern ?? finalPattern)} size={puzzle.size} highlight={netHighlight} label={label} className="h-full w-full p-3" /></div> : null}</>
         )}
         {puzzle === undefined ? <p className="absolute inset-0 grid place-items-center t-meta text-quiet">{en.cube.loading}</p> : null}
       </div>

@@ -94,7 +94,7 @@ export function F2LBoard({ setup, reference, referenceMoves, label, mode = "F2L_
   return (
     <div className="cfop-surface two-up" data-guide="f2l-board" data-shortcuts="off">
       <div className="flex flex-col gap-3">
-        <Cube setup={setup} liveMoves={moves} label={label} dim="soft" {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />
+        <Cube setup={setup} liveMoves={moves} label={label} {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />
         <p className="t-meta text-quiet" role="status" aria-live="polite">
           {solved ? cfop.f2lPractice.liveSolved : cfop.f2lPractice.liveMoves(moves.length)}{remaining === undefined ? "" : ` · ${cfop.f2lPractice.modeNote(remaining)}`}
         </p>
@@ -122,7 +122,7 @@ export function F2LBoard({ setup, reference, referenceMoves, label, mode = "F2L_
         {showSolution ? (
           <div className="flex flex-col gap-2">
             <p className="t-ui">{cfop.exercise.solutionIntro} <code className="t-notation">{reference}</code></p>
-            <Cube setup={setup} alg={reference} controls label={cfop.f2lPractice.solution} dim="soft" {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />
+            <Cube setup={setup} alg={reference} controls label={cfop.f2lPractice.solution} {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />
           </div>
         ) : null}
       </div>

@@ -18,5 +18,5 @@ export function StageCube({ setup, alg = "", mode, label, autoplay = false, cont
     if (puzzle === undefined) return undefined;
     try { return renderPlan(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(setup), mode).highlight; } catch { return undefined; }
   }, [puzzle, setup, mode]);
-  return <Cube setup={setup} alg={alg} label={label} dim="soft" autoplay={autoplay} controls={controls} {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />;
+  return <Cube setup={setup} alg={alg} label={label} autoplay={autoplay} controls={controls} {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />;
 }

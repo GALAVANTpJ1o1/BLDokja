@@ -18,5 +18,5 @@ export function CardCube({ setup, alg, mode, label, tempo }: { setup: string; al
     if (puzzle === undefined) return undefined;
     try { return renderPlan(puzzle, puzzle.kpuzzle.defaultPattern().applyAlg(setup), mode).highlight; } catch { return undefined; }
   }, [puzzle, setup, mode]);
-  return <Cube setup={setup} alg={alg} controls tempo={tempo} label={label} dim="soft" {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />;
+  return <Cube setup={setup} alg={alg} controls tempo={tempo} label={label} {...(highlight === undefined || highlight.length === 0 ? {} : { highlight })} />;
 }
